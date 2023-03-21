@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    "allowJs": false,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "jsx": "react-native",
+    "module": "es2015",
+    "moduleResolution": "node",
+    "noImplicitAny": false,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": false,
+    "sourceMap": true,
+    "target": "esnext",
+    "lib": ["esnext", "dom"],
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "baseUrl": ".",
+    "paths": {
+      "@assets/*": ["assets/*"],
+      "@components/*": ["app/components/*"],
+      "@common-ui/*": ["app/common-ui/*"],
+      "@config/*": ["app/config/*"],
+      "@i18n/*": ["app/i18n/*"],
+      "@models/*": ["app/models/*"],
+      "@navigators/*": ["app/navigators/*"],
+      "@screens/*": ["app/screens/*"],
+      "@services/*": ["app/services/*"],
+      "@theme": ["app/theme/*"],
+      "@utils/*": ["app/utils/*"],
+    }
+  },
+  "include": ["index.js", "app", "test"],
+  "extends": "expo/tsconfig.base"
+}

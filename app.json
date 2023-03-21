@@ -1,10 +1,20 @@
 {
+  "name": "Floodzuki",
+  "displayName": "Floodzilla",
   "expo": {
-    "scheme": "acme",
+    "name": "Floodzilla",
+    "slug": "floodzuki",
+    "scheme": "floodzuki",
     "web": {
       "bundler": "metro"
     },
-    "name": "floodzuki",
-    "slug": "floodzuki"
+    "jsEngine": "hermes",
+    "ios": {
+      "bundleIdentifier": "com.floodzukiapp",
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.floodzukiapp"
+    }
   }
 }
