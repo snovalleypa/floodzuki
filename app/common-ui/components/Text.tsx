@@ -1,7 +1,8 @@
 import React from "react"
-import { Text, TextProps, TextStyle } from "react-native"
+import { Text, TextProps, TextStyle, View } from "react-native"
 import { Typography } from "@common-ui/constants/typography"
 import { OffsetProps, useOffsetStyles } from "@common-ui/utils/useOffset"
+import { Ternary } from "./Conditional"
 
 type BaseTextProps = {
   text?: string
@@ -11,8 +12,7 @@ type BaseTextProps = {
   disabled?: boolean
   baseStyle?: TextStyle
   textStyle?: TextStyle[]
-} & TextProps &
-  OffsetProps
+} & TextProps
 
 /**
  * @param BaseTextProps
@@ -25,8 +25,6 @@ export function BaseText(props: BaseTextProps) {
   const { color, align, muted, disabled, baseStyle, textStyle, text, ...rest } = props
 
   let styles: TextStyle[] = []
-
-  styles = useOffsetStyles(styles, rest)
 
   if (baseStyle) {
     styles.push(baseStyle)
@@ -53,7 +51,12 @@ export function BaseText(props: BaseTextProps) {
     styles = [...styles, ...textStyle]
   }
 
-  return text ? <Text style={styles} {...rest}>{text}</Text> : <Text style={styles} {...rest} />
+  return (
+    <Ternary condition={!!text}>
+      <Text style={styles} {...rest}>{text}</Text>
+      <Text style={styles} {...rest} />
+    </Ternary>
+  )
 }
 
 /**

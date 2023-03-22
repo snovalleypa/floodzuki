@@ -4,6 +4,7 @@ import { api } from "@services/api"
 
 import { dataFetchingProps, withDataFetchingActions } from "./helpers/withDataFetchingProps"
 import { withSetPropAction } from "./helpers/withSetPropsAction"
+import localDayJs from "@services/localDayJs"
 
 // "Region" Example data
 // "id": 1,
@@ -25,6 +26,13 @@ const RegionModel = types
     baseUrl: types.maybe(types.string),
     defaultForecastGageList: types.array(types.string),
   })
+  .actions(store => ({
+    afterCreate() {
+      // Setting the defaul timezone for the app
+      localDayJs.tz.setDefault(store.timezone)
+    }
+  }))
+
 
 export const RegionModelStore = types
   .model("RegionStore")
@@ -39,8 +47,6 @@ export const RegionModelStore = types
       store.setIsFetching(true)
       
       const response = yield api.getRegion<Region>()
-
-      __DEV__ && console.log("response", response)
 
       if (response.kind === "ok") {
         // Looks like output provides "data" as a string so we'll parse it here

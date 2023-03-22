@@ -1,16 +1,20 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Platform, View } from "react-native";
-import { Tabs, usePathname, Slot, Link, SplashScreen } from "expo-router";
-import { useFonts } from "expo-font";
-import { SafeAreaProvider, useSafeAreaInsets } from "react-native-safe-area-context";
+import { usePathname, Slot, Link } from "expo-router";
 
 import { If } from "@common-ui/components/Conditional";
-import { customFontsToLoad } from "@common-ui/constants/typography";
 import { Colors } from "@common-ui/constants/colors";
 import { Spacing } from "@common-ui/constants/spacing";
 import { ROUTES } from "app/_layout";
+import { useStores } from "@models/helpers/useStores";
 
 export default function AppLayout() {
+  const store = useStores()
+
+  useEffect(() => {
+    store.fetchMainData()
+  }, [])
+
   return (
     <>
       <If condition={Platform.OS === "web"}>
@@ -27,7 +31,7 @@ export default function AppLayout() {
 function HeaderLink({ href, children }) {
   const pathname = usePathname();
 
-  const isActive = pathname === href;
+  const isActive = href === "/" ? pathname === href : pathname.includes(href);
   const $style = isActive ? { color: Colors.primary } : {}
 
   return <Link href={href} style={$style}>{children}</Link>;

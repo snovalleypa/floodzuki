@@ -6,6 +6,9 @@ import dayjs from "dayjs"
 import { GageReadingModel } from "./GageReading"
 import { dataFetchingProps, withDataFetchingActions } from "./helpers/withDataFetchingProps"
 import Config from "@config/config"
+import { LocationInfoModel } from "./LocationInfo"
+import { GageSummary } from "./RootStore"
+import localDayJs from "@services/localDayJs"
 
 // "Forecast" Example data
 // dischargeStageOne: 16500
@@ -67,6 +70,14 @@ import Config from "@config/config"
 //   }
 // ]
 
+const DataPointModel = types
+  .model("DataPoint")
+  .props({
+    reading: types.maybe(types.number),
+    waterDischarge: types.maybe(types.number),
+    timestamp: types.maybe(types.string),
+  })
+
 const ForecastPredictionModel = types
   .model("ForecastPrediction")
   .props({
@@ -93,6 +104,15 @@ const NOAAPeakModel = types
     stage: types.maybe(types.number),
     discharge: types.maybe(types.number),
   })
+  .views(store => ({
+    get reading() {
+      return store.stage
+    },
+
+    get waterDischarge() {
+      return store.discharge
+    }
+  }))
 
 const NOAAForecastModel = types
   .model("NOAAForecast")
@@ -119,6 +139,7 @@ const NOAAForecastModel = types
 const ForecastModel = types
   .model("Forecast")
   .props({
+    id: types.string,
     dischargeStageOne: types.number,
     dischargeStageTwo: types.number,
     lastReadingId: types.number,
@@ -128,7 +149,58 @@ const ForecastModel = types
     predictedFeetPerHour: types.number,
     predictions: types.array(ForecastPredictionModel),
     readings: types.array(GageReadingModel),
+    locationInfo: types.maybe(types.reference(types.late(() => LocationInfoModel))),
   })
+  .views(store => ({
+    get dataPoints() {
+      return store.readings?.map(reading => {
+        return {
+          reading: reading.waterHeight,
+          waterDischarge: reading.waterDischarge,
+          timestamp: reading.timestamp,
+        } as DataPoint
+      })
+    },
+
+    get forecastDataPoints() {
+      return store.noaaForecast?.data?.map(forecast => {
+        return {
+          reading: forecast.stage,
+          waterDischarge: forecast.discharge,
+          timestamp: forecast.timestamp,
+        } as DataPoint
+      })
+    },
+  }))
+  .views(store => {
+    const getForecastGage = () => {
+      return {
+        id: store.id,
+        nwrfcId: store?.noaaForecast?.noaaSiteId,
+        title: store?.locationInfo?.shortName,
+        warningDischarge: store.dischargeStageOne,
+        floodDischarge: store.dischargeStageTwo,
+        isMetagage: false,
+      } as GageSummary
+    }
+
+    return {
+      get latestReading() {
+        return store?.dataPoints[0]
+      },
+
+      get last100Readings() {
+        return store?.dataPoints.slice(0, 100)
+      },
+
+      get last100ForecastReadings() {
+        return store?.forecastDataPoints.slice(0, 100)
+      },
+
+      getForecastGage,
+    }
+  })
+
 
 export const ForecastStoreModel = types
   .model("ForecastStore")
@@ -147,16 +219,26 @@ export const ForecastStoreModel = types
         Config.FRONT_PAGE_CHART_DURATION_UNIT
       ).toDate().toUTCString()
 
-      const response = yield api.getForecastsUTC<{[gageId: string]: Forecast[]}>(
+      const response = yield api.getForecastsUTC<{[gageId: string]: Forecast}>(
         Config.FORECAST_GAGE_IDS.join(','),
         fromDateTime,
         toDateTime,
       )
 
-      __DEV__ && console.log("response", response)
-
       if (response.kind === 'ok') {
-        store.forecasts = response.data
+        // Augment data with id
+        Object.keys(response.data).forEach(gageId => {
+          const value = response.data[gageId]
+          
+          const extendedValue = {
+            id: gageId,
+            locationInfo: gageId,
+            ...value,
+          }
+          
+          store.forecasts.set(gageId, extendedValue)
+        })
+
       } else {
         store.setError(response.kind)
       }
@@ -168,11 +250,17 @@ export const ForecastStoreModel = types
       fetchData
     }
   })
+  .views(store => ({
+    getForecast(gageId: string) {
+      return store.forecasts.get(gageId)
+    }
+  }))
 
 
 export interface ForecastStore extends Instance<typeof ForecastStoreModel> {}
 export interface ForecastStoreSnapshot extends SnapshotOut<typeof ForecastStoreModel> {}
 
 export interface Forecast extends Instance<typeof ForecastModel> {}
+export interface DataPoint extends Instance<typeof DataPointModel> {}
 export interface ForecastSnapshotOut extends SnapshotOut<typeof ForecastModel> {}
 export interface ForecastSnapshotIn extends SnapshotIn<typeof ForecastModel> {}

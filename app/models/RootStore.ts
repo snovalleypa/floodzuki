@@ -18,6 +18,58 @@ export const RootStoreModel = types.model("RootStore")
     locationInfoStore: types.optional(LocationInfoModelStore, {}),
     forecastsStore: types.optional(ForecastStoreModel, {}),
   })
+  .actions(store => {
+    const fetchMainData = () => {
+      store.regionStore.fetchData()
+      store.locationInfoStore.fetchData()
+      store.metagageStore.fetchData()
+      store.gagesStore.fetchData()
+      store.forecastsStore.fetchData()
+    }
+
+    return {
+      fetchMainData,
+    }
+  })
+  .views(store => {
+    const getForecastGage = (gageId: string) => {
+      const metaGage = store.metagageStore.metagages.find(gage => gage.id === gageId)
+      
+      if (metaGage) {
+        return metaGage.getForecastGage()
+      }
+
+      const gage = store.forecastsStore.forecasts.get(gageId)
+
+      if (gage) {
+        return gage.getForecastGage()
+      }
+
+      return null
+    }
+
+    const getForecastGages = (gageIds: string[]) => {
+      return gageIds.map(id => getForecastGage(id)).filter(gage => gage !== null)
+    }
+
+    return {
+      getForecastGage,
+      getForecastGages,
+    }
+  })
+
+/**
+ * Common interfaces used across stores and app
+ */
+
+export interface GageSummary {
+  id: string,
+  nwrfcId: string,
+  title: string,
+  warningDischarge: number,
+  floodDischarge: number,
+  isMetagage: boolean,
+}
 
 /**
  * The RootStore instance.

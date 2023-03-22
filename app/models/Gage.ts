@@ -57,7 +57,7 @@ const GageStatusModel = types
     waterTrend: types.maybe(WaterTrendModel),
   })
 
-const GageModel = types
+export const GageModel = types
   .model("Gage")
   .props({
     id: types.maybe(types.string),
@@ -100,8 +100,6 @@ export const GageStoreModel = types
         fromDateTime,
         toDateTime,
       )
-
-      __DEV__ && console.log("response", response)
 
       if (response.kind === 'ok') {
         store.gages = response.data.gages

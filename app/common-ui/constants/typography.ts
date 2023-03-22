@@ -148,7 +148,7 @@ export const Typography: TypographyType = {
     fontFamily: Fonts.openSans.bold,
     fontWeight: "700",
     fontSize: 12,
-    lineHeight: 14,
+    lineHeight: 16,
     color: Colors.darkGrey,
   },
 

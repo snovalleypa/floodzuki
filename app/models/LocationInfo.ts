@@ -44,10 +44,10 @@ const FloodEventModel = types
     toDate: types.string,
   })
 
-const LocationInfoModel = types
+export const LocationInfoModel = types
   .model("LocationInfo")
   .props({
-    id: types.string,
+    id: types.identifier,
     deviceTypeName: types.string,
     dischargeMax: types.maybe(types.number),
     dischargeMin: types.maybe(types.number),
@@ -69,6 +69,7 @@ const LocationInfoModel = types
     yMin: types.number,
     yellowStage: types.maybe(types.number),
   })
+  
 
 export const LocationInfoModelStore = types
   .model("LocationInfoStore")
@@ -83,8 +84,6 @@ export const LocationInfoModelStore = types
       store.setIsFetching(true)
       
       const response = yield api.getLocationInfo<LocationInfo[]>()
-
-      __DEV__ && console.log("response", response)
 
       if (response.kind === 'ok') {
         store.locationInfos = response.data

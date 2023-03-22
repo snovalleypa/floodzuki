@@ -80,7 +80,7 @@ const $card: ViewStyle = {
   borderRadius: Spacing.extraSmall,
   borderWidth: 2,
   borderColor: Colors.lightGrey,
-  padding: 16,
+  padding: Spacing.small,
   shadowColor: Colors.midGrey,
   shadowOpacity: 0.2,
   shadowRadius: 1,
