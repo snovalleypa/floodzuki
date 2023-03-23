@@ -5,16 +5,53 @@
     "name": "Floodzilla",
     "slug": "floodzuki",
     "scheme": "floodzuki",
-    "web": {
-      "bundler": "metro"
-    },
     "jsEngine": "hermes",
+    "web": {
+      "bundler": "metro",
+      "icon": "./assets/favicon.png",
+      "favicon": "./assets/favicon_round.ico",
+      "title": "Floodzilla Gage Network - SVPA",
+      "description": "A network of river gages on the Snoqualmie River deployed and managed by The Snoqualmie Valley Preservation Alliance",
+      "splash": {
+        "image": "./assets/splash-screen/logo.png",
+        "resizeMode": "contain",
+        "backgroundColor": "#ffffff"
+      }
+    },
     "ios": {
       "bundleIdentifier": "com.floodzukiapp",
-      "supportsTablet": true
+      "supportsTablet": true,
+      "associatedDomains": ["applinks:floodzilla.com"],
+      "icon": "./assets/app-icon/ios-universal.png",
+      "splash": {
+        "image": "./assets/app-icon/android-adaptive-foreground.png",
+        "tabletImage": "./assets/app-icon/android-adaptive-foreground.png",
+        "resizeMode": "contain",
+        "backgroundColor": "#ffffff"
+      }
     },
     "android": {
-      "package": "com.floodzukiapp"
+      "package": "com.floodzukiapp",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "data": {
+            "scheme": "https",
+            "host": "floodzilla.com"
+          },
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ],
+      "icon": "./assets/app-icon/android-legacy.png",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/app-icon/android-adaptive-foreground.png",
+        "backgroundImage": "./assets/app-icon/android-adaptive-background.png"
+      },
+      "splash": {
+        "image": "./assets/app-icon/ios-universal.png",
+        "resizeMode": "contain",
+        "backgroundColor": "#ffffff"
+      }
     }
   }
 }

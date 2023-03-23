@@ -1,5 +1,5 @@
 import React from "react"
-import { ErrorBoundaryProps, useSearchParams } from "expo-router";
+import { ErrorBoundaryProps, useSearchParams, Stack } from "expo-router";
 
 import { Content, Screen } from "@common-ui/components/Screen"
 import { LargeTitle } from "@common-ui/components/Text"
@@ -29,9 +29,12 @@ export default function ForecastDetailsScreen() {
 
   return (
     <Screen>
-      <LargeTitle>
-        {forecastGage?.title}
-      </LargeTitle>
+      <Stack.Screen options={{ title: `Floodzilla Gage Network - Forecast: ${forecastGage?.title}` }} />
+      <Cell left={Spacing.medium} top={Spacing.large}>
+        <LargeTitle>
+          {forecastGage?.title}
+        </LargeTitle>
+      </Cell>
       <Content scrollable>
         <ForecastChart />
         <Cell top={Spacing.mediumXL}>

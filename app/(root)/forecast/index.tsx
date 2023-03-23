@@ -1,5 +1,5 @@
 import React, { useEffect } from "react"
-import { ErrorBoundaryProps } from "expo-router";
+import { ErrorBoundaryProps, Stack } from "expo-router";
 import { InteractionManager, Platform } from "react-native";
 
 import { Content, Screen } from "@common-ui/components/Screen"
@@ -21,28 +21,20 @@ export function ErrorBoundary(props: ErrorBoundaryProps) {
 export default function ForecastScreen() {
   const store = useStores()
 
-  const [isLoaded, setIsLoaded] = React.useState(false)
-
-  useEffect(() => {
-    InteractionManager.runAfterInteractions(() => {
-      setIsLoaded(true)
-    })
-  }, [])
-
   const gageIds = Config.FORECAST_GAGE_IDS
   const forecastGages = store.getForecastGages(gageIds)
 
   const Wrapper = Platform.OS === "web" ? Row : Cell
 
-  if (!isLoaded) {
-    return null
-  }
-
   return (
     <Screen>
-      <LargeTitle>
-        Forecast
-      </LargeTitle>
+      {/* This is purely for documentTitle setting */}
+      <Stack.Screen options={{ title: "Floodzilla Gage Network - Forecast" }} />
+      <Cell left={Spacing.medium} top={Spacing.medium}>
+        <LargeTitle>
+          Forecast
+        </LargeTitle>
+      </Cell>
       <Content scrollable>
         <ForecastChart />
         <Wrapper justify="flex-start" top={Spacing.mediumXL}>

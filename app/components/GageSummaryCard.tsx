@@ -84,7 +84,7 @@ export const GageSummaryCard = observer(
     // So we're trying to delay that a bit to improve UX
     useTimeout(() => {
       setShowMaxReading(true)
-    }, Timing.one)
+    }, Timing.instant)
 
     const forecast = forecastsStore.getForecast(gage.id)
     
