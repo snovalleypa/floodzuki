@@ -18,6 +18,8 @@ import { Colors } from "@common-ui/constants/colors";
 import { Link } from "expo-router";
 import { ROUTES } from "app/_layout";
 import Icon from "@common-ui/components/Icon";
+import { useTimeout } from "@utils/useTimeout";
+import { Timing } from "@common-ui/constants/timing";
 
 interface GageSummaryProps {
   gage: GageSummary
@@ -59,41 +61,12 @@ const MaxReading = observer(
   function MaxReading(props: { forecast: Forecast }) {
     const { forecast } = props
 
-    const [maxReading, setMaxReading] = React.useState<DataPoint>(null)
-
-    useLayoutEffect(() => {
-      const getMaxReading = () => {
-        const dataPoints = forecast?.dataPoints
-
-        if (!dataPoints) return null
-
-        const cutoff = localDayJs.tz(new Date()).subtract(24, 'hours').unix()
-        let maxReading = dataPoints[0]
-        let max = maxReading?.waterDischarge
-
-        for (let i = 1; i < dataPoints.length; i++) {
-          const reading = dataPoints[i]
-          
-          if (localDayJs.tz(reading.timestamp).unix() < cutoff) break
-          
-          if (reading.waterDischarge > max) {
-            maxReading = reading
-            max = reading.waterDischarge
-          }
-        }
-
-        return maxReading
-      }
-
-      setMaxReading(getMaxReading())
-    }, [forecast])
-
     return (
       <Cell top={Spacing.small}>
         <LabelText color={Colors.success}>
           Past 24hr max:
         </LabelText>
-        <ReadingRow reading={maxReading} />
+        <ReadingRow reading={forecast?.maxReading} />
       </Cell>
     )
   }
@@ -104,6 +77,14 @@ export const GageSummaryCard = observer(
     const { gage, noDetails } = props
 
     const { forecastsStore } = useStores()
+
+    const [showMaxReading, setShowMaxReading] = React.useState<boolean>(false)
+
+    // Max reading computation is a bit expensive on mobile
+    // So we're trying to delay that a bit to improve UX
+    useTimeout(() => {
+      setShowMaxReading(true)
+    }, Timing.one)
 
     const forecast = forecastsStore.getForecast(gage.id)
     
@@ -129,7 +110,9 @@ export const GageSummaryCard = observer(
           </LabelText>
           <ReadingRow reading={forecast?.latestReading} delta={forecast.predictedCfsPerHour} />
         </Cell>
-        {/* <MaxReading forecast={forecast} /> */}
+        <If condition={showMaxReading}>
+          <MaxReading forecast={forecast} />
+        </If>
         <Cell top={Spacing.small}>
           <LabelText color={Colors.success}>
             Forecasted crests:

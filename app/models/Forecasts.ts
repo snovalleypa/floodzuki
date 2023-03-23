@@ -189,6 +189,29 @@ const ForecastModel = types
         return store?.dataPoints[0]
       },
 
+      get maxReading() {
+        const dataPoints = store?.dataPoints
+
+        if (!dataPoints) return null
+
+        const cutoff = localDayJs.tz(new Date()).subtract(24, 'hours').unix()
+        let maxReading = dataPoints[0]
+        let max = maxReading?.waterDischarge
+
+        for (let i = 1; i < dataPoints.length; i++) {
+          const reading = dataPoints[i]
+          
+          if (localDayJs.tz(reading.timestamp).unix() < cutoff) break
+          
+          if (reading.waterDischarge > max) {
+            maxReading = reading
+            max = reading.waterDischarge
+          }
+        }
+
+        return maxReading
+      },
+
       get last100Readings() {
         return store?.dataPoints.slice(0, 100)
       },
