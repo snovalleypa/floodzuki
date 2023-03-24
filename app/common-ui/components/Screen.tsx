@@ -101,7 +101,9 @@ export const Screen = (props: { children: React.ReactNode, bgColor?: string, edg
 
   return (
     <SafeAreaView edges={safeAreaEdges} style={styles}>
-      {children}
+      <View style={$maxWidthHolder}>
+        {children}
+      </View>
     </SafeAreaView>
   )
 }
@@ -131,4 +133,11 @@ const $noPadding: ViewStyle = {
   paddingBottom: 0,
   paddingLeft: 0,
   paddingRight: 0,
+}
+
+const $maxWidthHolder: ViewStyle = {
+  flex: 1,
+  width: "100%",
+  maxWidth: Spacing.desktopLargeWidth,
+  alignSelf: "center",
 }

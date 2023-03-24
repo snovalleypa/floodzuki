@@ -39,8 +39,9 @@ export default function ForecastDetailsScreen() {
         <ForecastChart />
         <Cell top={Spacing.mediumXL}>
           <GageSummaryCard
-            gage={forecastGage}
+            firstItem
             noDetails
+            gage={forecastGage}
           />
         </Cell>
         <Cell top={Spacing.mediumXL}>

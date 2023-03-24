@@ -1,6 +1,8 @@
 import React, { useEffect } from "react";
-import { Platform, View } from "react-native";
+import { Platform } from "react-native";
 import { usePathname, Slot, Link } from "expo-router";
+
+import '@expo/match-media';
 
 import { If } from "@common-ui/components/Conditional";
 import { Colors } from "@common-ui/constants/colors";
@@ -10,7 +12,7 @@ import { useStores } from "@models/helpers/useStores";
 import { useInterval } from "@utils/useTimeout";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LabelText, SmallTitle } from "@common-ui/components/Text";
-import { Cell, Row } from "@common-ui/components/Common";
+import { Cell, Row, Separator } from "@common-ui/components/Common";
 
 export default function AppLayout() {
   const store = useStores()
@@ -45,11 +47,11 @@ function HeaderLink({ href, children }) {
 
   return (
     <Link href={href}>
-      <View className="p-2 pl-4 pr-4">
+      <Cell>
         <SmallTitle color={$color}>
           {children}
         </SmallTitle>
-      </View>
+      </Cell>
     </Link>
   );
 }
@@ -62,41 +64,41 @@ function FooterLink({ href, children }) {
 
   return (
     <Link href={href}>
-      <View className="p-2 pl-4 pr-4">
+      <Cell>
         <LabelText color={$color}>
           {children}
         </LabelText>
-      </View>
+      </Cell>
     </Link>
   );
 }
 
 function Header() {
   return (
-    <View className="pt-2 border-b border-solid border-slate-200">
-      <View className="flex-row">
-        <Row flex top={Spacing.medium} bottom={Spacing.medium} align="space-evenly" justify="center">
-          <HeaderLink href={ROUTES.Home}>Home</HeaderLink>
-          <HeaderLink href={ROUTES.Forecast}>Forecast</HeaderLink>
-          <HeaderLink href={ROUTES.Profile}>Profile</HeaderLink>
-        </Row>
-      </View>
-    </View>
+    <Cell>
+      <Row top={Spacing.medium} bottom={Spacing.medium} align="space-evenly" justify="center">
+        <HeaderLink href={ROUTES.Home}>Home</HeaderLink>
+        <HeaderLink href={ROUTES.Forecast}>Forecast</HeaderLink>
+        <HeaderLink href={ROUTES.Profile}>Profile</HeaderLink>
+      </Row>
+      <Separator size={Spacing.micro} />
+    </Cell>
   );
 }
 
 function TabBar() {
   const { bottom } = useSafeAreaInsets()
 
-  const marginBottom = bottom > 0 ? Math.floor(bottom/4) : "2"
+  const $bottomOffset = bottom ? bottom + Spacing.small : Spacing.medium
   
   return (
-    <View className={`pt-2 border-t border-solid border-slate-200`}>
-      <View className={`m-auto flex-row space-evenly mb-${marginBottom}`}>
+    <Cell>
+      <Separator size={Spacing.micro} />
+      <Row top={Spacing.medium} bottom={$bottomOffset} align="space-evenly" justify="center">
         <FooterLink href={ROUTES.Home}>Home</FooterLink>
         <FooterLink href={ROUTES.Forecast}>Forecast</FooterLink>
         <FooterLink href={ROUTES.Profile}>Profile</FooterLink>
-      </View>
-    </View>
+      </Row>
+    </Cell>
   );
 }

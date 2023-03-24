@@ -8,8 +8,7 @@
     "jsEngine": "hermes",
     "web": {
       "bundler": "metro",
-      "icon": "./assets/favicon.png",
-      "favicon": "./assets/favicon_round.ico",
+      "favicon": "./assets/favicon.png",
       "title": "Floodzilla Gage Network - SVPA",
       "description": "A network of river gages on the Snoqualmie River deployed and managed by The Snoqualmie Valley Preservation Alliance",
       "splash": {

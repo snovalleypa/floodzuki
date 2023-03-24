@@ -1,13 +1,12 @@
-import React, { useEffect } from "react"
+import React from "react"
 import { ErrorBoundaryProps, Stack } from "expo-router";
-import { InteractionManager, Platform } from "react-native";
 
 import { Content, Screen } from "@common-ui/components/Screen"
 import { LargeTitle } from "@common-ui/components/Text"
 import { ErrorDetails } from "@components/ErrorDetails";
 import { ForecastChart } from "@components/ForecastChart";
 import { GageSummaryCard } from "@components/GageSummaryCard";
-import { Cell, Row } from "@common-ui/components/Common";
+import { Cell, Row, RowOrCell } from "@common-ui/components/Common";
 import { Spacing } from "@common-ui/constants/spacing";
 
 import { useStores } from "@models/helpers/useStores";
@@ -24,8 +23,6 @@ export default function ForecastScreen() {
   const gageIds = Config.FORECAST_GAGE_IDS
   const forecastGages = store.getForecastGages(gageIds)
 
-  const Wrapper = Platform.OS === "web" ? Row : Cell
-
   return (
     <Screen>
       {/* This is purely for documentTitle setting */}
@@ -37,11 +34,11 @@ export default function ForecastScreen() {
       </Cell>
       <Content scrollable>
         <ForecastChart />
-        <Wrapper justify="flex-start" top={Spacing.mediumXL}>
-          {forecastGages.map(gage => (
-            <GageSummaryCard key={gage.id} gage={gage} />
+        <RowOrCell flex align="flex-start" justify="stretch" top={Spacing.mediumXL}>
+          {forecastGages.map((gage, i) => (
+            <GageSummaryCard firstItem={i === 0} key={gage.id} gage={gage} />
           ))}
-        </Wrapper>
+        </RowOrCell>
       </Content>
     </Screen>
   )

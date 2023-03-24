@@ -16,4 +16,10 @@ export enum Spacing {
   huge = 64,
   extraHuge = 96,
   extraExtraHuge = 128,
+  mobileWidth = 375,
+  tabletWidth = 768,
+  desktopWidth = 1024,
+  desktopMidWidth = 1280,
+  desktopLargeWidth = 1440,
+  desktopExtraLargeWidth = 1920,
 }

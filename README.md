@@ -28,7 +28,7 @@ npm install
 ### Run the app
 
 ```bash
-npm expo:start
+npm start
 ```
 
 This will start the app server. You can scan the QR code with your phone to run the app on your phone.

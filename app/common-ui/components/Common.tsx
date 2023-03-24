@@ -5,18 +5,19 @@ import { Colors } from "@common-ui/constants/colors"
 import { Spacing } from "@common-ui/constants/spacing"
 import { OffsetProps, useOffsetStyles } from "@common-ui/utils/useOffset"
 import { If } from "./Conditional"
+import { useResponsive } from "@common-ui/utils/responsive"
 
 type RowProps = {
   children?: React.ReactNode
   wrap?: boolean
-  flex?: boolean
+  flex?: boolean | number
   align?: "center" | "space-between" | "space-around" | "space-evenly" | "flex-start" | "flex-end"
   justify?: "center" | "flex-start" | "flex-end" | "stretch" | "baseline"
 } & OffsetProps
 
 type CellProps = {
   children?: React.ReactNode
-  flex?: boolean
+  flex?: boolean | number
   align?: "center" | "flex-start" | "flex-end" | "stretch" | "baseline"
   justify?: "center" | "space-between" | "space-around" | "space-evenly" | "flex-start" | "flex-end"
   bgColor?: ColorValue
@@ -36,7 +37,7 @@ type AbsoluteContainerProps = {
  * Row is a flexbox container that lays out its children in a row.
  * @param {React.ReactNode} children - The children to render.
  * @param {boolean} wrap - Whether to wrap the children if they don't fit in a row.
- * @param {boolean} flex - Whether to use flexbox to layout the children.
+ * @param {boolean | number} flex - Whether to use flexbox to layout the children.
  * @param {"center" | "space-between" | "space-around" | "space-evenly" | "flex-start" | "flex-end"} align - How to align the children in the row.
  * @param {"center" | "flex-start" | "flex-end" | "stretch" | "baseline"} justify - How to align vertically the children in the row.
  * @param {OffsetProps} props - The offset props.
@@ -59,7 +60,8 @@ export const Row = ({ children, align, justify, flex, wrap, ...offsetProps }: Ro
   }
 
   if (flex) {
-    styles.push({ flex: 1 })
+    const flexValue = typeof flex === "boolean" ? 1 : flex
+    styles.push({ flex: flexValue })
   }
 
   if (wrap) {
@@ -74,8 +76,8 @@ export const Row = ({ children, align, justify, flex, wrap, ...offsetProps }: Ro
  * @example
  * <Separator />
  */
-const $seprator = { height: 1, width: "100%", backgroundColor: Colors.lightGrey }
-export const Separator = () => <View style={$seprator} />
+const $seprator = { width: "100%", backgroundColor: Colors.lightGrey }
+export const Separator = ({ size }: { size?: number }) => <View style={[$seprator, { height: size || 1 }]} />
 
 /**
  * Spacer is an empty block that can be used to add space between content.
@@ -88,7 +90,7 @@ export const Spacer = ({ height }: { height?: number }) => <View style={{ height
 /**
  * Cell is a flexbox container lays out children in a stack
  * @param {React.ReactNode} children - The children to render.
- * @param {boolean} flex - Whether to use flexbox to layout the children.
+ * @param {boolean | number} flex - Whether to use flexbox to layout the children.
  * @param {"center" | "flex-start" | "flex-end" | "stretch" | "baseline"} align - How to align the children in the column.
  * @param {"center" | "space-between" | "space-around" | "space-evenly" | "flex-start" | "flex-end"} justify - How to align the children in the column.
  * @param {ColorValue} bgColor - The background color of the cell.
@@ -112,7 +114,8 @@ export const Cell = ({ children, align, justify, flex, bgColor, ...offsetProps }
   }
 
   if (flex) {
-    styles.push({ flex: 1 })
+    const flexValue = typeof flex === "boolean" ? 1 : flex
+    styles.push({ flex: flexValue })
   }
 
   if (bgColor) {
@@ -122,6 +125,38 @@ export const Cell = ({ children, align, justify, flex, bgColor, ...offsetProps }
   return <View style={styles}>{children}</View>
 }
 
+/**
+ * RowOrCell is a flexbox container that lays out its children in a row or a column depending on the screen size.
+ * @param {React.ReactNode} children - The children to render.
+ * @param {boolean} wrap - Whether to wrap the children if they don't fit in a row.
+ * @param {boolean | number} flex - Whether to use flexbox to layout the children.
+ * @param {"center" | "space-between" | "space-around" | "space-evenly" | "flex-start" | "flex-end"} align - How to align the children in the row.
+ * @param {"center" | "flex-start" | "flex-end" | "stretch" | "baseline"} justify - How to align vertically the children in the row.
+ * @param {OffsetProps} props - The offset props.
+ * @example
+ * <RowOrCell align="space-between">
+ *  <Text>Text</Text>
+ * </RowOrCell>
+ */
+export const RowOrCell = (props: RowProps) => {
+  const { isWideScreen } = useResponsive()
+
+  const { children, align, justify, ...rest } = props
+
+  if (isWideScreen) {
+    return (
+      <Row align={align} justify={justify} {...rest}>
+        {children}
+      </Row>
+    )
+  }
+
+  return (
+    <Cell {...rest}>
+      {children}
+    </Cell>
+  )
+}
 
 /**
  * BottomContainer is a flexbox container that sticks content to the bottom.

@@ -3,7 +3,7 @@ import { observer } from "mobx-react-lite";
 import localDayJs from "@services/localDayJs";
 
 import { Card } from "@common-ui/components/Card";
-import { Cell, Row } from "@common-ui/components/Common";
+import { Cell, Row, RowOrCell } from "@common-ui/components/Common";
 import { If } from "@common-ui/components/Conditional";
 import { LabelText, SmallerText, SmallText, SmallTitle } from "@common-ui/components/Text";
 
@@ -20,9 +20,11 @@ import { ROUTES } from "app/_layout";
 import Icon from "@common-ui/components/Icon";
 import { useTimeout } from "@utils/useTimeout";
 import { Timing } from "@common-ui/constants/timing";
+import { useResponsive } from "@common-ui/utils/responsive";
 
 interface GageSummaryProps {
   gage: GageSummary
+  firstItem?: boolean
   noDetails?: boolean
 }
 
@@ -34,12 +36,12 @@ function ReadingRow(props: { reading: DataPoint, delta?: number }) {
   }
 
   return (
-    <Row align="space-between" innerHorizontal={Spacing.tiny} top={Spacing.tiny}>
-      <Cell flex>
+    <Row flex align="space-between" innerHorizontal={Spacing.tiny} top={Spacing.tiny}>
+      <Cell flex={2}>
         <SmallerText>{formatDateTime(reading.timestamp)}</SmallerText>
       </Cell>
       <If condition={!!reading?.reading}>
-        <Cell flex>
+        <Cell flex align="center">
           <SmallerText align="center">{formatHeight(reading.reading)}</SmallerText>
         </Cell>
       </If>
@@ -74,9 +76,10 @@ const MaxReading = observer(
 
 export const GageSummaryCard = observer(
   function GageSummaryCard(props: GageSummaryProps) {
-    const { gage, noDetails } = props
+    const { gage, firstItem, noDetails } = props
 
     const { forecastsStore } = useStores()
+    const { isWideScreen } = useResponsive()
 
     const [showMaxReading, setShowMaxReading] = React.useState<boolean>(false)
 
@@ -91,8 +94,11 @@ export const GageSummaryCard = observer(
     const gageTitle = gage.title
     const peaks = forecast?.noaaForecast?.peaks
 
+    const $offsetLeft = (!firstItem && isWideScreen) ? Spacing.medium : 0
+    const $offsetTop = (!isWideScreen && firstItem) ? 0 : Spacing.medium
+
     return (
-      <Card flex>
+      <Card flex left={$offsetLeft} top={$offsetTop}>
         <Row align="space-between">
           <SmallTitle color={Colors.primary}>{gageTitle}</SmallTitle>
           <If condition={!noDetails}>
@@ -131,17 +137,18 @@ export const ExtendedGageSummaryCard = observer(
   function ExtendedGageSummaryCard(props: GageSummaryProps) {
     const { gage } = props
 
+    const { isMobile } = useResponsive()
     const { forecastsStore } = useStores()
 
     const forecast = forecastsStore.getForecast(gage.id)
     
     return (
-      <Card flex>
+      <Card>
         <Row align="space-between">
           <SmallTitle color={Colors.primary}>Details</SmallTitle>
         </Row>
-        <Row top={Spacing.small} align="space-between" justify="flex-start">
-          <Cell flex>
+        <RowOrCell flex justify="flex-start" align="space-between">
+          <Cell flex top={Spacing.small}>
             <LabelText color={Colors.success}>
               Last 100 Readings:
             </LabelText>
@@ -149,7 +156,7 @@ export const ExtendedGageSummaryCard = observer(
               <ReadingRow key={reading.timestamp} reading={reading} />
             ))}
           </Cell>
-          <Cell flex>
+          <Cell flex={isMobile ? 0 : 1} top={Spacing.small}>
             <LabelText color={Colors.success}>
               Currently Forecasted:
             </LabelText>
@@ -157,7 +164,7 @@ export const ExtendedGageSummaryCard = observer(
               <ReadingRow key={reading.timestamp} reading={reading} />
             ))}
           </Cell>
-        </Row>
+        </RowOrCell>
       </Card>
     )
   }

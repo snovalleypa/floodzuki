@@ -54,7 +54,8 @@ export const Colors = {
   
   darkGrey: Palette.black700, // dark grey
   midGrey: Palette.black300, // mid grey
-  lightGrey: Palette.black100, // light grey
+  lightGrey: Palette.black200, // light grey
+  lightestGrey: Palette.black100, // lightest grey
 
   separator: Palette.black300, // separator color
   text: Palette.black, // text color
