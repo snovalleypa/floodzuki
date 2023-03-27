@@ -1,13 +1,13 @@
 import React, { useEffect } from "react";
 import { Platform } from "react-native";
-import { usePathname, Slot, Link } from "expo-router";
+import { usePathname, Slot, Link, Tabs } from "expo-router";
 
 import '@expo/match-media';
 
 import { If } from "@common-ui/components/Conditional";
 import { Colors } from "@common-ui/constants/colors";
 import { Spacing } from "@common-ui/constants/spacing";
-import { ROUTES } from "app/_layout";
+import { routes, ROUTES } from "app/_layout";
 import { useStores } from "@models/helpers/useStores";
 import { useInterval } from "@utils/useTimeout";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -77,9 +77,9 @@ function Header() {
   return (
     <Cell>
       <Row top={Spacing.medium} bottom={Spacing.medium} align="space-evenly" justify="center">
-        <HeaderLink href={ROUTES.Home}>Home</HeaderLink>
-        <HeaderLink href={ROUTES.Forecast}>Forecast</HeaderLink>
-        <HeaderLink href={ROUTES.Profile}>Profile</HeaderLink>
+        {Object.keys(routes).map(route => (
+          <HeaderLink key={route} href={route}>{routes[route].title}</HeaderLink>
+        ))}
       </Row>
       <Separator size={Spacing.micro} />
     </Cell>
@@ -95,9 +95,9 @@ function TabBar() {
     <Cell>
       <Separator size={Spacing.micro} />
       <Row top={Spacing.medium} bottom={$bottomOffset} align="space-evenly" justify="center">
-        <FooterLink href={ROUTES.Home}>Home</FooterLink>
-        <FooterLink href={ROUTES.Forecast}>Forecast</FooterLink>
-        <FooterLink href={ROUTES.Profile}>Profile</FooterLink>
+        {Object.keys(routes).map(route => (
+          <FooterLink key={route} href={route}>{routes[route].title}</FooterLink>
+        ))}
       </Row>
     </Cell>
   );

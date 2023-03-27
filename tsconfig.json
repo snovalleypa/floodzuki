@@ -24,7 +24,6 @@
       "@config/*": ["app/config/*"],
       "@i18n/*": ["app/i18n/*"],
       "@models/*": ["app/models/*"],
-      "@navigators/*": ["app/navigators/*"],
       "@screens/*": ["app/screens/*"],
       "@services/*": ["app/services/*"],
       "@theme": ["app/theme/*"],

@@ -1,10 +1,9 @@
-import React, { useEffect, useLayoutEffect } from "react";
+import React from "react";
 import { observer } from "mobx-react-lite";
-import localDayJs from "@services/localDayJs";
 
 import { Card } from "@common-ui/components/Card";
 import { Cell, Row, RowOrCell } from "@common-ui/components/Common";
-import { If } from "@common-ui/components/Conditional";
+import { If, Ternary } from "@common-ui/components/Conditional";
 import { LabelText, SmallerText, SmallText, SmallTitle } from "@common-ui/components/Text";
 
 import { DataPoint, Forecast } from "@models/Forecasts";
@@ -21,6 +20,7 @@ import Icon from "@common-ui/components/Icon";
 import { useTimeout } from "@utils/useTimeout";
 import { Timing } from "@common-ui/constants/timing";
 import { useResponsive } from "@common-ui/utils/responsive";
+import { t } from "@i18n/translate";
 
 interface GageSummaryProps {
   gage: GageSummary
@@ -28,7 +28,7 @@ interface GageSummaryProps {
   noDetails?: boolean
 }
 
-function ReadingRow(props: { reading: DataPoint, delta?: number }) {
+function ReadingRow(props: { reading?: DataPoint, delta?: number }) {
   const { reading, delta } = props
 
   if (!reading) {
@@ -66,7 +66,7 @@ const MaxReading = observer(
     return (
       <Cell top={Spacing.small}>
         <LabelText color={Colors.success}>
-          Past 24hr max:
+          {t("forecastScreen.pastMax")}:
         </LabelText>
         <ReadingRow reading={forecast?.maxReading} />
       </Cell>
@@ -104,7 +104,7 @@ export const GageSummaryCard = observer(
           <If condition={!noDetails}>
             <Link href={`${ROUTES.Forecast}/${gage.id}`}>
               <Row justify="center">
-                <LabelText color={Colors.blue}>Details</LabelText>
+                <LabelText color={Colors.blue}>{t("forecastScreen.details")}</LabelText>
                 <Icon name="chevron-right" color={Colors.blue} size={Spacing.medium} />
               </Row>
             </Link>
@@ -112,17 +112,24 @@ export const GageSummaryCard = observer(
         </Row>
         <Cell top={Spacing.small}>
           <LabelText color={Colors.success}>
-            Latest Reading:
+            {t("forecastScreen.latestReading")}:
           </LabelText>
           <ReadingRow reading={forecast?.latestReading} delta={forecast.predictedCfsPerHour} />
         </Cell>
-        <If condition={showMaxReading}>
+        {/* This is done for performance reason. Defer reading the expensive computation */}
+        <Ternary condition={showMaxReading}>
           <MaxReading forecast={forecast} />
-        </If>
+          <Cell top={Spacing.small}>
+            <LabelText color={Colors.success}>
+              {t("forecastScreen.pastMax")}:
+            </LabelText>
+            <Cell height={18} />
+          </Cell>
+        </Ternary>
         <Cell top={Spacing.small}>
           <LabelText color={Colors.success}>
-            Forecasted crests:
-            <SmallText muted> (published {formatDateTime(forecast?.noaaForecast?.created)})</SmallText>
+            {t("forecastScreen.forecastedCrests")}:
+            <SmallText muted> ({t("forecastScreen.published")} {formatDateTime(forecast?.noaaForecast?.created)})</SmallText>
           </LabelText>
           {peaks?.map(peak => (
             <ReadingRow key={peak.timestamp} reading={peak} />
@@ -150,7 +157,7 @@ export const ExtendedGageSummaryCard = observer(
         <RowOrCell flex justify="flex-start" align="space-between">
           <Cell flex top={Spacing.small}>
             <LabelText color={Colors.success}>
-              Last 100 Readings:
+              {t("forecastScreen.lastReadings")}:
             </LabelText>
             {forecast?.last100Readings?.map(reading => (
               <ReadingRow key={reading.timestamp} reading={reading} />
@@ -158,7 +165,7 @@ export const ExtendedGageSummaryCard = observer(
           </Cell>
           <Cell flex={isMobile ? 0 : 1} top={Spacing.small}>
             <LabelText color={Colors.success}>
-              Currently Forecasted:
+              {t("forecastScreen.currentlyForecasted")}:
             </LabelText>
             {forecast?.last100ForecastReadings?.map(reading => (
               <ReadingRow key={reading.timestamp} reading={reading} />

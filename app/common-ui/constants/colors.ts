@@ -5,6 +5,7 @@
 export enum Palette {
   transparent = "transparent",
   white = "#fff",
+  whiteish = "#fffffe",
 
   black = "#18191F",
   black800 = "#474A57",
@@ -26,7 +27,7 @@ export enum Palette {
   orange800 = "#ff9832",
   orange100 = "#fff2e5",
 
-  green = "#00C6AE",
+  green = "#2cb67d",
   green800 = "#61E4C5",
   green100 = "#D6FCF7",
 
@@ -60,7 +61,7 @@ export const Colors = {
   separator: Palette.black300, // separator color
   text: Palette.black, // text color
   tint: Palette.black300, // tint color
-  background: Palette.white,
+  background: Palette.whiteish,
   grayBackground: Palette.black100, // background color
 
   tagBackground: Palette.red800, // tag background color

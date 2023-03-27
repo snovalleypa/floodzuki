@@ -11,6 +11,7 @@ import { Spacing } from "@common-ui/constants/spacing";
 
 import { useStores } from "@models/helpers/useStores";
 import Config from "@config/config";
+import { t } from "@i18n/translate";
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -26,10 +27,10 @@ export default function ForecastScreen() {
   return (
     <Screen>
       {/* This is purely for documentTitle setting */}
-      <Stack.Screen options={{ title: "Floodzilla Gage Network - Forecast" }} />
+      <Stack.Screen options={{ title: `${t("common.title")} - ${t("forecastScreen.title")}` }} />
       <Cell left={Spacing.medium} top={Spacing.medium}>
         <LargeTitle>
-          Forecast
+          {t("forecastScreen.title")}
         </LargeTitle>
       </Cell>
       <Content scrollable>

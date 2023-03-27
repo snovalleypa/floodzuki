@@ -6,6 +6,9 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { customFontsToLoad } from "@common-ui/constants/typography";
 import { useInitialRootStore } from "@models/helpers/useStores";
 
+import "@i18n/i18n";
+import { t } from "@i18n/translate";
+
 /**
  * Root layout for Expo router (entry file for the app)
  * 
@@ -16,6 +19,24 @@ export enum ROUTES {
   Home = "/",
   Forecast = "/forecast",
   Profile = "/profile",
+}
+
+export const routes = {
+  [ROUTES.Home]: {
+    path: ROUTES.Home,
+    icon: "home",
+    title: t("navigation.homeScreen")
+  },
+  [ROUTES.Forecast]: {
+    path: ROUTES.Forecast,
+    icon: "bar-chart-2",
+    title: t("navigation.forecastScreen")
+  },
+  [ROUTES.Profile]: {
+    path: ROUTES.Profile,
+    icon: "sliders",
+    title: t("navigation.profileScreen")
+  },
 }
 
 export default function AppLayout() {

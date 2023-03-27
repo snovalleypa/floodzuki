@@ -1,15 +1,20 @@
 import React from "react"
-import { ErrorBoundaryProps, useSearchParams, Stack } from "expo-router";
+import { ErrorBoundaryProps, useSearchParams, Stack, useNavigation } from "expo-router";
 
 import { Content, Screen } from "@common-ui/components/Screen"
 import { LargeTitle } from "@common-ui/components/Text"
 import { ErrorDetails } from "@components/ErrorDetails";
 import { ForecastChart } from "@components/ForecastChart";
 import { ExtendedGageSummaryCard, GageSummaryCard } from "@components/GageSummaryCard";
-import { Cell } from "@common-ui/components/Common";
+import { Cell, Row } from "@common-ui/components/Common";
 import { Spacing } from "@common-ui/constants/spacing";
 
 import { useStores } from "@models/helpers/useStores";
+import { t } from "@i18n/translate";
+import { useResponsive } from "@common-ui/utils/responsive";
+import { IconButton, LinkButton } from "@common-ui/components/Button";
+import { Ternary } from "@common-ui/components/Conditional";
+import { Colors } from "@common-ui/constants/colors";
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -18,7 +23,10 @@ export function ErrorBoundary(props: ErrorBoundaryProps) {
 
 export default function ForecastDetailsScreen() {
   const { id } = useSearchParams()
+  const navigation = useNavigation()
   const store = useStores()
+
+  const { isMobile } = useResponsive()
 
   // Pathname id can either be a simple gage like "USGS-38"
   // or a nested gage like "USGS-SF17/USGS-38-0001" which will be
@@ -27,14 +35,31 @@ export default function ForecastDetailsScreen() {
 
   const forecastGage = store.getForecastGage(gageId)
 
+  const goBack = () => {
+    navigation.goBack()
+  }
+
   return (
     <Screen>
-      <Stack.Screen options={{ title: `Floodzilla Gage Network - Forecast: ${forecastGage?.title}` }} />
-      <Cell left={Spacing.medium} top={Spacing.large}>
+      <Stack.Screen options={{ title: `${t("common.title")} - ${t("forecastScreen.title")}: ${forecastGage?.title}` }} />
+      <Row left={Spacing.medium} top={Spacing.medium}>
+        <Ternary condition={isMobile}>
+          <IconButton
+            left={-Spacing.medium}
+            icon="chevron-left"
+            onPress={goBack} />
+          <LinkButton
+            left={-Spacing.medium}
+            title={t("navigation.back")}
+            leftIcon="chevron-left"
+            textColor={Colors.blue}
+            onPress={goBack}
+          />
+        </Ternary>
         <LargeTitle>
           {forecastGage?.title}
         </LargeTitle>
-      </Cell>
+      </Row>
       <Content scrollable>
         <ForecastChart />
         <Cell top={Spacing.mediumXL}>

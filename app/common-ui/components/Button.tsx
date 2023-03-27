@@ -5,10 +5,9 @@ import {
   ViewStyle,
   TextStyle,
   ActivityIndicator,
-  View
+  View,
+  Pressable
 } from "react-native"
-import { RectButton, BorderlessButton } from "react-native-gesture-handler"
-import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated"
 
 import { Feather } from "@expo/vector-icons"
 import { MediumText } from "./Text"
@@ -17,7 +16,6 @@ import { Colors, ColorTypes } from "@common-ui/constants/colors"
 import { Spacing } from "@common-ui/constants/spacing"
 import { If } from "@common-ui/components/Conditional"
 import { OffsetProps, useOffsetStyles } from "@common-ui/utils/useOffset"
-import { Timing } from "@common-ui/constants/timing"
 
 type BaseButtonProps = {
   title?: string
@@ -40,6 +38,7 @@ type BaseButtonProps = {
   borderRadius?: number
   paddingHorizontal?: number
   align?: "left" | "right"
+  selfAlign?: "stretch" | "flex-start" | "flex-end" | "center" | "baseline"
   shadowOffsetRight?: number
   shadowOffsetBottom?: number
   mode?: "rect" | "borderless"
@@ -48,11 +47,6 @@ type BaseButtonProps = {
 
 type ButtonProps = BaseButtonProps & {
   type?: keyof typeof ColorTypes
-}
-
-const TIMING_CONFIG = {
-  duration: Timing.fast,
-  easing: Easing.out(Easing.exp)
 }
 
 function BaseButton(props: BaseButtonProps) {
@@ -77,6 +71,7 @@ function BaseButton(props: BaseButtonProps) {
     large,
     small,
     align,
+    selfAlign,
     shadowOffsetRight,
     shadowOffsetBottom,
     mode,
@@ -135,6 +130,10 @@ function BaseButton(props: BaseButtonProps) {
     buttonStyle.push(align === "left" ? $alignLeft : $alignRight)
   }
 
+  if (selfAlign) {
+    buttonStyle.push({ alignSelf: selfAlign })
+  }
+
   if (borderRadius) {
     buttonStyle.push({ borderRadius })
   }
@@ -144,34 +143,36 @@ function BaseButton(props: BaseButtonProps) {
   }
 
   return (
-    <RectButton
-      enabled={!isButtonDisabled}
+    <Pressable
+      accessible
+      accessibilityRole="button"
+      accessibilityLabel={buttonText}
+      disabled={isButtonDisabled}
       onPress={onPress}
-      underlayColor={Colors.transparent}
+      style={state => [
+        buttonStyle,
+        !isButtonDisabled && state.pressed && $buttonHovered,
+        !isButtonDisabled && state.hovered && $buttonHovered,
+        !isButtonDisabled && state.focused && $buttonHovered,
+        isButtonDisabled && $buttonDisabled,
+      ]}
     >
-      <View
-        style={buttonStyle}
-        accessible
-        accessibilityRole="button"
-        accessibilityLabel={buttonText}
-      >
-        <If condition={!!leftIcon}>
-          <Feather size={leftIconSize} name={leftIcon} color={textColor} style={$leftIcon} />
-        </If>
-        <If condition={!!isLoading}>
-          <ActivityIndicator size="small" color={textColor} style={$activityIndicator} />
-        </If>
-        <If condition={!!title}>
-          <MediumText textStyle={textStyle}>{buttonText}</MediumText>
-        </If>
-        <If condition={!!icon}>
-          <Feather size={iconSize} name={icon} color={textColor} textStyle={$icon} />
-        </If>
-        <If condition={!!rightIcon}>
-          <Feather size={rightIconSize} name={rightIcon} color={textColor} style={$rightIcon} />
-        </If>
-      </View>
-    </RectButton>
+      <If condition={!!leftIcon}>
+        <Feather size={leftIconSize} name={leftIcon} color={textColor} style={$leftIcon} />
+      </If>
+      <If condition={!!isLoading}>
+        <ActivityIndicator size="small" color={textColor} style={$activityIndicator} />
+      </If>
+      <If condition={!!title}>
+        <MediumText textStyle={textStyle}>{buttonText}</MediumText>
+      </If>
+      <If condition={!!icon}>
+        <Feather size={iconSize} name={icon} color={textColor} textStyle={$icon} />
+      </If>
+      <If condition={!!rightIcon}>
+        <Feather size={rightIconSize} name={rightIcon} color={textColor} style={$rightIcon} />
+      </If>
+    </Pressable>
   )
 }
 
@@ -240,7 +241,7 @@ export function SolidButton(props: ButtonProps) {
 export function OutlinedButton(props: ButtonProps) {
   const { disabled, type } = props
 
-  const backgroundColor = disabled && !type ? Colors.lightGrey : Colors.white
+  const backgroundColor = disabled && !type ? Colors.lightestGrey : Colors.lightestGrey
   const borderColor = type ? Colors[type] : Colors.dark
   const textColor = type ? Colors[type] : Colors.dark
 
@@ -285,6 +286,7 @@ export function LinkButton(props: ButtonProps) {
     borderColor="transparent"
     backgroundColor="transparent"
     mode="borderless"
+    height={Spacing.large}
     textColor={textColor}
     {...rest}
   />
@@ -308,11 +310,13 @@ export function LinkButton(props: ButtonProps) {
  * <IconButton icon="plus" onPress={pressHandler} />
  */
 export function IconButton(props: ButtonProps) {
-  const { ...rest } = props
+  const { iconSize, ...rest } = props
+
+  const height = iconSize ? iconSize + Spacing.small : Spacing.larger
 
   return <BaseButton
     iconSize={Spacing.larger}
-    borderRadius={Spacing.button/2}
+    height={height}
     paddingHorizontal={Spacing.tiny}
     shadowOffsetRight={1}
     shadowOffsetBottom={2}
@@ -325,12 +329,13 @@ const $button: ViewStyle = {
   alignItems: "center",
   backgroundColor: Colors.white,
   borderColor: Colors.lightGrey,
-  borderRadius: Spacing.medium,
+  borderRadius: Spacing.extraSmall,
   borderWidth: 0,
   flexDirection: "row",
   height: Spacing.button,
   justifyContent: "center",
   paddingHorizontal: Spacing.medium,
+  alignSelf: "baseline",
 }
 
 const $largeButton: ViewStyle = {
@@ -343,7 +348,7 @@ const $smallButton: ViewStyle = {
 }
 
 const $fullWidth: ViewStyle = {
-  flex: 1,
+  alignSelf: "stretch",
 }
 
 const $buttonText: TextStyle = {
@@ -361,6 +366,10 @@ const $smallButtonText: TextStyle = {
 
 const $buttonDisabled: ViewStyle = {
   opacity: 0.5,
+}
+
+const $buttonHovered: ViewStyle = {
+  opacity: 0.8,
 }
 
 const $icon: TextStyle = {

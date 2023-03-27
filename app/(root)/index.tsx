@@ -3,10 +3,11 @@ import { ErrorBoundaryProps, Stack } from "expo-router"
 import { observer } from "mobx-react-lite"
 
 import { Content, Screen } from "@common-ui/components/Screen"
-import { LargeTitle } from "@common-ui/components/Text"
 import { ErrorDetails } from "@components/ErrorDetails"
-import { Spacing } from "@common-ui/constants/spacing"
+import { t } from "@i18n/translate"
+import { IconButton, LinkButton, OutlinedButton, SolidButton } from "@common-ui/components/Button"
 import { Cell } from "@common-ui/components/Common"
+import { Colors } from "@common-ui/constants/colors"
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -17,12 +18,7 @@ const HomeScreen = observer(
   function HomeScreen() {
     return (
       <Screen>
-        <Stack.Screen options={{ title: "Floodzilla Gage Network - Snoqualmie River / SVPA" }} />
-        <Cell left={Spacing.medium} top={Spacing.large}>
-          <LargeTitle>
-            Active
-          </LargeTitle>
-        </Cell>
+        <Stack.Screen options={{ title: `${t("common.title")} - ${t("homeScreen.title")}` }} />
         <Content>
         </Content>
       </Screen>
