@@ -78,11 +78,11 @@ export function Card({ children, ...props }: CardProps) {
 const $card: ViewStyle = {
   backgroundColor: Colors.white,
   borderRadius: Spacing.extraSmall,
-  borderWidth: 2,
+  borderWidth: 1,
   borderColor: Colors.lightGrey,
   padding: Spacing.small,
   shadowColor: Colors.midGrey,
-  shadowOpacity: 0.2,
+  shadowOpacity: 0.25,
   shadowRadius: 1,
   elevation: 2,
   shadowOffset: {

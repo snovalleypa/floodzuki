@@ -50,7 +50,7 @@ export const RegionModelStore = types
 
       if (response.kind === "ok") {
         // Looks like output provides "data" as a string so we'll parse it here
-        store.region = JSON.parse(response.data)
+        store.region = response.data
       } else {
         store.setError(response.kind)
       }

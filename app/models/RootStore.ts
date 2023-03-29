@@ -52,9 +52,19 @@ export const RootStoreModel = types.model("RootStore")
       return gageIds.map(id => getForecastGage(id)).filter(gage => gage !== null)
     }
 
+    const getForecasts = (gageIds: string[]) => {
+      return gageIds.map(id => store.forecastsStore.getForecast(id)).filter(forecast => !!forecast)
+    }
+
+    const getTimezone = () => {
+      return store.regionStore.region.timezone || 'America/Los_Angeles'
+    }
+
     return {
       getForecastGage,
       getForecastGages,
+      getForecasts,
+      getTimezone
     }
   })
 

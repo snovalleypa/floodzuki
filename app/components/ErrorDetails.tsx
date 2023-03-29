@@ -23,7 +23,7 @@ export function ErrorDetails(props: ErrorBoundaryProps) {
         </Cell>
 
         <Cell align="center">
-          <SolidButton onPress={props.retry} title={t("errorScreen.reset")} />
+          <SolidButton selfAlign="center" onPress={props.retry} title={t("errorScreen.reset")} />
         </Cell>
       </Content>
     </Screen>

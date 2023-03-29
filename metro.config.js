@@ -11,5 +11,6 @@ config.transformer = {
 
 // Ensure CSS is treated as a source file.
 config.resolver.sourceExts.push("css");
+config.resolver.sourceExts.push("html");
 
 module.exports = config;

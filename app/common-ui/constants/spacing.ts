@@ -3,6 +3,7 @@
  * Should be used instead of hard-coded values to provide consistency.
  */
 export enum Spacing {
+  zero = 0,
   micro = 2,
   tiny = 4,
   extraSmall = 8,

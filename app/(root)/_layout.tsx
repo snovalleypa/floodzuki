@@ -11,7 +11,7 @@ import { routes, ROUTES } from "app/_layout";
 import { useStores } from "@models/helpers/useStores";
 import { useInterval } from "@utils/useTimeout";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { LabelText, SmallTitle } from "@common-ui/components/Text";
+import { LabelText, LargeTitle, SmallTitle } from "@common-ui/components/Text";
 import { Cell, Row, Separator } from "@common-ui/components/Common";
 
 export default function AppLayout() {
@@ -47,10 +47,10 @@ function HeaderLink({ href, children }) {
 
   return (
     <Link href={href}>
-      <Cell>
-        <SmallTitle color={$color}>
+      <Cell horizontal={Spacing.large}>
+        <LargeTitle color={$color}>
           {children}
-        </SmallTitle>
+        </LargeTitle>
       </Cell>
     </Link>
   );
@@ -76,9 +76,11 @@ function FooterLink({ href, children }) {
 function Header() {
   return (
     <Cell>
-      <Row top={Spacing.medium} bottom={Spacing.medium} align="space-evenly" justify="center">
+      <Row top={Spacing.medium} bottom={Spacing.medium} align="center" justify="center">
         {Object.keys(routes).map(route => (
-          <HeaderLink key={route} href={route}>{routes[route].title}</HeaderLink>
+          <HeaderLink key={route} href={routes[route].path}>
+            {routes[route].title}
+          </HeaderLink>
         ))}
       </Row>
       <Separator size={Spacing.micro} />
@@ -96,7 +98,9 @@ function TabBar() {
       <Separator size={Spacing.micro} />
       <Row top={Spacing.medium} bottom={$bottomOffset} align="space-evenly" justify="center">
         {Object.keys(routes).map(route => (
-          <FooterLink key={route} href={route}>{routes[route].title}</FooterLink>
+          <FooterLink key={route} href={routes[route].path}>
+            {routes[route].title}
+          </FooterLink>
         ))}
       </Row>
     </Cell>

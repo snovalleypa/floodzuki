@@ -61,7 +61,7 @@ export default function ForecastDetailsScreen() {
         </LargeTitle>
       </Row>
       <Content scrollable>
-        <ForecastChart />
+        <ForecastChart gages={[forecastGage]} />
         <Cell top={Spacing.mediumXL}>
           <GageSummaryCard
             firstItem

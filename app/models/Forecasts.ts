@@ -194,14 +194,14 @@ const ForecastModel = types
 
         if (!dataPoints) return null
 
-        const cutoff = localDayJs.tz(new Date()).subtract(24, 'hours').unix()
+        const cutoff = localDayJs.tz(new Date()).subtract(24, 'hours').valueOf()
         let maxReading = dataPoints[0]
         let max = maxReading?.waterDischarge
 
         for (let i = 1; i < dataPoints.length; i++) {
           const reading = dataPoints[i]
           
-          if (localDayJs.tz(reading.timestamp).unix() < cutoff) break
+          if (localDayJs.tz(reading.timestamp).valueOf() < cutoff) break
           
           if (reading.waterDischarge > max) {
             maxReading = reading

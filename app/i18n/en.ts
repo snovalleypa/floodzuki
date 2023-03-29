@@ -7,6 +7,9 @@ const en = {
     back: "Back",
     title: "Floodzilla Gage Network",
   },
+  measure: {
+    cfs: "cfs",
+  },
   errorScreen: {
     header: "Ooops...",
     title: "Something went wrong!",
@@ -35,6 +38,15 @@ const en = {
   profileScreen: {
     title: "Profile",
   },
+  forecastChart: {
+    observed: "Observed",
+    forecast: "Forecast",
+    floodStage: "Flood Stage",
+    discharge: "Discharge",
+    now: "now",
+    fullRangeTitle: "Full",
+    rangeDays: "{{days}} days",
+  }
 }
 
 export default en
