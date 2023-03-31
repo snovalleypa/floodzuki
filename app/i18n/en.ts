@@ -9,6 +9,7 @@ const en = {
   },
   measure: {
     cfs: "cfs",
+    ft: "ft",
   },
   errorScreen: {
     header: "Ooops...",
@@ -46,6 +47,12 @@ const en = {
     now: "now",
     fullRangeTitle: "Full",
     rangeDays: "{{days}} days",
+  },
+  gageChart: {
+    discharge: "Discharge",
+    waterLevel: "Water Level",
+    Now: "Now",
+    dashboardDurationLabel: "48 hrs. ago",
   }
 }
 

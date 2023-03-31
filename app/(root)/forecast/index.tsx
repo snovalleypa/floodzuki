@@ -11,6 +11,7 @@ import { Spacing } from "@common-ui/constants/spacing";
 import { useStores } from "@models/helpers/useStores";
 import Config from "@config/config";
 import { t } from "@i18n/translate";
+import { useTimeout } from "@utils/useTimeout";
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -19,9 +20,14 @@ export function ErrorBoundary(props: ErrorBoundaryProps) {
 
 export default function ForecastScreen() {
   const store = useStores()
+  const [hidden, setHidden] = React.useState(true)
+
+  useTimeout(() => {
+    setHidden(false)
+  }, 0)
 
   const gageIds = Config.FORECAST_GAGE_IDS
-  const forecastGages = store.getForecastGages(gageIds)
+  const forecastGages = hidden ? [] : store.getForecastGages(gageIds)
 
   return (
     <Screen>

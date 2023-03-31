@@ -30,7 +30,6 @@ const BaseConfig: {
 
   FRONT_PAGE_CHART_DURATION_NUMBER: number
   FRONT_PAGE_CHART_DURATION_UNIT: dayjs.ManipulateType
-  FRONT_PAGE_CHART_DURATION_LABEL: string
 
   API: typeof API
 
@@ -47,7 +46,6 @@ const BaseConfig: {
 
   FRONT_PAGE_CHART_DURATION_NUMBER: 2,
   FRONT_PAGE_CHART_DURATION_UNIT: 'day',
-  FRONT_PAGE_CHART_DURATION_LABEL: '48 hrs. ago',
 
   API: API,
 

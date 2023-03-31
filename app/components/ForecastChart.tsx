@@ -2,9 +2,8 @@ import React, { useState } from "react";
 import { ActivityIndicator } from "react-native";
 import { observer } from "mobx-react-lite";
 
-import Highcharts from 'highcharts'
-import HighchartsReact from 'highcharts-react-official'
 import HighchartsReactNative from "@services/highcharts/HighchartsReactNative";
+import LocalHighchartsReact from "@services/highcharts/LocalHighchartsReact";
 
 import { GageSummary } from "@models/RootStore";
 import { Ternary } from "@common-ui/components/Conditional";
@@ -68,10 +67,7 @@ const Charts = (props: ChartsProps) => {
         styles={{ flex: 1 }}
         options={options}
       />
-      <HighchartsReact
-        highcharts={Highcharts}
-        options={options}
-      />
+      <LocalHighchartsReact options={options} />
     </Ternary>
   )
 }

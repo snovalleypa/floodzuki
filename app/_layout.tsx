@@ -8,6 +8,7 @@ import { useInitialRootStore } from "@models/helpers/useStores";
 
 import "@i18n/i18n";
 import { t } from "@i18n/translate";
+import { ForecastProvider } from "./contexts/ForecastsContext";
 
 /**
  * Root layout for Expo router (entry file for the app)
@@ -18,6 +19,7 @@ import { t } from "@i18n/translate";
 export enum ROUTES {
   Home = "/",
   Forecast = "/forecast",
+  ForecastDetails = "/forecast/[id]",
   Profile = "/profile",
 }
 
@@ -29,12 +31,12 @@ export const routes = {
   },
   [ROUTES.Forecast]: {
     path: ROUTES.Forecast,
-    icon: "bar-chart-2",
+    icon: "trending-up",
     title: t("navigation.forecastScreen")
   },
   [ROUTES.Profile]: {
     path: ROUTES.Profile,
-    icon: "sliders",
+    icon: "user",
     title: t("navigation.profileScreen")
   },
 }
@@ -53,7 +55,9 @@ export default function AppLayout() {
 function App() {
   return (
     <SafeAreaProvider>
-      <Slot />
+      <ForecastProvider>
+        <Slot />
+      </ForecastProvider>
     </SafeAreaProvider>
   )
 }

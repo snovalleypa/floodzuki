@@ -60,11 +60,17 @@ export const RootStoreModel = types.model("RootStore")
       return store.regionStore.region.timezone || 'America/Los_Angeles'
     }
 
+    const getLocationsWithGages = () => {
+      const gages = store.gagesStore.gages.map(gage => gage.locationId)
+      return store.locationInfoStore.locationInfos.filter(location => gages.includes(location.id))
+    }
+
     return {
       getForecastGage,
       getForecastGages,
       getForecasts,
-      getTimezone
+      getTimezone,
+      getLocationsWithGages,
     }
   })
 

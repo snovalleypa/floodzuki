@@ -4,6 +4,7 @@ import { flow } from "mobx-state-tree"
 
 import { withDataFetchingActions, dataFetchingProps } from "./helpers/withDataFetchingProps"
 import { withSetPropAction } from "./helpers/withSetPropsAction"
+import { GageModel } from "./Gage"
 
 // "LocationInfo" Example data
 // id: "USGS-SF17"
@@ -58,10 +59,14 @@ export const LocationInfoModel = types
     isOffline: types.boolean,
     latitude: types.number,
     locationName: types.string,
+    locationImages: types.array(types.string),
     longitude: types.number,
+    maxChangeThreshold: types.maybe(types.number),
     noaaSiteId: types.maybe(types.string),
     rank: types.number,
     redStage: types.maybe(types.number),
+    roadDisplayName: types.maybe(types.string),
+    roadSaddleHeight: types.maybe(types.number),
     shortName: types.maybe(types.string),
     timeZoneName: types.string,
     usgsSiteId: types.number,

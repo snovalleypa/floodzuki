@@ -75,7 +75,8 @@ const DataPointModel = types
   .props({
     reading: types.maybe(types.number),
     waterDischarge: types.maybe(types.number),
-    timestamp: types.maybe(types.string),
+    timestamp: types.maybe(types.frozen()), // dayjs instance
+    isDeleted: types.maybe(types.boolean),
   })
 
 const ForecastPredictionModel = types
@@ -114,7 +115,7 @@ const NOAAPeakModel = types
     }
   }))
 
-const NOAAForecastModel = types
+export const NOAAForecastModel = types
   .model("NOAAForecast")
   .props({
     county: types.maybe(types.string),
@@ -157,7 +158,7 @@ const ForecastModel = types
         return {
           reading: reading.waterHeight,
           waterDischarge: reading.waterDischarge,
-          timestamp: reading.timestamp,
+          timestamp: localDayJs(reading.timestamp),
         } as DataPoint
       })
     },
@@ -284,6 +285,7 @@ export interface ForecastStore extends Instance<typeof ForecastStoreModel> {}
 export interface ForecastStoreSnapshot extends SnapshotOut<typeof ForecastStoreModel> {}
 
 export interface Forecast extends Instance<typeof ForecastModel> {}
+export interface NOAAForecast extends Instance<typeof NOAAForecastModel> {}
 export interface DataPoint extends Instance<typeof DataPointModel> {}
 export interface ForecastSnapshotOut extends SnapshotOut<typeof ForecastModel> {}
 export interface ForecastSnapshotIn extends SnapshotIn<typeof ForecastModel> {}

@@ -15,6 +15,7 @@ import { useResponsive } from "@common-ui/utils/responsive";
 import { IconButton, LinkButton } from "@common-ui/components/Button";
 import { Ternary } from "@common-ui/components/Conditional";
 import { Colors } from "@common-ui/constants/colors";
+import { useTimeout } from "@utils/useTimeout";
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -33,7 +34,13 @@ export default function ForecastDetailsScreen() {
   // represented as an array of strings ["USGS-SF17", "USGS-38-0001"]
   const gageId = Array.isArray(id) ? id.join("/") : id
 
-  const forecastGage = store.getForecastGage(gageId)
+  const [hidden, setHidden] = React.useState(true)
+
+  useTimeout(() => {
+    setHidden(false)
+  }, 0)
+
+  const forecastGage = hidden ? {} : store.getForecastGage(gageId)
 
   const goBack = () => {
     navigation.goBack()

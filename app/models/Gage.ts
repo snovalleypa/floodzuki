@@ -7,6 +7,9 @@ import { GageReadingModel } from "./GageReading"
 import { dataFetchingProps, withDataFetchingActions } from "./helpers/withDataFetchingProps"
 import { withSetPropAction } from "./helpers/withSetPropsAction"
 import Config from "@config/config"
+import { LocationInfoModel } from "./LocationInfo"
+import localDayJs from "@services/localDayJs"
+import { DataPoint, ForecastStoreModel, NOAAForecastModel } from "./Forecasts"
 
 // Gage data from https://waterservices.usgs.gov/rest/IV-Service.html
 // id: "USGS-38",
@@ -41,6 +44,34 @@ import Config from "@config/config"
 //   },
 // },
 
+export enum GageChartDataType {
+  LEVEL = 'level',
+  DISCHARGE = 'discharge',
+  FORECAST = 'forecast',
+};
+
+const mapAndAdjustForecastTimestampsForDisplay = (forecastData) => {
+  return forecastData.map(point => {
+    return {
+      reading: point.stage,
+      waterDischarge: point.waterDischarge,
+      timestamp: localDayJs(point.timestamp),
+      isDeleted: false
+    } as DataPoint;
+  });
+}
+  
+const mapAndAdjustTimestampsForDisplay = (dataPoints) => {
+    return dataPoints.map(point => {
+      return {
+        reading: point.waterHeight,
+        waterDischarge: point.waterDischarge,
+        timestamp: localDayJs(point.timestamp),
+        isDeleted: point.isDeleted
+      } as DataPoint;
+    });
+  }
+
 const WaterTrendModel = types
   .model("WaterTrend")
   .props({
@@ -62,20 +93,135 @@ export const GageModel = types
   .props({
     id: types.maybe(types.string),
     locationName: types.maybe(types.string),
-    locationId: types.maybe(types.string),
+    locationId: types.identifier,
     latitude: types.maybe(types.number),
     longitude: types.maybe(types.number),
     isOffline: types.maybe(types.boolean),
     rank: types.maybe(types.number),
-    yMin: types.maybe(types.number),
-    yMax: types.maybe(types.number),
-    groundHeight: types.maybe(types.number),
     deviceTypeName: types.maybe(types.string),
     timeZoneName: types.maybe(types.string),
+    lastReadingId: types.maybe(types.number),
+    peakStatus: types.maybe(GageStatusModel),
+    predictedCfsPerHour: types.maybe(types.number),
+    predictedFeetPerHour: types.maybe(types.number),
     currentStatus: types.maybe(GageStatusModel),
     status: types.maybe(GageStatusModel),
     readings: types.array(GageReadingModel),
+    actualReadings: types.array(GageReadingModel),
+    noaaForecast: types.maybe(NOAAForecastModel),
+    predictions: types.array(GageReadingModel),
+    locationInfo: types.safeReference(LocationInfoModel),
   })
+  .views(store => ({
+    get gageStatus() {
+      return store.status || GageStatusModel.create({
+        floodLevel: "Offline",
+        levelTrend: "Offline",
+      })
+    },
+
+    get lastReading() {
+      return store.status?.lastReading
+    },
+
+    get waterLevel() {
+      return store.status?.lastReading?.waterHeight || 0
+    },
+
+    get groundHeight() {
+      return store.status?.lastReading?.groundHeight || 0
+    },
+
+    get waterDischarge() {
+      return store.status?.lastReading?.waterDischarge || 0
+    },
+
+    get roadSaddleHeight() {
+      return store.locationInfo?.roadSaddleHeight
+    },
+
+    get roadDisplayName() {
+      return store.locationInfo?.roadDisplayName
+    },
+
+    get hasData() {
+      return !!store.readings.length
+    },
+
+    getChartMinAndMax(chartDataType: GageChartDataType) {
+      let yMinimum = 0, yMaximum = 0;
+
+      if (chartDataType === GageChartDataType.DISCHARGE) {
+        yMinimum = store.locationInfo?.dischargeMin;
+        yMaximum = store.locationInfo?.dischargeMax;
+      } else {
+        yMinimum = store.locationInfo?.yMin;
+        yMaximum = store.locationInfo?.yMax;
+      }
+
+      return {
+        yMinimum,
+        yMaximum,
+      }
+    },
+  }))
+  .views(store => ({
+    get roads() {
+      return [{
+        elevation: store.roadSaddleHeight,
+        name: store.roadDisplayName
+      }]
+    },
+
+    get hasRoads() {
+      return !!store.roadSaddleHeight && !!store.roadDisplayName
+    },
+
+    get dataPoints() {
+      if (!store.hasData) return [];
+
+      return mapAndAdjustTimestampsForDisplay(store.readings);
+    },
+
+    get predictedPoints() {
+      let points = [];
+
+      const predictions = store?.predictions;
+
+      if (predictions && predictions.length) {
+        let predWithNoGap = predictions;
+        predWithNoGap.unshift(store.readings[0]);
+        
+        points = mapAndAdjustTimestampsForDisplay(predWithNoGap);
+      }
+      
+      return points;
+    },
+
+    get actualPoints() {
+      return mapAndAdjustTimestampsForDisplay(store.actualReadings || []);
+    },
+
+    get noaaForecastData() {
+      return mapAndAdjustForecastTimestampsForDisplay(store.noaaForecast?.data || []);
+    },
+
+    getCalculatedRoadStatus(waterLevel: number) {
+      if (!store.roadSaddleHeight || !store.roadDisplayName) return null;
+      
+      const baseLevel = waterLevel || store.waterLevel;
+      const level = baseLevel - store.roadSaddleHeight;
+      const preposition = store.roadSaddleHeight - baseLevel > 0 ? "below" : "over";
+      const deltaFormatted = Math.abs(level).toFixed(1) + " ft.";
+      
+      return {
+        name: store.roadDisplayName,
+        level,
+        preposition,
+        deltaFormatted
+      };
+    },
+  }))
 
 
 export const GageStoreModel = types
@@ -102,7 +248,10 @@ export const GageStoreModel = types
       )
 
       if (response.kind === 'ok') {
-        store.gages = response.data.gages
+        store.gages = response.data.gages?.map(gage => ({
+          ...gage,
+          locationInfo: gage.locationId,
+        })) || []
       } else {
         store.setError(response.kind)
       }
@@ -110,8 +259,13 @@ export const GageStoreModel = types
       store.setIsFetching(false)
     })
 
+    const getGageByLocationId = (id: string) => {
+      return store.gages.find(gage => gage.locationId === id)
+    }
+
     return {
-      fetchData
+      fetchData,
+      getGageByLocationId
     }
   })
 

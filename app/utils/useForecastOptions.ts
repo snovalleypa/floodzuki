@@ -16,11 +16,11 @@ import { Colors } from "@common-ui/constants/colors";
 const STAGE_TWO_YAXIS_MARGIN = 500;
 
 interface BuildOptionsProps {
-  timezone: string;
   daysBefore: number;
   daysAfter: number;
   forecasts: Forecast[];
   gages: GageSummary[];
+  timezone: string;
 }
 
 const shouldShowFloodLine = (forecast: Forecast, isCombinedForecast: boolean) => {
@@ -69,7 +69,7 @@ const buildSeries = (forecasts: Forecast[], gages: GageSummary[]) => {
     // Data Points
     series.push({
       animation:false,
-      name: `${t("forecastChart.observed")}: ${gage.title}`,
+      name: `${t("forecastChart.observed")}: ${gage?.title}`,
       data: dataPoints,
       color: "green",
       fillOpacity: 0.5,
@@ -108,7 +108,7 @@ const buildSeries = (forecasts: Forecast[], gages: GageSummary[]) => {
     // Forecast Data Points
     series.push({
       animation:false,
-      name: `${t("forecastChart.forecast")}: ${gage.title}`,
+      name: `${t("forecastChart.forecast")}: ${gage?.title}`,
       data: forecastDataPoints,
       fillOpacity: 0,
       color: "purple",
@@ -130,11 +130,11 @@ const buildSeries = (forecasts: Forecast[], gages: GageSummary[]) => {
 
 const buildOptions = (props: BuildOptionsProps) => {
   const {
-    timezone,
     daysBefore,
     daysAfter,
     forecasts,
     gages,
+    timezone
   } = props
 
   let stageTwo = 0
@@ -190,7 +190,7 @@ const buildOptions = (props: BuildOptionsProps) => {
     },
     time: {
       useUTC: true,
-      // timezone: timezone
+      timezone: timezone
     },
     title: {
       text: null,
@@ -268,11 +268,11 @@ const useForecastOptions = (gages: GageSummary[], daysBefore: number, daysAfter:
 
   useTimeout(() => {
     setOptions(buildOptions({
-      timezone: rootStore.getTimezone(),
       daysBefore,
       daysAfter,
       forecasts,
       gages,
+      timezone: rootStore.getTimezone(),
     }))
     
     isRendered.current = true
@@ -281,11 +281,11 @@ const useForecastOptions = (gages: GageSummary[], daysBefore: number, daysAfter:
   useEffect(() => {
     if (isRendered.current) {
       setOptions(buildOptions({
-        timezone: rootStore.getTimezone(),
         daysBefore,
         daysAfter,
         forecasts,
         gages,
+        timezone: rootStore.getTimezone()
       }))
     }
   }, [gages, daysBefore, daysAfter])

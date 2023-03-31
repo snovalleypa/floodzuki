@@ -14,13 +14,13 @@ import { formatDateTime } from "@utils/useTimeFormat";
 import { formatFlow, formatFlowTrend, formatHeight } from "@utils/utils";
 import { Spacing } from "@common-ui/constants/spacing";
 import { Colors } from "@common-ui/constants/colors";
-import { Link } from "expo-router";
+import { useRouter } from "expo-router";
 import { ROUTES } from "app/_layout";
-import Icon from "@common-ui/components/Icon";
 import { useTimeout } from "@utils/useTimeout";
 import { Timing } from "@common-ui/constants/timing";
-import { useResponsive } from "@common-ui/utils/responsive";
+import { isMobile, useResponsive } from "@common-ui/utils/responsive";
 import { t } from "@i18n/translate";
+import { IconButton } from "@common-ui/components/Button";
 
 interface GageSummaryProps {
   gage: GageSummary
@@ -80,14 +80,19 @@ export const GageSummaryCard = observer(
 
     const { forecastsStore } = useStores()
     const { isWideScreen } = useResponsive()
+    const router = useRouter()
 
-    const [showMaxReading, setShowMaxReading] = React.useState<boolean>(false)
+    const [showMaxReading, setShowMaxReading] = React.useState<boolean>(true)
 
     // Max reading computation is a bit expensive on mobile
     // So we're trying to delay that a bit to improve UX
     useTimeout(() => {
       setShowMaxReading(true)
-    }, Timing.instant)
+    }, Timing.zero)
+
+    const showDetails = () => {
+      router.push({ pathname: ROUTES.ForecastDetails, params: { id: gage.id }})
+    }
 
     const forecast = forecastsStore.getForecast(gage.id)
     
@@ -102,19 +107,19 @@ export const GageSummaryCard = observer(
         <Row align="space-between">
           <SmallTitle color={Colors.primary}>{gageTitle}</SmallTitle>
           <If condition={!noDetails}>
-            <Link href={`${ROUTES.Forecast}/${gage.id}`}>
-              <Row justify="center">
-                <LabelText color={Colors.blue}>{t("forecastScreen.details")}</LabelText>
-                <Icon name="chevron-right" color={Colors.blue} size={Spacing.medium} />
-              </Row>
-            </Link>
+            <IconButton
+              title={t("forecastScreen.details")}
+              rightIcon="chevron-right"
+              textColor={Colors.blue}
+              onPress={showDetails}
+            />
           </If>
         </Row>
         <Cell top={Spacing.small}>
           <LabelText color={Colors.success}>
             {t("forecastScreen.latestReading")}:
           </LabelText>
-          <ReadingRow reading={forecast?.latestReading} delta={forecast.predictedCfsPerHour} />
+          <ReadingRow reading={forecast?.latestReading} delta={forecast?.predictedCfsPerHour} />
         </Cell>
         {/* This is done for performance reason. Defer reading the expensive computation */}
         <Ternary condition={showMaxReading}>

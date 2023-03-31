@@ -116,10 +116,10 @@ const getAssetAsString = async (asset: Asset) => {
 }
 
 const addScript = async (name: string, isModule: boolean) => {
-  const response = await fetch(
-      httpProto + cdnPath + (isModule ? 'modules/' : '') + name + '.js'
-  ).catch((error) => {
-      throw error
+  const moduleUrl = httpProto + cdnPath + (isModule ? 'modules/' : '') + name + '.js'
+
+  const response = await fetch(moduleUrl).catch((error) => {
+    throw error
   })
   stringifiedScripts[name] = await response.text()
 }
@@ -132,7 +132,7 @@ const HighchartsReactNative = React.memo((props: HighchartsReactNativeProps) => 
     startInLoadingState = true,
     webviewStyles,
     webviewProps,
-    modules = [],
+    modules,
     options,
     setOptions = {},
   } = props;

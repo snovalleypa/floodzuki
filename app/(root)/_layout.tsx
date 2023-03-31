@@ -1,18 +1,19 @@
 import React, { useEffect } from "react";
 import { Platform } from "react-native";
-import { usePathname, Slot, Link, Tabs } from "expo-router";
+import { usePathname, Slot, Link } from "expo-router";
 
 import '@expo/match-media';
 
 import { If } from "@common-ui/components/Conditional";
 import { Colors } from "@common-ui/constants/colors";
 import { Spacing } from "@common-ui/constants/spacing";
-import { routes, ROUTES } from "app/_layout";
+import { routes } from "app/_layout";
 import { useStores } from "@models/helpers/useStores";
 import { useInterval } from "@utils/useTimeout";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { LabelText, LargeTitle, SmallTitle } from "@common-ui/components/Text";
+import { LabelText, LargeTitle } from "@common-ui/components/Text";
 import { Cell, Row, Separator } from "@common-ui/components/Common";
+import Icon from "@common-ui/components/Icon";
 
 export default function AppLayout() {
   const store = useStores()
@@ -64,7 +65,8 @@ function FooterLink({ href, children }) {
 
   return (
     <Link href={href}>
-      <Cell>
+      <Cell align="center">
+        <Icon name={routes[href].icon} color={$color} />
         <LabelText color={$color}>
           {children}
         </LabelText>
@@ -91,7 +93,7 @@ function Header() {
 function TabBar() {
   const { bottom } = useSafeAreaInsets()
 
-  const $bottomOffset = bottom ? bottom + Spacing.small : Spacing.medium
+  const $bottomOffset = bottom ? bottom : Spacing.medium
   
   return (
     <Cell>

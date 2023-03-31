@@ -44,6 +44,12 @@ export enum Palette {
   violette = "#925FF1",
   violette800 = "#a77ef3",
   violette100 = "#e9dffc",
+
+  chartBlue = "#44b5f2",
+  chartRed = "#ff0000",
+  chartOrange = "#ff7f00",
+  chartGreen = "#00FF00",
+  chartPink = "#ff00ff",
 }
 
 export const Colors = {
@@ -104,6 +110,13 @@ export const Colors = {
   violette: Palette.violette,
   lightViolette: Palette.violette800,
   softViolette: Palette.violette100,
+
+  // Chart colors
+  gageChartColor: Palette.chartBlue,
+  gageChartDeletedLineColor: Palette.chartRed,
+  gageChartPredictionsLineColor: Palette.chartOrange,
+  gageChartActualDataLineColor: Palette.chartGreen,
+  gageChartForecastDataLineColor: Palette.chartPink,
 }
 
 /**
