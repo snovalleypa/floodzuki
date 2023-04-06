@@ -19,8 +19,9 @@ import { ForecastProvider } from "./contexts/ForecastsContext";
 export enum ROUTES {
   Home = "/",
   Forecast = "/forecast",
-  ForecastDetails = "/forecast/[id]",
+  ForecastDetails = "/forecast/[...id]",
   Profile = "/profile",
+  GageDetails = "/gage/[id]",
 }
 
 export const routes = {

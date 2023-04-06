@@ -1,4 +1,4 @@
-import { Instance, SnapshotOut, types } from "mobx-state-tree"
+import { flow, Instance, SnapshotOut, types } from "mobx-state-tree"
 import { ForecastStoreModel } from "./Forecasts"
 import { GageStoreModel } from "./Gage"
 import { GageReadingStoreModel } from "./GageReading"
@@ -11,6 +11,7 @@ import { RegionModelStore } from "./Region"
  */
 export const RootStoreModel = types.model("RootStore")
   .props({
+    isFetched: types.optional(types.boolean, false),
     gagesStore: types.optional(GageStoreModel, {}),
     gageReadingsStore: types.optional(GageReadingStoreModel, {}),
     regionStore: types.optional(RegionModelStore, {}),
@@ -19,13 +20,24 @@ export const RootStoreModel = types.model("RootStore")
     forecastsStore: types.optional(ForecastStoreModel, {}),
   })
   .actions(store => {
-    const fetchMainData = () => {
-      store.regionStore.fetchData()
-      store.locationInfoStore.fetchData()
-      store.metagageStore.fetchData()
-      store.gagesStore.fetchData()
-      store.forecastsStore.fetchData()
+    const setIsFetched = (isFetching: boolean) => {
+      store.isFetched = isFetching
     }
+
+    const fetchMainData = flow(function*() {
+      console.log("BEGIN FETCHING")
+      setIsFetched(false)
+
+      yield store.regionStore.fetchData()
+      yield store.locationInfoStore.fetchData()
+      yield store.metagageStore.fetchData()
+      yield store.gagesStore.fetchData()
+      yield store.forecastsStore.fetchData()
+
+      console.log("DONE FETCHING")
+
+      setIsFetched(true)
+    })
 
     return {
       fetchMainData,
@@ -65,12 +77,44 @@ export const RootStoreModel = types.model("RootStore")
       return store.locationInfoStore.locationInfos.filter(location => gages.includes(location.id))
     }
 
+    const getUpstreamGageLocation = (locationId: string) => {
+      if (!locationId) {
+        return null
+      }
+
+      const locations = getLocationsWithGages()
+
+      const gageIndex = locations.findIndex(l => l.id === locationId);
+
+      return gageIndex > 0 && locations[gageIndex - 1];
+    }
+
+    const getDownstreamGageLocation = (locationId: string) => {
+      if (!locationId) {
+        return null
+      }
+
+      const locations = getLocationsWithGages()
+
+      const gageIndex = locations.findIndex(l => l.id === locationId);
+      
+      return gageIndex >= 0 &&
+        gageIndex + 1 < locations.length &&
+        locations[gageIndex + 1];
+    }
+
     return {
       getForecastGage,
       getForecastGages,
       getForecasts,
       getTimezone,
       getLocationsWithGages,
+      getUpstreamGageLocation,
+      getDownstreamGageLocation,
+
+      get isDataFetched() {
+        return store.isFetched
+      }
     }
   })
 

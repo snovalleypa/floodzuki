@@ -1,5 +1,5 @@
 import React from "react"
-import { ErrorBoundaryProps, useSearchParams, Stack, useNavigation } from "expo-router";
+import { ErrorBoundaryProps, useSearchParams, Stack, useRouter } from "expo-router";
 
 import { Content, Screen } from "@common-ui/components/Screen"
 import { LargeTitle } from "@common-ui/components/Text"
@@ -16,6 +16,8 @@ import { IconButton, LinkButton } from "@common-ui/components/Button";
 import { Ternary } from "@common-ui/components/Conditional";
 import { Colors } from "@common-ui/constants/colors";
 import { useTimeout } from "@utils/useTimeout";
+import { GageSummary } from "@models/RootStore";
+import { ROUTES } from "app/_layout";
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -24,7 +26,7 @@ export function ErrorBoundary(props: ErrorBoundaryProps) {
 
 export default function ForecastDetailsScreen() {
   const { id } = useSearchParams()
-  const navigation = useNavigation()
+  const router = useRouter()
   const store = useStores()
 
   const { isMobile } = useResponsive()
@@ -40,10 +42,10 @@ export default function ForecastDetailsScreen() {
     setHidden(false)
   }, 0)
 
-  const forecastGage = hidden ? {} : store.getForecastGage(gageId)
+  const forecastGage = hidden ? {} as GageSummary : store.getForecastGage(gageId)
 
   const goBack = () => {
-    navigation.goBack()
+    router.push({ pathname: ROUTES.Forecast })
   }
 
   return (

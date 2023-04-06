@@ -184,8 +184,6 @@ export const ForecastProvider = ({ children }: any) => {
     getForecastsList
   }
 
-  console.log("forecasts", forecasts)
-
   return (
     <ForecastContext.Provider value={context}>
       {children}

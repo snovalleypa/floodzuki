@@ -21,3 +21,7 @@ export function formatFlowTrend(trend) {
   }
   return fmtTrend + " cfs/hr";
 }
+
+export function isNullish(value) {
+  return value === null || value === undefined;
+}

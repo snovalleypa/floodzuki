@@ -11,6 +11,7 @@ type RowProps = {
   children?: React.ReactNode
   wrap?: boolean
   flex?: boolean | number
+  gap?: number
   align?: "center" | "space-between" | "space-around" | "space-evenly" | "flex-start" | "flex-end"
   justify?: "center" | "flex-start" | "flex-end" | "stretch" | "baseline"
 } & OffsetProps
@@ -18,6 +19,7 @@ type RowProps = {
 type CellProps = {
   children?: React.ReactNode
   flex?: boolean | number
+  gap?: number
   wrap?: boolean
   align?: "center" | "flex-start" | "flex-end" | "stretch" | "baseline"
   justify?: "center" | "space-between" | "space-around" | "space-evenly" | "flex-start" | "flex-end"
@@ -39,6 +41,7 @@ type AbsoluteContainerProps = {
  * @param {React.ReactNode} children - The children to render.
  * @param {boolean} wrap - Whether to wrap the children if they don't fit in a row.
  * @param {boolean | number} flex - Whether to use flexbox to layout the children.
+ * @param {number} gap - default gap between elements
  * @param {"center" | "space-between" | "space-around" | "space-evenly" | "flex-start" | "flex-end"} align - How to align the children in the row.
  * @param {"center" | "flex-start" | "flex-end" | "stretch" | "baseline"} justify - How to align vertically the children in the row.
  * @param {OffsetProps} props - The offset props.
@@ -47,7 +50,7 @@ type AbsoluteContainerProps = {
  *   <Text>Text</Text>
  * </Row>
  */
-export const Row = ({ children, align, justify, flex, wrap, ...offsetProps }: RowProps) => {
+export const Row = ({ children, align, justify, flex, gap, wrap, ...offsetProps }: RowProps) => {
   let styles: ViewStyle[] = [{ flexDirection: "row", alignItems: "center" }]
 
   styles = useOffsetStyles(styles, offsetProps)
@@ -63,6 +66,10 @@ export const Row = ({ children, align, justify, flex, wrap, ...offsetProps }: Ro
   if (flex) {
     const flexValue = typeof flex === "boolean" ? 1 : flex
     styles.push({ flex: flexValue })
+  }
+
+  if (gap) {
+    styles.push({ gap })
   }
 
   if (wrap) {
@@ -92,6 +99,7 @@ export const Spacer = ({ height }: { height?: number }) => <View style={{ height
  * Cell is a flexbox container lays out children in a stack
  * @param {React.ReactNode} children - The children to render.
  * @param {boolean | number} flex - Whether to use flexbox to layout the children.
+ * @param {number} gap - default gap between elements
  * @param {boolean} wrap - Whether to wrap the children if they don't fit in a row.
  * @param {"center" | "flex-start" | "flex-end" | "stretch" | "baseline"} align - How to align the children in the column.
  * @param {"center" | "space-between" | "space-around" | "space-evenly" | "flex-start" | "flex-end"} justify - How to align the children in the column.
@@ -102,7 +110,7 @@ export const Spacer = ({ height }: { height?: number }) => <View style={{ height
  *   <Text>Text</Text>
  * </Cell>
  */
-export const Cell = ({ children, align, wrap, justify, flex, bgColor, ...offsetProps }: CellProps) => {
+export const Cell = ({ children, align, wrap, justify, flex, gap, bgColor, ...offsetProps }: CellProps) => {
   let styles: ViewStyle[] = [{ flexDirection: "column", justifyContent: "center" }]
 
   styles = useOffsetStyles(styles, offsetProps)
@@ -118,6 +126,10 @@ export const Cell = ({ children, align, wrap, justify, flex, bgColor, ...offsetP
   if (flex) {
     const flexValue = typeof flex === "boolean" ? 1 : flex
     styles.push({ flex: flexValue })
+  }
+
+  if (gap) {
+    styles.push({ gap })
   }
 
   if (wrap) {

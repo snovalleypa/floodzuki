@@ -13,7 +13,7 @@ export type OffsetProps = {
   innerLeft?: number
   innerBottom?: number
   innerRight?: number
-  height?: number
+  height?: number | string
   width?: number
   minHeight?: number
   minWidth?: number
@@ -58,67 +58,67 @@ export function useOffsetStyles(styles: FlexStyle[], props: OffsetProps): Array<
     minWidth,
   } = props
 
-  if (top) {
+  if (Object.hasOwn(props, "top")) {
     styles.push({ marginTop: top })
   }
 
-  if (left) {
+  if (Object.hasOwn(props, "left")) {
     styles.push({ marginLeft: left })
   }
 
-  if (bottom) {
+  if (Object.hasOwn(props, "bottom")) {
     styles.push({ marginBottom: bottom })
   }
 
-  if (right) {
+  if (Object.hasOwn(props, "right")) {
     styles.push({ marginRight: right })
   }
 
-  if (vertical) {
+  if (Object.hasOwn(props, "vertical")) {
     styles.push({ marginTop: vertical, marginBottom: vertical })
   }
 
-  if (horizontal) {
+  if (Object.hasOwn(props, "horizontal")) {
     styles.push({ marginLeft: horizontal, marginRight: horizontal })
   }
 
-  if (innerVertical) {
+  if (Object.hasOwn(props, "innerVertical")) {
     styles.push({ paddingTop: innerVertical, paddingBottom: innerVertical })
   }
 
-  if (innerHorizontal) {
+  if (Object.hasOwn(props, "innerHorizontal")) {
     styles.push({ paddingLeft: innerHorizontal, paddingRight: innerHorizontal })
   }
 
-  if (innerTop) {
+  if (Object.hasOwn(props, "innerTop")) {
     styles.push({ paddingTop: innerTop })
   }
 
-  if (innerLeft) {
+  if (Object.hasOwn(props, "innerLeft")) {
     styles.push({ paddingLeft: innerLeft })
   }
 
-  if (innerBottom) {
+  if (Object.hasOwn(props, "innerBottom")) {
     styles.push({ paddingBottom: innerBottom })
   }
 
-  if (innerRight) {
+  if (Object.hasOwn(props, "innerRight")) {
     styles.push({ paddingRight: innerRight })
   }
 
-  if (height) {
+  if (Object.hasOwn(props, "height")) {
     styles.push({ height })
   }
 
-  if (width) {
+  if (Object.hasOwn(props, "width")) {
     styles.push({ width })
   }
 
-  if (minHeight) {
+  if (Object.hasOwn(props, "minHeight")) {
     styles.push({ minHeight })
   }
 
-  if (minWidth) {
+  if (Object.hasOwn(props, "minWidth")) {
     styles.push({ minWidth })
   }
 

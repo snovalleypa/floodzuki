@@ -4,14 +4,19 @@
  */
 
 import localDayJs from "@services/localDayJs"
+import dayjs from "dayjs";
 
-export const formatDateTime = (time: string) => {
-  const result = localDayJs.tz(time).format("ddd M/D hh:mm a")
+export const formatDateTime = (time: string | dayjs.Dayjs) => {
+  const result = typeof time === "string" ?
+    localDayJs.tz(time).format("ddd M/D hh:mm a") :
+    time?.format("ddd M/D hh:mm a");
 
   return result;
 }
 
 export const formatReadingTime = (timeZone: string, timestamp: string) => {
+  if (!timestamp) return "";
+
   const timeAgo = localDayJs() - localDayJs.tz(timestamp, timeZone);
   
   let formatString;
@@ -23,5 +28,6 @@ export const formatReadingTime = (timeZone: string, timestamp: string) => {
   } else {
     formatString = "YYYY/MM/DD h:mm a";
   }
-  return localDayJs(timestamp).format(formatString);
+
+  return localDayJs.tz(timestamp).format(formatString);
 }

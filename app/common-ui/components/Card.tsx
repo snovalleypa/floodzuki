@@ -3,6 +3,8 @@ import { View, ViewStyle, ColorValue } from "react-native"
 import { Colors, ColorTypes } from "@common-ui/constants/colors"
 import { OffsetProps, useOffsetStyles } from "@common-ui/utils/useOffset"
 import { Spacing } from "@common-ui/constants/spacing"
+import { Cell, Row, Separator } from "./Common"
+import { If } from "./Conditional"
 
 type CardProps = {
   children: React.ReactNode
@@ -11,8 +13,13 @@ type CardProps = {
   outline?: boolean
   backgroundColor?: ColorValue
   noPadding?: boolean
-  flex?: boolean
+  flex?: boolean | number
 } & OffsetProps
+
+type CardItemProps = {
+  children: [JSX.Element, JSX.Element]
+  noBorder?: boolean
+}
 
 type BaseProps = {
   baseStyle: ViewStyle
@@ -34,7 +41,8 @@ const Base = (props: BaseProps): React.ReactElement => {
   }
 
   if (flex) {
-    style.push($flex)
+    const flexValue = typeof flex === "boolean" ? 1 : flex
+    style.push({ flex: flexValue })
   }
 
   if (type || backgroundColor) {
@@ -54,14 +62,13 @@ const Base = (props: BaseProps): React.ReactElement => {
 /**
  * A Card component useful to display content in a card like structure
  * @param {React.ReactNode} children - Children to display in the card
- * @param {boolean} nonElevated - Whether the card should not be elevated (no shadow displayed)
  * @param {boolean} noBackground - Whether the card should have a background
  * @param {keyof typeof ColorTypes} type - Type of card to display from the ColorTypes
  * @param {boolean} outline - Whether the card should be outlined or filled
  * @param {ColorValue} backgroundColor - Color of the background (default white)
  * @param {boolean} noPadding - Whether the card should have padding (default true)
  * @param {OffsetProps} offsetProps - Props to apply offsets to the card
- * @param {boolean} flex - Whether the card should be flex (default false)
+ * @param {boolean | number} flex - Whether the card should be flex (default false)
  * @example
  * <Card type="primary" elevated>
  *  <Text>Some content</Text>
@@ -72,6 +79,75 @@ export function Card({ children, ...props }: CardProps) {
     <Base baseStyle={$card} {...props}>
       {children}
     </Base>
+  )
+}
+
+
+/**
+ * A Card Header component useful to display content in a card like structure
+ * @param {React.ReactNode} children - Children to display in the card
+ * @param {keyof typeof ColorTypes} type - Type of card to display from the ColorTypes
+ * @param {boolean} outline - Whether the card should be outlined or filled
+ * @param {ColorValue} backgroundColor - Color of the background (default white)
+ * @param {boolean} noPadding - Whether the card should have padding (default true)
+ * @param {OffsetProps} offsetProps - Props to apply offsets to the card
+ * @param {boolean | number} flex - Whether the card should be flex (default false)
+ * @example
+ * <Card type="primary">
+ *  <CardHeader>
+ *    <Text>Some content</Text>
+ *  </CardHeader>
+ * </Card>
+ */
+export function CardHeader({ children, ...props }: CardProps) {
+  return (
+    <Base baseStyle={$cardHeader} {...props}>
+      {children}
+    </Base>
+  )
+}
+
+/**
+ * A Card Footer component useful to display content in a card like structure
+ * @param {React.ReactNode} children - Children to display in the card
+ * @param {keyof typeof ColorTypes} type - Type of card to display from the ColorTypes
+ * @param {boolean} outline - Whether the card should be outlined or filled
+ * @param {ColorValue} backgroundColor - Color of the background (default white)
+ * @param {boolean} noPadding - Whether the card should have padding (default true)
+ * @param {OffsetProps} offsetProps - Props to apply offsets to the card
+ * @param {boolean | number} flex - Whether the card should be flex (default false)
+ * @example
+ * <Card type="primary">
+ *  <CardFooter>
+ *    <Text>Some content</Text>
+ *  </CardFooter>
+ * </Card>
+ */
+export function CardFooter({ children, ...props }: CardProps) {
+  return (
+    <Base baseStyle={$cardFooter} {...props}>
+      {children}
+    </Base>
+  )
+}
+
+export function CardItem({ children, noBorder = false }: CardItemProps) {
+  return (
+    <Cell
+      horizontal={-Spacing.small}
+    >
+      <Row
+        align="space-between"
+        horizontal={Spacing.small}
+        vertical={Spacing.small}
+      >
+        {children[0]}
+        {children[1]}
+      </Row>
+      <If condition={!noBorder}>
+        <Separator />
+      </If>
+    </Cell>
   )
 }
 
@@ -91,6 +167,28 @@ const $card: ViewStyle = {
   },
 }
 
+const $cardHeader: ViewStyle = {
+  backgroundColor: Colors.white,
+  borderTopLeftRadius: Spacing.extraSmall,
+  borderTopRightRadius: Spacing.extraSmall,
+  borderBottomWidth: 1,
+  borderBottomColor: Colors.lightGrey,
+  paddingBottom: Spacing.small,
+  marginHorizontal: -Spacing.small,
+  paddingHorizontal: Spacing.small,
+}
+
+const $cardFooter: ViewStyle = {
+  backgroundColor: Colors.white,
+  borderBottomLeftRadius: Spacing.extraSmall,
+  borderBottomRightRadius: Spacing.extraSmall,
+  borderTopWidth: 1,
+  borderTopColor: Colors.lightGrey,
+  paddingTop: Spacing.small,
+  marginHorizontal: -Spacing.small,
+  paddingHorizontal: Spacing.small,
+}
+
 const $noBackground: ViewStyle = {
   backgroundColor: "transparent",
 }
@@ -100,8 +198,4 @@ const $noPadding: ViewStyle = {
   paddingRight: 0,
   paddingTop: 0,
   paddingBottom: 0,
-}
-
-const $flex: ViewStyle = {
-  flex: 1,
 }

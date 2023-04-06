@@ -123,7 +123,7 @@ export class Api {
     gageId: string,
     fromDateTime?: string,
     toDateTime?: string,
-    lastReadingId?: string,
+    lastReadingId?: number,
     includeStatus?: boolean,
     includePredictions?: boolean,
   ) {
@@ -131,7 +131,7 @@ export class Api {
 
     const params = {
       regionId: Config.SVPA_REGION_ID,
-      gageId,
+      id: gageId,
     }
 
     if (fromDateTime) {
@@ -144,6 +144,8 @@ export class Api {
 
     if (lastReadingId) {
       params["lastReadingId"] = lastReadingId
+    }
+    else {
       params["getMinimalReadings"] = true
     }
 

@@ -29,7 +29,7 @@ type SegmentControlProps = {
  */
 
 export function SegmentControl(props: SegmentControlProps) {
-  const { segments, selectedSegment, onChange } = props
+  const { segments, selectedSegment, onChange, ...rest } = props
 
   const [selected, setSelected] = React.useState(selectedSegment)
 
@@ -38,7 +38,7 @@ export function SegmentControl(props: SegmentControlProps) {
     onChange(segmentKey)
   }
 
-  const $style: ViewStyle[] = useOffsetStyles([$segmentHolder], props)
+  const $style: ViewStyle[] = useOffsetStyles([$segmentHolder], rest)
 
   return (
     <View style={$style}>

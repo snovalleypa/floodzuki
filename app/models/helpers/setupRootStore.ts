@@ -18,7 +18,9 @@ import * as storage from "@utils/storage"
  */
 const ROOT_STATE_STORAGE_KEY = "root-v1"
 
-export const ROOT_STORE_DEFAULT = {}
+export const ROOT_STORE_DEFAULT = {
+  isFetched: false,
+}
 
 /**
  * Setup the root state.
@@ -29,7 +31,13 @@ export async function setupRootStore(rootStore: RootStore) {
 
   try {
     // load the last known state from AsyncStorage
-    restoredState = (await storage.load(ROOT_STATE_STORAGE_KEY)) || ROOT_STORE_DEFAULT
+    const loadedState = (await storage.load(ROOT_STATE_STORAGE_KEY)) || ROOT_STORE_DEFAULT
+
+    restoredState = {
+      ...loadedState,
+      isFetched: false,
+    }
+
     applySnapshot(rootStore, restoredState)
   } catch (e) {
     // if there's any problems loading, then inform the dev what happened

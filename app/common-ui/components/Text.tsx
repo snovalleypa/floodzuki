@@ -92,6 +92,22 @@ export function ExtraLargeTitle(props: BaseTextProps) {
 }
 
 /**
+ * @description fontSize: 20; lineHeight: 24; fontWeight: "700"; fontFamily: "Montserrat"; color: Colors.dark;
+ * @param {string} color - Color of the text
+ * @param {string} align - Alignment of the text ("left" | "center" | "right")
+ * @param {boolean} muted - Whether the text should be muted (greyed out)
+ * @param {boolean} disabled - Whether the text should be disabled (greyed out and reduced opacity)
+ * @param {TextStyle} baseStyle - Base style to apply to the text
+ * @param {TextStyle[]} textStyle - Array of styles to apply to the text
+ * @param {OffsetProps} offsetProps - Props to apply offsets to the text
+ * @example
+ * <LargeTitle color={Color.primary} align="center">Large Title</LargeTitle>
+ */
+export function LargerTitle(props: BaseTextProps) {
+  return <BaseText baseStyle={Typography.largerTitle} {...props} />
+}
+
+/**
  * @description fontSize: 18; lineHeight: 20; fontWeight: "600"; fontFamily: "Montserrat"; color: Colors.dark;
  * @param {string} color - Color of the text
  * @param {string} align - Alignment of the text ("left" | "center" | "right")

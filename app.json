@@ -6,6 +6,7 @@
     "slug": "floodzuki",
     "scheme": "floodzuki",
     "jsEngine": "hermes",
+    "icon": "./assets/app-icon/ios-universal.png",
     "web": {
       "bundler": "metro",
       "favicon": "./assets/favicon.png",

@@ -72,6 +72,14 @@ export const Typography: TypographyType = {
     color: Colors.dark,
   },
 
+  largerTitle: {
+    fontFamily: Fonts.montserrat.bold,
+    fontWeight: "700",
+    fontSize: 20,
+    lineHeight: 24,
+    color: Colors.dark,
+  },
+
   largeTitle: {
     fontFamily: Fonts.montserrat.semibold,
     fontWeight: "600",

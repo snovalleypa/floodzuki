@@ -1,9 +1,31 @@
-import React, { useMemo } from "react"
+import React from "react"
 import { ColorValue, ViewStyle, TextStyle, View } from "react-native"
-import { Colors, ColorTypes, Palette } from "@common-ui/constants/colors"
+import { Colors, ColorTypes } from "@common-ui/constants/colors"
 import { Spacing } from "@common-ui/constants/spacing"
 import { OffsetProps, useOffsetStyles } from "@common-ui/utils/useOffset"
-import { SmallText } from "./Text"
+import { LargeTitle, SmallText, SmallTitle } from "./Text"
+import { useResponsive } from "@common-ui/utils/responsive"
+
+const LARGE_LABEL_COLORS = {
+  "success": {
+    backgroundColor: "#e8f4d1",
+    textColor: "#9fd140",
+  },
+  "warning": {
+    backgroundColor: "#ffeac2",
+    textColor: "#ffa700",
+  },
+  "danger": {
+    backgroundColor: "#fad4d4",
+    textColor: "#ea4b4b",
+  },
+  "offline": {
+    backgroundColor: "#fff",
+    textColor: "##b1b1b1",
+  }
+}
+
+type LargeLabelType = keyof typeof LARGE_LABEL_COLORS
 
 type labelProps = {
   text: string
@@ -11,6 +33,11 @@ type labelProps = {
   textColor?: ColorValue
   backgroundColor?: ColorValue
   style?: ViewStyle
+} & OffsetProps
+
+type largeLabelProps = {
+  text: string
+  type?: LargeLabelType
 } & OffsetProps
 
 /**
@@ -56,18 +83,53 @@ export function Label(props: labelProps) {
   )
 }
 
+export function LargeLabel(props: largeLabelProps) {
+  const { text, type, ...offsetProps } = props
+
+  const { isMobile } = useResponsive()
+
+  let labelStyle: ViewStyle[] = [$largeLabel]
+  const textStyle: TextStyle[] = [$largeText]
+
+  labelStyle = useOffsetStyles(labelStyle, offsetProps)
+
+  if (type) {
+    labelStyle.push({ backgroundColor: LARGE_LABEL_COLORS[type].backgroundColor })
+    textStyle.push({ color: LARGE_LABEL_COLORS[type].textColor })
+  }
+
+  const Text = isMobile ? SmallTitle : LargeTitle
+
+  return (
+    <View style={labelStyle}>
+      <Text textStyle={textStyle}>{text}</Text>
+    </View>
+  )
+}
+
 const $label: ViewStyle = {
   alignItems: "center",
   borderWidth: 1,
   backgroundColor: Colors.white,
   borderRadius: Spacing.extraSmall,
-  borderColor: Colors.darkGrey,
+  borderColor: Colors.midGrey,
   justifyContent: "center",
   paddingHorizontal: Spacing.extraSmall,
   paddingVertical: Spacing.tiny,
 }
 
+const $largeLabel: ViewStyle = {
+  alignItems: "center",
+  borderRadius: Spacing.extraSmall,
+  paddingHorizontal: Spacing.medium,
+  paddingVertical: Spacing.extraSmall
+}
+
 const $text: TextStyle = {
   color: Colors.lightDark,
   lineHeight: Spacing.medium,
+}
+
+const $largeText: TextStyle = {
+  color: Colors.lightDark,
 }

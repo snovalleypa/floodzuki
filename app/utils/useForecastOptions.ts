@@ -54,12 +54,10 @@ const buildSeries = (forecasts: Forecast[], gages: GageSummary[]) => {
   forecasts.forEach((forecast) => {
     const gage = gages.find(g => g.id === forecast.id)
 
-    const dataPoints = forecast.dataPoints.map((dp) => {
-      const timestamp = localDayJs.tz(dp.timestamp)
-      
+    const dataPoints = forecast.dataPoints.map((dp) => {      
       return {
-        x: timestamp.valueOf(),
-        xLabel: timestamp.format("ddd, MMM D, h:mm A"),
+        x: dp.timestamp.valueOf(),
+        xLabel: dp.timestamp.format("ddd, MMM D, h:mm A"),
         y: dp.waterDischarge,
         stage: dp.reading,
         isForecast: false,
@@ -94,11 +92,9 @@ const buildSeries = (forecasts: Forecast[], gages: GageSummary[]) => {
     })
 
     const forecastDataPoints = forecast.forecastDataPoints.map((dp) => {
-      const timestamp = localDayJs.tz(dp.timestamp)
-
       return {
-        x: timestamp.valueOf(),
-        xLabel: timestamp.format("ddd, MMM D, h:mm A"),
+        x: dp.timestamp.valueOf(),
+        xLabel: dp.timestamp.format("ddd, MMM D, h:mm A"),
         y: dp.waterDischarge,
         stage: dp.reading,
         isForecast: true,
@@ -266,28 +262,27 @@ const useForecastOptions = (gages: GageSummary[], daysBefore: number, daysAfter:
 
   const [options, setOptions] = useState<Highcharts.Options>({})
 
-  useTimeout(() => {
+  // useTimeout(() => {
+  //   setOptions(buildOptions({
+  //     daysBefore,
+  //     daysAfter,
+  //     forecasts,
+  //     gages,
+  //     timezone: rootStore.getTimezone(),
+  //   }))
+    
+  //   isRendered.current = true
+  // }, isMobile ? Timing.fast : Timing.zero)
+
+  useEffect(() => {
+    console.log("RENDERED")
     setOptions(buildOptions({
       daysBefore,
       daysAfter,
       forecasts,
       gages,
-      timezone: rootStore.getTimezone(),
+      timezone: rootStore.getTimezone()
     }))
-    
-    isRendered.current = true
-  }, isMobile ? Timing.fast : Timing.zero)
-
-  useEffect(() => {
-    if (isRendered.current) {
-      setOptions(buildOptions({
-        daysBefore,
-        daysAfter,
-        forecasts,
-        gages,
-        timezone: rootStore.getTimezone()
-      }))
-    }
   }, [gages, daysBefore, daysAfter])
 
   return options

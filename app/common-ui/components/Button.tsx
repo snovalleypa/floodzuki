@@ -280,7 +280,7 @@ export function OutlinedButton(props: ButtonProps) {
 export function LinkButton(props: ButtonProps) {
   const { type, ...rest } = props
 
-  const textColor = type ? Colors[type] : Colors.primary
+  const textColor = type ? Colors[type] : Colors.blue
 
   return <BaseButton
     borderColor="transparent"
@@ -315,7 +315,7 @@ export function IconButton(props: ButtonProps) {
   const height = iconSize ? iconSize + Spacing.small : Spacing.larger
 
   return <BaseButton
-    iconSize={Spacing.larger}
+    iconSize={iconSize ?? Spacing.larger}
     height={height}
     paddingHorizontal={Spacing.tiny}
     shadowOffsetRight={1}

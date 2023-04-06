@@ -47,12 +47,16 @@ const en = {
     now: "now",
     fullRangeTitle: "Full",
     rangeDays: "{{days}} days",
+    rangeDay: "day",
   },
   gageChart: {
     discharge: "Discharge",
     waterLevel: "Water Level",
     Now: "Now",
     dashboardDurationLabel: "48 hrs. ago",
+  },
+  gageScreen: {
+    
   }
 }
 

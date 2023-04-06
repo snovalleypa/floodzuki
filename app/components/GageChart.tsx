@@ -43,8 +43,6 @@ export const GageChart = observer(
 
     const chartOptions = useGageChartOptions(gage, optionType, GageChartDataType.LEVEL)
 
-    console.log('chartOptions', gage.locationId, chartOptions)
-
     return (
       <Cell flex innerHorizontal={Spacing.tiny} innerVertical={Spacing.tiny}>
         <Ternary condition={!!Object.keys(chartOptions).length}>

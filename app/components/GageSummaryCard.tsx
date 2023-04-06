@@ -36,7 +36,7 @@ function ReadingRow(props: { reading?: DataPoint, delta?: number }) {
   }
 
   return (
-    <Row flex align="space-between" innerHorizontal={Spacing.tiny} top={Spacing.tiny}>
+    <Row flex align="space-between" innerHorizontal={Spacing.tiny} innerVertical={Spacing.micro} top={Spacing.tiny}>
       <Cell flex={2}>
         <SmallerText>{formatDateTime(reading.timestamp)}</SmallerText>
       </Cell>

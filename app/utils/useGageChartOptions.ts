@@ -50,8 +50,6 @@ const CHART_OPTIONS = {
       Config.FRONT_PAGE_CHART_DURATION_UNIT
     );
 
-    console.log("CHART BEGIN / END TIME", chartBeginTime, options._now)
-
     options.xAxis.min = chartBeginTime
       .clone()
       .subtract(20, "m")
@@ -84,7 +82,7 @@ const CHART_OPTIONS = {
 
     options.xAxis.max = range.chartEndDate
       .clone()
-      .add(predictionWindow,"m")
+      .add(predictionWindow, "m")
       .add(DEBUGGING_TIMESPAN_MARGIN,"m")
       .valueOf();
 
@@ -99,8 +97,6 @@ const CHART_OPTIONS = {
         startDate: range.chartStartDate,
       }
     );
-
-    console.log("CREST", crest)
     
     if (crest) {
       options.xAxis.plotLines = options.xAxis.plotLines || [];
@@ -120,11 +116,9 @@ function calculateCrest(
   dataPoints: DataPoint[],
   {
     startDate = localDayJs("1970-01-01"),
-    endDate = localDayJs("2170-01-01"),
+    endDate = localDayJs(),
   } = {}
 ) {
-  console.log("calculateCrest", dataPoints)
-
   const points = dataPoints.filter(
     point => point.timestamp >= startDate && point.timestamp <= endDate
   );
@@ -149,18 +143,22 @@ function calculateCrest(
     return null;
   }
   
+  const dur = localDayJs.duration(120, "m").asMilliseconds();
+
   for (let i = points.length - 2; i > 0; i--) {
     const next = points[i - 1];
     const point = points[i];
     const prev = points[i + 1];
+
     if (
       point.reading === max &&
-      point.timestamp - prev.timestamp < localDayJs.duration(120, "m") &&
-      next.timestamp - point.timestamp < localDayJs.duration(120, "m")
+      point.timestamp - prev.timestamp < dur &&
+      next.timestamp - point.timestamp < dur
     ) {
       return point;
     }
   }
+  
   return null;
 }  
 
@@ -356,13 +354,10 @@ function createDataAndReturnMin(gage: Gage, chartDataType: GageChartDataType) {
   const readings = dataPoints.slice().filter(d => !d.isDeleted).reverse();
   const deletedReadings = dataPoints.slice().filter(d => d.isDeleted).reverse();
 
-  const [readingsSeries, seriesMin] = createSeriesAndReturnMin(readings, gage, Colors.gageChartColor, false, chartDataType);
+  const [readingsSeries, seriesMin] = createSeriesAndReturnMin(readings, gage, Colors.gageChartColor, hasPredictions, chartDataType);
   min = seriesMin;
   
   chartData.push(...readingsSeries)
-
-  console.log("readings", dataPoints)
-  console.log("deletedReadings", deletedReadings)
   
   if (deletedReadings.length > 0) {
     const [deletedReadingsSeries, deletedSeriesMin] = createSeriesAndReturnMin(dataPoints, gage, Colors.gageChartDeletedLineColor, false, chartDataType);
@@ -383,10 +378,6 @@ const buildBasicOptions = (props: BuildOptionsProps) => {
       spacingLeft: 0,
       spacingRight: 5,
       animation: false,
-    },
-    time: {
-      useUTC: true,
-      timezone: timezone,
     },
     title: {
       text: null,
@@ -470,9 +461,13 @@ const buildBasicOptions = (props: BuildOptionsProps) => {
   return options
 }
 
-const useGageChartOptions = (gage: Gage, optionType: string, chartDataType: GageChartDataType, range?: Range) => {
+const useGageChartOptions = (
+  gage: Gage,
+  optionType: string,
+  chartDataType: GageChartDataType,
+  range?: Range
+) => {
   const rootStore = useStores()
-  const isRendered = useRef(false)
 
   const [options, setOptions] = useState<Highcharts.Options>({})
 
@@ -488,17 +483,19 @@ const useGageChartOptions = (gage: Gage, optionType: string, chartDataType: Gage
     )
   }
 
-  useTimeout(() => {
-    setOptions(getOptions())
-    
-    isRendered.current = true
-  }, isMobile ? Timing.fast : Timing.zero)
-
   useEffect(() => {
-    if (isRendered.current) {
-      setOptions(getOptions())
-    }
-  }, [gage, optionType, chartDataType])
+    console.log("useGageChartOptions: useEffect")
+    setOptions(getOptions())
+  }, [
+    gage.locationId,
+    optionType,
+    chartDataType,
+    range,
+    gage.dataPoints,
+    gage.actualPoints,
+    gage.predictedPoints,
+    gage.noaaForecastData,
+  ])
 
   return options
 }

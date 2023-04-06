@@ -3,8 +3,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
     View,
-    Dimensions,
-    StyleSheet,
     ViewStyle,
 } from 'react-native';
 import { WebView, WebViewMessageEvent, WebViewProps } from 'react-native-webview';
@@ -132,7 +130,7 @@ const HighchartsReactNative = React.memo((props: HighchartsReactNativeProps) => 
     startInLoadingState = true,
     webviewStyles,
     webviewProps,
-    modules,
+    modules = [],
     options,
     setOptions = {},
   } = props;
