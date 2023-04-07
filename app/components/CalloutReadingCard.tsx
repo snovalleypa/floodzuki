@@ -14,6 +14,8 @@ import { useStores } from "@models/helpers/useStores";
 import { formatReadingTime } from "@utils/useTimeFormat";
 import { formatFlow, formatHeight, formatTrend, isNullish } from "@utils/utils";
 import { LargeLabel } from "@common-ui/components/Label";
+import TrendIcon, { levelTrendIconName } from "@components/TrendIcon";
+import { Spacing } from "@common-ui/constants/spacing";
 
 const CalloutReading = observer(
   function CalloutReadingCard({ gage }: { gage: Gage }) {
@@ -32,6 +34,8 @@ const CalloutReading = observer(
 
     const hasTrendInfo = !!status?.levelTrend && !!status?.waterTrend && !isNullish(status?.waterTrend?.trendValue)
     const hasRoadInfo = !isNullish(gage?.roadSaddleHeight) && !!gage?.roadDisplayName
+
+    console.log("LEVEL TREND", status?.levelTrend)
     
     return (
       <Card flex>  
@@ -46,7 +50,7 @@ const CalloutReading = observer(
             <If condition={!!timeAgo}>
               {timeAgo}{" / "}
             </If>
-            {formatReadingTime(getTimezone(), reading?.timestamp)}
+            {formatReadingTime(reading?.timestamp)}
           </LabelText>
         </CardHeader>
         <Cell flex>
@@ -71,8 +75,12 @@ const CalloutReading = observer(
           <If condition={hasTrendInfo}>
             <CardItem noBorder={!hasRoadInfo}>
               <RegularText>Trend</RegularText>
-              <MediumText>{formatTrend(status?.waterTrend?.trendValue)}</MediumText>
-              {/* TODO: Add trend icon */}
+              <Row>
+                <MediumText>{formatTrend(status?.waterTrend?.trendValue)}</MediumText>
+                <Cell left={Spacing.tiny}>
+                  <TrendIcon iconName={levelTrendIconName(status?.levelTrend)} />
+                </Cell>
+              </Row>
             </CardItem>
           </If>
           <If condition={hasRoadInfo}>

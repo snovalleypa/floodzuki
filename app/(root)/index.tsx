@@ -23,6 +23,7 @@ import { formatReadingTime } from "@utils/useTimeFormat"
 import { GageChart } from "@components/GageChart"
 import Icon from "@common-ui/components/Icon"
 import { ROUTES } from "app/_layout"
+import TrendIcon, { levelTrendIconName } from "@components/TrendIcon"
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -78,8 +79,8 @@ const GageItem = ({ item, gagesStore }: GageItemProps) => {
           <Row wrap align="space-between" top={Spacing.medium}>
             <Row>
               <GageStatus gage={gage} />
-              <Cell left={Spacing.tiny}>
-                <Icon name={gage?.levelTrendIconName} />
+              <Cell left={Spacing.medium}>
+                <TrendIcon iconName={levelTrendIconName(gage?.status?.levelTrend)} />
               </Cell>
             </Row>
             <Cell left={Spacing.tiny}>
@@ -89,7 +90,7 @@ const GageItem = ({ item, gagesStore }: GageItemProps) => {
                   {" / "}{formatFlow(lastReading?.waterDischarge)}
                 </If>
                 <SmallText>
-                  {" @ "}{formatReadingTime(item?.timeZoneName, lastReading?.timestamp)}
+                  {" @ "}{formatReadingTime(lastReading?.timestamp)}
                 </SmallText>
               </DescriptiveText>
             </Cell>

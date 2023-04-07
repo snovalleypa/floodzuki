@@ -25,7 +25,6 @@ export const RootStoreModel = types.model("RootStore")
     }
 
     const fetchMainData = flow(function*() {
-      console.log("BEGIN FETCHING")
       setIsFetched(false)
 
       yield store.regionStore.fetchData()
@@ -33,8 +32,6 @@ export const RootStoreModel = types.model("RootStore")
       yield store.metagageStore.fetchData()
       yield store.gagesStore.fetchData()
       yield store.forecastsStore.fetchData()
-
-      console.log("DONE FETCHING")
 
       setIsFetched(true)
     })

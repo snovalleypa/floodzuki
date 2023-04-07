@@ -14,10 +14,10 @@ export const formatDateTime = (time: string | dayjs.Dayjs) => {
   return result;
 }
 
-export const formatReadingTime = (timeZone: string, timestamp: string) => {
+export const formatReadingTime = (timestamp: string) => {
   if (!timestamp) return "";
 
-  const timeAgo = localDayJs() - localDayJs.tz(timestamp, timeZone);
+  const timeAgo = localDayJs() - localDayJs.tz(timestamp);
   
   let formatString;
   

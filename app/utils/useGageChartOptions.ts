@@ -66,7 +66,7 @@ const CHART_OPTIONS = {
       },
     });
 
-    return options
+    return [options, null] as const
   },
 
   gageDetailsOptions: (
@@ -108,7 +108,7 @@ const CHART_OPTIONS = {
       );
     }
 
-    return options
+    return [options, crest] as const
   }
 }
 
@@ -469,7 +469,7 @@ const useGageChartOptions = (
 ) => {
   const rootStore = useStores()
 
-  const [options, setOptions] = useState<Highcharts.Options>({})
+  const [options, setOptions] = useState<[Highcharts.Options, DataPoint]>([{}, null])
 
   const getOptions = () => {
     return CHART_OPTIONS[optionType](
@@ -484,7 +484,6 @@ const useGageChartOptions = (
   }
 
   useEffect(() => {
-    console.log("useGageChartOptions: useEffect")
     setOptions(getOptions())
   }, [
     gage.locationId,

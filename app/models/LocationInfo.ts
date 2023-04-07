@@ -106,6 +106,7 @@ export const LocationInfoModelStore = types
 
 export interface LocationInfoStore extends Instance<typeof LocationInfoModelStore> {}
 export interface LocationInfo extends Instance<typeof LocationInfoModel> {}
+export interface FloodEvent extends Instance<typeof FloodEventModel> {}
 
 export interface LocationInfoSnapshotIn extends SnapshotIn<typeof LocationInfoModel> {}
 export interface LocationInfoSnapshotOut extends SnapshotOut<typeof LocationInfoModel> {}

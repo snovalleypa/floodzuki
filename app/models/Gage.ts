@@ -274,24 +274,6 @@ export const GageModel = types
       return null
     },
 
-    get levelTrendIconName() {
-      switch (store?.gageStatus?.levelTrend) {
-        case "Cresting":
-        case "Steady":
-          return "arrow-right";
-        case "Falling":
-          return "arrow-down-right";
-        case "Rising":
-          return "arrow-up-right";
-        case "Offline":
-          return "wifi-off";
-        case "Status not found.":
-          return "arrow-right";
-        default:
-          return "wifi-off";
-      }
-    },
-
     getCalculatedRoadStatus(waterLevel: number) {
       if (!store.roadSaddleHeight || !store.roadDisplayName) return null;
       
@@ -309,7 +291,7 @@ export const GageModel = types
     },
 
     clearLastReading() {
-      store.lastReadingId = null;
+      store.lastReadingId = undefined;
     }
   }))
 
@@ -394,10 +376,22 @@ export const GageStoreModel = types
 
         // We tend to ignore predictions only for historic events or events
         // that are in the past. In those cases, we don't want to update the lastReadingId
-        if (!includePredictions) {
+        if (includePredictions) {
           gage.setProp("lastReadingId", data.lastReadingId)
         }
-        gage.setProp("readings", data.readings)
+        else {
+          gage.setProp("lastReadingId", undefined)
+        }
+        
+        // If last reading id is included - add it to the readings array
+        if (includeLastReading) {
+          gage.setProp("readings", [...gage.readings, ...data.readings])
+        }
+        else {
+          // Otherwise, just replace the readings array
+          gage.setProp("readings", data.readings)
+        }
+        
         gage.setProp("predictedCfsPerHour", data.predictedCfsPerHour)
         gage.setProp("predictedFeetPerHour", data.predictedFeetPerHour)
         gage.setProp("status", data.status)

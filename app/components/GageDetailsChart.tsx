@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { ActivityIndicator, TextStyle, ViewStyle } from "react-native";
+import React, { useEffect, useMemo, useState } from "react";
+import { ActivityIndicator, TextStyle } from "react-native";
 import { observer } from "mobx-react-lite";
 import { useLocalSearchParams, useRouter } from "expo-router"
 
@@ -24,8 +24,11 @@ import Config from "@config/config";
 import { IconButton } from "@common-ui/components/Button";
 import { Colors } from "@common-ui/constants/colors";
 import { Picker } from "@react-native-picker/picker";
-import { ROUTES } from "app/_layout";
-import { RegularText, SmallText } from "@common-ui/components/Text";
+import { LabelText, MediumText, RegularText, SmallerText } from "@common-ui/components/Text";
+import { FloodEvent } from "@models/LocationInfo";
+import { Dayjs } from "dayjs";
+import { DataPoint } from "@models/Forecasts";
+import { formatReadingTime } from "@utils/useTimeFormat";
 
 interface GageDetailsChartProps {
   gage: Gage
@@ -35,6 +38,7 @@ interface ChartsProps {
   options: Highcharts.Options
 }
 
+// Ranges available for selection
 const RANGES = [
   {
     key: "14",
@@ -54,6 +58,7 @@ const RANGES = [
   },
 ]
 
+// Possible chart data types
 const CHART_DATA_TYPES = [
   {
     key: GageChartDataType.LEVEL,
@@ -64,6 +69,8 @@ const CHART_DATA_TYPES = [
     title: "Discharge"
   }
 ]
+
+const SELECT_EVENT = "- select event -"
 
 const Charts = (props: ChartsProps) => {
   const { options } = props
@@ -83,13 +90,138 @@ const Charts = (props: ChartsProps) => {
   )
 }
 
+/** Historic Flooding events picker */
+const HistoricEvents = observer(
+  function HistoricEvents({ floodEvents = [] }: { floodEvents: FloodEvent[] }) {
+    const { historicEventId } = useLocalSearchParams()
+    const router = useRouter()
+
+    // Update chart when historic event selected
+    const onHistoricEventSelected = (historicEventId: string) => {
+      // Clear params when no event selected
+      if (!historicEventId)  return
+
+      if (historicEventId === SELECT_EVENT) {
+        router.setParams({
+          historicEventId: undefined,
+          from: undefined,
+          to: undefined
+        })
+        return
+      }
+
+      const historicEventIdNum = parseInt(historicEventId)
+      const event = floodEvents.find(e => e.id === historicEventIdNum)
+
+      if (!event) return
+
+      router.setParams({
+        historicEventId,
+        from: localDayJs(event.fromDate).format("YYYY-MM-DD"),
+        to: localDayJs(event.toDate).format("YYYY-MM-DD")
+      })
+    }
+
+    return (
+      <If condition={!!floodEvents.length}>
+        <Row>
+          <RegularText muted>Historical Events:  </RegularText>
+          <Picker
+            selectedValue={historicEventId}
+            onValueChange={onHistoricEventSelected}
+            style={$pickerStyle}
+          >
+            <Picker.Item label={SELECT_EVENT} value={SELECT_EVENT} />
+            {floodEvents?.map((event, index) => (
+              <Picker.Item key={event.id} label={event.eventName} value={event.id} />
+            ))}
+          </Picker>
+        </Row>
+      </If>
+    )
+  }
+)
+
+/** Water level rate of change */
+const RateOfChange = observer(
+  function RateOfChange({ gage }: { gage: Gage }) {
+    console.log("Rate of change")
+
+    if (!gage?.locationId) return null;
+
+
+
+    // set rate of change
+    let rate = gage?.predictedFeetPerHour
+    if (rate > -0.01 && rate < 0.01) {
+      rate = null;
+    }
+
+    const crossingTime = useMemo(() => {
+      let crossingTime = null;
+      
+      for (var i = 0; i < gage.predictions.length - 1; i++) {
+        let p = gage.predictions[i];
+        let pNext = gage.predictions[i + 1];
+        
+        if (pNext.waterHeight === gage.roadSaddleHeight) {
+          crossingTime = localDayJs.tz(pNext.timestamp);
+          break;
+        }
+        
+        if ((pNext.waterHeight > gage.roadSaddleHeight && gage.roadSaddleHeight > p.waterHeight) ||
+            (pNext.waterHeight < gage.roadSaddleHeight && gage.roadSaddleHeight < p.waterHeight)) {
+          let waterDelta = (gage.roadSaddleHeight - p.waterHeight) / (pNext.waterHeight - p.waterHeight);
+          let msec = localDayJs.tz(pNext.timestamp).diff(localDayJs.tz(p.timestamp)) * waterDelta;
+          crossingTime = localDayJs.tz(p.timestamp).add(msec, 'milliseconds');
+          break;
+        }
+      }
+
+      return crossingTime;
+    }, [gage.roadSaddleHeight]);
+
+    if (!rate) return null
+
+    const rateText = `${rate > 0 ? "+" : ""}${rate.toFixed(2)} feet/hour`
+
+    return (
+      <Row align="center" bottom={Spacing.extraSmall}>
+        <MediumText muted>Rate of change: </MediumText>
+        <RegularText muted>{rateText}</RegularText>
+        <If condition={!!crossingTime}>
+          <LabelText>
+            {" "}Road level @{" "}
+            <SmallerText>{crossingTime?.format("llll")}</SmallerText>
+          </LabelText>
+        </If>
+      </Row>
+    )
+  }
+)
+
+/** Crest Info */
+const CrestInfo = observer(
+  function CrestInfo({ crest }: { crest: DataPoint }) {
+    if (!crest) return null
+    
+    return (
+      <Row align="center" bottom={Spacing.extraSmall}>
+        <MediumText muted>Max: </MediumText>
+        <RegularText muted>
+          {crest?.reading?.toFixed(2)} ft. / {formatReadingTime(crest?.timestamp)}
+        </RegularText>
+      </Row>
+    )
+  }
+)
+
 export const GageDetailsChart = observer(
   function GageDetailsChart(props: GageDetailsChartProps) {
     const { gage } = props
 
     const { from, to, historicEventId } = useLocalSearchParams()
     const { gagesStore, isDataFetched } = useStores();
-    const router = useRouter();
 
     const chartRange = useChartRange(from, to)
 
@@ -129,30 +261,8 @@ export const GageDetailsChart = observer(
       })
     }, [from, to])
 
-    // Update chart when historic event selected
-    const onHistoricEventSelected = (historicEventId: string) => {
-      // Clear params when no event selected
-      if (!historicEventId)  return
-
-      if (historicEventId === "NO_EVENT") {
-        router.setParams({
-          historicEventId: undefined,
-          from: undefined,
-          to: undefined
-        })
-        return
-      }
-
-      const historicEventIdNum = parseInt(historicEventId)
-      const event = gage?.locationInfo?.floodEvents.find(e => e.id === historicEventIdNum)
-
-      if (!event) return
-
-      router.setParams({
-        historicEventId,
-        from: localDayJs(event.fromDate).format("YYYY-MM-DD"),
-        to: localDayJs(event.toDate).format("YYYY-MM-DD")
-      })
+    const refetchData = () => {
+      refreshData()
     }
 
     const refreshData = (from?: string, to?: string) => {
@@ -184,7 +294,7 @@ export const GageDetailsChart = observer(
       setChartDataType(key)
     }
     
-    const chartOptions = useGageChartOptions(
+    const [chartOptions, crest] = useGageChartOptions(
       gage,
       "gageDetailsOptions",
       chartDataType,
@@ -225,32 +335,24 @@ export const GageDetailsChart = observer(
             <Row align="space-between">
               <Cell></Cell>
               <Cell>
-                <If condition={!!gage?.locationInfo?.floodEvents}>
-                  <Row>
-                    <RegularText muted>Historical Events:  </RegularText>
-                    <Picker
-                      selectedValue={historicEventId}
-                      onValueChange={onHistoricEventSelected}
-                      style={$pickerStyle}
-                    >
-                      <Picker.Item label="- select event -" value="NO_EVENT" />
-                      {gage?.locationInfo?.floodEvents?.map((event, index) => (
-                        <Picker.Item key={event.id} label={event.eventName} value={event.id} />
-                      ))}
-                    </Picker>
-                  </Row>
-                </If>
+                <CrestInfo crest={crest} />
+                <RateOfChange gage={gage} />
+                <HistoricEvents floodEvents={gage?.locationInfo?.floodEvents} />
               </Cell>
               {/* Refresh Icon */}
               <Ternary condition={gagesStore.isFetching}>
-                <Cell width={Spacing.larger + Spacing.extraSmall} height={Spacing.larger}>
+                <Cell
+                  width={Spacing.larger}
+                  height={Spacing.larger}
+                  align="center"
+                >
                   <ActivityIndicator />
                 </Cell>
                 <IconButton
                   small
                   icon="rotate-cw"
                   iconSize={Spacing.large}
-                  onPress={refreshData}
+                  onPress={refetchData}
                   textColor={Colors.midGrey}
                 />
               </Ternary>

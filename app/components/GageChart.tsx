@@ -41,7 +41,7 @@ export const GageChart = observer(
   function GageChart(props: GageChartProps) {
     const { gage, optionType } = props
 
-    const chartOptions = useGageChartOptions(gage, optionType, GageChartDataType.LEVEL)
+    const [chartOptions] = useGageChartOptions(gage, optionType, GageChartDataType.LEVEL)
 
     return (
       <Cell flex innerHorizontal={Spacing.tiny} innerVertical={Spacing.tiny}>
