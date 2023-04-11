@@ -9,7 +9,6 @@ import { Colors } from "@common-ui/constants/colors";
 import { Spacing } from "@common-ui/constants/spacing";
 import { routes } from "app/_layout";
 import { useStores } from "@models/helpers/useStores";
-import { useInterval } from "@utils/useTimeout";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LabelText, LargeTitle } from "@common-ui/components/Text";
 import { Cell, Row, Separator } from "@common-ui/components/Common";
@@ -21,11 +20,6 @@ export default function AppLayout() {
   useEffect(() => {
     store.fetchMainData()
   }, [])
-
-  // Update gage status every 5 minutes
-  useInterval(() => {
-    store.gagesStore.fetchData()
-  }, 5 * 60 * 1000)
 
   return (
     <>

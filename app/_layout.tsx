@@ -2,13 +2,13 @@ import React from "react";
 import { Slot, SplashScreen } from "expo-router";
 import { useFonts } from "expo-font";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 
 import { customFontsToLoad } from "@common-ui/constants/typography";
 import { useInitialRootStore } from "@models/helpers/useStores";
 
 import "@i18n/i18n";
 import { t } from "@i18n/translate";
-import { ForecastProvider } from "./contexts/ForecastsContext";
 
 /**
  * Root layout for Expo router (entry file for the app)
@@ -56,9 +56,9 @@ export default function AppLayout() {
 function App() {
   return (
     <SafeAreaProvider>
-      <ForecastProvider>
+      <BottomSheetModalProvider>
         <Slot />
-      </ForecastProvider>
+      </BottomSheetModalProvider>
     </SafeAreaProvider>
   )
 }

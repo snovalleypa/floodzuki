@@ -30,12 +30,10 @@ const CalloutReading = observer(
 
     const roadStatus = gage?.getCalculatedRoadStatus(gage?.waterLevel)
 
-    const timeAgo = isNow ? localDayJs.tz(reading?.timestamp).fromNow() : null
+    const timeAgo = isNow && reading?.timestamp ? localDayJs.tz(reading?.timestamp).fromNow() : null
 
     const hasTrendInfo = !!status?.levelTrend && !!status?.waterTrend && !isNullish(status?.waterTrend?.trendValue)
     const hasRoadInfo = !isNullish(gage?.roadSaddleHeight) && !!gage?.roadDisplayName
-
-    console.log("LEVEL TREND", status?.levelTrend)
     
     return (
       <Card flex>  

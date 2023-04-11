@@ -17,7 +17,10 @@ export const formatDateTime = (time: string | dayjs.Dayjs) => {
 export const formatReadingTime = (timestamp: string) => {
   if (!timestamp) return "";
 
-  const timeAgo = localDayJs() - localDayJs.tz(timestamp);
+  const time = typeof timestamp === "string" ?
+    localDayJs.tz(timestamp) : timestamp;
+
+  const timeAgo = localDayJs() - time;
   
   let formatString;
   
@@ -29,5 +32,5 @@ export const formatReadingTime = (timestamp: string) => {
     formatString = "YYYY/MM/DD h:mm a";
   }
 
-  return localDayJs.tz(timestamp).format(formatString);
+  return time.format(formatString);
 }

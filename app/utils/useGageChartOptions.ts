@@ -230,6 +230,7 @@ function createActualDataSeries(dataPoints: DataPoint[], groundHeight: number, c
     data: dataPoints.map(d => ({
       x: d.timestamp.valueOf(),
       y: d.reading,
+      ts: d.timestamp,
       isPrediction: false
     })),
     fillOpacity: 0,
@@ -274,12 +275,14 @@ function createSeriesAndReturnMin(dataPoints, gage, color, setIsPrediction, char
       data = dataPoints.map(d => ({
         x: d.timestamp.valueOf(),
         y: d.waterDischarge,
+        ts: d.timestamp?.format(),
         isPrediction: false
       }))
     } else {
       data = dataPoints.map(d => ({
         x: d.timestamp.valueOf(),
         y: d.reading,
+        ts: d.timestamp?.format(),
         isPrediction: false
       }))
     }

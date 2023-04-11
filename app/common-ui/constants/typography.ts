@@ -68,7 +68,7 @@ export const Typography: TypographyType = {
     fontFamily: Fonts.montserrat.bold,
     fontWeight: "700",
     fontSize: 26,
-    lineHeight: 28,
+    lineHeight: 30,
     color: Colors.dark,
   },
 
@@ -84,7 +84,7 @@ export const Typography: TypographyType = {
     fontFamily: Fonts.montserrat.semibold,
     fontWeight: "600",
     fontSize: 18,
-    lineHeight: 20,
+    lineHeight: 22,
     color: Colors.dark,
   },
 
@@ -92,7 +92,7 @@ export const Typography: TypographyType = {
     fontFamily: Fonts.montserrat.semibold,
     fontWeight: "600",
     fontSize: 16,
-    lineHeight: 18,
+    lineHeight: 20,
     color: Colors.dark,
   },
 
@@ -116,7 +116,7 @@ export const Typography: TypographyType = {
     fontFamily: Fonts.openSans.normal,
     fontWeight: "400",
     fontSize: 16,
-    lineHeight: 18,
+    lineHeight: 20,
     color: Colors.dark,
   },
 
@@ -124,7 +124,7 @@ export const Typography: TypographyType = {
     fontFamily: Fonts.openSans.normal,
     fontWeight: "300",
     fontSize: 14,
-    lineHeight: 16,
+    lineHeight: 18,
     color: Colors.dark,
   },
 
@@ -132,7 +132,7 @@ export const Typography: TypographyType = {
     fontFamily: Fonts.openSans.normal,
     fontWeight: "300",
     fontSize: 12,
-    lineHeight: 14,
+    lineHeight: 16,
     color: Colors.dark,
   },
 
@@ -140,7 +140,7 @@ export const Typography: TypographyType = {
     fontFamily: Fonts.openSans.normal,
     fontWeight: "300",
     fontSize: 10,
-    lineHeight: 12,
+    lineHeight: 14,
     color: Colors.dark,
   },
 

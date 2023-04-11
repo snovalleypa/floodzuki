@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, TextStyle } from "react-native";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { ActivityIndicator, TextStyle, TouchableOpacity, View, ViewStyle } from "react-native";
 import { observer } from "mobx-react-lite";
 import { useLocalSearchParams, useRouter } from "expo-router"
 
@@ -8,7 +8,7 @@ import LocalHighchartsReact from "@services/highcharts/LocalHighchartsReact";
 
 import { Gage, GageChartDataType } from "@models/Gage";
 import { If, Ternary } from "@common-ui/components/Conditional";
-import { isMobile } from "@common-ui/utils/responsive";
+import { isAndroid, isIOS, isMobile } from "@common-ui/utils/responsive";
 import { Card, CardFooter, CardHeader } from "@common-ui/components/Card";
 import { Spacing } from "@common-ui/constants/spacing";
 
@@ -21,7 +21,7 @@ import localDayJs from "@services/localDayJs";
 import { useStores } from "@models/helpers/useStores";
 import { useInterval } from "@utils/useTimeout";
 import Config from "@config/config";
-import { IconButton } from "@common-ui/components/Button";
+import { IconButton, SolidButton } from "@common-ui/components/Button";
 import { Colors } from "@common-ui/constants/colors";
 import { Picker } from "@react-native-picker/picker";
 import { LabelText, MediumText, RegularText, SmallerText } from "@common-ui/components/Text";
@@ -29,6 +29,8 @@ import { FloodEvent } from "@models/LocationInfo";
 import { Dayjs } from "dayjs";
 import { DataPoint } from "@models/Forecasts";
 import { formatReadingTime } from "@utils/useTimeFormat";
+import { BottomSheetModal } from "@gorhom/bottom-sheet";
+import Icon from "@common-ui/components/Icon";
 
 interface GageDetailsChartProps {
   gage: Gage
@@ -90,11 +92,42 @@ const Charts = (props: ChartsProps) => {
   )
 }
 
+const PickerSelector = ({
+  floodEvents = [],
+  historicEventId,
+  onHistoricEventSelected
+}: {
+  floodEvents: FloodEvent[];
+  historicEventId?: string | string[];
+  onHistoricEventSelected: (historicEventId: string) => void
+}) => {
+  const eventId = Array.isArray(historicEventId) ? historicEventId[0] : historicEventId
+
+  const width = isAndroid ? { width: 200 } : {}
+
+  return (
+    <Picker
+      prompt="Select Event"
+      selectedValue={eventId}
+      onValueChange={onHistoricEventSelected}
+      style={[$pickerStyle, width]}
+    >
+      <Picker.Item label={SELECT_EVENT} value={SELECT_EVENT} />
+      {floodEvents?.map((event, index) => (
+        <Picker.Item key={event.id} label={event.eventName} value={event.id} />
+      ))}
+    </Picker>
+  )
+}
+
 /** Historic Flooding events picker */
 const HistoricEvents = observer(
   function HistoricEvents({ floodEvents = [] }: { floodEvents: FloodEvent[] }) {
-    const { historicEventId } = useLocalSearchParams()
     const router = useRouter()
+    const { historicEventId } = useLocalSearchParams()
+    const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+
+    const [selectedEvent, setSelectedEvent] = useState<string | undefined>()
 
     // Update chart when historic event selected
     const onHistoricEventSelected = (historicEventId: string) => {
@@ -115,27 +148,63 @@ const HistoricEvents = observer(
 
       if (!event) return
 
+      console.log("event", event.fromDate, event.toDate, event.eventName, localDayJs.tz(event.fromDate).format("YYYY-MM-DD"))
+
       router.setParams({
         historicEventId,
-        from: localDayJs(event.fromDate).format("YYYY-MM-DD"),
-        to: localDayJs(event.toDate).format("YYYY-MM-DD")
+        from: localDayJs.tz(event.fromDate).format("YYYY-MM-DD"),
+        to: localDayJs.tz(event.toDate).format("YYYY-MM-DD")
       })
+
+      bottomSheetModalRef.current?.dismiss()
     }
+
+    const openModal = () => {
+      bottomSheetModalRef.current?.present()
+    }
+
+    const historicEventIdNum = Array.isArray(historicEventId) ? parseInt(historicEventId[0]) : parseInt(historicEventId)
+    const title = floodEvents.find(e => e.id === historicEventIdNum)?.eventName ?? "Select Event"
 
     return (
       <If condition={!!floodEvents.length}>
         <Row>
           <RegularText muted>Historical Events:  </RegularText>
-          <Picker
-            selectedValue={historicEventId}
-            onValueChange={onHistoricEventSelected}
-            style={$pickerStyle}
-          >
-            <Picker.Item label={SELECT_EVENT} value={SELECT_EVENT} />
-            {floodEvents?.map((event, index) => (
-              <Picker.Item key={event.id} label={event.eventName} value={event.id} />
-            ))}
-          </Picker>
+          <Ternary condition={isIOS}>
+            <>
+              <TouchableOpacity onPress={openModal}>
+                <View style={$pickerSelectorStyle}>
+                  <RegularText muted>{title}</RegularText>
+                  <Icon left={Spacing.tiny} name="chevron-down" color={Colors.darkGrey} />
+                </View>
+              </TouchableOpacity>
+              <BottomSheetModal
+                index={0}
+                detached={true}
+                ref={bottomSheetModalRef}
+                snapPoints={["40%"]}
+                style={$bottomSheetStyle}
+              >
+                <PickerSelector
+                  historicEventId={selectedEvent ?? historicEventId}
+                  floodEvents={floodEvents}
+                  onHistoricEventSelected={setSelectedEvent}
+                />
+                <Cell horizontal={Spacing.large}>
+                  <SolidButton
+                    fullWidth
+                    title="Done"
+                    onPress={() => onHistoricEventSelected(selectedEvent)}
+                  />
+                </Cell>
+              </BottomSheetModal>
+            </>
+            <PickerSelector
+              historicEventId={historicEventId}
+              floodEvents={floodEvents}
+              onHistoricEventSelected={onHistoricEventSelected}
+            />
+          </Ternary>
         </Row>
       </If>
     )
@@ -145,11 +214,7 @@ const HistoricEvents = observer(
 /** Water level rate of change */
 const RateOfChange = observer(
   function RateOfChange({ gage }: { gage: Gage }) {
-    console.log("Rate of change")
-
     if (!gage?.locationId) return null;
-
-
 
     // set rate of change
     let rate = gage?.predictedFeetPerHour
@@ -234,32 +299,31 @@ export const GageDetailsChart = observer(
 
     // Fetch data periodically
     useInterval(() => {
-      chartRange.isNow ? gagesStore.fetchDataForGage(gage.locationId) : null
-    }, gage.locationId && isDataFetched ? Config.LIVE_CHART_DATA_REFRESH_INTERVAL : null)
-
-    // Fetch data on mount but first wait for main data to be fetched
-    useEffect(() => {
-      if (gage.locationId && isDataFetched) {
+      chartRange.isNow ?
         gagesStore.fetchDataForGage(
           gage.locationId,
           range.chartStartDate.utc().format(),
           range.chartEndDate.utc().format(),
           !historicEventId,
           true,
+        ) :
+        null
+    }, gage.locationId && isDataFetched && chartRange.isNow ? Config.LIVE_CHART_DATA_REFRESH_INTERVAL : null)
+
+    // Fetch data on mount but first wait for main data to be fetched
+    useEffect(() => {
+      if (gage.locationId && isDataFetched) {
+        // TODO: Figure out why this isn't working on mobile
+
+        gagesStore.fetchDataForGage(
+          gage.locationId,
+          chartRange.chartStartDate.utc().format(),
+          chartRange.chartEndDate.utc().format(),
+          !historicEventId,
+          false,
         )
       }
     }, [gage.locationId, isDataFetched])
-
-    // Update chart when range changes
-    useEffect(() => {
-      if (!from || !to) return
-      chartRange.changeDates(localDayJs.tz(from), localDayJs.tz(to))
-
-      setRange({
-        chartStartDate: chartRange.chartStartDate,
-        chartEndDate: chartRange.chartEndDate
-      })
-    }, [from, to])
 
     const refetchData = () => {
       refreshData()
@@ -271,7 +335,7 @@ export const GageDetailsChart = observer(
         from ?? range.chartStartDate.utc().format(),
         to ?? range.chartEndDate.utc().format(),
         !historicEventId,
-        true,
+        chartRange.isNow,
       )
     }
 
@@ -301,8 +365,6 @@ export const GageDetailsChart = observer(
       range
     )
 
-    console.log("chartOptions", chartOptions)
-
     return (
       <>
         <Card
@@ -327,7 +389,7 @@ export const GageDetailsChart = observer(
           </CardHeader>
           <Ternary condition={!Object.keys(chartOptions).length}>
             <Cell flex>
-              <ActivityIndicator />
+              <ActivityIndicator animating />
             </Cell>
             <Charts options={chartOptions} />
           </Ternary>
@@ -340,21 +402,24 @@ export const GageDetailsChart = observer(
                 <HistoricEvents floodEvents={gage?.locationInfo?.floodEvents} />
               </Cell>
               {/* Refresh Icon */}
-              <Ternary condition={gagesStore.isFetching}>
-                <Cell
-                  width={Spacing.larger}
-                  height={Spacing.larger}
-                  align="center"
-                >
-                  <ActivityIndicator />
-                </Cell>
-                <IconButton
-                  small
-                  icon="rotate-cw"
-                  iconSize={Spacing.large}
-                  onPress={refetchData}
-                  textColor={Colors.midGrey}
-                />
+              <Ternary condition={isMobile}>
+                <Cell />
+                <Ternary condition={gagesStore.isFetching}>
+                  <Cell
+                    width={Spacing.larger}
+                    height={Spacing.larger}
+                    align="center"
+                  >
+                    <ActivityIndicator animating />
+                  </Cell>
+                  <IconButton
+                    small
+                    icon="rotate-cw"
+                    iconSize={Spacing.large}
+                    onPress={refetchData}
+                    textColor={Colors.midGrey}
+                  />
+                </Ternary>
               </Ternary>
             </Row>
           </CardFooter>
@@ -369,5 +434,31 @@ const $pickerStyle: TextStyle = {
   paddingHorizontal: Spacing.small,
   borderColor: Colors.lightGrey,
   color: Colors.lightDark,
-  borderRadius: Spacing.tiny
+  borderRadius: Spacing.tiny,
+}
+
+const $pickerSelectorStyle: ViewStyle = {
+  paddingVertical: Spacing.tiny,
+  paddingLeft: Spacing.small,
+  paddingRight: Spacing.tiny,
+  borderColor: Colors.lightGrey,
+  borderWidth: 1,
+  borderRadius: Spacing.tiny,
+  flexDirection: "row",
+  justifyContent: "space-between",
+  alignItems: "center"
+}
+
+const $bottomSheetStyle: ViewStyle = {
+  borderTopLeftRadius: Spacing.small,
+  borderTopRightRadius: Spacing.small,
+  backgroundColor: Colors.white,
+  shadowColor: Colors.midGrey,
+  shadowOpacity: 0.9,
+  shadowRadius: 1,
+  elevation: 4,
+  shadowOffset: {
+    width: 0,
+    height: 2,
+  },
 }

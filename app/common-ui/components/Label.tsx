@@ -21,7 +21,7 @@ const LARGE_LABEL_COLORS = {
   },
   "offline": {
     backgroundColor: "#fff",
-    textColor: "##b1b1b1",
+    textColor: "#b1b1b1",
   }
 }
 
