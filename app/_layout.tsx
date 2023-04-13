@@ -22,12 +22,13 @@ export enum ROUTES {
   Forecast = "/forecast",
   ForecastDetails = "/forecast/[...id]",
   Profile = "/profile",
-  GageDetails = "/gage/[id]",
+  Gages = "/gages",
+  GageDetails = "/gages/[id]",
 }
 
 export const routes = {
-  [ROUTES.Home]: {
-    path: ROUTES.Home,
+  [ROUTES.Gages]: {
+    path: ROUTES.Gages,
     icon: "home",
     title: t("navigation.homeScreen")
   },

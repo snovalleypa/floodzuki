@@ -99,14 +99,12 @@ const DownstreamGageLink = observer(
 )
 
 const GageDetailsScreen = observer(
-  function GageDetailsScreen() {
+  function GageDetailsScreen({ gage }: { gage: Gage }) {
     const router = useRouter();
     
     const { id } = useLocalSearchParams();
-    const { gagesStore } = useStores();
     
     const gageId = Array.isArray(id) ? id.join("/") : id
-    const gage = gagesStore.getGageByLocationId(gageId)
 
     const { isMobile } = useResponsive();
     
@@ -175,13 +173,13 @@ const GageScreen = observer(
     const { gagesStore } = useStores();
     
     const gageId = Array.isArray(id) ? id.join("/") : id
-    const gage = gagesStore.gages.find(gage => gage.locationId === gageId)
+    const gage = gagesStore.getGageByLocationId(gageId)
 
     if (!gage?.locationId) {
       return <EmptyComponent />
     }
 
-    return <GageDetailsScreen />
+    return <GageDetailsScreen gage={gage} />
   }
 )
 
