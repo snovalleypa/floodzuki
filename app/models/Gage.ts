@@ -366,8 +366,6 @@ export const GageStoreModel = types
         includePredictions,
       )
 
-      console.log("RESPONSE", response)
-
       if (response.kind === 'ok') {
         const data = response.data
         

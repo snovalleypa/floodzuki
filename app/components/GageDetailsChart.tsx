@@ -26,11 +26,12 @@ import { Colors } from "@common-ui/constants/colors";
 import { Picker } from "@react-native-picker/picker";
 import { LabelText, MediumText, RegularText, SmallerText } from "@common-ui/components/Text";
 import { FloodEvent } from "@models/LocationInfo";
-import { Dayjs } from "dayjs";
 import { DataPoint } from "@models/Forecasts";
 import { formatReadingTime } from "@utils/useTimeFormat";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import Icon from "@common-ui/components/Icon";
+import DateRangePicker from "@common-ui/components/DateRangePicker";
+import { Dayjs } from "dayjs";
 
 interface GageDetailsChartProps {
   gage: Gage
@@ -148,8 +149,6 @@ const HistoricEvents = observer(
 
       if (!event) return
 
-      console.log("event", event.fromDate, event.toDate, event.eventName, localDayJs.tz(event.fromDate).format("YYYY-MM-DD"))
-
       router.setParams({
         historicEventId,
         from: localDayJs.tz(event.fromDate).format("YYYY-MM-DD"),
@@ -193,7 +192,7 @@ const HistoricEvents = observer(
                 <Cell horizontal={Spacing.large}>
                   <SolidButton
                     fullWidth
-                    title="Done"
+                    title="Confirm"
                     onPress={() => onHistoricEventSelected(selectedEvent)}
                   />
                 </Cell>
@@ -285,9 +284,10 @@ export const GageDetailsChart = observer(
   function GageDetailsChart(props: GageDetailsChartProps) {
     const { gage } = props
 
+    const router = useRouter()
     const { from, to, historicEventId } = useLocalSearchParams()
     const { gagesStore, isDataFetched } = useStores();
-
+    
     const chartRange = useChartRange(from, to)
 
     const [rangeOption, setRangeOption] = useState("2")
@@ -304,7 +304,7 @@ export const GageDetailsChart = observer(
           gage.locationId,
           range.chartStartDate.utc().format(),
           range.chartEndDate.utc().format(),
-          !historicEventId,
+          chartRange.isNow,
           true,
         ) :
         null
@@ -319,7 +319,7 @@ export const GageDetailsChart = observer(
           gage.locationId,
           chartRange.chartStartDate.utc().format(),
           chartRange.chartEndDate.utc().format(),
-          !historicEventId,
+          chartRange.isNow,
           false,
         )
       }
@@ -334,7 +334,7 @@ export const GageDetailsChart = observer(
         gage.locationId,
         from ?? range.chartStartDate.utc().format(),
         to ?? range.chartEndDate.utc().format(),
-        !historicEventId,
+        chartRange.isNow,
         chartRange.isNow,
       )
     }
@@ -354,6 +354,14 @@ export const GageDetailsChart = observer(
       )
     }
 
+    const onDateRangeChange = (from: Dayjs, to: Dayjs) => {
+      router.setParams({
+        historicEventId: undefined,
+        from: from.format("YYYY-MM-DD"),
+        to: to.format("YYYY-MM-DD")
+      })
+    }
+
     const onChartDataTypeChange = (key: GageChartDataType) => {
       setChartDataType(key)
     }
@@ -366,65 +374,86 @@ export const GageDetailsChart = observer(
     )
 
     return (
-      <>
-        <Card
-          innerHorizontal={Spacing.extraSmall}
-          innerVertical={Spacing.extraSmall}>
-          <CardHeader
-            horizontal={-Spacing.extraSmall}>
-            <If condition={gage?.locationInfo?.hasDischarge}>
-              <SegmentControl
-                bottom={Spacing.small}
-                segments={CHART_DATA_TYPES}
-                selectedSegment={chartDataType}
-                onChange={onChartDataTypeChange}
-              />
-            </If>
+      <Card
+        innerHorizontal={Spacing.extraSmall}
+        innerVertical={Spacing.extraSmall}>
+        <CardHeader
+          horizontal={-Spacing.extraSmall}>
+          <If condition={gage?.locationInfo?.hasDischarge}>
             <SegmentControl
-              bottom={Spacing.zero}
-              segments={RANGES}
-              selectedSegment={rangeOption}
-              onChange={onRangeChange}
+              bottom={Spacing.small}
+              segments={CHART_DATA_TYPES}
+              selectedSegment={chartDataType}
+              onChange={onChartDataTypeChange}
             />
-          </CardHeader>
-          <Ternary condition={!Object.keys(chartOptions).length}>
+          </If>
+          <Row align="space-between">
+            <Cell flex />
             <Cell flex>
-              <ActivityIndicator animating />
-            </Cell>
-            <Charts options={chartOptions} />
-          </Ternary>
-          <CardFooter horizontal={-Spacing.extraSmall}>
-            <Row align="space-between">
-              <Cell></Cell>
-              <Cell>
-                <CrestInfo crest={crest} />
-                <RateOfChange gage={gage} />
-                <HistoricEvents floodEvents={gage?.locationInfo?.floodEvents} />
-              </Cell>
-              {/* Refresh Icon */}
-              <Ternary condition={isMobile}>
-                <Cell />
-                <Ternary condition={gagesStore.isFetching}>
-                  <Cell
-                    width={Spacing.larger}
-                    height={Spacing.larger}
-                    align="center"
-                  >
-                    <ActivityIndicator animating />
-                  </Cell>
-                  <IconButton
-                    small
-                    icon="rotate-cw"
-                    iconSize={Spacing.large}
-                    onPress={refetchData}
-                    textColor={Colors.midGrey}
+              <SegmentControl
+                bottom={Spacing.zero}
+                segments={RANGES}
+                selectedSegment={rangeOption}
+                onChange={onRangeChange}
+                />
+              <If condition={isMobile}>
+                <Cell flex align="center" top={Spacing.tiny}>
+                  <DateRangePicker
+                    startDate={range.chartStartDate}
+                    endDate={range.chartEndDate}
+                    onChange={onDateRangeChange}
                   />
-                </Ternary>
+                </Cell>
+              </If>
+            </Cell>
+            <Cell flex align="flex-end">
+              <If condition={!isMobile}>
+                <DateRangePicker
+                  startDate={range.chartStartDate}
+                  endDate={range.chartEndDate}
+                  onChange={onDateRangeChange}
+                />
+              </If>
+            </Cell>
+          </Row>
+        </CardHeader>
+        <Ternary condition={!Object.keys(chartOptions).length}>
+          <Cell flex>
+            <ActivityIndicator animating />
+          </Cell>
+          <Charts options={chartOptions} />
+        </Ternary>
+        <CardFooter horizontal={-Spacing.extraSmall}>
+          <Row align="space-between">
+            <Cell />
+            <Cell>
+              <CrestInfo crest={crest} />
+              <RateOfChange gage={gage} />
+              <HistoricEvents floodEvents={gage?.locationInfo?.floodEvents} />
+            </Cell>
+            {/* Refresh Icon */}
+            <Ternary condition={isMobile}>
+              <Cell />
+              <Ternary condition={gagesStore.isFetching}>
+                <Cell
+                  width={Spacing.larger}
+                  height={Spacing.larger}
+                  align="center"
+                >
+                  <ActivityIndicator animating />
+                </Cell>
+                <IconButton
+                  small
+                  icon="rotate-cw"
+                  iconSize={Spacing.large}
+                  onPress={refetchData}
+                  textColor={Colors.midGrey}
+                />
               </Ternary>
-            </Row>
-          </CardFooter>
-        </Card>
-      </>
+            </Ternary>
+          </Row>
+        </CardFooter>
+      </Card>
     )
   }
 )
@@ -454,11 +483,11 @@ const $bottomSheetStyle: ViewStyle = {
   borderTopRightRadius: Spacing.small,
   backgroundColor: Colors.white,
   shadowColor: Colors.midGrey,
-  shadowOpacity: 0.9,
-  shadowRadius: 1,
-  elevation: 4,
+  shadowOpacity: 0.3,
+  shadowRadius: 10,
+  elevation: -8,
   shadowOffset: {
     width: 0,
-    height: 2,
+    height: -4,
   },
 }

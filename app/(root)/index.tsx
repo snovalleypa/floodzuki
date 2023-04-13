@@ -44,7 +44,7 @@ const GageStatus = observer(({ gage }: { gage: Gage }) => {
   )
 })
 
-const GageItem = observer(
+const GageItem = React.memo(
   function GageItem({ item, gagesStore }: GageItemProps) {
     const router = useRouter();
     const { isMobile } = useResponsive()
@@ -69,7 +69,13 @@ const GageItem = observer(
           <AbsoluteContainer sticks={["bottom", "left", "right", "top"]}>
             <GageChart gage={gage} optionType="dashboardOptions" />
           </AbsoluteContainer>
-          <Cell flex justify="center" innerHorizontal={horizontalPadding}>
+          <Cell
+            flex
+            justify="center"
+            horizontal={-Spacing.small}
+            innerHorizontal={horizontalPadding + Spacing.small}
+            bgColor={"rgba(255,255,255,0.5)"}
+          >
             <Row align="space-between" justify="flex-start">
               <Cell flex>
                 <Title color={Colors.lightDark}>{item.locationName}</Title>
@@ -108,6 +114,8 @@ const GageItem = observer(
   }
 )
 
+const GageItemObserved = observer((props: GageItemProps) => <GageItem {...props} />)
+
 const EmptyComponent = () => (
   <Cell flex align="center" justify="center">
     <RegularText>Loading ...</RegularText>
@@ -139,7 +147,7 @@ const HomeScreen = observer(
             showsVerticalScrollIndicator={false}
             keyExtractor={(item) => item.id}
             initialNumToRender={4}
-            renderItem={({ item }) => <GageItem item={item} gagesStore={gagesStore} />}
+            renderItem={({ item }) => <GageItemObserved item={item} gagesStore={gagesStore} />}
             ListEmptyComponent={<EmptyComponent />}
           />
         </Content>

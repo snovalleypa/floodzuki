@@ -63,42 +63,45 @@ const buildScripts = (props: ScriptsProps) => {
   const { data, modules, options, setOptions } = props;
 
   return (
+    `(function() {
+        window.data = \"${data ? data : null}\";
+        var modulesList = ${JSON.stringify(modules)};
+        var readable = ${JSON.stringify(stringifiedScripts)}
+
+        function loadScripts(file, callback, redraw) {
+          var hcScript = document.createElement('script');
+          hcScript.innerHTML = readable[file]
+          document.body.appendChild(hcScript);
+
+          if (callback) {
+            callback.call();
+          }
+
+          if (redraw) {
+            Highcharts.setOptions(${serialize(setOptions)});
+            Highcharts.chart("container", ${serialize(options)});
+          }
+        }
+
+        loadScripts('highcharts', function () {
+          var redraw = modulesList.length > 0 ? false : true;
+          loadScripts('highcharts-more', function () {
+              if (modulesList.length > 0) {
+                  for (var i = 0; i < modulesList.length; i++) {
+                      if (i === (modulesList.length - 1)) {
+                          redraw = true;
+                      } else {
+                          redraw = false;
+                      }
+                      loadScripts(modulesList[i], undefined, redraw, true);
+                  }
+              }
+          }, redraw);
+        }, false);
+
+        true;
+      })();
     `
-      window.data = \"${data ? data : null}\";
-      var modulesList = ${JSON.stringify(modules)};
-      var readable = ${JSON.stringify(stringifiedScripts)}
-
-      function loadScripts(file, callback, redraw) {
-        var hcScript = document.createElement('script');
-        hcScript.innerHTML = readable[file]
-        document.body.appendChild(hcScript);
-
-        if (callback) {
-          callback.call();
-        }
-
-        if (redraw) {
-          Highcharts.setOptions(${serialize(setOptions)});
-          Highcharts.chart("container", ${serialize(options)});
-        }
-      }
-
-      loadScripts('highcharts', function () {
-        var redraw = modulesList.length > 0 ? false : true;
-        loadScripts('highcharts-more', function () {
-            if (modulesList.length > 0) {
-                for (var i = 0; i < modulesList.length; i++) {
-                    if (i === (modulesList.length - 1)) {
-                        redraw = true;
-                    } else {
-                        redraw = false;
-                    }
-                    loadScripts(modulesList[i], undefined, redraw, true);
-                }
-            }
-        }, redraw);
-      }, false);
-  `
   )
 }
 
@@ -129,7 +132,7 @@ const HighchartsReactNative = React.memo((props: HighchartsReactNativeProps) => 
     data,
     startInLoadingState = true,
     webviewStyles,
-    webviewProps,
+    webviewProps = {},
     modules = [],
     options,
     setOptions = {},

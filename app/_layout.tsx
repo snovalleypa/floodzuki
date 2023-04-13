@@ -9,6 +9,7 @@ import { useInitialRootStore } from "@models/helpers/useStores";
 
 import "@i18n/i18n";
 import { t } from "@i18n/translate";
+import { DatePickerProvider } from "@common-ui/contexts/DatePickerContext";
 
 /**
  * Root layout for Expo router (entry file for the app)
@@ -57,7 +58,9 @@ function App() {
   return (
     <SafeAreaProvider>
       <BottomSheetModalProvider>
-        <Slot />
+        <DatePickerProvider>
+          <Slot />
+        </DatePickerProvider>
       </BottomSheetModalProvider>
     </SafeAreaProvider>
   )

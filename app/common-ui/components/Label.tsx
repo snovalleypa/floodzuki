@@ -20,7 +20,7 @@ const LARGE_LABEL_COLORS = {
     textColor: "#ea4b4b",
   },
   "offline": {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.lightGrey,
     textColor: "#b1b1b1",
   }
 }

@@ -15,8 +15,10 @@ export type OffsetProps = {
   innerRight?: number
   height?: number | string
   width?: number
-  minHeight?: number
-  minWidth?: number
+  minHeight?: number | string
+  maxHeight?: number | string
+  minWidth?: number | string
+  maxWidth?: number | string
 }
 
 /**
@@ -32,7 +34,9 @@ export type OffsetProps = {
  * @param height - height.
  * @param width - width.
  * @param minWidth - minimum width.
+ * @param maxWidth - maximum width.
  * @param minHeight - minimum height.
+ * @param maxHeight - maximum height.
  * @returns style - An object containing the applied offset styles.
  * @example
  * const style = useOffsetStyles([], { top: 2, left: 2, bottom: 2, right: 2 })
@@ -56,6 +60,8 @@ export function useOffsetStyles(styles: FlexStyle[], props: OffsetProps): Array<
     width,
     minHeight,
     minWidth,
+    maxWidth,
+    maxHeight,
   } = props
 
   if (Object.hasOwn(props, "top")) {
@@ -120,6 +126,14 @@ export function useOffsetStyles(styles: FlexStyle[], props: OffsetProps): Array<
 
   if (Object.hasOwn(props, "minWidth")) {
     styles.push({ minWidth })
+  }
+
+  if (Object.hasOwn(props, "maxHeight")) {
+    styles.push({ maxHeight })
+  }
+
+  if (Object.hasOwn(props, "maxWidth")) {
+    styles.push({ maxWidth })
   }
 
   return styles

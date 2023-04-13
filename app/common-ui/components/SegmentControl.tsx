@@ -16,7 +16,7 @@ type Segment = {
 type SegmentControlProps = {
   segments: Segment[]
   selectedSegment: string
-  onChange: (segment: string) => void
+  onChange?: (segment: string) => void
 } & OffsetProps
 
 
@@ -31,11 +31,11 @@ type SegmentControlProps = {
 export function SegmentControl(props: SegmentControlProps) {
   const { segments, selectedSegment, onChange, ...rest } = props
 
-  const [selected, setSelected] = React.useState(selectedSegment)
+  // const [selected, setSelected] = React.useState(selectedSegment)
 
   const onSegmentPress = (segmentKey: string) => {
-    setSelected(segmentKey)
-    onChange(segmentKey)
+    // setSelected(segmentKey)
+    onChange?.(segmentKey)
   }
 
   const $style: ViewStyle[] = useOffsetStyles([$segmentHolder], rest)
@@ -46,7 +46,7 @@ export function SegmentControl(props: SegmentControlProps) {
         <SegmentItem
           key={segment.key}
           segment={segment}
-          isSelected={segment.key === selected}
+          isSelected={segment.key === selectedSegment}
           onPress={onSegmentPress}
         />
       ))}

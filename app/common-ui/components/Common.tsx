@@ -14,6 +14,7 @@ type RowProps = {
   gap?: number
   align?: "center" | "space-between" | "space-around" | "space-evenly" | "flex-start" | "flex-end"
   justify?: "center" | "flex-start" | "flex-end" | "stretch" | "baseline"
+  ref?: React.RefObject<View>
 } & OffsetProps
 
 type CellProps = {
@@ -24,6 +25,7 @@ type CellProps = {
   align?: "center" | "flex-start" | "flex-end" | "stretch" | "baseline"
   justify?: "center" | "space-between" | "space-around" | "space-evenly" | "flex-start" | "flex-end"
   bgColor?: ColorValue
+  ref?: React.RefObject<View>
 } & OffsetProps
 
 type BottomContainerProps = {
@@ -33,6 +35,7 @@ type BottomContainerProps = {
 
 type AbsoluteContainerProps = {
   children?: React.ReactNode
+  zIndex?: number
   sticks?: Array<"top" | "bottom" | "left" | "right">
 } & OffsetProps
 
@@ -50,7 +53,7 @@ type AbsoluteContainerProps = {
  *   <Text>Text</Text>
  * </Row>
  */
-export const Row = ({ children, align, justify, flex, gap, wrap, ...offsetProps }: RowProps) => {
+export const Row = ({ children, align, justify, flex, gap, wrap, ref, ...offsetProps }: RowProps) => {
   let styles: ViewStyle[] = [{ flexDirection: "row", alignItems: "center" }]
 
   styles = useOffsetStyles(styles, offsetProps)
@@ -76,7 +79,7 @@ export const Row = ({ children, align, justify, flex, gap, wrap, ...offsetProps 
     styles.push({ flexWrap: "wrap" })
   }
 
-  return <View style={styles}>{children}</View>
+  return <View ref={ref} style={styles}>{children}</View>
 }
 
 /**
@@ -110,7 +113,7 @@ export const Spacer = ({ height }: { height?: number }) => <View style={{ height
  *   <Text>Text</Text>
  * </Cell>
  */
-export const Cell = ({ children, align, wrap, justify, flex, gap, bgColor, ...offsetProps }: CellProps) => {
+export const Cell = ({ children, align, wrap, justify, flex, gap, bgColor, ref, ...offsetProps }: CellProps) => {
   let styles: ViewStyle[] = [{ flexDirection: "column", justifyContent: "center" }]
 
   styles = useOffsetStyles(styles, offsetProps)
@@ -140,7 +143,7 @@ export const Cell = ({ children, align, wrap, justify, flex, gap, bgColor, ...of
     styles.push({ backgroundColor: bgColor })
   }
 
-  return <View style={styles}>{children}</View>
+  return <View ref={ref} style={styles}>{children}</View>
 }
 
 /**
@@ -209,13 +212,14 @@ const $bottomContainer: ViewStyle = {
  * AbsoluteContainer is a flexbox container that sticks content to some direction ("left", "right", "top", "bottom").
  * @param {React.ReactNode} children - The children to render.
  * @param {"left" | "right" | "top" | "bottom"} sticks - The position of the container.
+ * @param {number} zIndex - The z-index of the container.
  * @param {OffsetProps} props - The offset props.
  * @example
  * <AbsoluteContainer positions=["right", "top"]>
  *  <Text>Text</Text>
  * </AbsoluteContainer>
  */
-export const AbsoluteContainer = ({ children, sticks, ...offsetProps }: AbsoluteContainerProps) => {
+export const AbsoluteContainer = ({ children, sticks, zIndex, ...offsetProps }: AbsoluteContainerProps) => {
   let styles: ViewStyle[] = [{ position: "absolute" }]
 
   styles = useOffsetStyles(styles, offsetProps)
@@ -234,6 +238,10 @@ export const AbsoluteContainer = ({ children, sticks, ...offsetProps }: Absolute
 
   if (sticks.includes("bottom")) {
     styles.push({ bottom: 0 })
+  }
+
+  if (zIndex) {
+    styles.push({ zIndex })
   }
 
   return (
