@@ -310,10 +310,13 @@ const DatePickerComponent = React.forwardRef((props: DatePickerProps, ref) => {
     }
   }
 
+  const isPickerOpen = () => isOpen
+
   useImperativeHandle(ref, () => ({
     open,
     close,
-    toggle
+    toggle,
+    isPickerOpen,
   }))
 
   const formattedDate = selectedDate?.isValid() ? selectedDate?.format("DD/MM/YYYY") : "Select Date"
@@ -321,9 +324,7 @@ const DatePickerComponent = React.forwardRef((props: DatePickerProps, ref) => {
   return (
     <>
       <View ref={pickerRef}>
-        <Pressable onPress={toggle}>
-          <RegularText text={formattedDate} />
-        </Pressable>
+        <RegularText text={formattedDate} />
       </View>
       <BottomSheetModal
         index={0}

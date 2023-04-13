@@ -39,9 +39,13 @@ const DateRangePicker = (props: DateRangePickerProps) => {
 
   const openDateSelector = () => {
     if (mode.current === "start") {
-      startRef.current.open()
+      startRef.current?.isPickerOpen() ?
+        startRef.current?.close() :
+        startRef.current?.open()
     } else {
-      endRef.current.open()
+      endRef.current?.isPickerOpen() ?
+        endRef.current?.close() :
+        endRef.current?.open()
     }
   }
 
@@ -71,7 +75,7 @@ const DateRangePicker = (props: DateRangePickerProps) => {
 
     const daysDiff = Math.abs(dateEnd.clone().diff(start.current, "day"))
 
-    mode.current = "end"
+    mode.current = "start"
 
     if (daysDiff > maxRange) {
       dateEnd = start.current.clone().add(maxRange, "day")
