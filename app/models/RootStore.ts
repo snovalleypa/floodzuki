@@ -74,16 +74,21 @@ export const RootStoreModel = types.model("RootStore")
       return store.locationInfoStore.locationInfos.filter(location => gages.includes(location.id))
     }
 
+    const getLocationWithGagesIds = () => {
+      const gages = store.gagesStore.gages.map(gage => gage.locationId)
+      return store.locationInfoStore.locationInfos.filter(location => gages.includes(location.id)).map(location => location.id)
+    }
+
     const getUpstreamGageLocation = (locationId: string) => {
       if (!locationId) {
         return null
       }
 
-      const locations = getLocationsWithGages()
+      const locationIds = getLocationWithGagesIds()
 
-      const gageIndex = locations.findIndex(l => l.id === locationId);
+      const gageIndex = locationIds.findIndex(lId => lId === locationId);
 
-      return gageIndex > 0 && locations[gageIndex - 1];
+      return gageIndex > 0 && locationIds[gageIndex - 1];
     }
 
     const getDownstreamGageLocation = (locationId: string) => {
@@ -91,13 +96,13 @@ export const RootStoreModel = types.model("RootStore")
         return null
       }
 
-      const locations = getLocationsWithGages()
+      const locationIds = getLocationWithGagesIds()
 
-      const gageIndex = locations.findIndex(l => l.id === locationId);
+      const gageIndex = locationIds.findIndex(lId => lId === locationId);
       
       return gageIndex >= 0 &&
-        gageIndex + 1 < locations.length &&
-        locations[gageIndex + 1];
+        gageIndex + 1 < locationIds.length &&
+        locationIds[gageIndex + 1];
     }
 
     return {
@@ -106,6 +111,7 @@ export const RootStoreModel = types.model("RootStore")
       getForecasts,
       getTimezone,
       getLocationsWithGages,
+      getLocationWithGagesIds,
       getUpstreamGageLocation,
       getDownstreamGageLocation,
 

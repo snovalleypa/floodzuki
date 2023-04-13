@@ -38,7 +38,7 @@ export default function AppLayout() {
 function HeaderLink({ href, children }) {
   const pathname = usePathname();
 
-  const isActive = href === "/" ? pathname === href : pathname.includes(href);
+  const isActive = pathname.includes(href);
   const $color = isActive ? Colors.primary : Colors.lightDark
 
   return (
@@ -55,7 +55,7 @@ function HeaderLink({ href, children }) {
 function FooterLink({ href, children }) {
   const pathname = usePathname();
 
-  const isActive = href === "/" ? pathname === href : pathname.includes(href);
+  const isActive = pathname.includes(href);
   const $color = isActive ? Colors.primary : Colors.darkGrey
 
   return (
@@ -74,7 +74,7 @@ function Header() {
   return (
     <Cell>
       <Row top={Spacing.medium} bottom={Spacing.medium} align="center" justify="center">
-        <HeaderLink href="/">
+        <HeaderLink href="/gages">
           {t("navigation.homeScreen")}
         </HeaderLink>
         <HeaderLink href="/forecast">
@@ -98,7 +98,7 @@ function TabBar() {
     <Cell>
       <Separator size={Spacing.micro} />
       <Row top={Spacing.medium} bottom={$bottomOffset} align="space-evenly" justify="center">
-        <FooterLink href="/">
+        <FooterLink href="/gages">
           {t("navigation.homeScreen")}
         </FooterLink>
         <FooterLink href="/forecast">

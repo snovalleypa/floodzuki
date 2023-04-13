@@ -472,7 +472,13 @@ const useGageChartOptions = (
 ) => {
   const rootStore = useStores()
 
+  const [isVisible, setIsVisible] = useState(false)
   const [options, setOptions] = useState<[Highcharts.Options, DataPoint]>([{}, null])
+
+  // Move chart calculations to the next tick to prevent blocking the UI
+  useTimeout(() => {
+    setIsVisible(true)
+  }, 50)
 
   const getOptions = () => {
     return CHART_OPTIONS[optionType](
@@ -487,8 +493,11 @@ const useGageChartOptions = (
   }
 
   useEffect(() => {
+    if (!isVisible) return
+
     setOptions(getOptions())
   }, [
+    isVisible,
     gage?.locationId,
     optionType,
     chartDataType,
