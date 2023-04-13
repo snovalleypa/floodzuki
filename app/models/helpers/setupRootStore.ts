@@ -27,7 +27,7 @@ export const ROOT_STORE_DEFAULT = {
  */
 let _disposer: IDisposer
 export async function setupRootStore(rootStore: RootStore) {
-  let restoredState: any
+  let restoredState: Record<string, unknown> = {}
 
   try {
     // load the last known state from AsyncStorage

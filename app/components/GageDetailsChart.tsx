@@ -301,29 +301,29 @@ export const GageDetailsChart = observer(
     useInterval(() => {
       chartRange.isNow ?
         gagesStore.fetchDataForGage(
-          gage.locationId,
+          gage?.locationId,
           range.chartStartDate.utc().format(),
           range.chartEndDate.utc().format(),
           chartRange.isNow,
           true,
         ) :
         null
-    }, gage.locationId && isDataFetched && chartRange.isNow ? Config.LIVE_CHART_DATA_REFRESH_INTERVAL : null)
+    }, gage?.locationId && isDataFetched && chartRange.isNow ? Config.LIVE_CHART_DATA_REFRESH_INTERVAL : null)
 
     // Fetch data on mount but first wait for main data to be fetched
     useEffect(() => {
-      if (gage.locationId && isDataFetched) {
+      if (gage?.locationId && isDataFetched) {
         // TODO: Figure out why this isn't working on mobile
 
         gagesStore.fetchDataForGage(
-          gage.locationId,
+          gage?.locationId,
           chartRange.chartStartDate.utc().format(),
           chartRange.chartEndDate.utc().format(),
           chartRange.isNow,
           false,
         )
       }
-    }, [gage.locationId, isDataFetched])
+    }, [gage?.locationId, isDataFetched])
 
     const refetchData = () => {
       refreshData()
@@ -331,7 +331,7 @@ export const GageDetailsChart = observer(
 
     const refreshData = (from?: string, to?: string) => {
       gagesStore.fetchDataForGage(
-        gage.locationId,
+        gage?.locationId,
         from ?? range.chartStartDate.utc().format(),
         to ?? range.chartEndDate.utc().format(),
         chartRange.isNow,

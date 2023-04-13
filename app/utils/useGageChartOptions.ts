@@ -489,7 +489,7 @@ const useGageChartOptions = (
   useEffect(() => {
     setOptions(getOptions())
   }, [
-    gage.locationId,
+    gage?.locationId,
     optionType,
     chartDataType,
     range,

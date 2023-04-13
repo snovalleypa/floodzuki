@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 import localDayJs from "@services/localDayJs";
 
@@ -7,10 +7,6 @@ import { useStores } from "@models/helpers/useStores";
 import { Forecast } from "@models/Forecasts";
 
 import { t } from "@i18n/translate";
-import { useTimeout } from "./useTimeout";
-
-import { Timing } from "@common-ui/constants/timing";
-import { isMobile } from "@common-ui/utils/responsive";
 import { Colors } from "@common-ui/constants/colors";
 
 const STAGE_TWO_YAXIS_MARGIN = 500;
@@ -255,27 +251,13 @@ const buildOptions = (props: BuildOptionsProps) => {
 
 const useForecastOptions = (gages: GageSummary[], daysBefore: number, daysAfter: number) => {
   const rootStore = useStores()
-  const isRendered = useRef(false)
 
-  const gageIds = gages.map(gage => gage.id)
+  const gageIds = gages.map(gage => gage?.id)
   const forecasts = rootStore.getForecasts(gageIds)
 
   const [options, setOptions] = useState<Highcharts.Options>({})
 
-  // useTimeout(() => {
-  //   setOptions(buildOptions({
-  //     daysBefore,
-  //     daysAfter,
-  //     forecasts,
-  //     gages,
-  //     timezone: rootStore.getTimezone(),
-  //   }))
-    
-  //   isRendered.current = true
-  // }, isMobile ? Timing.fast : Timing.zero)
-
   useEffect(() => {
-    console.log("RENDERED")
     setOptions(buildOptions({
       daysBefore,
       daysAfter,

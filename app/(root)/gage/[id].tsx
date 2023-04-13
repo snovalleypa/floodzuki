@@ -27,6 +27,7 @@ import StatusLevelsCard from "@components/StatusLevelsCard";
 import { ROUTES } from "app/_layout";
 import Icon from "@common-ui/components/Icon";
 import { Card } from "@common-ui/components/Card";
+import EmptyComponent from "@common-ui/components/EmptyComponent";
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -103,12 +104,12 @@ const GageDetailsScreen = observer(
     
     const { id } = useLocalSearchParams();
     const { gagesStore } = useStores();
-
-    const { isMobile } = useResponsive();
     
     const gageId = Array.isArray(id) ? id.join("/") : id
     const gage = gagesStore.getGageByLocationId(gageId)
 
+    const { isMobile } = useResponsive();
+    
     const goBack = () => {
       router.push({ pathname: ROUTES.Home })
     }
@@ -167,4 +168,21 @@ const GageDetailsScreen = observer(
   }
 )
 
-export default GageDetailsScreen;
+const GageScreen = observer(
+  function GageScreen() {
+    const { id } = useLocalSearchParams();
+
+    const { gagesStore } = useStores();
+    
+    const gageId = Array.isArray(id) ? id.join("/") : id
+    const gage = gagesStore.gages.find(gage => gage.locationId === gageId)
+
+    if (!gage?.locationId) {
+      return <EmptyComponent />
+    }
+
+    return <GageDetailsScreen />
+  }
+)
+
+export default GageScreen;
