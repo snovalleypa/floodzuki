@@ -21,10 +21,10 @@ import { Gage, GageStore, STATUSES } from "@models/Gage"
 import { formatFlow, formatHeight } from "@utils/utils"
 import { formatReadingTime } from "@utils/useTimeFormat"
 import { GageChart } from "@components/GageChart"
-import Icon from "@common-ui/components/Icon"
 import { ROUTES } from "app/_layout"
 import TrendIcon, { levelTrendIconName } from "@components/TrendIcon"
 import { useInterval } from "@utils/useTimeout"
+import EmptyComponent from "@common-ui/components/EmptyComponent"
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -32,8 +32,7 @@ export function ErrorBoundary(props: ErrorBoundaryProps) {
 }
 
 interface GageItemProps {
-  item: LocationInfo;
-  gagesStore: GageStore;
+  gage: Gage;
 }
 
 const GageStatus = observer(({ gage }: { gage: Gage }) => {
@@ -44,18 +43,16 @@ const GageStatus = observer(({ gage }: { gage: Gage }) => {
   )
 })
 
-const GageItem = React.memo(
-  function GageItem({ item, gagesStore }: GageItemProps) {
+const GageItem = observer(
+  function GageItem({ gage }: GageItemProps) {
     const router = useRouter();
     const { isMobile } = useResponsive()
-
-    const gage = gagesStore.getGageByLocationId(item.id)
 
     const status = gage?.gageStatus
     const lastReading = status?.lastReading
 
     const goToDetails = () => {
-      router.push({ pathname: ROUTES.GageDetails, params: { id: item.id }})
+      router.push({ pathname: ROUTES.GageDetails, params: { id: gage.locationId }})
     }
 
     const Title = isMobile ? SmallTitle : LargerTitle
@@ -66,9 +63,9 @@ const GageItem = React.memo(
     return (
       <TouchableOpacity onPress={goToDetails}>
         <Card height={200} bottom={Spacing.medium}>
-          <AbsoluteContainer sticks={["bottom", "left", "right", "top"]}>
+          {/* <AbsoluteContainer sticks={["bottom", "left", "right", "top"]}>
             <GageChart gage={gage} optionType="dashboardOptions" />
-          </AbsoluteContainer>
+          </AbsoluteContainer> */}
           <Cell
             flex
             justify="center"
@@ -78,10 +75,10 @@ const GageItem = React.memo(
           >
             <Row align="space-between" justify="flex-start">
               <Cell flex>
-                <Title color={Colors.lightDark}>{item.locationName}</Title>
+                <Title color={Colors.lightDark}>{gage?.locationInfo?.locationName}</Title>
               </Cell>
               <Cell>
-                <Label text={item.id} />
+                <Label text={gage?.locationId} />
               </Cell>
             </Row>
             <Row wrap align="space-between" top={Spacing.medium}>
@@ -114,14 +111,6 @@ const GageItem = React.memo(
   }
 )
 
-const GageItemObserved = observer((props: GageItemProps) => <GageItem {...props} />)
-
-const EmptyComponent = () => (
-  <Cell flex align="center" justify="center">
-    <RegularText>Loading ...</RegularText>
-  </Cell>
-)
-
 const HomeScreen = observer(
   function HomeScreen() {
     const { gagesStore, getLocationsWithGages } = useStores()
@@ -147,7 +136,7 @@ const HomeScreen = observer(
             showsVerticalScrollIndicator={false}
             keyExtractor={(item) => item.id}
             initialNumToRender={4}
-            renderItem={({ item }) => <GageItemObserved item={item} gagesStore={gagesStore} />}
+            renderItem={({ item }) => <GageItem gage={gagesStore.getGageByLocationId(item.id)} />}
             ListEmptyComponent={<EmptyComponent />}
           />
         </Content>

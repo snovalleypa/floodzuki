@@ -66,7 +66,7 @@ export const RootStoreModel = types.model("RootStore")
     }
 
     const getTimezone = () => {
-      return store.regionStore.region.timezone || 'America/Los_Angeles'
+      return store.regionStore?.region?.timezone || 'America/Los_Angeles'
     }
 
     const getLocationsWithGages = () => {

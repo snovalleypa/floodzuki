@@ -12,35 +12,42 @@ import { useStores } from "@models/helpers/useStores";
 import Config from "@config/config";
 import { t } from "@i18n/translate";
 import { useTimeout } from "@utils/useTimeout";
+import { observer } from "mobx-react-lite";
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
   return <ErrorDetails {...props} />;
 }
 
-export default function ForecastScreen() {
-  const store = useStores()
-  const [hidden, setHidden] = React.useState(true)
+const ForecastScreen = observer(
+  function ForecastScreen() {
+    const store = useStores()
+    const [hidden, setHidden] = React.useState(true)
 
-  useTimeout(() => {
-    setHidden(false)
-  }, 0)
+    // This is just a mobile performance hack
+    // Improves a UX a bit
+    useTimeout(() => {
+      setHidden(false)
+    }, 0)
 
-  const gageIds = Config.FORECAST_GAGE_IDS
-  const forecastGages = hidden ? [] : store.getForecastGages(gageIds)
+    const gageIds = Config.FORECAST_GAGE_IDS
+    const forecastGages = hidden ? [] : store.getForecastGages(gageIds)
 
-  return (
-    <Screen>
-      {/* This is purely for documentTitle setting */}
-      <Stack.Screen options={{ title: `${t("common.title")} - ${t("forecastScreen.title")}` }} />
-      <Content scrollable>
-        <ForecastChart gages={forecastGages} />
-        <RowOrCell flex align="flex-start" justify="stretch" top={Spacing.mediumXL}>
-          {forecastGages.map((gage, i) => (
-            <GageSummaryCard firstItem={i === 0} key={gage.id} gage={gage} />
-          ))}
-        </RowOrCell>
-      </Content>
-    </Screen>
-  )
-}
+    return (
+      <Screen>
+        {/* This is purely for documentTitle setting */}
+        <Stack.Screen options={{ title: `${t("common.title")} - ${t("forecastScreen.title")}` }} />
+        <Content scrollable>
+          <ForecastChart gages={forecastGages} />
+          <RowOrCell flex align="flex-start" justify="stretch" top={Spacing.mediumXL}>
+            {forecastGages.map((gage, i) => (
+              <GageSummaryCard firstItem={i === 0} key={gage.id} gage={gage} />
+            ))}
+          </RowOrCell>
+        </Content>
+      </Screen>
+    )
+  }
+)
+
+export default ForecastScreen

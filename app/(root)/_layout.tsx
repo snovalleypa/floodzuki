@@ -13,6 +13,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LabelText, LargeTitle } from "@common-ui/components/Text";
 import { Cell, Row, Separator } from "@common-ui/components/Common";
 import Icon from "@common-ui/components/Icon";
+import { t } from "@i18n/translate";
 
 export default function AppLayout() {
   const store = useStores()
@@ -73,11 +74,15 @@ function Header() {
   return (
     <Cell>
       <Row top={Spacing.medium} bottom={Spacing.medium} align="center" justify="center">
-        {Object.keys(routes).map(route => (
-          <HeaderLink key={route} href={routes[route].path}>
-            {routes[route].title}
-          </HeaderLink>
-        ))}
+        <HeaderLink href="/">
+          {t("navigation.homeScreen")}
+        </HeaderLink>
+        <HeaderLink href="/forecast">
+          {t("navigation.forecastScreen")}
+        </HeaderLink>
+        <HeaderLink href="/profile">
+          {t("navigation.profileScreen")}
+        </HeaderLink>
       </Row>
       <Separator size={Spacing.micro} />
     </Cell>
@@ -93,11 +98,15 @@ function TabBar() {
     <Cell>
       <Separator size={Spacing.micro} />
       <Row top={Spacing.medium} bottom={$bottomOffset} align="space-evenly" justify="center">
-        {Object.keys(routes).map(route => (
-          <FooterLink key={route} href={routes[route].path}>
-            {routes[route].title}
-          </FooterLink>
-        ))}
+        <FooterLink href="/">
+          {t("navigation.homeScreen")}
+        </FooterLink>
+        <FooterLink href="/forecast">
+          {t("navigation.forecastScreen")}
+        </FooterLink>
+        <FooterLink href="/profile">
+          {t("navigation.profileScreen")}
+        </FooterLink>
       </Row>
     </Cell>
   );

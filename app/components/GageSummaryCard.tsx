@@ -94,9 +94,9 @@ export const GageSummaryCard = observer(
       router.push({ pathname: ROUTES.ForecastDetails, params: { id: gage.id }})
     }
 
-    const forecast = forecastsStore.getForecast(gage.id)
+    const forecast = forecastsStore.getForecast(gage?.id)
     
-    const gageTitle = gage.title
+    const gageTitle = gage?.title
     const peaks = forecast?.noaaForecast?.peaks
 
     const $offsetLeft = (!firstItem && isWideScreen) ? Spacing.medium : 0
@@ -152,7 +152,7 @@ export const ExtendedGageSummaryCard = observer(
     const { isMobile } = useResponsive()
     const { forecastsStore } = useStores()
 
-    const forecast = forecastsStore.getForecast(gage.id)
+    const forecast = forecastsStore.getForecast(gage?.id)
     
     return (
       <Card>

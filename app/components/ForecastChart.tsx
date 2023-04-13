@@ -15,6 +15,7 @@ import useForecastOptions from "@utils/useForecastOptions";
 import { Cell } from "@common-ui/components/Common";
 import { t } from "@i18n/translate";
 import { SegmentControl } from "@common-ui/components/SegmentControl";
+import { useStores } from "@models/helpers/useStores";
 
 interface ForecastChartProps {
   gages: GageSummary[]
@@ -74,6 +75,7 @@ const Charts = (props: ChartsProps) => {
 
 export const ForecastChart = observer(
   function ForecastChart(props: ForecastChartProps) {
+    const { forecastsStore } = useStores()
     const { gages } = props
 
     const [range, setRange] = useState('DF')
@@ -93,7 +95,7 @@ export const ForecastChart = observer(
           innerHorizontal={Spacing.extraSmall}
           innerVertical={Spacing.extraSmall}
           height={400}>
-          <Ternary condition={!Object.keys(chartOptions).length}>
+          <Ternary condition={forecastsStore.isFetching}>
             <Cell flex>
               <ActivityIndicator />
             </Cell>
