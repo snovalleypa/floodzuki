@@ -8,7 +8,7 @@ import LocalHighchartsReact from "@services/highcharts/LocalHighchartsReact";
 
 import { Gage, GageChartDataType } from "@models/Gage";
 import { If, Ternary } from "@common-ui/components/Conditional";
-import { isAndroid, isIOS, isMobile } from "@common-ui/utils/responsive";
+import { isAndroid, isIOS, isMobile, useResponsive } from "@common-ui/utils/responsive";
 import { Card, CardFooter, CardHeader } from "@common-ui/components/Card";
 import { Spacing } from "@common-ui/constants/spacing";
 
@@ -285,8 +285,10 @@ export const GageDetailsChart = observer(
     const { gage } = props
 
     const router = useRouter()
-    const { from, to, historicEventId } = useLocalSearchParams()
+    const { from, to } = useLocalSearchParams()
     const { gagesStore, isDataFetched } = useStores();
+
+    const { isMobile } = useResponsive()
     
     const chartRange = useChartRange(from, to)
 

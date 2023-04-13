@@ -60,6 +60,12 @@
     },
     "plugins": [
       "expo-localization"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "0f52b777-109a-423d-a18b-1ccfb5dea8e0"
+      }
+    },
+    "owner": "floodzilla-svpa"
   }
 }
