@@ -13,7 +13,7 @@ type CardProps = {
   outline?: boolean
   backgroundColor?: ColorValue
   noPadding?: boolean
-  flex?: boolean | number
+  flex?: boolean | number | string
 } & OffsetProps
 
 type CardItemProps = {

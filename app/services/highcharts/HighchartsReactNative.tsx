@@ -99,7 +99,7 @@ const buildScripts = (props: ScriptsProps) => {
           }, redraw);
         }, false);
 
-        true;
+        return true;
       })();
     `
   )

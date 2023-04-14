@@ -65,7 +65,7 @@ const buildSeries = (forecasts: Forecast[], gages: GageSummary[]) => {
       animation:false,
       name: `${t("forecastChart.observed")}: ${gage?.title}`,
       data: dataPoints,
-      color: "green",
+      color: gage?.color,
       fillOpacity: 0.5,
       threshold: 0,
       lineWidth: 2,
@@ -103,7 +103,7 @@ const buildSeries = (forecasts: Forecast[], gages: GageSummary[]) => {
       name: `${t("forecastChart.forecast")}: ${gage?.title}`,
       data: forecastDataPoints,
       fillOpacity: 0,
-      color: "purple",
+      color: gage?.color,
       threshold: 0,
       lineWidth: 2,
       states: {

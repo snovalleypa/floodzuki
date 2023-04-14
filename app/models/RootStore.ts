@@ -6,6 +6,8 @@ import { LocationInfoModelStore } from "./LocationInfo"
 import { MetagageModelStore } from "./Metagage"
 import { RegionModelStore } from "./Region"
 
+const ChartColorsHex = ['#0000FF', '#008000', '#800000', '#800080', '#FF4500', '#00FF00'];
+
 /**
  * A RootStore model.
  */
@@ -58,7 +60,10 @@ export const RootStoreModel = types.model("RootStore")
     }
 
     const getForecastGages = (gageIds: string[]) => {
-      return gageIds.map(id => getForecastGage(id)).filter(gage => gage !== null)
+      return gageIds.map(id => ({
+        ...getForecastGage(id),
+        color: ChartColorsHex[gageIds.indexOf(id)]
+      })).filter(gage => gage !== null)
     }
 
     const getForecasts = (gageIds: string[]) => {
@@ -69,9 +74,21 @@ export const RootStoreModel = types.model("RootStore")
       return store.regionStore?.region?.timezone || 'America/Los_Angeles'
     }
 
+    const filterLocationsWithGages = () => {
+      const gages = store.gagesStore.gages
+      const gageIds = gages.map(gage => gage.locationId)
+      
+      return store.locationInfoStore.locationInfos
+        .filter(location => gageIds.includes(location.id))
+    }
+
     const getLocationsWithGages = () => {
-      const gages = store.gagesStore.gages.map(gage => gage.locationId)
-      return store.locationInfoStore.locationInfos.filter(location => gages.includes(location.id))
+      const gages = store.gagesStore.gages
+      const gageIds = gages.map(gage => gage.locationId)
+      
+      return store.locationInfoStore.locationInfos
+        .filter(location => gageIds.includes(location.id))
+        .map(location => gages.find(gage => gage.locationId === location.id))
     }
 
     const getLocationWithGagesIds = () => {
@@ -84,11 +101,11 @@ export const RootStoreModel = types.model("RootStore")
         return null
       }
 
-      const locationIds = getLocationWithGagesIds()
+      const locations = filterLocationsWithGages()
 
-      const gageIndex = locationIds.findIndex(lId => lId === locationId);
+      const gageIndex = locations.findIndex(location => location.id === locationId);
 
-      return gageIndex > 0 && locationIds[gageIndex - 1];
+      return gageIndex > 0 && locations[gageIndex - 1];
     }
 
     const getDownstreamGageLocation = (locationId: string) => {
@@ -96,13 +113,13 @@ export const RootStoreModel = types.model("RootStore")
         return null
       }
 
-      const locationIds = getLocationWithGagesIds()
+      const locations = filterLocationsWithGages()
 
-      const gageIndex = locationIds.findIndex(lId => lId === locationId);
+      const gageIndex = locations.findIndex(location => location.id === locationId);
       
       return gageIndex >= 0 &&
-        gageIndex + 1 < locationIds.length &&
-        locationIds[gageIndex + 1];
+        gageIndex + 1 < locations.length &&
+        locations[gageIndex + 1];
     }
 
     return {
@@ -132,6 +149,7 @@ export interface GageSummary {
   warningDischarge: number,
   floodDischarge: number,
   isMetagage: boolean,
+  color?: string,
 }
 
 /**

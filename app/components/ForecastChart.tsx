@@ -66,6 +66,7 @@ const Charts = (props: ChartsProps) => {
       <HighchartsReactNative
         startInLoadingState
         styles={{ flex: 1 }}
+        webviewStyles={{ height: 400 - Spacing.extraSmall * 2 }}
         options={options}
       />
       <LocalHighchartsReact options={options} />
@@ -95,7 +96,7 @@ export const ForecastChart = observer(
           innerHorizontal={Spacing.extraSmall}
           innerVertical={Spacing.extraSmall}
           height={400}>
-          <Ternary condition={forecastsStore.isFetching}>
+          <Ternary condition={forecastsStore.isFetching || !Object.keys(chartOptions).length}>
             <Cell flex>
               <ActivityIndicator />
             </Cell>

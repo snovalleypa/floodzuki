@@ -105,8 +105,6 @@ export const GageModel = types
     id: types.maybe(types.string),
     locationName: types.maybe(types.string),
     locationId: types.identifier,
-    latitude: types.maybe(types.number),
-    longitude: types.maybe(types.number),
     isOffline: types.maybe(types.boolean),
     rank: types.maybe(types.number),
     deviceTypeName: types.maybe(types.string),
@@ -174,6 +172,14 @@ export const GageModel = types
 
     get redStage() {
       return store.locationInfo?.redStage
+    },
+
+    get latitude() {
+      return store.locationInfo?.latitude
+    },
+
+    get longitude() {
+      return store.locationInfo?.longitude
     },
 
     getChartMinAndMax(chartDataType: GageChartDataType) {
@@ -339,14 +345,6 @@ export const GageStoreModel = types
       includePredictions: boolean = true,
       includeLastReading: boolean = true,
     ) {
-      console.log("FETCH DATA FOR GAGE", {
-        locationId,
-        fromTime,
-        toTime,
-        includePredictions,
-        includeLastReading,
-      })
-
       store.setIsFetching(true)
 
       const toDateTime = toTime || localDayJs().utc().format()
