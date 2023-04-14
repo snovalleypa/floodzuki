@@ -3,7 +3,8 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@expo-google-fonts/montserrat": "^0.2.3",
@@ -45,6 +46,7 @@
     "mobx-react-lite": "^3.4.3",
     "mobx-state-tree": "^5.1.8",
     "nativewind": "^3.0.0-next.34",
+    "patch-package": "^6.5.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-native": "0.71.4",

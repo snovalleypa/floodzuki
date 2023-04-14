@@ -6,7 +6,6 @@ import { Cell } from "@common-ui/components/Common";
 // Use direct import othervise it'll break the web build
 import MapView from "react-native-maps/lib/MapView";
 
-
 const MapReactNative = (props: any) => {
   return Platform.select({
     default: () => <Cell {...props} />,
