@@ -136,7 +136,11 @@ const HeaderComponent = ({ gages }: { gages: Gage[] }) => {
 
   return (
     <If condition={isMobile}>
-      <Card height={300} bottom={Spacing.small}>
+      <Card
+        height={300}
+        innerHorizontal={Spacing.tiny}
+        innerVertical={Spacing.tiny}
+        bottom={Spacing.small}>
         <GageMap gages={gages} />
       </Card>
     </If>

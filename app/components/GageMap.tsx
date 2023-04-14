@@ -7,6 +7,12 @@ const Map = Platform.select({
   default: () => require("google-map-react").default,
 })()
 
+const MapMarker = Platform.select({
+  ios: () => require("../services/maps/MapMarkerReactNative").default,
+  android: () => require("../services/maps/MapMarkerReactNative").default,
+  default: () => require("../services/maps/MapMarkerReact").default,
+})()
+
 import { Gage } from "@models/Gage"
 import { observer } from "mobx-react-lite"
 import { isWeb } from "@common-ui/utils/responsive"
@@ -20,7 +26,7 @@ type GageChartProps = {
 }
 
 // TODO: Move this to expo secrets
-const API_KEY = "AIzaSyBtZds-3-NgMFOBOG7euv7ICx3linf5TUU"
+const API_KEY = ""
 
 const getMapOptions = maps => {
   return {
@@ -177,7 +183,22 @@ const MobileMap = ({ gages }: GageChartProps) => {
       region={region}
       provider="google"
       mapType="hybrid"
-    />
+    >
+      {gages.map(gage => {
+        if (gage.latitude && gage.longitude) {
+          return (
+            <MapMarker
+              key={gage.locationId}
+              coordinate={{
+                latitude: gage.latitude,
+                longitude: gage.longitude,
+              }}
+              title={gage.locationName}
+            />
+          )
+        }
+      })}
+    </Map>
   )
 }
 
