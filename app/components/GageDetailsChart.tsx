@@ -84,6 +84,7 @@ const Charts = (props: ChartsProps) => {
         <HighchartsReactNative
           startInLoadingState
           styles={{ flex: 1 }}
+          webviewStyles={{ height: 320 }}
           options={options}
           modules={['broken-axis']}
         />

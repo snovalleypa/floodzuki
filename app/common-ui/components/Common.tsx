@@ -10,7 +10,7 @@ import { useResponsive } from "@common-ui/utils/responsive"
 type RowProps = {
   children?: React.ReactNode
   wrap?: boolean
-  flex?: boolean | number
+  flex?: boolean | number | string
   gap?: number
   align?: "center" | "space-between" | "space-around" | "space-evenly" | "flex-start" | "flex-end"
   justify?: "center" | "flex-start" | "flex-end" | "stretch" | "baseline"
@@ -19,7 +19,7 @@ type RowProps = {
 
 type CellProps = {
   children?: React.ReactNode
-  flex?: boolean | number
+  flex?: boolean | number | string
   gap?: number
   wrap?: boolean
   align?: "center" | "flex-start" | "flex-end" | "stretch" | "baseline"
