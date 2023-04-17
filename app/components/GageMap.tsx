@@ -17,9 +17,10 @@ import { Gage } from "@models/Gage"
 import { observer } from "mobx-react-lite"
 import { isWeb } from "@common-ui/utils/responsive"
 import { Ternary } from "@common-ui/components/Conditional"
-import { getMapIcon } from "./TrendIcon"
+import { MobileMapIcon, getMapIcon, getMapImageIcon } from "./TrendIcon"
 import { useRouter } from "expo-router"
 import { ROUTES } from "app/_layout"
+import { Spacing } from "@common-ui/constants/spacing";
 
 type GageChartProps = {
   gages: Gage[]
@@ -168,35 +169,62 @@ const WebMap = ({ gages }: GageChartProps) => {
 }
 
 const MobileMap = ({ gages }: GageChartProps) => {
-  const gageSelected = gages.length === 1 ? gages[0] : null;
+  const router = useRouter();
+  const mapRef = useRef(null)
 
-  const [region, setRegion] = useState({
+  const [region] = useState({
     latitude: 47.622403,
     longitude: -121.933723,
     latitudeDelta: 0.0922,
     longitudeDelta: 0.0421,
   })
 
+  useEffect(() => {
+    const markerIds = gages.map(g => g.locationId)
+    mapRef.current?.fitToSuppliedMarkers(markerIds, {
+      edgePadding: { top: 10, right: 10, bottom: 10, left: 10 },
+      animated: true,
+    })
+  }, [gages, mapRef.current])
+
+  const onMarkerPress = (e) => {
+    const { id } = e.nativeEvent
+
+    if (!id) return
+
+    router.push({ pathname: ROUTES.GageDetails, params: { id }})
+  }
+
   return (
     <Map
+      ref={mapRef}
       style={$mobileMapStyle}
       region={region}
+      minZoomLevel={4}
+      maxZoomLevel={18}
       provider="google"
       mapType="hybrid"
+      onMarkerPress={onMarkerPress}
+      mapPadding={{ top: Spacing.extraSmall, right: Spacing.extraSmall, bottom: Spacing.extraSmall, left: Spacing.extraSmall }}
     >
       {gages.map(gage => {
         if (gage.latitude && gage.longitude) {
           return (
             <MapMarker
               key={gage.locationId}
+              identifier={gage.locationId}
               coordinate={{
                 latitude: gage.latitude,
                 longitude: gage.longitude,
               }}
               title={gage.locationName}
-            />
+            >
+              <MobileMapIcon levelTrend={gage.status.levelTrend} />
+            </MapMarker>
           )
         }
+
+        return null
       })}
     </Map>
   )
@@ -214,10 +242,12 @@ const GageChart = observer(
     if (!gages) return null
 
     return (
-      <Ternary condition={isWeb}>
-        <WebMap gages={gages} />
-        <MobileMap gages={gages} />
-      </Ternary>
+      <>
+        <Ternary condition={isWeb}>
+          <WebMap gages={gages} />
+          <MobileMap gages={gages} />
+        </Ternary>
+      </>
     )
   }
 )

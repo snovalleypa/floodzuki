@@ -1,20 +1,10 @@
-import { Cell } from "@common-ui/components/Common"
+import { Spacing } from "@common-ui/constants/spacing"
 import FallingIcon from "@common-ui/icons/FallingIcon"
 import FlatIcon from "@common-ui/icons/FlatIcon"
 import OfflineIcon from "@common-ui/icons/OfflineIcon"
 import RisingIcon from "@common-ui/icons/RisingIcon"
+import { Image } from "expo-image"
 import React from "react"
-import { Text } from "react-native"
-import { SvgCss, SvgXml } from "react-native-svg"
-import { Colors } from "react-native/Libraries/NewAppScreen"
-
-const flatIcon = `
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 30 24">
-    <g>
-      <path d="M27.867 12.631l-3.72-3.72A.668.668 0 0 0 23 9.377v2.387H4.333a1.333 1.333 0 1 0 0 2.667H23v2.387a.66.66 0 0 0 1.133.467l3.72-3.72a.656.656 0 0 0 .013-.933z"/>
-    </g>
-  </svg>
-`
 
 const flatMapIcon = `
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72 78.14">
@@ -39,14 +29,6 @@ const flatMapIcon = `
       </g>
       <path id="Path_255804" d="M27 3a23.995 23.995 0 0 1 4.66 47.54c-1.3.28-4.59 4.56-4.59 4.56s-3.06-4.24-4.79-4.57A24 24 0 0 1 27 3z" class="cls-2" data-name="Path 255804"/>
       <path id="Path_255773" d="M27.867 12.631l-3.72-3.72A.668.668 0 0 0 23 9.377v2.387H4.333a1.333 1.333 0 1 0 0 2.667H23v2.387a.66.66 0 0 0 1.133.467l3.72-3.72a.656.656 0 0 0 .013-.933z" class="cls-4" data-name="Path 255773" transform="translate(13 15)"/>
-    </g>
-  </svg>
-`
-
-const risingIcon = `
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 30 24">
-    <g>
-      <path d="M21.633 7.141l1.917 1.932-6.5 6.549-4.38-4.415a1.318 1.318 0 0 0-1.877 0l-7.986 8.065a1.344 1.344 0 0 0 0 1.892 1.318 1.318 0 0 0 1.877 0l7.043-7.113 4.38 4.415a1.318 1.318 0 0 0 1.877 0l7.442-7.488 1.917 1.932a.664.664 0 0 0 1.132-.47V6.671A.643.643 0 0 0 27.823 6h-5.711a.672.672 0 0 0-.479 1.141z"/>
     </g>
   </svg>
 `
@@ -78,14 +60,6 @@ const risingMapIcon = `
   </svg>
 `
 
-const fallingIcon = `
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 30 24">
-    <g>
-      <path d="M21.661 20.731l1.92-1.92-6.507-6.511-4.387 4.387a1.328 1.328 0 0 1-1.88 0l-8-8.013A1.329 1.329 0 0 1 4.688 6.8l7.053 7.067 4.387-4.387a1.328 1.328 0 0 1 1.88 0l7.453 7.44 1.92-1.92a.666.666 0 0 1 1.133.467v5.72a.66.66 0 0 1-.667.667h-5.72a.655.655 0 0 1-.467-1.12z"/>
-    </g>
-  </svg>
-`
-
 const fallingMapIcon = `
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72 78.14">
     <defs>
@@ -109,14 +83,6 @@ const fallingMapIcon = `
       </g>
       <path id="Path_255804" d="M27 3a23.995 23.995 0 0 1 4.66 47.54c-1.3.28-4.59 4.56-4.59 4.56s-3.06-4.24-4.79-4.57A24 24 0 0 1 27 3z" class="cls-2" data-name="Path 255804"/>
       <path id="Path_255769" d="M21.661 20.731l1.92-1.92-6.507-6.511-4.387 4.387a1.328 1.328 0 0 1-1.88 0l-8-8.013A1.329 1.329 0 0 1 4.688 6.8l7.053 7.067 4.387-4.387a1.328 1.328 0 0 1 1.88 0l7.453 7.44 1.92-1.92a.666.666 0 0 1 1.133.467v5.72a.66.66 0 0 1-.667.667h-5.72a.655.655 0 0 1-.467-1.12z" class="cls-4" data-name="Path 255769" transform="translate(10.827 13.951)"/>
-    </g>
-  </svg>
-`
-
-const offlineIcon = `
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 30 24">
-    <g>
-      <path d="M17.56 14.24a5.987 5.987 0 0 0-7.8-7.8l1.62 1.62A4.2 4.2 0 0 1 12 8a4 4 0 0 1 4 4 4.457 4.457 0 0 1-.05.63zM12 4a8 8 0 0 1 8 8 7.9 7.9 0 0 1-.95 3.74l1.47 1.47A9.861 9.861 0 0 0 22 12 9.993 9.993 0 0 0 6.79 3.47l1.46 1.46A8.039 8.039 0 0 1 12 4zM3.27 2.5L2 3.77l2.1 2.1a9.994 9.994 0 0 0 2.89 14.78l1-1.73A8.005 8.005 0 0 1 4 12a7.9 7.9 0 0 1 1.53-4.69l1.43 1.44A5.987 5.987 0 0 0 9 17.19l1-1.74a3.942 3.942 0 0 1-1.56-5.24l1.58 1.58L10 12a2.006 2.006 0 0 0 2 2l.21-.02.01.01 7.51 7.51L21 20.23 4.27 3.5z"/>
     </g>
   </svg>
 `
@@ -155,6 +121,14 @@ const MAP_ICONS = {
   fallingIcon: fallingMapIcon,
 }
 
+const MAP_IMAGE_ICONS = {
+  offlineIcon: require("@assets/images/trend-icons/offline-map-icon.png"),
+  flatIcon: require("@assets/images/trend-icons/flat-map-icon.png"),
+  risingIcon: require("@assets/images/trend-icons/rising-map-icon.png"),
+  fallingIcon: require("@assets/images/trend-icons/falling-map-icon.png"),
+}
+
+
 const ICONS = {
   offlineIcon: OfflineIcon,
   flatIcon: FlatIcon,
@@ -190,6 +164,16 @@ export const levelTrendIconName = (levelTrend: string | undefined) => {
 export const getMapIcon = (levelTrend: string | undefined) => {
   const n = levelTrendIconName(levelTrend)
   return MAP_ICONS[n]
+}
+
+export const getMapImageIcon = (levelTrend: string | undefined) => {
+  const n = levelTrendIconName(levelTrend)
+  return MAP_IMAGE_ICONS[n]
+}
+
+export const MobileMapIcon = ({ levelTrend }: { levelTrend: string | undefined }) => {
+  const n = levelTrendIconName(levelTrend)
+  return <Image source={MAP_IMAGE_ICONS[n]} style={{ width: Spacing.button, height: Spacing.button }} />
 }
 
 const TrendIcon = ({ iconName, color, size = 24 }: { iconName: string, color?: string, size?: number }) => {

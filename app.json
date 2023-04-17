@@ -30,6 +30,9 @@
         "tabletImage": "./assets/app-icon/android-adaptive-foreground.png",
         "resizeMode": "contain",
         "backgroundColor": "#ffffff"
+      },
+      "config": {
+        "googleMapsApiKey": ""
       }
     },
     "android": {
@@ -56,6 +59,11 @@
         "image": "./assets/app-icon/ios-universal.png",
         "resizeMode": "contain",
         "backgroundColor": "#ffffff"
+      },
+      "config": {
+        "googleMaps": {
+          "apiKey": ""
+        }
       }
     },
     "plugins": [
