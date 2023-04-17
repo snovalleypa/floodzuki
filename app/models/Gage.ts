@@ -217,6 +217,16 @@ export const GageModel = types
       return mapAndAdjustTimestampsForDisplay(store.readings);
     },
 
+    get chartReadings() {
+      if (!store.hasData) return [];
+
+      return store.readings.filter(reading => !reading.isDeleted)
+        .map(reading => ({
+          date: new Date(reading.timestamp),
+          value: reading.waterHeight,
+        }));
+    },
+
     get predictedPoints() {
       let points = [];
 
