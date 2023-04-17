@@ -89,7 +89,7 @@ const GageListItemChart = observer(
             <Text
               x={OFFSET_LEFT + 5}
               y={BOTTOM_PADDING + 20}
-              fontSize="12"
+              fontSize="10"
               fill={STROKE_COLOR}
               textAnchor="start"
             >
@@ -108,7 +108,7 @@ const GageListItemChart = observer(
             <Text
               x={layout.width - OFFSET_RIGHT - 5}
               y={BOTTOM_PADDING + 20}
-              fontSize="12"
+              fontSize="10"
               fill={STROKE_COLOR}
               textAnchor="end"
             >
