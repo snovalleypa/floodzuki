@@ -17,12 +17,12 @@ import { Gage } from "@models/Gage"
 import { observer } from "mobx-react-lite"
 import { isWeb } from "@common-ui/utils/responsive"
 import { Ternary } from "@common-ui/components/Conditional"
-import { MobileMapIcon, getMapIcon, getMapImageIcon } from "./TrendIcon"
+import { MobileMapIcon, getMapIcon } from "./TrendIcon"
 import { useRouter } from "expo-router"
 import { ROUTES } from "app/_layout"
 import { Spacing } from "@common-ui/constants/spacing";
 
-type GageChartProps = {
+type GageMapProps = {
   gages: Gage[]
 }
 
@@ -56,7 +56,7 @@ const clearMarkers = mapMarkers => {
   }
 };
 
-const WebMap = ({ gages }: GageChartProps) => {
+const WebMap = ({ gages }: GageMapProps) => {
   const mapMarkers = useRef([]);
   const [mapBounds, setMapBounds] = useState();
   const [google, setGoogle] = useState<any>(null)
@@ -168,7 +168,7 @@ const WebMap = ({ gages }: GageChartProps) => {
   )
 }
 
-const MobileMap = ({ gages }: GageChartProps) => {
+const MobileMap = ({ gages }: GageMapProps) => {
   const router = useRouter();
   const mapRef = useRef(null)
 
@@ -182,7 +182,12 @@ const MobileMap = ({ gages }: GageChartProps) => {
   useEffect(() => {
     const markerIds = gages.map(g => g.locationId)
     mapRef.current?.fitToSuppliedMarkers(markerIds, {
-      edgePadding: { top: 10, right: 10, bottom: 10, left: 10 },
+      edgePadding: {
+        top: Spacing.large,
+        right: Spacing.large,
+        bottom: Spacing.large,
+        left: Spacing.large
+      },
       animated: true,
     })
   }, [gages, mapRef.current])
@@ -235,8 +240,8 @@ const $mobileMapStyle: ViewStyle = {
   height: "100%",
 }
 
-const GageChart = observer(
-  function GageChart(props: GageChartProps) {
+const GageMap = observer(
+  function GageMap(props: GageMapProps) {
     const { gages } = props
 
     if (!gages) return null
@@ -252,4 +257,4 @@ const GageChart = observer(
   }
 )
 
-export default GageChart
+export default GageMap

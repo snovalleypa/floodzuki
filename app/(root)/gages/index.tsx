@@ -1,11 +1,10 @@
 import React, { useEffect } from "react"
-import { ViewStyle, TouchableOpacity, View, useWindowDimensions } from "react-native"
+import { ViewStyle, FlatList, TouchableOpacity, useWindowDimensions } from "react-native"
 import { ErrorBoundaryProps, Stack, useRouter } from "expo-router"
-import { FlashList } from "@shopify/flash-list";
 import { observer } from "mobx-react-lite"
 import { t } from "@i18n/translate"
 
-import { Content, Screen } from "@common-ui/components/Screen"
+import { Screen } from "@common-ui/components/Screen"
 import { ErrorDetails } from "@components/ErrorDetails"
 import { AbsoluteContainer, Cell, Row } from "@common-ui/components/Common"
 import { Colors } from "@common-ui/constants/colors"
@@ -14,23 +13,23 @@ import { Spacing } from "@common-ui/constants/spacing"
 import { LabelText, LargerTitle, SmallerText, SmallTitle, TinyText } from "@common-ui/components/Text"
 import { Card } from "@common-ui/components/Card"
 import { Label, LargeLabel } from "@common-ui/components/Label"
-import { If } from "@common-ui/components/Conditional"
-import { useResponsive } from "@common-ui/utils/responsive"
+import { If, Ternary } from "@common-ui/components/Conditional"
+import { isWeb, useResponsive } from "@common-ui/utils/responsive"
 import { Gage, STATUSES } from "@models/Gage"
 
 import { formatFlow, formatHeight } from "@utils/utils"
 import { formatReadingTime } from "@utils/useTimeFormat"
-import { GageChart } from "@components/GageChart"
 import { ROUTES } from "app/_layout"
 import TrendIcon, { levelTrendIconName } from "@components/TrendIcon"
 import { useInterval } from "@utils/useTimeout"
 import EmptyComponent from "@common-ui/components/EmptyComponent"
+import { GageChart } from "@components/GageChart"
 import GageMap from "@components/GageMap";
+import GageListItemChart from "@components/GageListItemChart";
 
 const ITEM_HEIGHT = 200
 const MAP_WIDTH = 400
 const HEADER_HEIGHT = 56
-const DUMMY_GAGES = ["1", "2", "3", "4"]
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -72,7 +71,10 @@ const GageItem = observer(
       <Card height={ITEM_HEIGHT} bottom={Spacing.medium} innerHorizontal={0} innerVertical={0}>
         <TouchableOpacity style={{ flex: 1 }} onPress={goToDetails}>
           <AbsoluteContainer sticks={["bottom", "left", "right", "top"]}>
-            <GageChart gage={gage} optionType="dashboardOptions" />
+            <Ternary condition={isWeb}>
+              <GageChart gage={gage} optionType="dashboardOptions" />
+              <GageListItemChart gage={gage} />
+            </Ternary>
           </AbsoluteContainer>
           <Cell
             flex
@@ -119,18 +121,6 @@ const GageItem = observer(
   }
 )
 
-const GageItemSelector = ({ item }: { item: string | Gage }) => {
-  if (typeof item === "string") {
-    return (
-      <Card height={ITEM_HEIGHT} bottom={Spacing.medium}>
-        <EmptyComponent />
-      </Card>
-    )
-  }
-
-  return <GageItem item={item} />
-}
-
 const HeaderComponent = ({ gages }: { gages: Gage[] }) => {
   const { isMobile } = useResponsive()
 
@@ -147,7 +137,7 @@ const HeaderComponent = ({ gages }: { gages: Gage[] }) => {
   )
 }
 
-const keyExtractor = (item: string) => item
+const keyExtractor = (item: Gage) => item?.locationId
 
 const HomeScreen = observer(
   function HomeScreen() {
@@ -166,7 +156,8 @@ const HomeScreen = observer(
     }, 5 * 60 * 1000)
 
     const locations = getLocationsWithGages()
-    const data = locations?.length > 0 ? locations : DUMMY_GAGES
+
+    const mapCardHeight = height - HEADER_HEIGHT - Spacing.small
 
     return (
       <Screen>
@@ -176,7 +167,7 @@ const HomeScreen = observer(
             <Card
               width={MAP_WIDTH}
               vertical={Spacing.small}
-              height={height - HEADER_HEIGHT - Spacing.small}
+              height={mapCardHeight}
               left={Spacing.small}
               innerHorizontal={Spacing.tiny}
               innerVertical={Spacing.tiny}
@@ -184,14 +175,14 @@ const HomeScreen = observer(
               <GageMap gages={locations} />
             </Card>
           </If>
-          <Cell flex height={height}>
-            <FlashList
+          <Cell flex height={isMobile ? "100%" : height}>
+            <FlatList
               contentContainerStyle={$listStyles}
-              data={data}
+              data={locations}
               showsVerticalScrollIndicator={false}
+              initialNumToRender={4}
               keyExtractor={keyExtractor}
-              estimatedItemSize={ITEM_HEIGHT}
-              renderItem={({ item }) => <GageItemSelector item={item} />}
+              renderItem={({ item }) => <GageItem item={item} />}
               ListEmptyComponent={<EmptyComponent />}
               ListHeaderComponent={<HeaderComponent gages={locations} />}
             />
