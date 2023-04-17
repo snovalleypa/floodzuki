@@ -91,7 +91,8 @@ const GageListItemChart = observer(
               y={BOTTOM_PADDING + 20}
               fontSize="10"
               fill={STROKE_COLOR}
-              textAnchor="start"
+              textAnchor="middle"
+              transform={{ rotation: 90, originX: 0, originY: BOTTOM_PADDING + 35 }}
             >
               {t("gageChart.dashboardDurationLabel")}
             </Text>
@@ -111,6 +112,7 @@ const GageListItemChart = observer(
               fontSize="10"
               fill={STROKE_COLOR}
               textAnchor="end"
+              transform={{ rotation: -90, originX: layout.width, originY: BOTTOM_PADDING + 35 }}
             >
               {t("gageChart.Now")}
             </Text>
