@@ -149,3 +149,5 @@ export enum ColorTypes {
   lightPink = "lightPink",
   softPink = "softPink",
 }
+
+export const ChartColorsHex = ['#0000FF', '#008000', '#800000', '#800080', '#FF4500', '#00FF00'];

@@ -53,7 +53,7 @@ const ForecastDetailsScreen = observer(
     return (
       <Screen>
         <Stack.Screen options={{ title: `${t("common.title")} - ${t("forecastScreen.title")}: ${forecastGage?.title}` }} />
-        <Row left={Spacing.medium} top={Spacing.medium}>
+        <Row left={Spacing.medium} bottom={Spacing.extraSmall} top={Spacing.medium}>
           <Ternary condition={isMobile}>
             <IconButton
               left={-Spacing.medium}

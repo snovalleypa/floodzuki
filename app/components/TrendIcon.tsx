@@ -1,10 +1,11 @@
+import React from "react"
+import { Image } from "expo-image"
+
 import { Spacing } from "@common-ui/constants/spacing"
 import FallingIcon from "@common-ui/icons/FallingIcon"
 import FlatIcon from "@common-ui/icons/FlatIcon"
 import OfflineIcon from "@common-ui/icons/OfflineIcon"
 import RisingIcon from "@common-ui/icons/RisingIcon"
-import { Image } from "expo-image"
-import React from "react"
 
 const flatMapIcon = `
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72 78.14">
@@ -139,7 +140,7 @@ const ICONS = {
 const ICON_COLORS = {
   offlineIcon: "#969BAB",
   flatIcon: "#9fd140",
-  risingIcon: "#9fd140",
+  risingIcon: "#ffa700",
   fallingIcon: "#9fd140",
 }
 

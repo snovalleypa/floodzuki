@@ -16,17 +16,18 @@ import { formatFlow, formatHeight, formatTrend, isNullish } from "@utils/utils";
 import { LargeLabel } from "@common-ui/components/Label";
 import TrendIcon, { levelTrendIconName } from "@components/TrendIcon";
 import { Spacing } from "@common-ui/constants/spacing";
+import { t } from "@i18n/translate";
 
 const CalloutReading = observer(
   function CalloutReadingCard({ gage }: { gage: Gage }) {
-    const { gagesStore, getTimezone } = useStores()
+    const { gagesStore } = useStores()
     const { from, to } = useLocalSearchParams()
 
     const isNow = !!from && !!to ? to === localDayJs().format("YYYY-MM-DD") : true
     
     const status = isNow ? gage.status : gage.peakStatus
     const reading = status?.lastReading
-    const label = isNow ? "Last Reading" : "Peak"
+    const label = isNow ? t("calloutReading.lastReading") : t("calloutReading.peak")
 
     const roadStatus = gage?.getCalculatedRoadStatus(gage?.waterLevel)
 
@@ -54,25 +55,25 @@ const CalloutReading = observer(
         <Cell flex>
           <If condition={!isNullish(reading?.waterHeight)}>
             <CardItem>
-              <RegularText>Water Level</RegularText>
+              <RegularText>{t("calloutReading.waterLevel")}</RegularText>
               <MediumText>{formatHeight(reading?.waterHeight)}</MediumText>
             </CardItem>
           </If>
           <If condition={!isNullish(reading?.waterDischarge)}>
             <CardItem>
-              <RegularText>Water Flow</RegularText>
+              <RegularText>{t("calloutReading.waterFlow")}</RegularText>
               <MediumText>{formatFlow(reading?.waterDischarge)}</MediumText>
             </CardItem>
           </If>
           <CardItem noBorder={!hasRoadInfo && !hasTrendInfo}>
-            <RegularText>Status</RegularText>
+            <RegularText>{t("calloutReading.status")}</RegularText>
             <LargeLabel
               type={STATUSES[status?.floodLevel]}
               text={status?.floodLevel} />
           </CardItem>
           <If condition={hasTrendInfo}>
             <CardItem noBorder={!hasRoadInfo}>
-              <RegularText>Trend</RegularText>
+              <RegularText>{t("calloutReading.trend")}</RegularText>
               <Row>
                 <MediumText>{formatTrend(status?.waterTrend?.trendValue)}</MediumText>
                 <Cell left={Spacing.tiny}>
@@ -83,10 +84,10 @@ const CalloutReading = observer(
           </If>
           <If condition={hasRoadInfo}>
             <CardItem noBorder>
-              <RegularText>Road</RegularText>
+              <RegularText>{t("calloutReading.road")}</RegularText>
               <MediumText>
                 {roadStatus?.deltaFormatted}{" "}
-                {roadStatus?.preposition} road
+                {roadStatus?.preposition}{t("calloutReading.roadSmall")}
               </MediumText>
             </CardItem>
           </If>

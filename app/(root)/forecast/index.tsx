@@ -11,8 +11,9 @@ import { Spacing } from "@common-ui/constants/spacing";
 import { useStores } from "@models/helpers/useStores";
 import Config from "@config/config";
 import { t } from "@i18n/translate";
-import { useTimeout } from "@utils/useTimeout";
 import { observer } from "mobx-react-lite";
+import { useTimeout } from "@utils/useTimeout";
+import { Timing } from "@common-ui/constants/timing";
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -22,13 +23,12 @@ export function ErrorBoundary(props: ErrorBoundaryProps) {
 const ForecastScreen = observer(
   function ForecastScreen() {
     const store = useStores()
+
     const [hidden, setHidden] = React.useState(true)
 
-    // This is just a mobile performance hack
-    // Improves a UX a bit
     useTimeout(() => {
       setHidden(false)
-    }, 0)
+    }, Timing.zero)
 
     const gageIds = Config.FORECAST_GAGE_IDS
     const forecastGages = hidden ? [] : store.getForecastGages(gageIds)

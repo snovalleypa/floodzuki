@@ -1,7 +1,7 @@
 import React from "react";
 import { observer } from "mobx-react-lite";
 
-import { Card } from "@common-ui/components/Card";
+import { Card, CardFooter } from "@common-ui/components/Card";
 import { Cell, Row, RowOrCell } from "@common-ui/components/Common";
 import { If, Ternary } from "@common-ui/components/Conditional";
 import { LabelText, SmallerText, SmallText, SmallTitle } from "@common-ui/components/Text";
@@ -20,7 +20,8 @@ import { useTimeout } from "@utils/useTimeout";
 import { Timing } from "@common-ui/constants/timing";
 import { isMobile, useResponsive } from "@common-ui/utils/responsive";
 import { t } from "@i18n/translate";
-import { IconButton } from "@common-ui/components/Button";
+import { IconButton, LinkButton } from "@common-ui/components/Button";
+import { openLinkInBrowser } from "@utils/navigation";
 
 interface GageSummaryProps {
   gage: GageSummary
@@ -94,6 +95,14 @@ export const GageSummaryCard = observer(
       router.push({ pathname: ROUTES.ForecastDetails, params: { id: gage.id }})
     }
 
+    const showGage = () => {
+      router.push({ pathname: ROUTES.GageDetails, params: { id: gage.id }})
+    }
+
+    const openNoaaPage = () => {
+      openLinkInBrowser(`http://www.nwrfc.noaa.gov/river/station/flowplot/flowplot.cgi?${gage?.nwrfcId}`)
+    }
+
     const forecast = forecastsStore.getForecast(gage?.id)
     
     const gageTitle = gage?.title
@@ -106,14 +115,22 @@ export const GageSummaryCard = observer(
       <Card flex left={$offsetLeft} top={$offsetTop}>
         <Row align="space-between">
           <SmallTitle color={Colors.primary}>{gageTitle}</SmallTitle>
-          <If condition={!noDetails}>
+          <Ternary condition={!noDetails}>
             <IconButton
               title={t("forecastScreen.details")}
               rightIcon="chevron-right"
               textColor={Colors.blue}
               onPress={showDetails}
             />
-          </If>
+            <If condition={!gage.isMetagage}>
+              <IconButton
+                title={t("forecastScreen.viewGage")}
+                rightIcon="chevron-right"
+                textColor={Colors.blue}
+                onPress={showGage}
+              />
+            </If>
+          </Ternary>
         </Row>
         <Cell top={Spacing.small}>
           <LabelText color={Colors.success}>
@@ -140,6 +157,17 @@ export const GageSummaryCard = observer(
             <ReadingRow key={peak.timestamp} reading={peak} />
           ))}
         </Cell>
+        <If condition={!gage.isMetagage && noDetails}>
+          <CardFooter>
+            <Cell flex align="center">
+              <LinkButton
+                selfAlign="center"
+                title={`${t("forecastScreen.noaaGage")} ${gage?.nwrfcId}`}
+                onPress={openNoaaPage}
+              />
+            </Cell>
+          </CardFooter>
+        </If>
       </Card>
     )
   }
@@ -157,7 +185,7 @@ export const ExtendedGageSummaryCard = observer(
     return (
       <Card>
         <Row align="space-between">
-          <SmallTitle color={Colors.primary}>Details</SmallTitle>
+          <SmallTitle color={Colors.primary}>{t("forecastScreen.details")}</SmallTitle>
         </Row>
         <RowOrCell flex justify="flex-start" align="space-between">
           <Cell flex top={Spacing.small}>

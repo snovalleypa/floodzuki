@@ -8,6 +8,7 @@ import { If } from "@common-ui/components/Conditional";
 import { MediumText, RegularText, SmallTitle } from "@common-ui/components/Text";
 import { Gage } from "@models/Gage";
 import { openLinkInBrowser } from "@utils/navigation";
+import { t } from "@i18n/translate";
 
 const GageInfoCard = observer(
   function GageInfoCard({ gage }: { gage: Gage }) {
@@ -26,33 +27,33 @@ const GageInfoCard = observer(
     return (
       <Card flex>  
         <CardHeader>
-          <SmallTitle>Gage Info</SmallTitle>
+          <SmallTitle>{t("gageInfoCard.gageInfo")}</SmallTitle>
         </CardHeader>
         <Cell flex>
           <CardItem>
-            <RegularText>Gage ID</RegularText>
+            <RegularText>{t("gageInfoCard.gageID")}</RegularText>
             <MediumText>{gage.locationId}</MediumText>
           </CardItem>
           <CardItem>
-            <RegularText>Operated by</RegularText>
+            <RegularText>{t("gageInfoCard.operatedBy")}</RegularText>
             <MediumText>{gage.opearatorName}</MediumText>
           </CardItem>
           <CardItem>
-            <RegularText>River Mile</RegularText>
+            <RegularText>{t("gageInfoCard.riverMile")}</RegularText>
             <MediumText>{gage.riverMile}</MediumText>
           </CardItem>
           <If condition={!!gage.usgsInfo}>
             <CardItem>
-              <RegularText>USGS Website</RegularText>
+              <RegularText>{t("gageInfoCard.usgsWebsite")}</RegularText>
               <LinkButton
                 align="right"
-                title={`Gage ${gage.usgsInfo?.id}`}
+                title={`${t("gageInfoCard.gage")} ${gage.usgsInfo?.id}`}
                 onPress={goToUSGSWebsite}
               />
             </CardItem>
           </If>
           <CardItem noBorder>
-            <RegularText>Latitude,{"\n"}Longitude</RegularText>
+            <RegularText>{`${t("gageInfoCard.latitude")},\n${t("gageInfoCard.longitude")}`}</RegularText>
             <LinkButton
               align="right"
               title={`${gage.locationInfo?.latitude?.toFixed(6)}, ${gage.locationInfo?.longitude?.toFixed(6)}`}

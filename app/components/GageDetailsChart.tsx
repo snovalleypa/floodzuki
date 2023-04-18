@@ -65,15 +65,15 @@ const RANGES = [
 const CHART_DATA_TYPES = [
   {
     key: GageChartDataType.LEVEL,
-    title: "Water Level"
+    title: t("gageDetailsChart.waterLevel")
   },
   {
     key: GageChartDataType.DISCHARGE,
-    title: "Discharge"
+    title: t("gageDetailsChart.discharge")
   }
 ]
 
-const SELECT_EVENT = "- select event -"
+const SELECT_EVENT = t("gageDetailsChart._selectEvent")
 
 const Charts = (props: ChartsProps) => {
   const { options } = props
@@ -109,7 +109,7 @@ const PickerSelector = ({
 
   return (
     <Picker
-      prompt="Select Event"
+      prompt={t("gageDetailsChart.selectEvent")}
       selectedValue={eventId}
       onValueChange={onHistoricEventSelected}
       style={[$pickerStyle, width]}
@@ -164,12 +164,12 @@ const HistoricEvents = observer(
     }
 
     const historicEventIdNum = Array.isArray(historicEventId) ? parseInt(historicEventId[0]) : parseInt(historicEventId)
-    const title = floodEvents.find(e => e.id === historicEventIdNum)?.eventName ?? "Select Event"
+    const title = floodEvents.find(e => e.id === historicEventIdNum)?.eventName ?? t("gageDetailsChart.selectEvent")
 
     return (
       <If condition={!!floodEvents.length}>
         <Row>
-          <RegularText muted>Historical Events:  </RegularText>
+          <RegularText muted>{t("gageDetailsChart.historicalEvents")}:  </RegularText>
           <Ternary condition={isIOS}>
             <>
               <TouchableOpacity onPress={openModal}>
@@ -193,7 +193,7 @@ const HistoricEvents = observer(
                 <Cell horizontal={Spacing.large}>
                   <SolidButton
                     fullWidth
-                    title="Confirm"
+                    title={t("common.confirm")}
                     onPress={() => onHistoricEventSelected(selectedEvent)}
                   />
                 </Cell>
@@ -248,15 +248,15 @@ const RateOfChange = observer(
 
     if (!rate) return null
 
-    const rateText = `${rate > 0 ? "+" : ""}${rate.toFixed(2)} feet/hour`
+    const rateText = `${rate > 0 ? "+" : ""}${rate.toFixed(2)} ${t("measure.feet")}/${t("measure.hour")}`
 
     return (
       <Row align="center" bottom={Spacing.extraSmall}>
-        <MediumText muted>Rate of change: </MediumText>
+        <MediumText muted>{t("gageDetailsChart.rateOfChange")}: </MediumText>
         <RegularText muted>{rateText}</RegularText>
         <If condition={!!crossingTime}>
           <LabelText>
-            {" "}Road level @{" "}
+            {" "}{t("gageDetailsChart.roadLevel")} @{" "}
             <SmallerText>{crossingTime?.format("llll")}</SmallerText>
           </LabelText>
         </If>
@@ -272,9 +272,9 @@ const CrestInfo = observer(
     
     return (
       <Row align="center" bottom={Spacing.extraSmall}>
-        <MediumText muted>Max: </MediumText>
+        <MediumText muted>{t("measure.max")}: </MediumText>
         <RegularText muted>
-          {crest?.reading?.toFixed(2)} ft. / {formatReadingTime(crest?.timestamp)}
+          {crest?.reading?.toFixed(2)} {t("measure.ft")}. / {formatReadingTime(crest?.timestamp)}
         </RegularText>
       </Row>
     )
@@ -338,7 +338,7 @@ export const GageDetailsChart = observer(
         from ?? range.chartStartDate.utc().format(),
         to ?? range.chartEndDate.utc().format(),
         chartRange.isNow,
-        chartRange.isNow,
+        !from && chartRange.isNow,
       )
     }
 

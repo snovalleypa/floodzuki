@@ -74,15 +74,11 @@ function Header() {
   return (
     <Cell>
       <Row top={Spacing.medium} bottom={Spacing.medium} align="center" justify="center">
-        <HeaderLink href="/gages">
-          {t("navigation.homeScreen")}
-        </HeaderLink>
-        <HeaderLink href="/forecast">
-          {t("navigation.forecastScreen")}
-        </HeaderLink>
-        <HeaderLink href="/profile">
-          {t("navigation.profileScreen")}
-        </HeaderLink>
+        {Object.values(routes).map(route => (
+          <HeaderLink key={route.path} href={route.path}>
+            {route.title}
+          </HeaderLink>
+        ))}
       </Row>
       <Separator size={Spacing.micro} />
     </Cell>
@@ -98,15 +94,11 @@ function TabBar() {
     <Cell>
       <Separator size={Spacing.micro} />
       <Row top={Spacing.medium} bottom={$bottomOffset} align="space-evenly" justify="center">
-        <FooterLink href="/gages">
-          {t("navigation.homeScreen")}
-        </FooterLink>
-        <FooterLink href="/forecast">
-          {t("navigation.forecastScreen")}
-        </FooterLink>
-        <FooterLink href="/profile">
-          {t("navigation.profileScreen")}
-        </FooterLink>
+        {Object.values(routes).map(route => (
+          <FooterLink key={route.path} href={route.path}>
+            {route.title}
+          </FooterLink>
+        ))}
       </Row>
     </Cell>
   );

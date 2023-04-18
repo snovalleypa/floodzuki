@@ -1,10 +1,11 @@
 import React from "react"
 import { Cell } from "./Common"
 import { RegularText } from "./Text"
+import { t } from "@i18n/translate"
 
 const EmptyComponent = () => (
   <Cell flex align="center" justify="center">
-    <RegularText>Loading ...</RegularText>
+    <RegularText>{t("common.loading")}</RegularText>
   </Cell>
 )
 

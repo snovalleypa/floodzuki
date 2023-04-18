@@ -6,8 +6,6 @@ import { LocationInfoModelStore } from "./LocationInfo"
 import { MetagageModelStore } from "./Metagage"
 import { RegionModelStore } from "./Region"
 
-const ChartColorsHex = ['#0000FF', '#008000', '#800000', '#800080', '#FF4500', '#00FF00'];
-
 /**
  * A RootStore model.
  */
@@ -60,10 +58,7 @@ export const RootStoreModel = types.model("RootStore")
     }
 
     const getForecastGages = (gageIds: string[]) => {
-      return gageIds.map(id => ({
-        ...getForecastGage(id),
-        color: ChartColorsHex[gageIds.indexOf(id)]
-      })).filter(gage => gage !== null)
+      return gageIds.map(id => getForecastGage(id)).filter(gage => gage !== null)
     }
 
     const getForecasts = (gageIds: string[]) => {

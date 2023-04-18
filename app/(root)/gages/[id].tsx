@@ -57,7 +57,7 @@ const UpstreamGageLink = observer(
           <Row>
             <Icon name="arrow-left" color={Colors.green} />
             <Cell flex left={Spacing.extraSmall}>
-              <RegularText>Go to Upstream Gage</RegularText>
+              <RegularText>{t("gageScreen.goToUpstreamGage")}</RegularText>
               <MediumTitle>{upstreamGageLocation?.locationName}</MediumTitle>
             </Cell>
           </Row>
@@ -88,7 +88,7 @@ const DownstreamGageLink = observer(
         <TouchableOpacity onPress={navigateToGage}>
           <Row>
             <Cell flex right={Spacing.extraSmall}>
-              <RegularText>Go to Downstream Gage</RegularText>
+              <RegularText>{t("gageScreen.goToDownstreamGage")}</RegularText>
               <MediumTitle>{downstreamGageLocation?.locationName}</MediumTitle>
             </Cell>
             <Icon name="arrow-right" color={Colors.green} />
@@ -119,7 +119,7 @@ const GageDetailsScreen = observer(
           title: `${gage?.locationInfo?.locationName} | ${t("common.title")} - ${t("homeScreen.title")}`
         }} />
         {/* Header */}
-        <Row horizontal={Spacing.medium} top={Spacing.medium} justify="flex-start">
+        <Row horizontal={Spacing.medium} bottom={Spacing.extraSmall} top={Spacing.medium} justify="flex-start">
           <Row flex>
             <Ternary condition={isMobile}>
               <IconButton
