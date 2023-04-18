@@ -4,6 +4,7 @@ import { api } from "@services/api"
 
 import { dataFetchingProps, withDataFetchingActions } from "./helpers/withDataFetchingProps"
 import { GageSummary } from "./RootStore"
+import { ChartColorsHex } from "@common-ui/constants/colors"
 
 // "Metagage" Example data
 // id: "USGS-SF17/USGS-NF10/USGS-MF11"
@@ -33,6 +34,7 @@ const MetagageModel = types
         warningDischarge: store.stageOne,
         floodDischarge: store.stageTwo,
         isMetagage: true,
+        color: ChartColorsHex[0],
       } as GageSummary
     }
 

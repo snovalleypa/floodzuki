@@ -44,7 +44,7 @@ const GageStatus = observer(({ gage }: { gage: Gage }) => {
   return (
     <LargeLabel
       type={STATUSES[gage?.gageStatus?.floodLevel]}
-      text={gage?.gageStatus?.floodLevel} />
+      text={t(`statuses.${gage?.gageStatus?.floodLevel}`)} />
   )
 })
 
@@ -138,6 +138,11 @@ const HeaderComponent = ({ gages }: { gages: Gage[] }) => {
 }
 
 const keyExtractor = (item: Gage) => item?.locationId
+const getItemLayout = (data: Gage[], index: number) => ({
+  length: ITEM_HEIGHT,
+  offset: ITEM_HEIGHT * index,
+  index,
+})
 
 const HomeScreen = observer(
   function HomeScreen() {
@@ -182,6 +187,7 @@ const HomeScreen = observer(
               showsVerticalScrollIndicator={false}
               initialNumToRender={4}
               keyExtractor={keyExtractor}
+              getItemLayout={getItemLayout}
               renderItem={({ item }) => <GageItem item={item} />}
               ListEmptyComponent={<EmptyComponent />}
               ListHeaderComponent={<HeaderComponent gages={locations} />}

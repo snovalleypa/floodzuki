@@ -26,6 +26,7 @@ type CellProps = {
   justify?: "center" | "space-between" | "space-around" | "space-evenly" | "flex-start" | "flex-end"
   bgColor?: ColorValue
   ref?: React.RefObject<View>
+  borderRadius?: number
 } & OffsetProps
 
 type BottomContainerProps = {
@@ -107,13 +108,14 @@ export const Spacer = ({ height }: { height?: number }) => <View style={{ height
  * @param {"center" | "flex-start" | "flex-end" | "stretch" | "baseline"} align - How to align the children in the column.
  * @param {"center" | "space-between" | "space-around" | "space-evenly" | "flex-start" | "flex-end"} justify - How to align the children in the column.
  * @param {ColorValue} bgColor - The background color of the cell.
+ * @param {number} borderRadius - The border radius of the cell.
  * @param {OffsetProps} props - The offset props.
  * @example
  * <Cell align="stretch">
  *   <Text>Text</Text>
  * </Cell>
  */
-export const Cell = ({ children, align, wrap, justify, flex, gap, bgColor, ref, ...offsetProps }: CellProps) => {
+export const Cell = ({ children, align, wrap, justify, flex, gap, bgColor, borderRadius, ref, ...offsetProps }: CellProps) => {
   let styles: ViewStyle[] = [{ flexDirection: "column", justifyContent: "center" }]
 
   styles = useOffsetStyles(styles, offsetProps)
@@ -141,6 +143,10 @@ export const Cell = ({ children, align, wrap, justify, flex, gap, bgColor, ref, 
 
   if (bgColor) {
     styles.push({ backgroundColor: bgColor })
+  }
+
+  if (borderRadius) {
+    styles.push({ borderRadius })
   }
 
   return <View ref={ref} style={styles}>{children}</View>

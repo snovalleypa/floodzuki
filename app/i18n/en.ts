@@ -3,13 +3,32 @@ const en = {
     ok: "OK!",
     cancel: "Cancel",
     delete: "Delete",
+    confirm: "Confirm",
     save: "Save",
     back: "Back",
     title: "Floodzilla Gage Network",
+    loading: "Loading...",
   },
   measure: {
     cfs: "cfs",
     ft: "ft",
+    hr: "hr",
+    feet: "feet",
+    hour: "hour",
+    max: "Max",
+  },
+  status: {
+    normal: "Normal",
+    nearFlooding: "Near Flooding",
+    flooding: "Flooding",
+  },
+  statuses: {
+    Offline: "Offline",
+    Online: "Online",
+    Normal: "Normal",
+    NearFlooding: "Near Flooding",
+    Flooding: "Flooding",
+    Dry: "Dry",
   },
   errorScreen: {
     header: "Ooops...",
@@ -18,9 +37,9 @@ const en = {
     reset: "Try again",
   },
   navigation: {
-    homeScreen: "Home",
+    homeScreen: "Active",
     forecastScreen: "Forecast",
-    profileScreen: "Profile",
+    profileScreen: "Alerts",
     back: "Go Back"
   },
   homeScreen: {
@@ -29,12 +48,14 @@ const en = {
   forecastScreen: {
     title: "Forecast",
     details: "Details",
+    viewGage: "View Gage",
     latestReading: "Latest Reading",
     pastMax: "Past 24hr Max",
     forecastedCrests: "Forecasted Crests",
     lastReadings: "Last 100 Readings",
     currentlyForecasted: "Currently Forecasted",
     published: "published",
+    noaaGage: "NOAA Gage",
   },
   profileScreen: {
     title: "Profile",
@@ -56,7 +77,49 @@ const en = {
     dashboardDurationLabel: "48 hrs. ago",
   },
   gageScreen: {
-    
+    goToUpstreamGage: "Go to Upstream Gage",
+    goToDownstreamGage: "Go to Downstream Gage",
+  },
+  calloutReading: {
+    lastReading: "Last Reading",
+    peak: "Peak",
+    waterLevel: "Water Level",
+    waterFlow: "Water Flow",
+    status: "Status",
+    trend: "Trend",
+    road: "Road",
+    roadSmall: " road",
+  },
+  gageDetailsChart: {
+    discharge: "Discharge",
+    waterLevel: "Water Level",
+    _selectEvent: "- select event -",
+    selectEvent: "Select Event",
+    historicalEvents: "Historical Events",
+    rateOfChange: "Rate of Change",
+    roadLevel: "Road Level",
+  },
+  gageInfoCard: {
+    gageInfo: "Gage Info",
+    gageID: "Gage ID",
+    operatedBy: "Operated By",
+    riverMile: "River Mile",
+    usgsWebsite: "USGS Website",
+    gage: "Gage",
+    latitude: "Latitude",
+    longitude: "Longitude",
+  },
+  statusLevelsCard: {
+    roadSaddle: "road saddle",
+    level: "level",
+    below: "below",
+    above: "above",
+    logInToGetAlerts: "Log in to get Alerts when status changes",
+    getAlerts: "Get Alerts when status changes",
+    manageAlerts: "Manage Alerts",
+    statusLevels: "Status Levels",
+    Below: "Below",
+    atAndAbove: "At and above",
   }
 }
 

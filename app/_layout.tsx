@@ -29,7 +29,7 @@ export enum ROUTES {
 export const routes = {
   [ROUTES.Gages]: {
     path: ROUTES.Gages,
-    icon: "home",
+    icon: "activity",
     title: t("navigation.homeScreen")
   },
   [ROUTES.Forecast]: {
@@ -39,7 +39,7 @@ export const routes = {
   },
   [ROUTES.Profile]: {
     path: ROUTES.Profile,
-    icon: "user",
+    icon: "bell",
     title: t("navigation.profileScreen")
   },
 }

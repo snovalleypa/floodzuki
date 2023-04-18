@@ -60,7 +60,6 @@ export const STATUSES = {
   "Flooding": "danger",
 }
 
-
 const mapAndAdjustForecastTimestampsForDisplay = (forecastData) => {
   return forecastData.map(point => {
     return {

@@ -27,7 +27,7 @@ type GageMapProps = {
 }
 
 // TODO: Move this to expo secrets
-const API_KEY = ""
+const API_KEY = process.env.GOOGLE_MAPS_API_KEY
 
 const getMapOptions = maps => {
   return {
@@ -204,7 +204,7 @@ const MobileMap = ({ gages }: GageMapProps) => {
     <Map
       ref={mapRef}
       style={$mobileMapStyle}
-      region={region}
+      initialRegion={region}
       minZoomLevel={4}
       maxZoomLevel={18}
       provider="google"
@@ -238,6 +238,7 @@ const MobileMap = ({ gages }: GageMapProps) => {
 const $mobileMapStyle: ViewStyle = {
   width: "100%",
   height: "100%",
+  borderRadius: Spacing.tiny
 }
 
 const GageMap = observer(

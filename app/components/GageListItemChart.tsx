@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import { View } from "react-native"
 import { observer } from "mobx-react-lite"
-import {Circle, G, Line, Path, Svg, TSpan, Text} from 'react-native-svg'
+import {Circle, G, Line, Path, Svg, Text} from 'react-native-svg'
 import * as d3 from "d3"
 
 import { Gage, GageChartDataType } from "@models/Gage"

@@ -3,13 +3,15 @@ import { I18n } from "i18n-js"
 import { I18nManager } from "react-native"
 
 import en, { Translations } from "./en"
+import uk from "./uk"
+import es from "./es"
 
 /**
  * we need always include "*-US" for some valid language codes because when you change the system language,
  * the language code is the suffixed with "-US". i.e. if a device is set to English ("en"),
  * if you change to another language and then return to English language code is now "en-US".
  */
-export const i18n = new I18n({ en, "en-US": en })
+export const i18n = new I18n({ en, "en-US": en, uk, es, "es-419": es })
 
 const locales = Localization.getLocales()
 

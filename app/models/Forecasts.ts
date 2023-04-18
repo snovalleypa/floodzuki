@@ -9,6 +9,7 @@ import Config from "@config/config"
 import { LocationInfoModel } from "./LocationInfo"
 import { GageSummary } from "./RootStore"
 import localDayJs from "@services/localDayJs"
+import { ChartColorsHex } from "@common-ui/constants/colors"
 
 // "Forecast" Example data
 // dischargeStageOne: 16500
@@ -148,6 +149,7 @@ const ForecastModel = types
     noaaForecast: NOAAForecastModel,
     predictedCfsPerHour: types.number,
     predictedFeetPerHour: types.number,
+    color: types.maybe(types.string),
     predictions: types.array(ForecastPredictionModel),
     readings: types.array(GageReadingModel),
     locationInfo: types.maybe(types.reference(types.late(() => LocationInfoModel))),
@@ -182,6 +184,7 @@ const ForecastModel = types
         warningDischarge: store.dischargeStageOne,
         floodDischarge: store.dischargeStageTwo,
         isMetagage: false,
+        color: store.color,
       } as GageSummary
     }
 
@@ -251,12 +254,13 @@ export const ForecastStoreModel = types
 
       if (response.kind === 'ok') {
         // Augment data with id
-        Object.keys(response.data).forEach(gageId => {
+        Object.keys(response.data).forEach((gageId, index) => {
           const value = response.data[gageId]
           
           const extendedValue = {
             id: gageId,
             locationInfo: gageId,
+            color: ChartColorsHex[index],
             ...value,
           }
           
