@@ -5,7 +5,7 @@ import { Content, Screen } from "@common-ui/components/Screen"
 import { ErrorDetails } from "@components/ErrorDetails";
 import { ForecastChart } from "@components/ForecastChart";
 import { GageSummaryCard } from "@components/GageSummaryCard";
-import { RowOrCell } from "@common-ui/components/Common";
+import { Cell, RowOrCell } from "@common-ui/components/Common";
 import { Spacing } from "@common-ui/constants/spacing";
 
 import { useStores } from "@models/helpers/useStores";
@@ -14,6 +14,7 @@ import { t } from "@i18n/translate";
 import { observer } from "mobx-react-lite";
 import { useTimeout } from "@utils/useTimeout";
 import { Timing } from "@common-ui/constants/timing";
+import ForecastFooter from "@components/ForecastFooter";
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -44,6 +45,7 @@ const ForecastScreen = observer(
               <GageSummaryCard firstItem={i === 0} key={gage.id} gage={gage} />
             ))}
           </RowOrCell>
+          <ForecastFooter />
         </Content>
       </Screen>
     )

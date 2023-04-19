@@ -88,7 +88,7 @@ export const Row = ({ children, align, justify, flex, gap, wrap, ref, ...offsetP
  * @example
  * <Separator />
  */
-const $seprator = { width: "100%", backgroundColor: Colors.lightGrey }
+const $seprator = { width: "100%" }
 export const Separator = ({ size }: { size?: number }) => <View style={[$seprator, { height: size || 1 }]} />
 
 /**

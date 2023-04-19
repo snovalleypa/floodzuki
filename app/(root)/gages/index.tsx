@@ -26,6 +26,7 @@ import EmptyComponent from "@common-ui/components/EmptyComponent"
 import { GageChart } from "@components/GageChart"
 import GageMap from "@components/GageMap";
 import GageListItemChart from "@components/GageListItemChart";
+import WebFooter from "@components/WebFooter"
 
 const ITEM_HEIGHT = 200
 const MAP_WIDTH = 400
@@ -194,6 +195,7 @@ const HomeScreen = observer(
             />
           </Cell>
         </Row>
+        <WebFooter />
       </Screen>
     )
   }

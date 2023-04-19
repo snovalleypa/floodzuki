@@ -10,6 +10,7 @@ import { useInitialRootStore } from "@models/helpers/useStores";
 import "@i18n/i18n";
 import { t } from "@i18n/translate";
 import { DatePickerProvider } from "@common-ui/contexts/DatePickerContext";
+import { AssetsProvider } from "@common-ui/contexts/AssetsContext";
 
 /**
  * Root layout for Expo router (entry file for the app)
@@ -21,9 +22,12 @@ export enum ROUTES {
   Home = "/",
   Forecast = "/forecast",
   ForecastDetails = "/forecast/[...id]",
-  Profile = "/profile",
   Gages = "/gages",
   GageDetails = "/gages/[id]",
+  UserAlerts = "/user/alerts",
+  UserProfile = "/user/profile",
+  Privacy = "/privacy",
+  Terms = "/terms",
 }
 
 export const routes = {
@@ -37,8 +41,8 @@ export const routes = {
     icon: "trending-up",
     title: t("navigation.forecastScreen")
   },
-  [ROUTES.Profile]: {
-    path: ROUTES.Profile,
+  [ROUTES.UserAlerts]: {
+    path: ROUTES.UserAlerts,
     icon: "bell",
     title: t("navigation.profileScreen")
   },
@@ -60,7 +64,9 @@ function App() {
     <SafeAreaProvider>
       <BottomSheetModalProvider>
         <DatePickerProvider>
-          <Slot />
+          <AssetsProvider>
+            <Slot />
+          </AssetsProvider>
         </DatePickerProvider>
       </BottomSheetModalProvider>
     </SafeAreaProvider>

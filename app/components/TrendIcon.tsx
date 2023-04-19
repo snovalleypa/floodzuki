@@ -122,7 +122,7 @@ const MAP_ICONS = {
   fallingIcon: fallingMapIcon,
 }
 
-const MAP_IMAGE_ICONS = {
+export const MAP_IMAGE_ICONS = {
   offlineIcon: require("@assets/images/trend-icons/offline-map-icon.png"),
   flatIcon: require("@assets/images/trend-icons/flat-map-icon.png"),
   risingIcon: require("@assets/images/trend-icons/rising-map-icon.png"),

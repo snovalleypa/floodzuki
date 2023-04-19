@@ -10,12 +10,19 @@ import {
 } from "react-native"
 
 import { Feather } from "@expo/vector-icons"
-import { MediumText } from "./Text"
+import { MediumText, RegularLargeText, RegularText } from "./Text"
 
 import { Colors, ColorTypes } from "@common-ui/constants/colors"
 import { Spacing } from "@common-ui/constants/spacing"
 import { If } from "@common-ui/components/Conditional"
 import { OffsetProps, useOffsetStyles } from "@common-ui/utils/useOffset"
+import { useResponsive } from "@common-ui/utils/responsive"
+
+type SimpleLinkProps = {
+  text: string
+  onPress: () => void
+}
+
 
 type BaseButtonProps = {
   title?: string
@@ -280,7 +287,7 @@ export function OutlinedButton(props: ButtonProps) {
 export function LinkButton(props: ButtonProps) {
   const { type, ...rest } = props
 
-  const textColor = type ? Colors[type] : Colors.blue
+  const textColor = type ? Colors[type] : Colors.lightBlue
 
   return <BaseButton
     borderColor="transparent"
@@ -290,6 +297,28 @@ export function LinkButton(props: ButtonProps) {
     textColor={textColor}
     {...rest}
   />
+}
+
+
+/**
+ * A simple link component similar to links that we've used to see on the web
+ * @param { string } text - the text of the link
+ * @param { function } onPress - the function to call when the link is pressed
+ */
+
+export function SimpleLinkButton(props: SimpleLinkProps) {
+  const { text, onPress } = props
+  
+  return (
+    <Pressable onPress={onPress}>
+      {({ pressed, hovered }) => (
+        <RegularText
+          text={text}
+          style={[(hovered || pressed) ? $simpleLinkButtonHovered : $simpleLinkButton]}
+        />
+      )}
+    </Pressable>
+  )
 }
 
 
@@ -406,4 +435,13 @@ const $alignLeft: ViewStyle = {
 const $alignRight: ViewStyle = {
   alignItems: "flex-end",
   paddingRight: 0,
+}
+
+const $simpleLinkButtonHovered: TextStyle = {
+  textDecorationLine: 'underline',
+  color: Colors.lightBlue
+}
+
+const $simpleLinkButton: TextStyle = {
+  color: Colors.svpaBrand
 }

@@ -66,6 +66,20 @@
         }
       }
     },
+    "build": {
+      "preview": {
+        "channel": "preview"
+      },
+      "production": {
+        "channel": "production"
+      }
+    },
+    "updates": {
+      "url": "https://u.expo.dev/0f52b777-109a-423d-a18b-1ccfb5dea8e0"
+    },
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    },
     "plugins": [
       "expo-localization"
     ],

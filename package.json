@@ -39,6 +39,7 @@
     "expo-screen-orientation": "~5.1.1",
     "expo-splash-screen": "~0.18.1",
     "expo-status-bar": "~1.4.4",
+    "expo-updates": "~0.16.4",
     "google-map-react": "^2.2.0",
     "highcharts": "^10.3.3",
     "highcharts-react-official": "^3.2.0",

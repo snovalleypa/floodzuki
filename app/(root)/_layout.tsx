@@ -1,34 +1,46 @@
 import React, { useEffect } from "react";
-import { Platform } from "react-native";
+import { Pressable } from "react-native";
 import { usePathname, Slot, Link } from "expo-router";
+import Head from "expo-router/head";
+import { Image } from "expo-image";
+import { t } from "@i18n/translate";
 
 import '@expo/match-media';
 
 import { If } from "@common-ui/components/Conditional";
 import { Colors } from "@common-ui/constants/colors";
 import { Spacing } from "@common-ui/constants/spacing";
-import { routes } from "app/_layout";
+import { ROUTES, routes } from "app/_layout";
 import { useStores } from "@models/helpers/useStores";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { LabelText, LargeTitle } from "@common-ui/components/Text";
+import { LabelText, LargeTitle, RegularLargeText, SmallerText, SmallText, TinyText } from "@common-ui/components/Text";
 import { Cell, Row, Separator } from "@common-ui/components/Common";
 import Icon from "@common-ui/components/Icon";
-import { t } from "@i18n/translate";
+import { isWeb, useResponsive } from "@common-ui/utils/responsive";
+import { openLinkInBrowser } from "@utils/navigation";
+import { useAppAssets } from "@common-ui/contexts/AssetsContext";
 
+// Main App Layout
 export default function AppLayout() {
   const store = useStores()
+  const { getAsset } = useAppAssets();
 
+  // Fetch data on app start
   useEffect(() => {
     store.fetchMainData()
   }, [])
 
   return (
     <>
-      <If condition={Platform.OS === "web"}>
+      <If condition={isWeb}>
         <Header />
+        {/** This is used to ensure that favicon is displayed on web */}
+        <Head>
+          <link rel="icon" href={getAsset("favicon").uri} />
+        </Head>
       </If>
       <Slot />
-      <If condition={Platform.OS !== "web"}>
+      <If condition={!isWeb}>
         <TabBar />
       </If>
     </>
@@ -37,17 +49,27 @@ export default function AppLayout() {
 
 function HeaderLink({ href, children }) {
   const pathname = usePathname();
+  const { isMobile } = useResponsive();
 
   const isActive = pathname.includes(href);
   const $color = isActive ? Colors.primary : Colors.lightDark
 
+  const Title = isMobile ? LabelText : LargeTitle
+  const spacing = isMobile ? Spacing.small : Spacing.large
+
   return (
-    <Link href={href}>
-      <Cell horizontal={Spacing.large}>
-        <LargeTitle color={$color}>
-          {children}
-        </LargeTitle>
-      </Cell>
+    <Link asChild href={href}>
+      <Pressable>
+        {({ pressed, hovered }) => (
+          <Cell horizontal={spacing}>
+            <Title
+              color={hovered ? Colors.primary : $color}
+            >
+              {children}
+            </Title>
+          </Cell>
+        )}
+      </Pressable>
     </Link>
   );
 }
@@ -71,14 +93,49 @@ function FooterLink({ href, children }) {
 }
 
 function Header() {
+  const { isMobile } = useResponsive();
+  const { getAsset } = useAppAssets();
+
+  const openSVPA = () => {
+    openLinkInBrowser("https://svpa.us/floodzilla-gage-network/")
+  }
+
+  const Title = isMobile ? SmallText : RegularLargeText
+  const Subtitle = isMobile ? TinyText : SmallerText
+
+  const imageSize = isMobile ? 36 : 40
+  const offsetLeft = isMobile ? Spacing.extraSmall : Spacing.medium
+  const $imageStyle = { width: imageSize, height: imageSize }
+
   return (
     <Cell>
-      <Row top={Spacing.medium} bottom={Spacing.medium} align="center" justify="center">
-        {Object.values(routes).map(route => (
-          <HeaderLink key={route.path} href={route.path}>
-            {route.title}
-          </HeaderLink>
-        ))}
+      <Row
+        top={Spacing.small}
+        bottom={Spacing.small}
+        align="space-between"
+        justify="center"
+      >
+        <Row flex left={Spacing.small}>
+          <Image source={getAsset('logo')} style={$imageStyle} />
+          <Cell left={offsetLeft} flex>
+            <Link href={ROUTES.Home}>
+              <Title>{t("common.title")}</Title>
+            </Link>
+            <Pressable onPress={openSVPA}>
+              <Subtitle muted>{t("common.subtitle")}</Subtitle>
+            </Pressable>
+          </Cell>
+        </Row>
+        <Row flex align="center" right={Spacing.mediumXL}>
+          {Object.values(routes).map(route => (
+            <HeaderLink key={route.path} href={route.path}>
+              {route.title}
+            </HeaderLink>
+          ))}
+        </Row>
+        <If condition={!isMobile}>
+          <Cell flex />
+        </If>
       </Row>
       <Separator size={Spacing.micro} />
     </Cell>

@@ -9,6 +9,7 @@ export enum Palette {
 
   black = "#18191F",
   black800 = "#474A57",
+  black750 = "#707070",
   black700 = "#969BAB",
   black400 = "#DADADA",
   black300 = "#D6D8D6",
@@ -17,9 +18,11 @@ export enum Palette {
 
   gray = "#fbfcfd",
 
-  blue = "#1947E5",
-  blue800 = "#8094FF",
+  blue = "#0a66c2",
+  blue800 = "#378fe9",
   blue100 = "#E9E7FC",
+
+  greenishBlue = "#069ba8",
 
   yellow = "#FFBD00",
   yellow800 = "#F9D262",
@@ -61,6 +64,7 @@ export const Colors = {
   success: Palette.green, // green
   info: Palette.pink, // light blue
   
+  darkerGrey: Palette.black750,
   darkGrey: Palette.black700, // dark grey
   midGrey: Palette.black300, // mid grey
   lightGrey: Palette.black200, // light grey
@@ -110,6 +114,8 @@ export const Colors = {
   violette: Palette.violette,
   lightViolette: Palette.violette800,
   softViolette: Palette.violette100,
+
+  svpaBrand: Palette.greenishBlue,
 
   // Chart colors
   gageChartColor: Palette.chartBlue,

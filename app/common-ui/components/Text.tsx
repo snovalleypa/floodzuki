@@ -7,7 +7,7 @@ import { Ternary } from "./Conditional"
 type BaseTextProps = {
   text?: string
   color?: string
-  align?: "left" | "center" | "right"
+  align?: 'auto' | 'left' | 'right' | 'center' | 'justify'
   muted?: boolean
   disabled?: boolean
   baseStyle?: TextStyle

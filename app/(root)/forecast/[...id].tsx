@@ -19,6 +19,7 @@ import { useTimeout } from "@utils/useTimeout";
 import { GageSummary } from "@models/RootStore";
 import { ROUTES } from "app/_layout";
 import { observer } from "mobx-react-lite";
+import ForecastFooter from "@components/ForecastFooter";
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -83,6 +84,7 @@ const ForecastDetailsScreen = observer(
           <Cell top={Spacing.mediumXL}>
             <ExtendedGageSummaryCard gage={forecastGage} />
           </Cell>
+          <ForecastFooter />
         </Content>
       </Screen>
     )

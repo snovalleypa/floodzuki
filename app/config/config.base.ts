@@ -23,6 +23,11 @@ const BaseConfig: {
   RESOURCE_BASE_URL: string
   READING_BASE_URL: string
   GAGE_IMAGE_BASE_URL: string
+
+  SVPA_URL: string
+  SVPA_PHONE: string
+  SVPA_EMAIL: string
+  NOAA_URL: string
   
   GAGE_DATA_REFRESH_RATE: number
   GAGE_CLIENT_CACHE_TIME: number
@@ -40,6 +45,11 @@ const BaseConfig: {
   RESOURCE_BASE_URL: "//floodzilla.com",
   READING_BASE_URL: "https://prodplanreadingsvc.azurewebsites.net",
   GAGE_IMAGE_BASE_URL: "https://svpastorage.blob.core.windows.net/uploads/",
+
+  SVPA_URL: "https://svpa.us",
+  SVPA_PHONE: "425-549-0316",
+  SVPA_EMAIL: "info@svpa.us",
+  NOAA_URL: "http://www.nwrfc.noaa.gov/",
   
   GAGE_DATA_REFRESH_RATE: 10000, // ms
   GAGE_CLIENT_CACHE_TIME: 9000, // ms

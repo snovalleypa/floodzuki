@@ -5,6 +5,7 @@ import { Edge, SafeAreaView } from "react-native-safe-area-context"
 import { Colors } from "@common-ui/constants/colors"
 import { Spacing } from "@common-ui/constants/spacing"
 import { OffsetProps, useOffsetStyles } from "@common-ui/utils/useOffset"
+import WebFooter from "@components/WebFooter"
 
 export type ContentProps = {
   children: React.ReactNode
@@ -72,6 +73,7 @@ export const Content = (props: ContentProps) => {
       <View style={holderStyles} {...rest}>
         {children}
       </View>
+      <WebFooter />
     </Container>
   )
 }
