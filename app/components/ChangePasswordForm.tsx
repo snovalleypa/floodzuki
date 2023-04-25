@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 import { observer } from "mobx-react-lite"
 
 import { LinkButton, SolidButton } from "@common-ui/components/Button"
@@ -44,11 +44,20 @@ const ChangePasswordForm = observer(
 
     const [passwordError, setPasswordError] = useState("")
 
-    const [isValid] = useValidations({
-      oldPassword,
-      newPassword,
-      confirmPassword,
-    })
+    const fieldsToValidate = useMemo(() => {
+      const fields = {
+        newPassword,
+        confirmPassword,
+      }
+
+      if (showOldPasswordForm) {
+        fields["oldPassword"] = oldPassword
+      }
+
+      return fields
+    }, [oldPassword, newPassword, confirmPassword, showOldPasswordForm])
+
+    const [isValid] = useValidations(fieldsToValidate)
 
     useEffect(() => {
       setPasswordError("")

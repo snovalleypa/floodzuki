@@ -9,7 +9,7 @@ import { ErrorDetails } from "@components/ErrorDetails"
 import TitleWithBackButton from "@components/TitleWithBackButton"
 import { ROUTES } from "app/_layout"
 import { Spacing } from "@common-ui/constants/spacing"
-import { Card, CardContent, CardFooter } from "@common-ui/components/Card"
+import { Card, CardContent, CardFooter, CardHeader } from "@common-ui/components/Card"
 import { Cell, Row, RowOrCell } from "@common-ui/components/Common"
 import { Input } from "@common-ui/components/Input"
 import CheckBoxItem from "@common-ui/components/CheckBoxItem"
@@ -110,9 +110,11 @@ const LoginScreen = observer(
               onExpire={onExpire}
             />
             <CardContent>
-              <RegularText>
-                Log In to receive flooding notifications and other updates.
-              </RegularText>
+              <CardHeader>
+                <RegularText align="center">
+                  Log In or Create Account to receive flooding notifications and other updates.
+                </RegularText>
+              </CardHeader>
               <RowOrCell bottom={Spacing.small} top={Spacing.medium}>
                 <Cell flex={1}>
                   <MediumText>Email</MediumText>

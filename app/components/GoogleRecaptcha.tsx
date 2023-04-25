@@ -20,20 +20,15 @@ const WebRecpatcha = React.forwardRef(({
 }: WebRecpatcha, ref) => {
   const [rendered, setRendered] = useState(false)
 
-  console.log("RENDERED", rendered)
-
   useImperativeHandle(ref, () => ({
     open: () => {
-      console.log("OPENING RECAPTCHA", window.grecaptcha)
       window.localRecaptchaCallback = (token: string) => {
         onVerify(token)
       }
 
       if (!rendered) {
         try {
-          console.log("OPENING RECAPTCHA", window.grecaptcha)
           window.grecaptcha?.ready(function() {
-            console.log("RENDERING RECAPTCHA", RECAPTCHA_KEY)
             window.grecaptcha?.render(document.getElementById('localRecaptchaContainer'), {
               sitekey: RECAPTCHA_KEY,
             }, true);
@@ -52,8 +47,6 @@ const WebRecpatcha = React.forwardRef(({
         return
       }
       
-      console.log("EXECUTING RECAPTCHA", window.grecaptcha)
-
       window.grecaptcha?.execute()
     },
 
@@ -67,7 +60,7 @@ const WebRecpatcha = React.forwardRef(({
   return (
     <div
       id='localRecaptchaContainer'
-      // className="g-recaptcha"
+      className="g-recaptcha"
       data-callback="localRecaptchaCallback"
       data-size="invisible"
       data-sitekey=""

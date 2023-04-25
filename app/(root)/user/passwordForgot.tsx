@@ -76,8 +76,7 @@ const PasswordForgotScreen = observer(
     }
 
     const text = emailSent && !authSessionStore.isError ?
-      `An email has been sent to ${email} with a link to reset your password.\nIf there is no matching account 
-      no email will be sent.` :
+      `An email has been sent to ${email} with a link to reset your password.\nIf there is no matching account no email will be sent.` :
       "Enter your email address. We will send you a link to allow you to reset your password."
 
     return (
