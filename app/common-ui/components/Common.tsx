@@ -88,16 +88,16 @@ export const Row = ({ children, align, justify, flex, gap, wrap, ref, ...offsetP
  * @example
  * <Separator />
  */
-const $seprator = { width: "100%" }
+const $seprator = { width: "100%", backgroundColor: Colors.lightGrey }
 export const Separator = ({ size }: { size?: number }) => <View style={[$seprator, { height: size || 1 }]} />
 
 /**
  * Spacer is an empty block that can be used to add space between content.
- * @param {number} height - The height of the spacer (default 16px).
+ * @param {number} size - The height of the spacer (default 16px).
  * @example
- * <Spacer height={Spacing.medium} />
+ * <Spacer size={Spacing.medium} />
  */
-export const Spacer = ({ height }: { height?: number }) => <View style={{ height: height || Spacing.medium }} />
+export const Spacer = ({ size }: { size?: number }) => <View style={{ height: size || Spacing.medium }} />
 
 /**
  * Cell is a flexbox container lays out children in a stack

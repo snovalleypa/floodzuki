@@ -1,10 +1,12 @@
 import React from "react"
-import { View, ViewStyle, ColorValue } from "react-native"
+import { View, ViewStyle, ColorValue, TouchableOpacity } from "react-native"
 import { Colors, ColorTypes } from "@common-ui/constants/colors"
 import { OffsetProps, useOffsetStyles } from "@common-ui/utils/useOffset"
 import { Spacing } from "@common-ui/constants/spacing"
 import { Cell, Row, Separator } from "./Common"
 import { If } from "./Conditional"
+import { MediumText } from "./Text"
+import Icon from "./Icon"
 
 type CardProps = {
   children: React.ReactNode
@@ -18,6 +20,12 @@ type CardProps = {
 
 type CardItemProps = {
   children: [JSX.Element, JSX.Element]
+  noBorder?: boolean
+}
+
+type CardListLinkItemProps = {
+  text?: string
+  onPress?: () => void
   noBorder?: boolean
 }
 
@@ -131,6 +139,22 @@ export function CardFooter({ children, ...props }: CardProps) {
   )
 }
 
+/**
+ * A Card Content component useful to display content in a card like structure
+ * comes in handy when used alongside the CardHeader and CardFooter components
+ */
+export function CardContent({ children, ...props }: CardProps) {
+  return (
+    <Base baseStyle={$cardContent} {...props}>
+      {children}
+    </Base>
+  )
+}
+
+/**
+ * A Card Item component useful to display content in a card like structure
+ * displays a row with a separator
+ */
 export function CardItem({ children, noBorder = false }: CardItemProps) {
   return (
     <Cell
@@ -148,6 +172,21 @@ export function CardItem({ children, noBorder = false }: CardItemProps) {
         <Separator />
       </If>
     </Cell>
+  )
+}
+
+/**
+ * A Card Link Item component useful to display content in a card like structure
+ * displays a row with a separator and a right chevron
+ */
+export function CardListLinkItem({ text, onPress, noBorder = false }: CardListLinkItemProps) {
+  return (
+    <TouchableOpacity onPress={onPress}>
+      <CardItem noBorder={noBorder}>
+        <MediumText text={text} color={Colors.lightDark} />
+        <Icon name="chevron-right" color={Colors.lightDark} />
+      </CardItem>
+    </TouchableOpacity>
   )
 }
 
@@ -187,6 +226,12 @@ const $cardFooter: ViewStyle = {
   paddingTop: Spacing.small,
   marginHorizontal: -Spacing.small,
   paddingHorizontal: Spacing.small,
+}
+
+const $cardContent: ViewStyle = {
+  paddingVertical: Spacing.small,
+  paddingHorizontal: Spacing.small,
+  marginHorizontal: -Spacing.small,
 }
 
 const $noBackground: ViewStyle = {

@@ -12,7 +12,7 @@ import { Content, Screen } from "@common-ui/components/Screen";
 import { LargeTitle, MediumTitle, RegularText } from "@common-ui/components/Text";
 import { Colors } from "@common-ui/constants/colors";
 import { Spacing } from "@common-ui/constants/spacing";
-import { useResponsive } from "@common-ui/utils/responsive";
+import { isAndroid, useResponsive } from "@common-ui/utils/responsive";
 
 import { useStores } from "@models/helpers/useStores";
 import { Gage } from "@models/Gage";
@@ -171,7 +171,7 @@ const GageDetailsScreen = observer(
               </RowOrCell>
               <If condition={isMobile}>
                 <Card
-                  flex={"none"}
+                  flex={isAndroid ? 1 : "none"}
                   height={300}
                   minHeight={300}
                   top={Spacing.small}

@@ -85,7 +85,7 @@ const mapAndAdjustTimestampsForDisplay = (dataPoints) => {
 const WaterTrendModel = types
   .model("WaterTrend")
   .props({
-    trendValues: types.array(types.number),
+    trendValues: types.array(types.maybeNull(types.number)),
     trendValue: types.number,
   })
 
@@ -335,11 +335,13 @@ export const GageStoreModel = types
       )
 
       if (response.kind === 'ok') {
-        store.gages = response.data.gages?.map(gage => ({
+        const gages = response.data.gages?.map(gage => ({
           ...gage,
           lastReadingId: undefined,
           locationInfo: gage.locationId,
         })) || []
+
+        store.gages = gages
       } else {
         store.setError(response.kind)
       }

@@ -16,6 +16,7 @@ export type ContentProps = {
   style?: ViewStyle
   scrollViewStyle?: ScrollViewProps
   scrollable?: boolean
+  maxWidth?: number
 } & OffsetProps & ViewProps &
   ScrollViewProps
 
@@ -28,13 +29,14 @@ export type ContentProps = {
  * @param {ViewStyle} style - extra styles for the non-scrollable <Content />
  * @param {ScrollViewProps} scrollViewStyle - extra styles for the scrollable <Content />
  * @param {boolean} scrollable - whether the content is scrollable or not
+ * @param {number} maxWidth - max width of the content, when appied - content will be centered horizontally
  * @example
  * <Content scrollable>
  *   <Text>Some content</Text>
  * </Content>
  */
 export const Content = (props: ContentProps) => {
-  const { children, noPadding, noBackground, bgColor, style, scrollViewStyle, scrollable, ...rest } =
+  const { children, noPadding, noBackground, bgColor, style, scrollViewStyle, scrollable, maxWidth, ...rest } =
     props
 
   const Container = scrollable ? ScrollView : View
@@ -59,6 +61,10 @@ export const Content = (props: ContentProps) => {
 
   if (style) {
     holderStyles.push(style)
+  }
+
+  if (maxWidth) {
+    holderStyles.push({ maxWidth, width: "100%", alignSelf: "center" })
   }
 
   if (scrollViewStyle) {

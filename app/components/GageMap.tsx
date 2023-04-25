@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react"
 import { Platform, ViewStyle } from "react-native";
+import Constants from 'expo-constants';
 
 const Map = Platform.select({
   ios: () => require("../services/maps/MapReactNative").default,
@@ -27,7 +28,7 @@ type GageMapProps = {
 }
 
 // TODO: Move this to expo secrets
-const API_KEY = process.env.GOOGLE_MAPS_API_KEY
+const API_KEY = Constants.expoConfig.extra.googleMapsApiKey
 
 const getMapOptions = maps => {
   return {
@@ -172,6 +173,8 @@ const MobileMap = ({ gages }: GageMapProps) => {
   const router = useRouter();
   const mapRef = useRef(null)
 
+  const markerIds = gages.map(g => g.locationId)
+
   const [region] = useState({
     latitude: 47.622403,
     longitude: -121.933723,
@@ -180,7 +183,6 @@ const MobileMap = ({ gages }: GageMapProps) => {
   })
 
   useEffect(() => {
-    const markerIds = gages.map(g => g.locationId)
     mapRef.current?.fitToSuppliedMarkers(markerIds, {
       edgePadding: {
         top: Spacing.large,
@@ -190,7 +192,7 @@ const MobileMap = ({ gages }: GageMapProps) => {
       },
       animated: true,
     })
-  }, [gages, mapRef.current])
+  }, [markerIds, mapRef.current])
 
   const onMarkerPress = (e) => {
     const { id } = e.nativeEvent

@@ -12,6 +12,7 @@
 import { applySnapshot, IDisposer, onSnapshot } from "mobx-state-tree"
 import type { RootStore } from "../RootStore"
 import * as storage from "@utils/storage"
+import { api } from "@services/api"
 
 /**
  * The key we'll be saving our state as within async storage.
@@ -31,11 +32,18 @@ export async function setupRootStore(rootStore: RootStore) {
 
   try {
     // load the last known state from AsyncStorage
-    const loadedState = (await storage.load(ROOT_STATE_STORAGE_KEY)) || ROOT_STORE_DEFAULT
+    const loadedState: RootStore = (await storage.load(ROOT_STATE_STORAGE_KEY)) || ROOT_STORE_DEFAULT
 
     restoredState = {
       ...loadedState,
       isFetched: false,
+    }
+
+    // Setup Auth Token
+    // @ts-ignore
+    if (restoredState?.authSessionStore?.authToken) {
+      // @ts-ignore
+      api.setHeader("Authorization", `Bearer ${restoredState.authSessionStore.authToken}`)
     }
 
     applySnapshot(rootStore, restoredState)

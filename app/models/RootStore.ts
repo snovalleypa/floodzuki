@@ -5,6 +5,7 @@ import { GageReadingStoreModel } from "./GageReading"
 import { LocationInfoModelStore } from "./LocationInfo"
 import { MetagageModelStore } from "./Metagage"
 import { RegionModelStore } from "./Region"
+import { AuthSessionStoreModel } from "./AuthSession"
 
 /**
  * A RootStore model.
@@ -18,6 +19,7 @@ export const RootStoreModel = types.model("RootStore")
     metagageStore: types.optional(MetagageModelStore, {}),
     locationInfoStore: types.optional(LocationInfoModelStore, {}),
     forecastsStore: types.optional(ForecastStoreModel, {}),
+    authSessionStore: types.optional(AuthSessionStoreModel, {}),
   })
   .actions(store => {
     const setIsFetched = (isFetching: boolean) => {

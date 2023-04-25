@@ -18,6 +18,77 @@ interface ApiConfig {
   timeout: number // Milliseconds before we timeout the request.
 }
 
+export type LogInParams = {
+  username: string,
+  password: string,
+  rememberMe: boolean,
+  captchaToken: string
+}
+
+export type CreateAccountParams = {
+  firstName: string,
+  lastName: string,
+  username: string,
+  phone: string,
+  password: string,
+  rememberMe: boolean,
+  captchaToken: string
+}
+
+export type ForgotPasswordParams = {
+  email: string,
+  captchaToken: string
+}
+
+export type SetPasswordParams = {
+  oldPassword: string,
+  newPassword: string,
+}
+
+export type CreatePasswordParams = {
+  newPassword: string,
+}
+
+export type ResetPasswordParams = {
+  newPassword: string,
+  userId: string,
+  code: string
+}
+
+export type UpdateProfileParams = {
+  firstName: string,
+  lastName: string,
+  email: string,
+}
+
+export type ChangeEmailParams = {
+  email: string,
+}
+
+export type VerifyEmailParams = {
+  token: string
+}
+
+export type SendPhoneVerificationCodeParams = {
+  phone: string,
+}
+
+export type VerifyPhoneParams = {
+  phone: string,
+  code: string,
+}
+
+export type ProcessGoogleTokenParams = {
+  idToken: string,
+}
+
+export type NewSettingsParams = {
+  notifyViaEmail: boolean,
+  notifyViaSms: boolean,
+  notifyForecastAlerts: boolean,
+  notifyDailyForecasts: boolean,
+}
+
 /**
  * Configuring the apisauce instance.
  */
@@ -26,12 +97,13 @@ export const DEFAULT_API_CONFIG: ApiConfig = {
   timeout: 10000,
 }
 
-async function genericGetRequest<T>(
+async function genericRequest<T>(
+  requestType: 'get' | 'post' | 'put' | 'delete',
   api: ApisauceInstance,
   url: string,
-  params?: {[key: string]: any},
+  params?: {[key: string]: any} | string,
 ): Promise<{ kind: 'ok', data: T } | GeneralApiProblem > {
-  const response: ApiResponse<T> = await api.get(url, params)
+  const response: ApiResponse<T> = await api[requestType](url, params)
   
   if (!response.ok) {
     const problem = getGeneralApiProblem(response)
@@ -47,8 +119,33 @@ async function genericGetRequest<T>(
     if (__DEV__) {
       console.error(`Bad data: ${e.message}\n${response.data}`, e.stack)
     }
-    return { kind: "bad-data" }
+    
+    return { kind: "bad-data", data: null }
   }
+}
+
+async function genericGetRequest<T>(
+  api: ApisauceInstance,
+  url: string,
+  params?: {[key: string]: any}
+) {
+  return await genericRequest<T>('get', api, url, params)
+}
+
+async function genericPostRequest<T>(
+  api: ApisauceInstance,
+  url: string,
+  params?: {[key: string]: any} | string
+) {
+  return await genericRequest<T>('post', api, url, JSON.stringify(params))
+}
+
+async function genericPutRequest<T>(
+  api: ApisauceInstance,
+  url: string,
+  params?: {[key: string]: any} | string
+) {
+  return await genericRequest<T>('put', api, url, params)
 }
 
 /**
@@ -58,8 +155,10 @@ async function genericGetRequest<T>(
 export class Api {
   apisauce: ApisauceInstance
   config: ApiConfig
+  regionId: string | null = null
 
   constructor(config: ApiConfig = DEFAULT_API_CONFIG) {
+    this.regionId = String(Config.SVPA_REGION_ID)
     this.config = config
     this.apisauce = create({
       baseURL: this.config.url,
@@ -70,13 +169,25 @@ export class Api {
     })
   }
 
+  setRegionId(regionId: string) {
+    this.regionId = regionId
+  }
+
+  setHeader(key: string, value: string) {
+    this.apisauce.setHeader(key, value)
+  }
+
+  removeHeader(key: string) {
+    this.apisauce.deleteHeader(key)
+  }
+
   async getRegion<T>() {
     this.apisauce.setBaseURL(Config.BASE_URL)
     return await genericGetRequest<T>(
       this.apisauce,
       Config.API.client.GET_REGION_URL,
       {
-        regionId: Config.SVPA_REGION_ID,
+        regionId: this.regionId,
       }
     )
   }
@@ -87,7 +198,7 @@ export class Api {
       this.apisauce,
       Config.API.client.GET_METAGAGES_URL,
       {
-        regionId: Config.SVPA_REGION_ID,
+        regionId: this.regionId,
       }
     )
   }
@@ -98,7 +209,7 @@ export class Api {
       this.apisauce,
       Config.API.client.GET_GAGE_LIST_URL,
       {
-        regionId: Config.SVPA_REGION_ID,
+        regionId: this.regionId,
       }
     )
   }
@@ -112,7 +223,7 @@ export class Api {
     return await genericGetRequest<T>(
       this.apisauce,
       Config.API.reading.GET_STATUS_URL, {
-        regionId: Config.SVPA_REGION_ID,
+        regionId: this.regionId,
         fromDateTime,
         toDateTime,
       }
@@ -130,7 +241,7 @@ export class Api {
     this.apisauce.setBaseURL(Config.READING_BASE_URL)
 
     const params = {
-      regionId: Config.SVPA_REGION_ID,
+      regionId: this.regionId,
       id: gageId,
     }
 
@@ -172,7 +283,7 @@ export class Api {
     this.apisauce.setBaseURL(Config.READING_BASE_URL)
 
     const params = {
-      regionId: Config.SVPA_REGION_ID,
+      regionId: this.regionId,
       includePredictions: true,
       gageIds,
     }
@@ -189,6 +300,194 @@ export class Api {
       this.apisauce,
       Config.API.reading.GET_FORECAST_URL,
       params
+    )
+  }
+
+  async login<T>(params: LogInParams) {
+    this.apisauce.setBaseURL(Config.AUTH_BASE_URL)
+    
+    return await genericPostRequest<T>(
+      this.apisauce,
+      Config.API.auth.AUTHENTICATE_URL,
+      params
+    )
+  }
+
+  async createAccount<T>(params: CreateAccountParams) {
+    this.apisauce.setBaseURL(Config.AUTH_BASE_URL)
+    
+    return await genericPostRequest<T>(
+      this.apisauce,
+      Config.API.auth.CREATEACCOUNT_URL,
+      params
+    )
+  }
+
+  async forgotPassword<T>(params: ForgotPasswordParams) {
+    this.apisauce.setBaseURL(Config.AUTH_BASE_URL)
+    
+    return await genericPostRequest<T>(
+      this.apisauce,
+      Config.API.auth.FORGOTPASSWORD_URL,
+      params
+    )
+  }
+
+  async setPassword<T>(params: SetPasswordParams) {
+    this.apisauce.setBaseURL(Config.AUTH_BASE_URL)
+    
+    return await genericPostRequest<T>(
+      this.apisauce,
+      Config.API.auth.SETPASSWORD_URL,
+      params
+    )
+  }
+
+  async createPassword<T>(params: CreatePasswordParams) {
+    this.apisauce.setBaseURL(Config.AUTH_BASE_URL)
+    
+    return await genericPostRequest<T>(
+      this.apisauce,
+      Config.API.auth.CREATEPASSWORD_URL,
+      params
+    )
+  }
+  
+  async resetPassword<T>(params: ResetPasswordParams) {
+    this.apisauce.setBaseURL(Config.AUTH_BASE_URL)
+    
+    return await genericPostRequest<T>(
+      this.apisauce,
+      Config.API.auth.RESETPASSWORD_URL,
+      params
+    )
+  }
+
+  async updateProfile<T>(params: UpdateProfileParams) {
+    this.apisauce.setBaseURL(Config.AUTH_BASE_URL)
+    
+    return await genericPostRequest<T>(
+      this.apisauce,
+      Config.API.auth.UPDATEACCOUNT_URL,
+      params
+    )
+  }
+
+  async changeEmail<T>(params: ChangeEmailParams) {
+    this.apisauce.setBaseURL(Config.AUTH_BASE_URL)
+    
+    return await genericPostRequest<T>(
+      this.apisauce,
+      Config.API.auth.UPDATEACCOUNT_URL,
+      {
+        Username: params.email,
+      }
+    )
+  }
+
+  async reauthenticate<T>() {
+    this.apisauce.setBaseURL(Config.AUTH_BASE_URL)
+    
+    return await genericGetRequest<T>(
+      this.apisauce,
+      Config.API.auth.REAUTHENTICATE_URL
+    )
+  }
+
+  async sendVerificationEmail<T>() {
+    this.apisauce.setBaseURL(Config.AUTH_BASE_URL)
+    
+    return await genericGetRequest<T>(
+      this.apisauce,
+      Config.API.auth.SENDVERIFICATIONEMAIL_URL,
+    )
+  }
+
+  async verifyEmail<T>(params: VerifyEmailParams) {
+    this.apisauce.setBaseURL(Config.AUTH_BASE_URL)
+    
+    return await genericPostRequest<T>(
+      this.apisauce,
+      Config.API.auth.VERIFYEMAIL_URL,
+      params.token
+    )
+  }
+
+  async sendPhoneVerificationCode<T>(params: SendPhoneVerificationCodeParams) {
+    this.apisauce.setBaseURL(Config.AUTH_BASE_URL)
+    
+    return await genericPostRequest<T>(
+      this.apisauce,
+      Config.API.auth.SENDPHONEVERIFICATION_URL,
+      params.phone
+    )
+  }
+
+  async verifyPhoneCode<T>(params: VerifyPhoneParams) {
+    this.apisauce.setBaseURL(Config.AUTH_BASE_URL)
+    
+    return await genericPostRequest<T>(
+      this.apisauce,
+      Config.API.auth.VERIFYPHONE_URL,
+      params
+    )
+  }
+
+  async processGoogleToken<T>(params: ProcessGoogleTokenParams) {
+    this.apisauce.setBaseURL(Config.AUTH_BASE_URL)
+    
+    return await genericPostRequest<T>(
+      this.apisauce,
+      Config.API.auth.AUTHENTICATE_WITH_GOOGLE_URL,
+      params.idToken
+    )
+  }
+
+  async getSettings<T>() {
+    this.apisauce.setBaseURL(Config.AUTH_BASE_URL)
+    
+    return await genericGetRequest<T>(
+      this.apisauce,
+      Config.API.subscriptions.SETTINGS_URL
+    )
+  }
+
+  async updateSettings<T>(params: NewSettingsParams) {
+    this.apisauce.setBaseURL(Config.AUTH_BASE_URL)
+    
+    return await genericPostRequest<T>(
+      this.apisauce,
+      Config.API.subscriptions.SETTINGS_URL,
+      params
+    )
+  }
+
+  async getSubscribedGages<T>() {
+    this.apisauce.setBaseURL(Config.AUTH_BASE_URL)
+    
+    return await genericGetRequest<T>(
+      this.apisauce,
+      Config.API.subscriptions.SUBSCRIPTIONS_URL + `/${this.regionId}`
+    )
+  }
+
+  async setGageSubscription<T>(gageId: string, enabled: boolean) {
+    this.apisauce.setBaseURL(Config.AUTH_BASE_URL)
+
+    return await genericPutRequest<T>(
+      this.apisauce,
+      Config.API.subscriptions.SUBSCRIPTIONS_URL + `/${this.regionId}/${gageId}`,
+      JSON.stringify(enabled)
+    )
+  }
+
+  async unsubscribeFromNotifications<T>(userId: string) {
+    this.apisauce.setBaseURL(Config.AUTH_BASE_URL)
+
+    return await genericPostRequest<T>(
+      this.apisauce,
+      Config.API.subscriptions.UNSUBEMAIL_URL,
+      { userId }
     )
   }
 }

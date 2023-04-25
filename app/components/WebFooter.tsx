@@ -88,19 +88,23 @@ const WebFooter = () => {
           <SimpleLinkButton
             text={t("navigation.aboutScreen")}
             onPress={openSvpaWebsite}
-          />{separator}
+          />
+          {separator}
           <SimpleLinkButton
             text={t("navigation.privacyPolicyScreen")}
             onPress={openPrivacyPolicy}
-          />{separator}
+          />
+          {separator}
           <SimpleLinkButton
             text={t("navigation.termsOfServiceScreen")}
             onPress={openTermsOfService}
-          />{separator}
+          />
+          {separator}
           <SimpleLinkButton
             text={Config.SVPA_PHONE}
             onPress={makeAPhoneCall}
-          />{separator}
+          />
+          {separator}
           <SimpleLinkButton
             text={Config.SVPA_EMAIL}
             onPress={sendAnEmail}

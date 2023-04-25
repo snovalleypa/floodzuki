@@ -15,11 +15,40 @@ const API = {
     GET_GAGE_LIST_URL: "/api/client/APIGetLocationInfo",
     GET_METAGAGES_URL: "/api/client/GetMetagages",
     GET_REGION_URL: "/api/v2/GetRegion",
+  },
+
+  subscriptions: {
+    SETTINGS_URL: "/api/subscription/usersettings",
+    SUBSCRIPTIONS_URL: "/api/subscription/usersubs",
+    UNSUBEMAIL_URL: "/api/subscription/unsubemail",
+  },
+
+  auth: {
+    AUTHENTICATE_URL: "/Account/Authenticate",
+    CREATEACCOUNT_URL: "/Account/CreateAccount",
+    REAUTHENTICATE_URL: "/Account/Reauthenticate",
+    AUTHENTICATE_WITH_GOOGLE_URL: "/Account/AuthenticateWithGoogle",
+    AUTHENTICATE_WITH_FACEBOOK_URL: "/Account/AuthenticateWithFacebook",
+    UPDATEACCOUNT_URL: "/Account/UpdateAccount",
+    FORGOTPASSWORD_URL: "/Account/APIForgotPassword",
+    SETPASSWORD_URL: "/Account/APISetPassword",
+    CREATEPASSWORD_URL: "/Account/APICreatePassword",
+    RESETPASSWORD_URL: "/Account/APIResetPassword",
+    SENDVERIFICATIONEMAIL_URL: "/Account/SendVerificationEmail",
+    VERIFYEMAIL_URL: "/Account/VerifyEmail",
+    SENDPHONEVERIFICATION_URL: "/Account/SendPhoneVerificationSms",
+    VERIFYPHONE_URL: "/Account/VerifyPhone",
+  
+    FACEBOOK_LOGIN_PROVIDER_NAME: "Facebook",
+    GOOGLE_LOGIN_PROVIDER_NAME: "Google",
+  
+    ID_TOKEN_HEADER: "X-fz-idToken",
   }
 }
 
 const BaseConfig: {
   BASE_URL: string
+  AUTH_BASE_URL: string
   RESOURCE_BASE_URL: string
   READING_BASE_URL: string
   GAGE_IMAGE_BASE_URL: string
@@ -37,11 +66,14 @@ const BaseConfig: {
   FRONT_PAGE_CHART_DURATION_NUMBER: number
   FRONT_PAGE_CHART_DURATION_UNIT: dayjs.ManipulateType
 
+  PASSWORD_MIN_LENGTH: number
+
   API: typeof API
 
   FORECAST_GAGE_IDS: string[]
 } = {
   BASE_URL: "https://floodzilla.com",
+  AUTH_BASE_URL: "https://floodzilla.com",
   RESOURCE_BASE_URL: "//floodzilla.com",
   READING_BASE_URL: "https://prodplanreadingsvc.azurewebsites.net",
   GAGE_IMAGE_BASE_URL: "https://svpastorage.blob.core.windows.net/uploads/",
@@ -58,6 +90,8 @@ const BaseConfig: {
 
   FRONT_PAGE_CHART_DURATION_NUMBER: 2,
   FRONT_PAGE_CHART_DURATION_UNIT: 'day',
+
+  PASSWORD_MIN_LENGTH: 8,
 
   API: API,
 

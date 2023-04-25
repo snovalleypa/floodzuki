@@ -26,8 +26,18 @@ export enum ROUTES {
   GageDetails = "/gages/[id]",
   UserAlerts = "/user/alerts",
   UserProfile = "/user/profile",
-  Privacy = "/privacy",
-  Terms = "/terms",
+  UserLogin = "/user/login",
+  UserPasswordForgot = "/user/passwordForgot",
+  UserSetPassword = "/user/setpassword",
+  UserResetPassword = "/user/resetpassword",
+  UserCreatePassword = "/user/createpassword",
+  UserVerifyPhoneNumber = "/user/verifyPhoneNumber",
+  UserVerifyEmail = "/user/verifyemail",
+  UserChangeEmail = "/user/changeemail",
+  UserNew = "/user/new",
+  About = "/user",
+  Privacy = "/user/privacy",
+  Terms = "/user/terms",
 }
 
 export const routes = {
@@ -42,11 +52,13 @@ export const routes = {
     title: t("navigation.forecastScreen")
   },
   [ROUTES.UserAlerts]: {
-    path: ROUTES.UserAlerts,
+    path: ROUTES.About,
     icon: "bell",
-    title: t("navigation.profileScreen")
+    title: t("navigation.alertsScreen")
   },
-}
+} as const;
+
+export type MainRoute = typeof routes[keyof typeof routes];
 
 export default function AppLayout() {
   const [areFontsLoaded] = useFonts(customFontsToLoad)

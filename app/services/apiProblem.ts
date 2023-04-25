@@ -1,6 +1,10 @@
 import { ApiResponse } from "apisauce"
 
-export type GeneralApiProblem =
+type ErrorData = {
+  data: string
+}
+
+type ErrorKind =
   /**
    * Times up.
    */
@@ -38,6 +42,8 @@ export type GeneralApiProblem =
    */
   | { kind: "bad-data" }
 
+export type GeneralApiProblem = ErrorKind & ErrorData
+
 /**
  * Attempts to get a common cause of problems from an api response.
  *
@@ -46,25 +52,25 @@ export type GeneralApiProblem =
 export function getGeneralApiProblem(response: ApiResponse<any>): GeneralApiProblem | void {
   switch (response.problem) {
     case "CONNECTION_ERROR":
-      return { kind: "cannot-connect", temporary: true }
+      return { kind: "cannot-connect", data: response.data, temporary: true }
     case "NETWORK_ERROR":
-      return { kind: "cannot-connect", temporary: true }
+      return { kind: "cannot-connect", data: response.data, temporary: true }
     case "TIMEOUT_ERROR":
-      return { kind: "timeout", temporary: true }
+      return { kind: "timeout", data: response.data, temporary: true }
     case "SERVER_ERROR":
-      return { kind: "server" }
+      return { kind: "server", data: response.data }
     case "UNKNOWN_ERROR":
-      return { kind: "unknown", temporary: true }
+      return { kind: "unknown", data: response.data, temporary: true }
     case "CLIENT_ERROR":
       switch (response.status) {
         case 401:
-          return { kind: "unauthorized" }
+          return { kind: "unauthorized", data: response.data }
         case 403:
-          return { kind: "forbidden" }
+          return { kind: "forbidden", data: response.data }
         case 404:
-          return { kind: "not-found" }
+          return { kind: "not-found", data: response.data }
         default:
-          return { kind: "rejected" }
+          return { kind: "rejected", data: response.data }
       }
     case "CANCEL_ERROR":
       return null

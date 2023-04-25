@@ -3,15 +3,17 @@ import { ErrorBoundaryProps, Stack, useRouter } from "expo-router"
 
 import { Screen, Content } from "@common-ui/components/Screen"
 import { ExtraLargeTitle, HugeTitle, LargeTitle, MediumText, MediumTitle, RegularText } from "@common-ui/components/Text"
-import { SimpleLinkButton } from "@common-ui/components/Button"
+import { IconButton, SimpleLinkButton } from "@common-ui/components/Button"
 import { openLinkInBrowser } from "@utils/navigation"
 import { ErrorDetails } from "@components/ErrorDetails"
 import { t } from "@i18n/translate"
-import { Separator } from "@common-ui/components/Common"
+import { Row, Spacer } from "@common-ui/components/Common"
 import { Spacing } from "@common-ui/constants/spacing"
 import { FloodzillaLink, SVPALink } from "./privacy"
 import { ROUTES } from "app/_layout"
 import Config from "@config/config"
+import { isMobile } from "@common-ui/utils/responsive"
+import { If } from "@common-ui/components/Conditional"
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -37,23 +39,37 @@ export const PrivacyLink = () => {
 }
 
 const TermsOfUseScreen = () => {
+  const router = useRouter();
+  
+  const goBack = () => {
+    router.push({ pathname: ROUTES.About })
+  }
+
   return (
     <Screen>
       <Stack.Screen options={{ title: `${t("common.title")} - ${t("homeScreen.title")}` }} />
       <Content scrollable>
-        <HugeTitle>Terms of Use</HugeTitle>
-        <Separator size={Spacing.large} />
+        <Row>
+          <If condition={isMobile}>
+            <IconButton
+              left={-Spacing.medium}
+              icon="chevron-left"
+              onPress={goBack} />
+          </If>
+          <HugeTitle>Terms of Use</HugeTitle>
+        </Row>
+        <Spacer size={Spacing.large} />
         <ExtraLargeTitle>Snoqualmie Valley Preservation Alliance (SVPA) Master Terms of Use</ExtraLargeTitle>
-        <Separator size={Spacing.large} />
+        <Spacer size={Spacing.large} />
         <RegularText>
           Effective as of 15 October 2018
         </RegularText>
-        <Separator size={Spacing.large} />
+        <Spacer size={Spacing.large} />
         {/* SECTION 1 */}
         <LargeTitle>
           1. General Information Regarding These Terms of Us
         </LargeTitle>
-        <Separator size={Spacing.small} />
+        <Spacer size={Spacing.small} />
         <RegularText>
           Master terms: Welcome, and thank you for your interest in Snoqualmie Valley Preservation Alliance ("SVPA," "we," "our," or "us"). Unless otherwise noted on a particular site or service,
           these master terms of use ("Master Terms") apply to your use of all of the websites that SVPA operates. These include  <SVPALink /> and <FloodzillaLink />, together with all other subdomains thereof,
@@ -67,12 +83,12 @@ const TermsOfUseScreen = () => {
             These human-readable summaries of each section are not part of the contract, but are intended to help you understand its terms.
           </MediumText>
         </RegularText>
-        <Separator size={Spacing.large} />
+        <Spacer size={Spacing.large} />
         {/* SECTION 2 */}
         <LargeTitle>
           2. Your Agreement to the Terms
         </LargeTitle>
-        <Separator size={Spacing.small} />
+        <Spacer size={Spacing.small} />
         <RegularText>
           BY CLICKING "I ACCEPT" OR OTHERWISE ACCESSING OR USING ANY OF THE SERVICES (INCLUDING THE LICENSES, PUBLIC DOMAIN TOOLS, AND CHOOSERS),
           YOU ACKNOWLEDGE THAT YOU HAVE READ, UNDERSTOOD, AND AGREED TO BE BOUND BY THE TERMS. By clicking "I ACCEPT" or otherwise accessing
@@ -86,12 +102,12 @@ const TermsOfUseScreen = () => {
             Human-readable summary of Sec 2: Please read these terms and only use our sites and services if you agree to them.
           </MediumText>
         </RegularText>
-        <Separator size={Spacing.large} />
+        <Spacer size={Spacing.large} />
         {/* SECTION 3 */}
         <LargeTitle>
           3. Changes to the Terms
         </LargeTitle>
-        <Separator size={Spacing.small} />
+        <Spacer size={Spacing.small} />
         <RegularText>
           From time to time, SVPA may change, remove, or add to the Terms, and reserves the right to do so in its discretion.
           In that case, we will post updated Terms and indicate the date of revision. If we feel the modifications are material,
@@ -104,12 +120,12 @@ const TermsOfUseScreen = () => {
             Human-readable summary of Sec 3: These terms may change. When the changes are important, we will put a notice on the website. If you continue to use the sites after the changes are made, you agree to the changes.
           </MediumText>
         </RegularText>
-        <Separator size={Spacing.large} />
+        <Spacer size={Spacing.large} />
         {/* SECTION 4 */}
         <LargeTitle>
           4. Content Available through the Services
         </LargeTitle>
-        <Separator size={Spacing.small} />
+        <Spacer size={Spacing.small} />
         <RegularText>
           Provided as-is: You acknowledge that SVPA does not make any representations or warranties about the material, data, including but not limited to real-time or predicted data about flood or water levels, and road closures, and information, such as data files, text, computer software, code, music, audio files or other sounds, photographs, videos, or other images (collectively, the "Content") which you may have access to as part of, or through your use of, the Services. Under no circumstances is SVPA liable in any way for any Content, including, but not limited to: any infringing Content, any errors or omissions in Content, or for any loss or damage of any kind incurred as a result of the use of any Content posted, transmitted, linked from, or otherwise accessible through or made available via the Services. You understand that by using the Services, you may be exposed to Content that is offensive, indecent, or objectionable.{"\n\n"}
 
@@ -119,12 +135,12 @@ const TermsOfUseScreen = () => {
             Human-readable summary of Sec 4: We try our best to have useful information on our sites, but we cannot promise that everything is accurate or appropriate for your situation. Content on the site is licensed under CC BY 4.0 unless it says it is available under different terms. If you find content through a link on our websites, be sure to check the license terms before using it.
           </MediumText>
         </RegularText>
-        <Separator size={Spacing.large} />
+        <Spacer size={Spacing.large} />
         {/* SECTION 5 */}
         <LargeTitle>
           5. Content Supplied by You
         </LargeTitle>
-        <Separator size={Spacing.small} />
+        <Spacer size={Spacing.small} />
         <RegularText>
           Your responsibility: You represent, warrant, and agree that no Content posted or otherwise shared by you on or through any of the Services ("Your Content"), violates or infringes upon the rights of any third party, including copyright, trademark, privacy, publicity, or other personal or proprietary rights, breaches or conflicts with any obligation, such as a confidentiality obligation, or contains libelous, defamatory, or otherwise unlawful material.{"\n\n"}
 
@@ -136,12 +152,12 @@ const TermsOfUseScreen = () => {
             Human-readable summary of Sec 5: We do not take any ownership of your content when you post it on our sites. If you post content you own, you agree it can be used under the terms of CC BY 4.0 or any future version of that license. If you do not own the content, then you should not post it unless it is in the public domain or licensed CC BY 4.0, except that you may also post pictures and videos if you are authorized to use them under law (e.g., fair use) or if they are available under any CC license. You must note that information on the file when you upload it. You are responsible for any content you upload to our sites. We may remove or delete your content at any time without notice; for this reason, you should keep a copy of anything your care about.
           </MediumText>
         </RegularText>
-        <Separator size={Spacing.large} />
+        <Spacer size={Spacing.large} />
         {/* SECTION 6 */}
         <LargeTitle>
           6. Participating in the Community: Registered Users
         </LargeTitle>
-        <Separator size={Spacing.small} />
+        <Spacer size={Spacing.small} />
         <RegularText>
           Registration is limited to U.S. users. By registering for an account through any of the Services, including securing a SVPA account, you represent and warrant that you are the age of majority in your jurisdiction (typically age 18). Services offered to registered users are provided subject to these Master Terms, the CC Privacy Policy, and any Additional Terms specified on the relevant Website(s), all of which are hereby incorporated by reference into these Terms.{"\n\n"}
 
@@ -151,12 +167,12 @@ const TermsOfUseScreen = () => {
             Human-readable summary of Sec 6: Please do not register for an account on our sites unless you are 18 years old and U.S. user. SVPA has the right to end your account at any time. You are responsible for use of your account. And of course, please do not set up an account for someone else unless you have permission to do so.
           </MediumText>
         </RegularText>
-        <Separator size={Spacing.large} />
+        <Spacer size={Spacing.large} />
         {/* SECTION 7 */}
         <LargeTitle>
           7. Prohibited Conduct
         </LargeTitle>
-        <Separator size={Spacing.small} />
+        <Spacer size={Spacing.small} />
         <RegularText>
           You agree not to engage in any of the following activities:{"\n\n"}
           <MediumTitle>
@@ -197,12 +213,12 @@ const TermsOfUseScreen = () => {
             Human-readable summary of Sec 8: Play nice. Be yourself. Don't break the law or be disruptive.
           </MediumText>
         </RegularText>
-        <Separator size={Spacing.large} />
+        <Spacer size={Spacing.large} />
         {/* SECTION 8 */}
         <LargeTitle>
           8. DISCLAIMER OF WARRANTIES
         </LargeTitle>
-        <Separator size={Spacing.small} />
+        <Spacer size={Spacing.small} />
         <RegularText>
           TO THE FULLEST EXTENT PERMITTED BY APPLICABLE LAW, SVPA OFFERS THE SERVICES (INCLUDING ALL CONTENT AVAILABLE ON OR THROUGH THE SERVICES) AS-IS AND MAKES NO REPRESENTATIONS OR WARRANTIES OF ANY KIND CONCERNING THE SERVICES, EXPRESS, IMPLIED, STATUTORY, OR OTHERWISE, INCLUDING WITHOUT LIMITATION, WARRANTIES OF TITLE, MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR NON-INFRINGE INCLUDING ACCURACY OF ANY DATA OR FORECAST. SVPA DOES NOT WARRANT THAT THE FUNCTIONS OF THE SERVICES WILL BE UNINTERRUPTED OR ERROR-FREE, THAT CONTENT MADE AVAILABLE ON OR THROUGH THE SERVICES WILL BE ERROR-FREE, THAT DEFECTS WILL BE CORRECTED, OR THAT ANY SERVERS USED BY CC ARE FREE OF VIRUSES OR OTHER HARMFUL COMPONENTS. SVPA DOES NOT WARRANT OR MAKE ANY REPRESENTATION REGARDING USE OF THE CONTENT AVAILABLE THROUGH THE SERVICES IN TERMS OF ACCURACY, RELIABILITY, OR OTHERWISE.{"\n\n"}
 
@@ -210,12 +226,12 @@ const TermsOfUseScreen = () => {
             Human-readable summary of Sec 10: SVPA does not make any guarantees about the sites, services, or content available on the sites. Do not rely on SVPA data or forecasts to protect life or property in any way.
           </MediumText>
         </RegularText>
-        <Separator size={Spacing.large} />
+        <Spacer size={Spacing.large} />
         {/* SECTION 11 */}
         <LargeTitle>
           11. LIMITATION OF LIABILITY
         </LargeTitle>
-        <Separator size={Spacing.small} />
+        <Spacer size={Spacing.small} />
         <RegularText>
           TO THE FULLEST EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT WILL SVPA BE LIABLE TO YOU ON ANY LEGAL THEORY FOR ANY INCIDENTAL, DIRECT, INDIRECT, PUNITIVE, ACTUAL, CONSEQUENTIAL, SPECIAL, EXEMPLARY, OR OTHER DAMAGES, INCLUDING WITHOUT LIMITATION, LOSS OF REVENUE OR INCOME, LOST PROFITS, PAIN AND SUFFERING, EMOTIONAL DISTRESS, COST OF SUBSTITUTE GOODS OR SERVICES, OR SIMILAR DAMAGES SUFFERED OR INCURRED BY YOU OR ANY THIRD PARTY THAT ARISE IN CONNECTION WITH THE SERVICES (OR THE TERMINATION THEREOF FOR ANY REASON), EVEN IF SVPA HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. TO THE FULLEST EXTENT PERMITTED BY APPLICABLE LAW, SVPA IS NOT RESPONSIBLE OR LIABLE WHATSOEVER IN ANY MANNER FOR ANY CONTENT POSTED ON OR AVAILABLE THROUGH THE SERVICES (INCLUDING CLAIMS OF INFRINGEMENT RELATING TO THAT CONTENT), FOR YOUR USE OF THE SERVICES, OR FOR THE CONDUCT OF THIRD PARTIES ON OR THROUGH THE SERVICES. Certain jurisdictions do not permit the exclusion of certain warranties or limitation of liability for incidental or consequential damages, which means that some of the above limitations may not apply to you. IN THESE JURISDICTIONS, THE FOREGOING EXCLUSIONS AND LIMITATIONS WILL BE ENFORCED TO THE GREATEST EXTENT PERMITTED BY APPLICABLE LAW.
           {"\n\n"}
@@ -223,12 +239,12 @@ const TermsOfUseScreen = () => {
             Human-readable summary of Sec 11: SVPA is not responsible for the content on the sites, your use of our services, or for the conduct of others on our sites.
           </MediumText>
         </RegularText>
-        <Separator size={Spacing.large} />
+        <Spacer size={Spacing.large} />
         {/* SECTION 12 */}
         <LargeTitle>
           12. Indemnification
         </LargeTitle>
-        <Separator size={Spacing.small} />
+        <Spacer size={Spacing.small} />
         <RegularText>
           To the extent authorized by law, you agree to indemnify and hold harmless SVPA, its employees, officers, directors, affiliates, and agents from and against any and all claims, losses, expenses, damages, and costs, including reasonable attorneys’ fees, resulting directly or indirectly from or arising out of (a) your violation of the Terms, (b) your use of any of the Services, and/or (c) the Content you make available on any of the Services.
           {"\n\n"}
@@ -236,12 +252,12 @@ const TermsOfUseScreen = () => {
             Human-readable summary of Sec 12: If something happens because you violate these terms, because of your use of the services, or because of the content you post on the sites, you agree to repay SVPA for the damage it causes.
           </MediumText>
         </RegularText>
-        <Separator size={Spacing.large} />
+        <Spacer size={Spacing.large} />
         {/* SECTION 13 */}
         <LargeTitle>
           13. Privacy Policy
         </LargeTitle>
-        <Separator size={Spacing.small} />
+        <Spacer size={Spacing.small} />
         <RegularText>
           SVPA is committed to responsibly handling the information and data we collect through our Services in compliance with our <PrivacyLink />, which is incorporated by reference into these Master Terms. Please review the <PrivacyLink /> so you are aware of how we collect and use your personal information.
           {"\n\n"}
@@ -249,12 +265,12 @@ const TermsOfUseScreen = () => {
             Human-readable summary of Sec 13: Please read our Privacy Policy. It is part of these terms, too.
           </MediumText>
         </RegularText>
-        <Separator size={Spacing.large} />
+        <Spacer size={Spacing.large} />
         {/* SECTION 15 */}
         <LargeTitle>
           15. Copyright Complaints
         </LargeTitle>
-        <Separator size={Spacing.small} />
+        <Spacer size={Spacing.small} />
         <RegularText>
           SVPA respects copyright, and we prohibit users of the Services from submitting, uploading, posting, or otherwise transmitting any Content on the Services that violates another person’s proprietary rights. To report allegedly infringing Content hosted on a website owned or controlled by SVPA, send a Notice of Infringing Materials to <EmailLink />.
           {"\n\n"}
@@ -262,12 +278,12 @@ const TermsOfUseScreen = () => {
             Human-readable summary of Sec 15: Please let us know if you find infringing content on our websites.
           </MediumText>
         </RegularText>
-        <Separator size={Spacing.large} />
+        <Spacer size={Spacing.large} />
         {/* SECTION 16 */}
         <LargeTitle>
           16. Termination
         </LargeTitle>
-        <Separator size={Spacing.small} />
+        <Spacer size={Spacing.small} />
         <RegularText>
           By SVPA: SVPA may modify, suspend, or terminate the operation of, or access to, all or any portion of the Services at any time for any reason. Additionally, your individual access to, and use of, the Services may be terminated by SVPA at any time and for any reason. By you: If you wish to terminate this agreement, you may immediately stop accessing or using the Services at any time. Automatic upon breach: Your right to access and use the Services (including use of your SVPA account) automatically upon your breach of any of the Terms. Survival: The disclaimer of warranties, the limitation of liability, and the jurisdiction and applicable law provisions will survive any termination. The license grants applicable to Your Content are not impacted by the termination of the Terms and shall continue in effect subject to the terms of the applicable license. Your warranties and indemnification obligations will survive for one year after termination.
           {"\n\n"}
@@ -275,12 +291,12 @@ const TermsOfUseScreen = () => {
             Human-readable summary of Sec 16: If you violate these terms, you may no longer use our sites but our license to use your content continues.
           </MediumText>
         </RegularText>
-        <Separator size={Spacing.large} />
+        <Spacer size={Spacing.large} />
         {/* SECTION 17 */}
         <LargeTitle>
           17. Miscellaneous Terms
         </LargeTitle>
-        <Separator size={Spacing.small} />
+        <Spacer size={Spacing.small} />
         <RegularText>
           Choice of law: The Terms are governed by and construed by the laws of the State of Washington in the United States, not including its choice of law rules. Dispute resolution: The parties agree that any disputes between SVPA and you concerning these Terms, and/or any of the Services may only brought in a federal or state court of competent jurisdiction sitting in the state of King County, Washington and you hereby consent to the personal jurisdiction and venue of such court.
           {"\n\n"}
@@ -292,7 +308,7 @@ const TermsOfUseScreen = () => {
             Human-readable summary of Sec 17: If there is a lawsuit arising from these terms, it should be in Washington and governed by Washington law.
           </MediumText>
         </RegularText>
-        <Separator size={Spacing.large} />
+        <Spacer size={Spacing.large} />
       </Content>
     </Screen>
   )

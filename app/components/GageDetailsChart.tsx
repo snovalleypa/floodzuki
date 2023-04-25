@@ -32,6 +32,7 @@ import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import Icon from "@common-ui/components/Icon";
 import DateRangePicker from "@common-ui/components/DateRangePicker";
 import { Dayjs } from "dayjs";
+import { normalizeSearchParams } from "@utils/navigation";
 
 interface GageDetailsChartProps {
   gage: Gage
@@ -291,7 +292,7 @@ export const GageDetailsChart = observer(
 
     const { isMobile } = useResponsive()
     
-    const chartRange = useChartRange(from, to)
+    const chartRange = useChartRange(normalizeSearchParams(from), normalizeSearchParams(to))
 
     const [rangeOption, setRangeOption] = useState("2")
     const [chartDataType, setChartDataType] = useState<GageChartDataType>(GageChartDataType.LEVEL)

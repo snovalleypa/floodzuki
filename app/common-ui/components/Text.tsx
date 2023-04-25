@@ -8,6 +8,7 @@ type BaseTextProps = {
   text?: string
   color?: string
   align?: 'auto' | 'left' | 'right' | 'center' | 'justify'
+  lineHeight?: number
   muted?: boolean
   disabled?: boolean
   baseStyle?: TextStyle
@@ -22,7 +23,7 @@ type BaseTextProps = {
  */
 
 export function BaseText(props: BaseTextProps) {
-  const { color, align, muted, disabled, baseStyle, textStyle, text, ...rest } = props
+  const { color, align, muted, disabled, baseStyle, textStyle, text, lineHeight, ...rest } = props
 
   let styles: TextStyle[] = []
 
@@ -49,6 +50,10 @@ export function BaseText(props: BaseTextProps) {
 
   if (textStyle) {
     styles = [...styles, ...textStyle]
+  }
+
+  if (lineHeight) {
+    styles.push({ lineHeight })
   }
 
   return (

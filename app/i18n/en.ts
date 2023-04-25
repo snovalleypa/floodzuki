@@ -9,6 +9,8 @@ const en = {
     title: "Floodzilla Gage Network",
     subtitle: "An SVPA Project",
     loading: "Loading...",
+    tel: "tel:",
+    email: "email:",
   },
   measure: {
     cfs: "cfs",
@@ -40,10 +42,22 @@ const en = {
   navigation: {
     homeScreen: "Active",
     forecastScreen: "Forecast",
-    profileScreen: "Alerts",
+    alertsScreen: "Alerts",
+    profileScreen: "Edit Profile",
+    loginScreen: "Login",
     aboutScreen: "About",
+    newAccountScreen: "Create Account",
+    passwordForgotScreen: "Forgot Password",
+    passwordResetScreen: "Reset Password",
+    passwordSetScreen: "Change Password",
+    passwordCreateScreen: "Choose Password",
+    verifyPhoneNnumberScreen: "Verify Phone Number",
+    changePhoneNnumberScreen: "Change Phone Number",
+    changeemailScreen: "Change Email Address",
+    verifyemailScreen: "Verify Email Address",
     privacyPolicyScreen: "Privacy Policy",
     termsOfServiceScreen: "Terms of Service",
+    logout: "Logout",
     back: "Go Back"
   },
   homeScreen: {
@@ -135,6 +149,9 @@ const en = {
     addressLine2: "U.S. Mail",
     copyright: "© Snoqualmie Valley Preservation Alliance"
   },
+  about: {
+
+  }
 }
 
 export default en

@@ -28,18 +28,27 @@ export const dataFetchingProps = {
 export const withDataFetchingActions = <T extends IStateTreeNode>(mstInstance: T) => ({
   setIsFetching(loading: boolean) {
     mstInstance["isFetching"] = loading
-    mstInstance["isError"] = false
-    mstInstance["errorMessage"] = ""
+
+    if (loading) {
+      mstInstance["isError"] = false
+      mstInstance["errorMessage"] = ""
+    }
   },
 
   setError(error: string) {
     mstInstance["isFetching"] = false
     mstInstance["isError"] = true
-    mstInstance["errorMessage"] = error
+    mstInstance["errorMessage"] = error ?? "Unknown error"
   },
 
   clearError() {
     mstInstance["isError"] = false
     mstInstance["errorMessage"] = ""
   },
+
+  clearDataFetching() {
+    mstInstance["isFetching"] = false
+    mstInstance["isError"] = false
+    mstInstance["errorMessage"] = ""
+  }
 })

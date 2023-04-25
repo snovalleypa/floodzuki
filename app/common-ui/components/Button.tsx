@@ -5,21 +5,20 @@ import {
   ViewStyle,
   TextStyle,
   ActivityIndicator,
-  View,
   Pressable
 } from "react-native"
 
 import { Feather } from "@expo/vector-icons"
-import { MediumText, RegularLargeText, RegularText } from "./Text"
+import { MediumText, RegularText } from "./Text"
 
 import { Colors, ColorTypes } from "@common-ui/constants/colors"
 import { Spacing } from "@common-ui/constants/spacing"
 import { If } from "@common-ui/components/Conditional"
 import { OffsetProps, useOffsetStyles } from "@common-ui/utils/useOffset"
-import { useResponsive } from "@common-ui/utils/responsive"
 
 type SimpleLinkProps = {
   text: string
+  color?: ColorValue
   onPress: () => void
 }
 
@@ -33,6 +32,7 @@ type BaseButtonProps = {
   disabled?: boolean
   isLoading?: boolean
   fullWidth?: boolean
+  width?: number
   large?: boolean
   small?: boolean
   leftIcon?: keyof typeof Feather.glyphMap
@@ -82,6 +82,7 @@ function BaseButton(props: BaseButtonProps) {
     shadowOffsetRight,
     shadowOffsetBottom,
     mode,
+    width,
     ...offsetProps
   } = props
 
@@ -109,6 +110,10 @@ function BaseButton(props: BaseButtonProps) {
 
   if (fullWidth) {
     buttonStyle.push($fullWidth)
+  }
+
+  if (width) {
+    buttonStyle.push({ width })
   }
 
   if (large) {
@@ -249,8 +254,8 @@ export function OutlinedButton(props: ButtonProps) {
   const { disabled, type } = props
 
   const backgroundColor = disabled && !type ? Colors.lightestGrey : Colors.lightestGrey
-  const borderColor = type ? Colors[type] : Colors.dark
-  const textColor = type ? Colors[type] : Colors.dark
+  const borderColor = type ? Colors[type] : Colors.lightDark
+  const textColor = type ? Colors[type] : Colors.lightDark
 
   return <BaseButton
     backgroundColor={backgroundColor}
@@ -307,14 +312,20 @@ export function LinkButton(props: ButtonProps) {
  */
 
 export function SimpleLinkButton(props: SimpleLinkProps) {
-  const { text, onPress } = props
+  const { text, color, onPress } = props
   
+  const $basicStyle = [$simpleLinkButton]
+
+  if (color) {
+    $basicStyle.push({ color })
+  }
+
   return (
     <Pressable onPress={onPress}>
       {({ pressed, hovered }) => (
         <RegularText
           text={text}
-          style={[(hovered || pressed) ? $simpleLinkButtonHovered : $simpleLinkButton]}
+          style={[(hovered || pressed) ? $simpleLinkButtonHovered : $basicStyle]}
         />
       )}
     </Pressable>

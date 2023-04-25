@@ -93,7 +93,7 @@ const offlineMapIcon = `
     <defs>
       <style>
         .cls-1{fill:rgba(255,255,255,.92)}
-        .cls-2{fill:#ea4b4b}
+        .cls-2{fill:#969BAB}
         .cls-3{filter:url(#Path_255805)}
         .cls-4{fill:#fff}
       </style>

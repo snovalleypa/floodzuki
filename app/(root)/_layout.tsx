@@ -10,7 +10,7 @@ import '@expo/match-media';
 import { If } from "@common-ui/components/Conditional";
 import { Colors } from "@common-ui/constants/colors";
 import { Spacing } from "@common-ui/constants/spacing";
-import { ROUTES, routes } from "app/_layout";
+import { MainRoute, ROUTES, routes } from "app/_layout";
 import { useStores } from "@models/helpers/useStores";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LabelText, LargeTitle, RegularLargeText, SmallerText, SmallText, TinyText } from "@common-ui/components/Text";
@@ -28,6 +28,10 @@ export default function AppLayout() {
   // Fetch data on app start
   useEffect(() => {
     store.fetchMainData()
+
+    if (store.authSessionStore.isLoggedIn) {
+      store.authSessionStore.reauthenticate()
+    }
   }, [])
 
   return (
@@ -37,6 +41,24 @@ export default function AppLayout() {
         {/** This is used to ensure that favicon is displayed on web */}
         <Head>
           <link rel="icon" href={getAsset("favicon").uri} />
+          <script
+            async
+            src="https://www.googletagmanager.com/gtag/js?id=UA-302444-12"
+          ></script>
+          <script src="//apis.google.com/js/client:platform.js?onload=start"></script>
+          <script src="//www.google.com/recaptcha/api.js" async defer></script>
+          <script>{`
+            window.dataLayer = window.dataLayer || [];
+            
+            function gtag() {
+              dataLayer.push(arguments)
+            }
+            
+            gtag("js", new Date())
+
+            gtag("config", "UA-302444-12")
+          `}
+          </script>
         </Head>
       </If>
       <Slot />
@@ -74,16 +96,16 @@ function HeaderLink({ href, children }) {
   );
 }
 
-function FooterLink({ href, children }) {
+function FooterLink({ route, children }: { route: MainRoute, children: string }) {
   const pathname = usePathname();
 
-  const isActive = pathname.includes(href);
+  const isActive = pathname.includes(route.path);
   const $color = isActive ? Colors.primary : Colors.darkGrey
 
   return (
-    <Link href={href}>
+    <Link href={route.path}>
       <Cell align="center">
-        <Icon name={routes[href].icon} color={$color} />
+        <Icon name={route?.icon} color={$color} />
         <LabelText color={$color}>
           {children}
         </LabelText>
@@ -152,7 +174,7 @@ function TabBar() {
       <Separator size={Spacing.micro} />
       <Row top={Spacing.medium} bottom={$bottomOffset} align="space-evenly" justify="center">
         {Object.values(routes).map(route => (
-          <FooterLink key={route.path} href={route.path}>
+          <FooterLink key={route.path} route={route}>
             {route.title}
           </FooterLink>
         ))}
