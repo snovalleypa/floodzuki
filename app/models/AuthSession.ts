@@ -172,6 +172,7 @@ export const AuthSessionStoreModel = types
       store.setIsFetching(false)
     })
 
+    // Not currently used
     const createPassword = flow(function*(params: CreatePasswordParams) {
       store.setIsFetching(true)
 
@@ -212,6 +213,7 @@ export const AuthSessionStoreModel = types
       store.setIsFetching(false)
     })
 
+    // Not currently used
     const changeEmail = flow(function*(params: ChangeEmailParams) {
       store.setIsFetching(true)
 

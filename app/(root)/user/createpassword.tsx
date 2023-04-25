@@ -25,8 +25,6 @@ const CreatePasswordScreen = observer(
 
     const { authSessionStore } = useStores()
 
-    const [successMessage, setSuccessMessage] = useState<string>("")
-
     const onSubmit = async (params: PasswordSubmitActionProps) => {
       await authSessionStore.createPassword({
         newPassword: params.newPassword,
@@ -55,7 +53,6 @@ const CreatePasswordScreen = observer(
             description="In order to change your email address, you must first create a password for your Floodzilla account."
             submitAction={onSubmit}
             submitActionText="Update"
-            successMessage={successMessage}
             errorMessage={authSessionStore.errorMessage}
           />
         </Content>

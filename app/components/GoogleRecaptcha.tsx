@@ -63,7 +63,7 @@ const WebRecpatcha = React.forwardRef(({
       className="g-recaptcha"
       data-callback="localRecaptchaCallback"
       data-size="invisible"
-      data-sitekey=""
+      data-sitekey={RECAPTCHA_KEY}
     ></div>
   )
 })
