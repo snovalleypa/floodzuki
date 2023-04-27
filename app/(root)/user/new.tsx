@@ -19,6 +19,7 @@ import { If } from "@common-ui/components/Conditional"
 import ErrorMessage from "@common-ui/components/ErrorMessage"
 import Config from "@config/config"
 import GoogleRecaptcha from "@components/GoogleRecaptcha"
+import GoogleSigninButton from "@components/GoogleSigninButton"
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -110,10 +111,6 @@ const NewScreen = observer(
     // This is called when the recaptcha expires
     const onExpire = () => {
       recaptcha.current?.open();
-    }
-
-    const signInWithGoogle = () => {
-      // TODO: Implement Google Sign In
     }
 
     const goBack = () => {
@@ -232,14 +229,7 @@ const NewScreen = observer(
               </Row>
             </CardContent>
             <CardFooter>
-              <OutlinedButton
-                disabled={authSessionStore.isFetching}
-                selfAlign="center"
-                leftIcon="at-sign"
-                type="lightBlue"
-                title="Sign in with Google"
-                onPress={signInWithGoogle}
-              />
+              <GoogleSigninButton />
             </CardFooter>
           </Card>
         </Content>

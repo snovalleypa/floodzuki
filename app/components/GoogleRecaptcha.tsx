@@ -1,4 +1,4 @@
-import React, { useEffect, useImperativeHandle, useRef, useState } from "react"
+import React, { useImperativeHandle, useRef, useState } from "react"
 import Recaptcha, { RecaptchaHandles } from "react-native-recaptcha-that-works";
 
 import { Ternary } from "@common-ui/components/Conditional"
@@ -41,7 +41,7 @@ const WebRecpatcha = React.forwardRef(({
         catch (e) {
           // Most likely the recaptcha script has been already rendered
           // so we can ignore this error
-          console.log("Error rendering recaptcha", e)
+          // console.log("Error rendering recaptcha", e)
         }
 
         return

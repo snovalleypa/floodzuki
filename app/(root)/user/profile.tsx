@@ -17,7 +17,7 @@ import { useValidations } from "@utils/useValidations";
 import { useStores } from "@models/helpers/useStores";
 import { SimpleLinkButton, SolidButton } from "@common-ui/components/Button";
 import { Colors } from "@common-ui/constants/colors";
-import { If } from "@common-ui/components/Conditional";
+import { If, Ternary } from "@common-ui/components/Conditional";
 import ErrorMessage from "@common-ui/components/ErrorMessage";
 import SuccessMessage from "@common-ui/components/SuccessMessage";
 
@@ -99,17 +99,27 @@ const ProfileScreen = observer(
         />
         <Content maxWidth={Spacing.tabletWidth} scrollable>
           <Card bottom={Spacing.large}>
+            <If condition={authSessionStore.hasLoginProvider}>
+              <Cell>
+                <RegularText align="center">
+                  Linked to {authSessionStore.loginProvider} account:
+                </RegularText>
+              </Cell>
+            </If>
             <CardContent>
               <RowOrCell bottom={Spacing.small}>
                 <Cell flex={1}>
                   <MediumText>First Name:</MediumText>
                 </Cell>
                 <Cell flex={5}>
-                  <Input
-                    value={firstName}
-                    placeholder="First Name"
-                    onChangeText={onFirstNameChange}
-                  />
+                  <Ternary condition={authSessionStore.hasLoginProvider}>
+                    <RegularText text={firstName} />
+                    <Input
+                      value={firstName}
+                      placeholder="First Name"
+                      onChangeText={onFirstNameChange}
+                    />
+                  </Ternary>
                 </Cell>
               </RowOrCell>
               <RowOrCell bottom={Spacing.small}>
@@ -117,11 +127,14 @@ const ProfileScreen = observer(
                   <MediumText>Last Name:</MediumText>
                 </Cell>
                 <Cell flex={5}>
-                  <Input
-                    value={lastName}
-                    placeholder="Last Name"
-                    onChangeText={onLastNameChange}
-                  />
+                  <Ternary condition={authSessionStore.hasLoginProvider}>
+                    <RegularText text={lastName} />
+                    <Input
+                      value={lastName}
+                      placeholder="Last Name"
+                      onChangeText={onLastNameChange}
+                    />
+                  </Ternary>
                 </Cell>
               </RowOrCell>
               <RowOrCell bottom={Spacing.small}>
@@ -129,12 +142,15 @@ const ProfileScreen = observer(
                   <MediumText>Email:</MediumText>
                 </Cell>
                 <Cell flex={5}>
-                  <Input
-                    value={email}
-                    placeholder="Email"
-                    onChangeText={onEmailChange}
-                    keyboardType="email-address"
-                  />
+                  <Ternary condition={authSessionStore.hasLoginProvider}>
+                    <RegularText text={email} />
+                    <Input
+                      value={email}
+                      placeholder="Email"
+                      onChangeText={onEmailChange}
+                      keyboardType="email-address"
+                    />
+                  </Ternary>
                 </Cell>
               </RowOrCell>
               <RowOrCell bottom={Spacing.small}>

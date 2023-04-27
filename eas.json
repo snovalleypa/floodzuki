@@ -1,0 +1,43 @@
+{
+  "build": {
+    "production": {
+      "node": "16.15.1",
+      "releaseChannel": "appstore",
+      "channel": "production"
+    },
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "channel": "development"
+    },
+    "preview": {
+      "distribution": "internal",
+      "releaseChannel": "preview",
+      "channel": "preview"
+    },
+    "dev-sim": {
+      "extends": "development",
+      "ios": {
+        "simulator": true
+      }
+    },
+    "staging-sim": {
+      "extends": "preview",
+      "ios": {
+        "simulator": true
+      }
+    }
+  },
+  "submit": {
+    "production": {
+      "android": {
+        "track": "production",
+        "applicationId": "com.floodzilla.floodzuki"
+      },
+      "ios": {
+        "sku": "com.floodzilla.floodzuki",
+        "bundleIdentifier": "com.floodzilla.floodzuki"
+      }
+    }
+  }
+}

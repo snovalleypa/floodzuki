@@ -38,9 +38,9 @@ const AlertSettingsCard = observer(
     const [isEmailSent, setIsEmailSent] = useState(false)
 
     useEffect(() => {
-      setEmailAlertsEnabled(authSessionStore.userSettings.notifyViaEmail)
-      setSmsAlertsEnabled(authSessionStore.userSettings.notifyViaSms)
-    }, [authSessionStore.userSettings.notifyViaEmail, authSessionStore.userSettings.notifyViaSms])
+      setEmailAlertsEnabled(authSessionStore.userSettings?.notifyViaEmail)
+      setSmsAlertsEnabled(authSessionStore.userSettings?.notifyViaSms)
+    }, [authSessionStore.userSettings?.notifyViaEmail, authSessionStore.userSettings?.notifyViaSms])
 
     const verifyEmail = async () => {
       setIsEmailSent(false)
@@ -89,13 +89,15 @@ const AlertSettingsCard = observer(
               </RegularText>
             </Cell>
           </If>
-          <Row top={Spacing.extraSmall}>
-            <CheckBoxItem
-              disabled={!isPhoneVerified}
-              label={`Send alerts via SMS to: ${authSessionStore.userPhone}`}
-              value={smsAlertsEnabled}
-              onChange={setSmsAlertsEnabled}
-            />
+          <Row top={Spacing.extraSmall} wrap>
+            <Cell flex>
+              <CheckBoxItem
+                disabled={!isPhoneVerified}
+                label={`Send alerts via SMS to: ${authSessionStore.userPhone ?? ""}`}
+                value={smsAlertsEnabled}
+                onChange={setSmsAlertsEnabled}
+              />
+            </Cell>
             <LinkButton
               title="(Change)"
               onPress={openPhoneNumber}

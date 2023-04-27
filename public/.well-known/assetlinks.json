@@ -3,9 +3,9 @@
     "relation": ["delegate_permission/common.handle_all_urls"],
     "target": {
       "namespace": "android_app",
-      "package_name": "{package_name}",
+      "package_name": "com.floodzilla.floodzuki",
       "sha256_cert_fingerprints": [
-        "{sha256_cert_fingerprints}"
+        "49:37:11:41:08:4E:E5:7D:0B:DC:2E:29:D2:9D:89:4B:6A:60:40:C2:93:3A:04:CD:BA:F7:14:0E:AF:82:6D:6B"
       ]
     }
   }

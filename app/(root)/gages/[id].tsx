@@ -171,7 +171,7 @@ const GageDetailsScreen = observer(
               </RowOrCell>
               <If condition={isMobile}>
                 <Card
-                  flex={isAndroid ? 1 : "none"}
+                  flex={1}
                   height={300}
                   minHeight={300}
                   top={Spacing.small}

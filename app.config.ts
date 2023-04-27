@@ -18,9 +18,10 @@ export default {
     }
   },
   ios: {
-    bundleIdentifier: "com.floodzukiapp",
+    bundleIdentifier: "com.floodzilla.floodzuki",
     supportsTablet: true,
     associatedDomains: [
+      "applinks:floodzuki.ngrok.io",
       "applinks:floodzilla.com"
     ],
     icon: "./assets/app-icon/ios-universal.png",
@@ -35,8 +36,19 @@ export default {
     }
   },
   android: {
-    package: "com.floodzukiapp",
+    package: "com.floodzilla.floodzuki",
     intentFilters: [
+      {
+        action: "VIEW",
+        data: {
+          scheme: "https",
+          host: "floodzuki.ngrok.io"
+        },
+        category: [
+          "BROWSABLE",
+          "DEFAULT"
+        ]
+      },
       {
         action: "VIEW",
         data: {
@@ -65,14 +77,6 @@ export default {
       }
     }
   },
-  build: {
-    preview: {
-      channel: "preview"
-    },
-    production: {
-      channel: "production"
-    }
-  },
   updates: {
     url: "https://u.expo.dev/0f52b777-109a-423d-a18b-1ccfb5dea8e0"
   },
@@ -80,17 +84,27 @@ export default {
     policy: "sdkVersion"
   },
   plugins: [
-    "expo-localization"
+    "expo-localization",
+    [
+      "expo-updates", {
+        "username": "floodzilla-svpa",
+      }
+    ]
   ],
   extra: {
     router: {
-      origin: "https://floodzilla.com",
+      origin: "https://floodzuki.ngrok.io",
     },
     eas: {
       projectId: "0f52b777-109a-423d-a18b-1ccfb5dea8e0"
     },
     recaptchaKey: process.env.GOOGLE_RECAPTCH_SITE_KEY,
     googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
+    googleOAuthWebClientId: process.env.GOOGLE_AUTH_WEB_ID,
+    googleOAuthAndroidClientId: process.env.GOOGLE_AUTH_ANDROID_ID,
+    googleOAuthIOSClientId: process.env.GOOGLE_AUTH_IOS_ID,
+    googleOAuthExpoClientId: process.env.GOOGLE_AUTH_EXPO_ID,
+    googleOauthClientSecret: process.env.GOOGLE_AUTH_CLIENT_SECRET,
   },
-  owner: "floodzilla-svpas"
+  owner: "floodzilla-svpa"
 };

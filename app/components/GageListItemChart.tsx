@@ -44,11 +44,13 @@ const useChartData = (gage: Gage, layout) => {
   const roadHeight = y(gage?.roads[0]?.elevation)
 
   const circles = (data) => {
-    return data.map((d,) => ({
+    const circleData = data.map((d,) => ({
       cx: x(d.date),
       cy: y(d.value),
       r: 2,
     }))
+
+    return circleData.filter((c,i) => circleData.indexOf(c) === i)
   }
       
   

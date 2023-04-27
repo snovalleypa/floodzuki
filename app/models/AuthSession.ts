@@ -74,6 +74,10 @@ export const AuthSessionStoreModel = types
       return store.sessionState === SessionState.loggedIn
     },
 
+    get hasLoginProvider() {
+      return !!store.loginProvider
+    },
+
     get isEmailVerified() {
       return store.user?.emailVerified
     },

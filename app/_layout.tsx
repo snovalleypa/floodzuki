@@ -11,6 +11,8 @@ import "@i18n/i18n";
 import { t } from "@i18n/translate";
 import { DatePickerProvider } from "@common-ui/contexts/DatePickerContext";
 import { AssetsProvider } from "@common-ui/contexts/AssetsContext";
+import { isWeb } from "@common-ui/utils/responsive";
+import { GoogleAuthProvider } from "@common-ui/contexts/GoogleAuthContext";
 
 /**
  * Root layout for Expo router (entry file for the app)
@@ -30,10 +32,10 @@ export enum ROUTES {
   UserPasswordForgot = "/user/passwordForgot",
   UserSetPassword = "/user/setpassword",
   UserResetPassword = "/user/resetpassword",
-  UserCreatePassword = "/user/createpassword",
+  UserCreatePassword = "/user/createpassword", // Not currently used
   UserVerifyPhoneNumber = "/user/verifyPhoneNumber",
   UserVerifyEmail = "/user/verifyemail",
-  UserChangeEmail = "/user/changeemail",
+  UserChangeEmail = "/user/changeemail", // Not currently used
   UserNew = "/user/new",
   About = "/user",
   Privacy = "/user/privacy",
@@ -64,7 +66,9 @@ export default function AppLayout() {
   const [areFontsLoaded] = useFonts(customFontsToLoad)
   const { rehydrated } = useInitialRootStore()
 
-  if (!areFontsLoaded || !rehydrated) {
+  const delayForAssets = isWeb ? false : !areFontsLoaded
+
+  if (delayForAssets || !rehydrated) {
     return <SplashScreen />
   }
 
@@ -77,7 +81,9 @@ function App() {
       <BottomSheetModalProvider>
         <DatePickerProvider>
           <AssetsProvider>
-            <Slot />
+            <GoogleAuthProvider>
+              <Slot />
+            </GoogleAuthProvider>
           </AssetsProvider>
         </DatePickerProvider>
       </BottomSheetModalProvider>

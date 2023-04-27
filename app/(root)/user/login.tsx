@@ -19,6 +19,7 @@ import { useStores } from "@models/helpers/useStores"
 import { If } from "@common-ui/components/Conditional"
 import ErrorMessage from "@common-ui/components/ErrorMessage"
 import { useValidations } from "@utils/useValidations"
+import GoogleSigninButton from "@components/GoogleSigninButton"
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -69,10 +70,6 @@ const LoginScreen = observer(
 
     const forgotPassword = () => {
       router.push({ pathname: ROUTES.UserPasswordForgot })
-    }
-
-    const signInWithGoogle = () => {
-      // TODO: Implement google Sign In
     }
 
     const submit = () => {
@@ -176,14 +173,7 @@ const LoginScreen = observer(
               </Row>
             </CardContent>
             <CardFooter>
-              <OutlinedButton
-                disabled={authSessionStore.isFetching}
-                selfAlign="center"
-                leftIcon="at-sign"
-                type="lightBlue"
-                title="Sign in with Google"
-                onPress={signInWithGoogle}
-              />
+              <GoogleSigninButton />
             </CardFooter>
           </Card>
         </Content>

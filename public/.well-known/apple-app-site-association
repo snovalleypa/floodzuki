@@ -3,7 +3,7 @@
     "apps": [],
     "details": [
       {
-        "appID": "{APPLE_TEAM_ID}.com.floodzukiapp",
+        "appID": "{APPLE_TEAM_ID}.com.floodzilla.floodzuki",
         "paths": ["*"]
       }
     ]
