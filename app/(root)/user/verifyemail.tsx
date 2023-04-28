@@ -32,16 +32,16 @@ const VerifyEmailScreen = observer(
 
     const { userId, token } = useLocalSearchParams()
 
+    const verifyEmail = async () => {
+      await authSessionStore.verifyEmail({ token: normalizeSearchParams(token) })
+    }
+
     // Clear any errors when the screen is loaded
     useEffect(() => {
       authSessionStore.clearDataFetching()
 
       if (!userId || !token) {
         router.push({ pathname: ROUTES.Home })
-      }
-
-      const verifyEmail = async () => {
-        await authSessionStore.verifyEmail({ token: normalizeSearchParams(token) })
       }
 
       verifyEmail()
@@ -74,7 +74,7 @@ const VerifyEmailScreen = observer(
                     <SolidButton
                       selfAlign="center"
                       title="Try again"
-                      onPress={goHome}
+                      onPress={verifyEmail}
                     />
                   </Cell>
                   <Cell>

@@ -35,6 +35,7 @@ export enum ROUTES {
   UserCreatePassword = "/user/createpassword", // Not currently used
   UserVerifyPhoneNumber = "/user/verifyPhoneNumber",
   UserVerifyEmail = "/user/verifyemail",
+  UserUnsubscribe = "/user/unsubscribe",
   UserChangeEmail = "/user/changeemail", // Not currently used
   UserNew = "/user/new",
   About = "/user",

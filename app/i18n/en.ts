@@ -55,6 +55,7 @@ const en = {
     changePhoneNnumberScreen: "Change Phone Number",
     changeemailScreen: "Change Email Address",
     verifyemailScreen: "Verify Email Address",
+    unsubscribeScreen: "Unsubscribe",
     privacyPolicyScreen: "Privacy Policy",
     termsOfServiceScreen: "Terms of Service",
     logout: "Logout",

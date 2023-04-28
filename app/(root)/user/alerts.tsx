@@ -3,7 +3,7 @@ import { ErrorBoundaryProps, Redirect, Stack, useRouter } from "expo-router"
 import { t } from "@i18n/translate"
 
 import { Screen, Content } from "@common-ui/components/Screen"
-import { RegularText, SmallTitle } from "@common-ui/components/Text"
+import { LabelText, RegularText, SmallTitle } from "@common-ui/components/Text"
 import { ErrorDetails } from "@components/ErrorDetails"
 import TitleWithBackButton from "@components/TitleWithBackButton"
 import { Card, CardContent, CardFooter, CardHeader } from "@common-ui/components/Card"
@@ -21,6 +21,7 @@ import { observer } from "mobx-react-lite"
 import { If, Ternary } from "@common-ui/components/Conditional"
 import { isWeb } from "@common-ui/utils/responsive"
 import ErrorMessage from "@common-ui/components/ErrorMessage"
+import { Gage } from "@models/Gage"
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -32,15 +33,35 @@ const AlertSettingsCard = observer(
     const { authSessionStore } = useStores()
     const router = useRouter()
 
-    const [emailAlertsEnabled, setEmailAlertsEnabled] = useState(false)
-    const [smsAlertsEnabled, setSmsAlertsEnabled] = useState(false)
-
     const [isEmailSent, setIsEmailSent] = useState(false)
 
-    useEffect(() => {
-      setEmailAlertsEnabled(authSessionStore.userSettings?.notifyViaEmail)
-      setSmsAlertsEnabled(authSessionStore.userSettings?.notifyViaSms)
-    }, [authSessionStore.userSettings?.notifyViaEmail, authSessionStore.userSettings?.notifyViaSms])
+    const [isUpdatingEmail, setIsUpdatingEmail] = useState(false)
+    const [isUpdatingSms, setIsUpdatingSms] = useState(false)
+
+    const emailAlertsEnabled = authSessionStore.userSettings?.notifyViaEmail
+    const smsAlertsEnabled = authSessionStore.userSettings?.notifyViaSms
+
+    const updateEmailAlertsEnabled = async (value: boolean) => {
+      setIsUpdatingEmail(true)
+
+      await authSessionStore.updateSettings({
+        ...authSessionStore.userSettings,
+        notifyViaEmail: value,
+      })
+
+      setIsUpdatingEmail(false)
+    }
+
+    const updateSmsAlertsEnabled = async (value: boolean) => {
+      setIsUpdatingSms(true)
+
+      await authSessionStore.updateSettings({
+        ...authSessionStore.userSettings,
+        notifyViaSms: value,
+      })
+
+      setIsUpdatingSms(false)
+    }
 
     const verifyEmail = async () => {
       setIsEmailSent(false)
@@ -71,10 +92,11 @@ const AlertSettingsCard = observer(
             </If>
             <Cell top={Spacing.extraSmall}>
               <CheckBoxItem
+                isLoading={isUpdatingEmail}
                 disabled={!isEmailVerified}
                 label={`Send alerts via email to: ${authSessionStore.user?.email}`}
                 value={emailAlertsEnabled}
-                onChange={setEmailAlertsEnabled}
+                onChange={updateEmailAlertsEnabled}
               />
             </Cell>
           </Cell>
@@ -92,14 +114,15 @@ const AlertSettingsCard = observer(
           <Row top={Spacing.extraSmall} wrap>
             <Cell flex>
               <CheckBoxItem
+                isLoading={isUpdatingSms}
                 disabled={!isPhoneVerified}
                 label={`Send alerts via SMS to: ${authSessionStore.userPhone ?? ""}`}
                 value={smsAlertsEnabled}
-                onChange={setSmsAlertsEnabled}
+                onChange={updateSmsAlertsEnabled}
               />
             </Cell>
             <LinkButton
-              title="(Change)"
+              title="(Change Phone Number)"
               onPress={openPhoneNumber}
             />
           </Row>
@@ -129,59 +152,121 @@ const AlertSettingsCard = observer(
   }
 )
 
-const ForecastsCard = () => {
-  const [floodAlertsEnabled, setFloodAlertsEnabled] = useState(false)
-  const [dailyAlertsEnabled, setDailyAlertsEnabled] = useState(false)
+const ForecastsCard = observer(
+  function ForecastsCard() {
+    const { authSessionStore } = useStores()
 
-  return (
-    <Card bottom={Spacing.large}>
-      <CardHeader>
-        <SmallTitle>Forecasts</SmallTitle>
-      </CardHeader>
-      <CardContent>
-        <Cell bottom={Spacing.medium}>
-          <RegularText>Floodzilla can send you river forecasts.</RegularText>
-        </Cell>
-        <CheckBoxItem
-          label="Send me flood forecast alerts (typically once or twice a day during flood events)."
-          value={floodAlertsEnabled}
-          onChange={setFloodAlertsEnabled}
-        />
-        <CheckBoxItem
-          label="Send me daily river status and crest forecasts."
-          value={dailyAlertsEnabled}
-          onChange={setDailyAlertsEnabled}
-        />
-      </CardContent>
-    </Card>
-  )
-}
+    const [isUpdatingForecast, setIsUpdatingForecast] = useState(false)
+    const [isUpdatingDailyForecast, setIsUpdatingDailyForecast] = useState(false)
 
-const GagesCard = () => {
-  const { getLocationsWithGages } = useStores()
-  const locations = getLocationsWithGages()
+    const dailyForecastsEnabled = authSessionStore.userSettings?.notifyDailyForecasts
+    const forecastsEnabled = authSessionStore.userSettings?.notifyForecastAlerts
 
-  return (
-    <Card bottom={Spacing.large}>
-      <CardHeader>
-        <SmallTitle>Forecasts</SmallTitle>
-      </CardHeader>
-      <CardContent>
-        <Cell bottom={Spacing.medium}>
-          <RegularText>Alert me about status changes for these gages:</RegularText>
-        </Cell>
-        {locations.map((gage) => (
+    const updateForecastsEnabled = async (value: boolean) => {
+      setIsUpdatingForecast(true)
+
+      await authSessionStore.updateSettings({
+        ...authSessionStore.userSettings,
+        notifyForecastAlerts: value,
+      })
+
+      setIsUpdatingForecast(false)
+    }
+
+    const updateDailyForecastsEnabled = async (value: boolean) => {
+      setIsUpdatingDailyForecast(true)
+
+      await authSessionStore.updateSettings({
+        ...authSessionStore.userSettings,
+        notifyDailyForecasts: value,
+      })
+
+      setIsUpdatingDailyForecast(false)
+    }
+
+    return (
+      <Card bottom={Spacing.large}>
+        <CardHeader>
+          <SmallTitle>Forecasts</SmallTitle>
+        </CardHeader>
+        <CardContent>
+          <Cell bottom={Spacing.medium}>
+            <RegularText>Floodzilla can send you river forecasts.</RegularText>
+          </Cell>
           <CheckBoxItem
-            key={gage.locationId}
-            label={`${gage.locationId} ${gage.locationInfo?.locationName}`}
-            value={false}
-            onChange={() => {}}
+            isLoading={isUpdatingForecast}
+            label="Send me flood forecast alerts (typically once or twice a day during flood events)."
+            value={forecastsEnabled}
+            onChange={updateForecastsEnabled}
           />
-        ))}
-      </CardContent>
-    </Card>
-  )
-}
+          <CheckBoxItem
+            isLoading={isUpdatingDailyForecast}
+            label="Send me daily river status and crest forecasts."
+            value={dailyForecastsEnabled}
+            onChange={updateDailyForecastsEnabled}
+          />
+        </CardContent>
+      </Card>
+    )
+  }
+)
+
+const GageCheckboxItem = observer(
+  function GageCheckboxItem({ gage }: { gage: Gage }) {
+    const { authSessionStore } = useStores()
+
+    const [isUpdating, setIsUpdating] = useState(false)
+
+    const updateGageEnabled = async (value: boolean) => {
+      setIsUpdating(true)
+
+      await authSessionStore.setGageSubscription(gage.locationId, value)
+
+      setIsUpdating(false)
+    }
+
+    const isSubscribed = (authSessionStore.gageSubscriptions ?? []).includes(gage.locationId)
+
+    return (
+      <CheckBoxItem
+        disabled={!authSessionStore.isNotificationsEnabled}
+        isLoading={isUpdating}
+        label={`${gage.locationId} ${gage.locationInfo?.locationName}`}
+        value={isSubscribed}
+        onChange={updateGageEnabled}
+      />
+    )
+  }
+)
+
+const GagesCard = observer(
+  function GagesCard() {
+    const { getLocationsWithGages, authSessionStore } = useStores()
+    const locations = getLocationsWithGages()
+
+    return (
+      <Card bottom={Spacing.large}>
+        <CardHeader>
+          <SmallTitle>Forecasts</SmallTitle>
+        </CardHeader>
+        <CardContent>
+          <Cell bottom={Spacing.medium}>
+            <RegularText>Alert me about status changes for these gages:</RegularText>
+            <If condition={!authSessionStore.isNotificationsEnabled}>
+              <LabelText>Please enable one of the notifications channels (Email, SMS, Push Notifications) to manage this settings</LabelText>
+            </If>
+          </Cell>
+          {locations.map((gage) => (
+            <GageCheckboxItem
+              key={gage.locationId}
+              gage={gage}
+            />
+          ))}
+        </CardContent>
+      </Card>
+    )
+  }
+)
 
 const AlertsScreen = observer(
   function AlertsScreen() {

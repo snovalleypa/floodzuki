@@ -70,6 +70,11 @@ export const AuthSessionStoreModel = types
   .actions(withDataFetchingActions)
   .actions(withSetPropAction)
   .views(store => ({
+    get isNotificationsEnabled() {
+      return store.userSettings?.notifyViaEmail ||
+        store.userSettings?.notifyViaSms
+    },
+
     get isLoggedIn() {
       return store.sessionState === SessionState.loggedIn
     },
@@ -369,7 +374,7 @@ export const AuthSessionStoreModel = types
       const response = yield api.updateSettings(params)
 
       if (response.kind === 'ok') {
-        store.setProp("userSettings", response.data)
+        yield getSettings()
       } else {
         store.setError(response.data)
       }
@@ -398,7 +403,9 @@ export const AuthSessionStoreModel = types
 
       const response = yield api.setGageSubscription(gageId, isSubscribed)
 
-      if (response.kind !== 'ok') {
+      if (response.kind === 'ok') {
+        yield getSubscribedGages()
+      } else {
         store.setError(response.data)
       }
 
@@ -410,7 +417,10 @@ export const AuthSessionStoreModel = types
 
       const response = yield api.unsubscribeFromNotifications(userId)
 
-      if (response.kind !== 'ok') {
+      if (response.kind === 'ok') {
+        yield getSettings()
+      }
+      else {
         store.setError(response.data)
       }
 
