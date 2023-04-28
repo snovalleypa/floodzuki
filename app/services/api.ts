@@ -82,6 +82,12 @@ export type ProcessGoogleTokenParams = {
   idToken: string,
 }
 
+export type PushTokenParams = {
+  pushToken: string,
+  deviceId?: string,
+  platform?: "iOS" | "android",
+}
+
 export type NewSettingsParams = {
   notifyViaEmail: boolean,
   notifyViaSms: boolean,
@@ -488,6 +494,16 @@ export class Api {
       this.apisauce,
       Config.API.subscriptions.UNSUBEMAIL_URL,
       { userId }
+    )
+  }
+
+  async registerDevicePushToken<T>(params: PushTokenParams) {
+    this.apisauce.setBaseURL(Config.AUTH_BASE_URL)
+
+    return await genericPostRequest<T>(
+      this.apisauce,
+      Config.API.auth.SET_PUSH_TOKEN_URL,
+      params
     )
   }
 }

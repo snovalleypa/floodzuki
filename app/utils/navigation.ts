@@ -20,3 +20,10 @@ export function openLinkInBrowser(url: string) {
 export function normalizeSearchParams(searchParams: string | string[]) {
   return Array.isArray(searchParams) ? searchParams.join(", ") : searchParams
 }
+
+/**
+ * Helper for opening the app settings.
+ */
+export async function openAppSettings() {
+  await Linking.openSettings()
+}

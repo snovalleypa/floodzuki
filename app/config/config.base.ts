@@ -41,6 +41,8 @@ const API = {
   
     FACEBOOK_LOGIN_PROVIDER_NAME: "Facebook",
     GOOGLE_LOGIN_PROVIDER_NAME: "Google",
+
+    SET_PUSH_TOKEN_URL: "/Account/SetDevicePushToken",
   
     ID_TOKEN_HEADER: "X-fz-idToken",
   }

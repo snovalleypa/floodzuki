@@ -3,6 +3,7 @@ import { flow } from "mobx-state-tree"
 import { dataFetchingProps, withDataFetchingActions } from "./helpers/withDataFetchingProps"
 import { withSetPropAction } from "./helpers/withSetPropsAction"
 import { ChangeEmailParams, CreateAccountParams, CreatePasswordParams, ForgotPasswordParams, LogInParams, NewSettingsParams, ProcessGoogleTokenParams, ResetPasswordParams, SendPhoneVerificationCodeParams, SetPasswordParams, UpdateProfileParams, VerifyEmailParams, VerifyPhoneParams, api } from "@services/api"
+import { registerForPushNotificationsAsync } from "@services/pushNotifications"
 
 // AuthSession
 
@@ -65,6 +66,8 @@ export const AuthSessionStoreModel = types
     authToken: types.maybe(types.string),
     loginProvider: types.maybeNull(types.string),
     gageSubscriptions: types.optional(types.array(types.string), []),
+    isPushNotificationsEnabled: types.optional(types.boolean, false),
+    pushToken: types.maybe(types.string),
     ...dataFetchingProps
   })
   .actions(withDataFetchingActions)
@@ -427,6 +430,30 @@ export const AuthSessionStoreModel = types
       store.setIsFetching(false)
     })
 
+    const togglePushNotificationsEnabled = flow(function*() {
+      const nextState = !store.isPushNotificationsEnabled
+      const token = store.pushToken
+
+      // If nextState is true, we need to register the token
+      if (nextState) {
+        // If there is no token, we need to register for push notifications
+        if (!token) {
+          const newToken = yield registerForPushNotificationsAsync()
+          store.setProp("pushToken", newToken)
+
+          if (!newToken) {
+            return
+          }
+        }
+      }
+      else {
+        // If nextState is false, we need to remove the token
+        store.setProp("pushToken",  "")
+      }
+
+      store.isPushNotificationsEnabled = nextState
+    })
+
     return {
       logIn,
       createAccount,
@@ -447,7 +474,8 @@ export const AuthSessionStoreModel = types
       updateSettings,
       getSubscribedGages,
       setGageSubscription,
-      unsubscribeFromNotifications
+      unsubscribeFromNotifications,
+      togglePushNotificationsEnabled
     }
   })
 

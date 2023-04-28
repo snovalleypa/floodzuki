@@ -8,7 +8,7 @@ import { ErrorDetails } from "@components/ErrorDetails"
 import TitleWithBackButton from "@components/TitleWithBackButton"
 import { Card, CardContent, CardFooter, CardHeader } from "@common-ui/components/Card"
 import { LinkButton, SimpleLinkButton, SolidButton } from "@common-ui/components/Button"
-import { openLinkInBrowser } from "@utils/navigation"
+import { openAppSettings, openLinkInBrowser } from "@utils/navigation"
 import { Spacing } from "@common-ui/constants/spacing"
 import CheckBoxItem from "@common-ui/components/CheckBoxItem"
 
@@ -19,9 +19,11 @@ import { useStores } from "@models/helpers/useStores"
 import { Colors } from "@common-ui/constants/colors"
 import { observer } from "mobx-react-lite"
 import { If, Ternary } from "@common-ui/components/Conditional"
-import { isWeb } from "@common-ui/utils/responsive"
+import { isIOS, isWeb } from "@common-ui/utils/responsive"
 import ErrorMessage from "@common-ui/components/ErrorMessage"
 import { Gage } from "@models/Gage"
+import { Alert, Switch } from "react-native"
+import { isPushNotificationsEnabledAsync } from "@services/pushNotifications"
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -71,6 +73,29 @@ const AlertSettingsCard = observer(
       setIsEmailSent(true)
     }
 
+    const handlePushNotificationsValueChange = async () => {
+      if (!authSessionStore.isPushNotificationsEnabled) {
+        const permissionGranted = await isPushNotificationsEnabledAsync()
+
+        if (!permissionGranted) {
+          Alert.alert(
+            "Push Notifications Disabled",
+            "You must enable push notifications in your device settings to receive alerts",
+            [
+              {
+                text: "Open Settings",
+                onPress: () => openAppSettings(),
+              }
+            ]
+          )
+
+          return
+        }
+      }
+
+      authSessionStore.togglePushNotificationsEnabled()
+    }
+
     const openPhoneNumber = () => {
       router.push({ pathname: ROUTES.UserVerifyPhoneNumber })
     }
@@ -84,6 +109,24 @@ const AlertSettingsCard = observer(
           <SmallTitle>Alert Settings</SmallTitle>
         </CardHeader>
         <CardContent>
+          {/* Push Notifications */}
+          <If condition={!isWeb}>
+            <Row align="space-between">
+              <Cell>
+                <RegularText>
+                  Enable Push Notifications:
+                </RegularText>
+              </Cell>
+              <Cell left={Spacing.extraSmall}>
+                <Switch
+                  trackColor={isIOS ? { false: Colors.lightGrey, true: Colors.primary } : {}}
+                  value={authSessionStore.isPushNotificationsEnabled}
+                  onValueChange={handlePushNotificationsValueChange}
+                />
+              </Cell>
+            </Row>
+          </If>
+          {/* Email Settings */}
           <Cell>
             <If condition={!isEmailVerified}>
               <RegularText>
@@ -100,6 +143,7 @@ const AlertSettingsCard = observer(
               />
             </Cell>
           </Cell>
+          {/* Phone Settings */}
           <If condition={!isPhoneVerified}>
             <Cell top={Spacing.small}>
               <RegularText>

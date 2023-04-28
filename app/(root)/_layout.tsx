@@ -19,6 +19,7 @@ import Icon from "@common-ui/components/Icon";
 import { isWeb, useResponsive } from "@common-ui/utils/responsive";
 import { openLinkInBrowser } from "@utils/navigation";
 import { useAppAssets } from "@common-ui/contexts/AssetsContext";
+import { useRegisterPushNotificationsListener } from "@services/pushNotifications";
 
 // Main App Layout
 export default function AppLayout() {
@@ -33,6 +34,9 @@ export default function AppLayout() {
       store.authSessionStore.reauthenticate()
     }
   }, [])
+
+  // Register for Push Notifications
+  useRegisterPushNotificationsListener()
 
   return (
     <>

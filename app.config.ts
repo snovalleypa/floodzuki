@@ -1,5 +1,7 @@
 /** @type {import('expo/config').ExpoConfig} */
 
+const isDevelopment = process.env.APP_ENV === "dev";
+
 export default {
   name: "Floodzilla",
   slug: "floodzuki",
@@ -37,6 +39,7 @@ export default {
   },
   android: {
     package: "com.floodzilla.floodzuki",
+    googleServicesFile: isDevelopment ? "./google-services.json" : process.env.GOOGLE_SERVICES_JSON,
     intentFilters: [
       {
         action: "VIEW",

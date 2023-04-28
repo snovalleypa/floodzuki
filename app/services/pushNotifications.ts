@@ -57,7 +57,7 @@ export function useRegisterPushNotificationsListener() {
   const responseListener = useRef<Subscription>();
 
   useEffect(() => {
-    registerForPushNotificationsAsync()
+    // registerForPushNotificationsAsync()
 
     notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
       console.log("notification", notification)
