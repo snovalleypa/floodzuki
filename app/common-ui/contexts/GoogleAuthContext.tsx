@@ -50,9 +50,9 @@ export const GoogleAuthProvider = ({ children }) => {
   if (isAndroid) {
     requestConfig.redirectUri = makeRedirectUri({
       scheme: 'com.floodzilla.floodzuki',
-      path: 'user/login',
+      path: "user/login",
       isTripleSlashed: true,
-      useProxy: false
+      useProxy: false,
     })
   }
 
@@ -79,7 +79,7 @@ export const GoogleAuthProvider = ({ children }) => {
     setIsError(false)
 
     try {
-      const promptResult = await promptAsync()
+      await promptAsync()
     }
     catch (error) {
       setIsError(true)

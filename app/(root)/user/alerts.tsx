@@ -14,7 +14,7 @@ import CheckBoxItem from "@common-ui/components/CheckBoxItem"
 
 import { ROUTES } from "app/_layout"
 import Config from "@config/config"
-import { Cell, Row } from "@common-ui/components/Common"
+import { Cell, Row, RowOrCell } from "@common-ui/components/Common"
 import { useStores } from "@models/helpers/useStores"
 import { Colors } from "@common-ui/constants/colors"
 import { observer } from "mobx-react-lite"
@@ -111,7 +111,7 @@ const AlertSettingsCard = observer(
         <CardContent>
           {/* Push Notifications */}
           <If condition={!isWeb}>
-            <Row align="space-between">
+            <Row align="space-between" bottom={Spacing.small}>
               <Cell>
                 <RegularText>
                   Enable Push Notifications:
@@ -155,7 +155,7 @@ const AlertSettingsCard = observer(
               </RegularText>
             </Cell>
           </If>
-          <Row top={Spacing.extraSmall} wrap>
+          <RowOrCell top={Spacing.extraSmall}>
             <Cell flex>
               <CheckBoxItem
                 isLoading={isUpdatingSms}
@@ -165,11 +165,13 @@ const AlertSettingsCard = observer(
                 onChange={updateSmsAlertsEnabled}
               />
             </Cell>
-            <LinkButton
-              title="(Change Phone Number)"
-              onPress={openPhoneNumber}
-            />
-          </Row>
+            <Cell flex>
+              <LinkButton
+                title="(Change Phone Number)"
+                onPress={openPhoneNumber}
+              />
+            </Cell>
+          </RowOrCell>
         </CardContent>
         <If condition={!isEmailVerified}>
           <CardFooter>

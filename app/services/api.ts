@@ -85,7 +85,7 @@ export type ProcessGoogleTokenParams = {
 export type PushTokenParams = {
   pushToken: string,
   deviceId?: string,
-  platform?: "iOS" | "android",
+  platform?: "ios" | "android",
 }
 
 export type NewSettingsParams = {
@@ -499,6 +499,8 @@ export class Api {
 
   async registerDevicePushToken<T>(params: PushTokenParams) {
     this.apisauce.setBaseURL(Config.AUTH_BASE_URL)
+
+    console.log('registerDevicePushToken', params)
 
     return await genericPostRequest<T>(
       this.apisauce,

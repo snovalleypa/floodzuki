@@ -4,6 +4,7 @@ import { dataFetchingProps, withDataFetchingActions } from "./helpers/withDataFe
 import { withSetPropAction } from "./helpers/withSetPropsAction"
 import { ChangeEmailParams, CreateAccountParams, CreatePasswordParams, ForgotPasswordParams, LogInParams, NewSettingsParams, ProcessGoogleTokenParams, ResetPasswordParams, SendPhoneVerificationCodeParams, SetPasswordParams, UpdateProfileParams, VerifyEmailParams, VerifyPhoneParams, api } from "@services/api"
 import { registerForPushNotificationsAsync } from "@services/pushNotifications"
+import { Platform } from "react-native"
 
 // AuthSession
 
@@ -75,7 +76,8 @@ export const AuthSessionStoreModel = types
   .views(store => ({
     get isNotificationsEnabled() {
       return store.userSettings?.notifyViaEmail ||
-        store.userSettings?.notifyViaSms
+        store.userSettings?.notifyViaSms ||
+        store.isPushNotificationsEnabled
     },
 
     get isLoggedIn() {
@@ -430,6 +432,12 @@ export const AuthSessionStoreModel = types
       store.setIsFetching(false)
     })
 
+    const registerPushToken = flow(function*(token: string) {
+      const result = yield api.registerDevicePushToken({
+        pushToken: token,
+      })
+    })
+
     const togglePushNotificationsEnabled = flow(function*() {
       const nextState = !store.isPushNotificationsEnabled
       const token = store.pushToken
@@ -439,19 +447,26 @@ export const AuthSessionStoreModel = types
         // If there is no token, we need to register for push notifications
         if (!token) {
           const newToken = yield registerForPushNotificationsAsync()
-          store.setProp("pushToken", newToken)
 
           if (!newToken) {
             return
           }
+
+          store.setProp("pushToken",  newToken)
+          yield registerPushToken(newToken)
+
+          return
         }
+
+        yield registerPushToken(token)
       }
       else {
         // If nextState is false, we need to remove the token
         store.setProp("pushToken",  "")
+        registerPushToken("")        
       }
 
-      store.isPushNotificationsEnabled = nextState
+      store.setProp("isPushNotificationsEnabled", nextState)
     })
 
     return {
