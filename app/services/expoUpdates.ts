@@ -11,8 +11,12 @@ export const useExpoUpdates = () => {
   const [updateError, setError] = React.useState<Error | null>(null)
 
   const checkForUpdate = async () => {
+    Alert.alert("Checking for updates...")
+
     try {
       const update = await Updates.checkForUpdateAsync()
+
+      Alert.alert("Update", JSON.stringify(update))
 
       if (update.isAvailable) {
         setIsUpdateAvailable(true)
@@ -54,7 +58,11 @@ export const useExpoUpdates = () => {
 export const useCheckForUpdates = () => {
   const { isUpdateAvailable, isUpdateLoaded, updateError, reloadApp } = useExpoUpdates()
 
+  Alert.alert("isUpdateAvailable", JSON.stringify(isUpdateAvailable))
+
   useEffect(() => {
+    Alert.alert("isUpdateLoaded", JSON.stringify(isUpdateLoaded))
+    
     if (isUpdateLoaded) {
       Alert.alert(
         "A new App Update is Available",
