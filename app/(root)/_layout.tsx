@@ -20,6 +20,7 @@ import { isWeb, useResponsive } from "@common-ui/utils/responsive";
 import { openLinkInBrowser } from "@utils/navigation";
 import { useAppAssets } from "@common-ui/contexts/AssetsContext";
 import { useRegisterPushNotificationsListener } from "@services/pushNotifications";
+import { useCheckForUpdates } from "@services/expoUpdates";
 
 // Main App Layout
 export default function AppLayout() {
@@ -34,6 +35,9 @@ export default function AppLayout() {
       store.authSessionStore.reauthenticate()
     }
   }, [])
+
+  // Check for updates
+  useCheckForUpdates()
 
   // Register for Push Notifications
   useRegisterPushNotificationsListener(store.authSessionStore.isPushNotificationsEnabled)

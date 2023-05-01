@@ -9,4 +9,5 @@ export enum Timing {
   quick = 300,
   normal = 500,
   slow = 1000,
+  verySlow = 2000,
 }
