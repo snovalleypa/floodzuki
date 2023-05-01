@@ -36,7 +36,7 @@ export default function AppLayout() {
   }, [])
 
   // Register for Push Notifications
-  useRegisterPushNotificationsListener()
+  useRegisterPushNotificationsListener(store.authSessionStore.isPushNotificationsEnabled)
 
   return (
     <>

@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useEffect } from "react"
 import { ErrorBoundaryProps, Stack } from "expo-router";
 
 import { Content, Screen } from "@common-ui/components/Screen"
@@ -30,6 +30,10 @@ const ForecastScreen = observer(
     useTimeout(() => {
       setHidden(false)
     }, Timing.zero)
+
+    useEffect(() => {
+      store.forecastsStore.fetchData()
+    }, [])
 
     const gageIds = Config.FORECAST_GAGE_IDS
     const forecastGages = hidden ? [] : store.getForecastGages(gageIds)
