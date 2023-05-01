@@ -7,6 +7,9 @@ export default {
   slug: "floodzuki",
   scheme: "floodzuki",
   jsEngine: "hermes",
+  runtimeVersion: {
+    policy: "1.0.0"
+  },
   icon: "./assets/app-icon/ios-universal.png",
   web: {
     bundler: "metro",
@@ -82,9 +85,6 @@ export default {
   },
   updates: {
     url: "https://u.expo.dev/0f52b777-109a-423d-a18b-1ccfb5dea8e0"
-  },
-  runtimeVersion: {
-    policy: "sdkVersion"
   },
   plugins: [
     "expo-localization",

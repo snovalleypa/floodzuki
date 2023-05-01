@@ -2,7 +2,6 @@
   "build": {
     "production": {
       "node": "16.15.1",
-      "releaseChannel": "appstore",
       "channel": "production"
     },
     "development": {
@@ -12,7 +11,6 @@
     },
     "preview": {
       "distribution": "internal",
-      "releaseChannel": "preview",
       "channel": "preview"
     },
     "dev-sim": {

@@ -32,21 +32,31 @@ const useChartData = (gage: Gage, layout) => {
       .domain([yAxisMin, yMaximum])
       .range([height - 16, 16]);
 
+  const yAxis = (v: number) => {
+    const result = y(v)
+
+    if (isNaN(result)) {
+      return y(yAxisMin)
+    }
+
+    return result
+  }
+
   const area = d3.area()
       .x(function(d) { return x(d.date); })
       .y0(height)
-      .y1(function(d) { return y(d.value); })
+      .y1(function(d) { return yAxis(d.value); })
 
   const line = d3.line()
     .x(function(d) { return x(d.date); })
-    .y(function(d) { return y(d.value); })
+    .y(function(d) { return yAxis(d.value); })
 
   const roadHeight = y(gage?.roads[0]?.elevation)
 
   const circles = (data) => {
     const circleData = data.map((d,) => ({
       cx: x(d.date),
-      cy: y(d.value),
+      cy: yAxis(d.value),
       r: 2,
     }))
 

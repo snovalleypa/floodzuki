@@ -168,6 +168,7 @@ const HomeScreen = observer(
     return (
       <Screen>
         <Stack.Screen options={{ title: `${t("common.title")} - ${t("homeScreen.title")}` }} />
+        <RegularLargeText>Large Text</RegularLargeText>
         <Row justify="flex-start">
           <If condition={!isMobile}>
             <Card

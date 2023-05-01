@@ -1,10 +1,11 @@
 import { createContext, useContext } from "react";
 import { Asset, useAssets } from "expo-asset";
 import { MAP_IMAGE_ICONS } from "@components/TrendIcon";
+import { isWeb } from "@common-ui/utils/responsive";
 
 // All assets used by the app
 const ASSETS = {
-  favicon: require("@assets/favicon.png"),
+  favicon: isWeb ? require("@assets/favicon.png") : require("@assets/app-icon/ios-universal.png"),
   logo: require("@assets/app-icon/ios-universal.png"),
   svpaLogo: require("@assets/images/SVPA_Logo.png"),
 }
