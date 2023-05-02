@@ -152,7 +152,7 @@ const ForecastModel = types
     color: types.maybe(types.string),
     predictions: types.array(ForecastPredictionModel),
     readings: types.array(GageReadingModel),
-    locationInfo: types.maybe(types.reference(types.late(() => LocationInfoModel))),
+    locationInfo: types.safeReference(LocationInfoModel),
   })
   .views(store => ({
     get dataPoints() {
@@ -240,17 +240,23 @@ export const ForecastStoreModel = types
     const fetchData = flow(function*() {
       store.setIsFetching(true)
       
-      const toDateTime = new Date().toUTCString()
+      const toDateTime = new Date().toISOString()
       const fromDateTime = dayjs().subtract(
         Config.FRONT_PAGE_CHART_DURATION_NUMBER,
         Config.FRONT_PAGE_CHART_DURATION_UNIT
-      ).toDate().toUTCString()
+      ).toDate().toISOString()
 
       const response = yield api.getForecastsUTC<{[gageId: string]: Forecast}>(
         Config.FORECAST_GAGE_IDS.join(','),
         fromDateTime,
         toDateTime,
       )
+
+      // TODO: Enable once /api/v2/GetForecast is available
+      // const response = yield api.getForecasts<{[gageId: string]: Forecast}>(
+      //   Config.FORECAST_GAGE_IDS.join(','),
+      //   fromDateTime,
+      // )
 
       if (response.kind === 'ok') {
         // Augment data with id

@@ -8,12 +8,14 @@ const API = {
   reading: {
     GET_STATUS_URL: "/api/GetGageStatusAndRecentReadings",
     GET_READINGS_URL: "/api/GetGageReadingsUTC",
+    GET_READINGS_V2_URL: "/api/v2/GetRecentReadings",
     GET_FORECAST_URL: "/api/GetForecastsUTC",
+    GET_FORECAST_V2_URL: "/api/v2/GetForecast",
   },
 
   client: {
     GET_GAGE_LIST_URL: "/api/client/APIGetLocationInfo",
-    GET_METAGAGES_URL: "/api/client/GetMetagages",
+    GET_METAGAGES_URL: "/api/v2/GetMetagages",
     GET_REGION_URL: "/api/v2/GetRegion",
   },
 

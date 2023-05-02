@@ -18,6 +18,7 @@ const MetagageModel = types
   .model("Metagage")
   .props({
     id: types.string,
+    ids: types.string,
     name: types.string,
     shortName: types.string,
     siteIds: types.maybe(types.string),
@@ -28,7 +29,7 @@ const MetagageModel = types
   .views(store => {
     const getForecastGage = () => {
       return {
-        id: store.id,
+        id: store.ids,
         nwrfcId: store.siteId,
         title: store.name,
         warningDischarge: store.stageOne,
@@ -58,8 +59,11 @@ export const MetagageModelStore = types
       const response = yield api.getMetagages<Metagage[]>()
 
       if (response.kind === "ok") {
-        // Looks like output provides "data" as a string so we'll parse it here
-        store.metagages = JSON.parse(response.data)
+        console.log("Metagage response", response.data)
+        store.metagages = (response.data || []).map(m => ({
+          id: m.ids,
+          ...m,
+        }))
       } else {
         store.setError(response.kind)
       }

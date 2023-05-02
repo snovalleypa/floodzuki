@@ -1,5 +1,6 @@
 import React from "react"
 import { observer } from "mobx-react-lite";
+import { useRouter } from "expo-router";
 import { t } from "@i18n/translate";
 
 import { LinkButton } from "@common-ui/components/Button";
@@ -10,8 +11,10 @@ import { LargeLabel } from "@common-ui/components/Label";
 import { RegularText, SmallText, SmallTitle } from "@common-ui/components/Text";
 import { Gage } from "@models/Gage";
 import { formatHeight } from "@utils/utils";
+import { useStores } from "@models/helpers/useStores";
+import { ROUTES } from "app/_layout";
 
-const formatToRoadText = (diff) => {
+const formatToRoadText = (diff: number) => {
   if (Math.abs(diff) <.1) {
     return `(${t("statusLevelsCard.roadSaddle")} ${t("statusLevelsCard.level")})`;
   }
@@ -20,16 +23,36 @@ const formatToRoadText = (diff) => {
 
 const StatusLevelsCard = observer(
   function StatusLevelsCard({ gage }: { gage: Gage }) {
+    const router = useRouter()
+    const { authSessionStore } = useStores()
+
+    const isLoggedIn = authSessionStore.isLoggedIn
+    const isSubscribed = isLoggedIn && authSessionStore.gageSubscriptions.includes(gage.locationId)
+
+    console.log("StatusLevelsCard", gage.locationId, authSessionStore.gageSubscriptions.toJSON())
+
     const handleManageLinkPress = () => {
-      
+      if (isSubscribed) {
+        router.push({ pathname: ROUTES.UserAlerts })
+        return; 
+      }
+      else if (isLoggedIn) {
+        router.push({ pathname: ROUTES.UserAlerts, params: { add: gage.locationId } })
+        return; 
+      }
+
+      router.push({ pathname: ROUTES.UserLogin })
     }
 
-    // TODO: Fix this once the subscription is working
     let manageText = t("statusLevelsCard.logInToGetAlerts")
-    // If logged in, show "Get Alerts when status changes" instead
-    // manageText = t("statusLevelsCard.getAlerts")
-    // If subscribed, show "Manage Alerts" instead
-    // manageText = t("statusLevelsCard.manageAlerts")
+    
+    if (isSubscribed) {
+      // If subscribed, show "Manage Alerts" instead
+      manageText = t("statusLevelsCard.manageAlerts")
+    } else if (isLoggedIn) {
+      // If logged in, show "Get Alerts when status changes" instead
+      manageText = t("statusLevelsCard.getAlerts")
+    }
 
     return (
       <Card flex>  

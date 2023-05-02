@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import { ErrorBoundaryProps, Redirect, Stack, useRouter } from "expo-router"
+import { ErrorBoundaryProps, Redirect, Stack, useLocalSearchParams, useRouter } from "expo-router"
 import { t } from "@i18n/translate"
 
 import { Screen, Content } from "@common-ui/components/Screen"
@@ -260,8 +260,15 @@ const ForecastsCard = observer(
 const GageCheckboxItem = observer(
   function GageCheckboxItem({ gage }: { gage: Gage }) {
     const { authSessionStore } = useStores()
+    const { add } = useLocalSearchParams()
 
     const [isUpdating, setIsUpdating] = useState(false)
+
+    useEffect(() => {
+      if (add && add === gage.locationId) {
+        updateGageEnabled(true)
+      }
+    }, [add])
 
     const updateGageEnabled = async (value: boolean) => {
       setIsUpdating(true)

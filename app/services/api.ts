@@ -309,6 +309,28 @@ export class Api {
     )
   }
 
+  async getForecasts<T>(
+    gageIds: string,
+    fromDateTime?: string,
+  ) {
+    this.apisauce.setBaseURL(Config.READING_BASE_URL)
+
+    const params = {
+      regionId: this.regionId,
+      gaugeIds: gageIds,
+    }
+
+    if (fromDateTime) {
+      params["ifNewerThan"] = fromDateTime
+    }
+
+    return await genericGetRequest<T>(
+      this.apisauce,
+      Config.API.reading.GET_FORECAST_V2_URL,
+      params
+    )
+  }
+
   async login<T>(params: LogInParams) {
     this.apisauce.setBaseURL(Config.AUTH_BASE_URL)
     
