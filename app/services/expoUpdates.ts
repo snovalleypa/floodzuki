@@ -18,10 +18,10 @@ export const useExpoUpdates = () => {
         setIsUpdateAvailable(true)
         
         await Updates.fetchUpdateAsync()
+
         setIsUpdateLoaded(true)
       }
     } catch (error) {
-      console.log("Error checking for updates", error)
       setError(error)
     }
   }

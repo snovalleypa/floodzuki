@@ -5,6 +5,7 @@ import * as Notifications from 'expo-notifications';
 import { Colors } from '@common-ui/constants/colors';
 import { useRouter } from 'expo-router';
 import { isAndroid, isWeb } from '@common-ui/utils/responsive';
+import { Timing } from '@common-ui/constants/timing';
 
 // This is for foreground notifications
 Notifications.setNotificationHandler({

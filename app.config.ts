@@ -67,13 +67,13 @@ export default {
         ]
       }
     ],
-    icon: "./assets/app-icon/android-legacy.png",
+    icon: "./assets/app-icon/android-adaptive-foreground.png",
     adaptiveIcon: {
       foregroundImage: "./assets/app-icon/android-adaptive-foreground.png",
       backgroundImage: "./assets/app-icon/android-adaptive-background.png"
     },
     splash: {
-      image: "./assets/app-icon/ios-universal.png",
+      image: "./assets/app-icon/android-adaptive-foreground.png",
       resizeMode: "contain",
       backgroundColor: "#ffffff"
     },
@@ -84,12 +84,16 @@ export default {
     }
   },
   updates: {
-    url: "https://u.expo.dev/0f52b777-109a-423d-a18b-1ccfb5dea8e0"
+    url: "https://u.expo.dev/0f52b777-109a-423d-a18b-1ccfb5dea8e0",
+    requestHeaders: {
+      "expo-channel-name": "production"
+    }
   },
   plugins: [
     "expo-localization",
     [
-      "expo-updates", {
+      "expo-updates",
+      {
         "username": "floodzilla-svpa",
       }
     ]

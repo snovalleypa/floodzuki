@@ -17,6 +17,10 @@ const BOTTOM_PADDING = 16
 
 const STROKE_COLOR = "#9a9a9a"
 
+const isPathSafe = (path: string) => {
+  return path && path.length > 0 && !path.match("NaN")
+}
+
 const useChartData = (gage: Gage, layout) => {
   const { width, height } = layout
 
@@ -159,19 +163,23 @@ const GageListItemChart = observer(
               </Text>
             </If>
             {/* Area */}
-            <Path
-              d={areaData}
-              strokeWidth="0"
-              stroke="none"
-              fill={Colors.gageChartColor}
-              fillOpacity={0.5}
-            />
+            <If condition={isPathSafe(areaData)}>
+              <Path
+                d={areaData}
+                strokeWidth="0"
+                stroke="none"
+                fill={Colors.gageChartColor}
+                fillOpacity={0.5}
+              />
+            </If>
             {/* Line */}
-            <Path
-              d={lineData}
-              strokeWidth="0.5"
-              stroke={Colors.gageChartColor}
-            />
+            <If condition={isPathSafe(lineData)}>
+              <Path
+                d={lineData}
+                strokeWidth="0.5"
+                stroke={Colors.gageChartColor}
+              />
+            </If>
             {/* Circles */}
             {circleData.map((d, i) => (
               <Circle
