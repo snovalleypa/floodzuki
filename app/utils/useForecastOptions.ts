@@ -29,7 +29,6 @@ const shouldShowFloodLine = (forecast: Forecast, isCombinedForecast: boolean) =>
 }
 
 const getFloodStageLabel = (forecast: Forecast, isCombinedForecast: boolean) => {
-  //$ TODO: Put these short names into the Location object?
   switch (forecast.noaaForecast?.noaaSiteId) {
     default: 
       return "";
@@ -38,7 +37,6 @@ const getFloodStageLabel = (forecast: Forecast, isCombinedForecast: boolean) => 
     case "CRNW1":
       return "Carnation";
 
-    //$ TODO: Forks doesn't have any identifying info in the forecast object currently...
     case "":
       return "Forks";
     }

@@ -85,3 +85,13 @@ If you're an engineer working for the SVPA org and want to run the [internal dis
 `$ eas device:create` 
 
 after that you'll need to rebuild the app with `$ eas build --profile preview --platform all` and install it on your phone again.
+
+### EAS Updates
+Android and iOS apps support OTA updates. If the new update is awailable - it'll be silently downloaded in background and user will be prompted to restart the app. User can choose to dismiss the prompt meaning that the new update will be applied on the next app start. You can read more about it in the [Expo docs](https://docs.expo.dev/workflow/publishing/).
+
+The updates are created locally and don't have access to Expo Secrets therefore it is expected that to provide all the necessary environment variables when running an update. To publish a new update to the production app you'll need to run `$ eas update --channel production` command. Refer to `eas.json` to check other channels that are available for publishing.
+
+The full command will look more like this (`APP_ENV="dev"` is used to bundle local `google-services.json` file):
+```bash
+$ APP_ENV="dev" GOOGLE_AUTH_CLIENT_SECRET="" GOOGLE_RECAPTCH_SITE_KEY="" GOOGLE_MAPS_API_KEY="" GOOGLE_AUTH_EXPO_ID="" GOOGLE_AUTH_WEB_ID="" GOOGLE_AUTH_IOS_ID="" GOOGLE_AUTH_ANDROID_ID="" eas update --channel production
+```

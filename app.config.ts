@@ -7,7 +7,9 @@ export default {
   slug: "floodzuki",
   scheme: "floodzuki",
   jsEngine: "hermes",
-  runtimeVersion: "1.0.0",
+  runtimeVersion: {
+    policy: "sdkVersion",
+  },
   icon: "./assets/app-icon/ios-universal.png",
   web: {
     bundler: "metro",

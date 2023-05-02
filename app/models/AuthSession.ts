@@ -126,6 +126,8 @@ export const AuthSessionStoreModel = types
     const removeAuthToken = () => {
       store.setProp("authToken", "")
       api.removeHeader("Authorization")
+      store.setProp("pushToken",  "")
+      store.setProp("isPushNotificationsEnabled", false)
     }
 
     const onAuthFail = () => {
@@ -354,8 +356,6 @@ export const AuthSessionStoreModel = types
     const logOut = flow(function*() {
       removeAuthToken()
       store.setProp("sessionState", SessionState.notLoggedIn)
-
-      // TODO: Handle google auth log out
     })
 
     const getSettings = flow(function*() {

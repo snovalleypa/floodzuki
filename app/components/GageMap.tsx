@@ -27,7 +27,6 @@ type GageMapProps = {
   gages: Gage[]
 }
 
-// TODO: Move this to expo secrets
 const API_KEY = Constants.expoConfig.extra.googleMapsApiKey
 
 const getMapOptions = maps => {

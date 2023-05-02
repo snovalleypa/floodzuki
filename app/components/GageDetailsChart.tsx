@@ -317,8 +317,6 @@ export const GageDetailsChart = observer(
     // Fetch data on mount but first wait for main data to be fetched
     useEffect(() => {
       if (gage?.locationId && isDataFetched) {
-        // TODO: Figure out why this isn't working on mobile
-
         gagesStore.fetchDataForGage(
           gage?.locationId,
           chartRange.chartStartDate.utc().format(),

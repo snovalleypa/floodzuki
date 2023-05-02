@@ -1,12 +1,10 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { Alert } from 'react-native';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
-import { Subscription } from 'expo-modules-core';
 import { Colors } from '@common-ui/constants/colors';
 import { useRouter } from 'expo-router';
 import { isAndroid, isWeb } from '@common-ui/utils/responsive';
-import { Timing } from '@common-ui/constants/timing';
 
 // This is for foreground notifications
 Notifications.setNotificationHandler({
@@ -64,37 +62,23 @@ export async function registerForPushNotificationsAsync(requestPermissions: bool
 }
 
 export function useRegisterPushNotificationsListener(requestPermissions: boolean) {
-  const notificationListener = useRef<Subscription>();
-  const responseListener = useRef<Subscription>();
   const router = useRouter();
 
-  useEffect(() => {
-    registerForPushNotificationsAsync(requestPermissions);
+  const lastNotificationResponse = Notifications.useLastNotificationResponse();
 
-    let timeoutRef: NodeJS.Timeout;
+  registerForPushNotificationsAsync(requestPermissions);
 
-    // We're not using this at the moment
-    notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
-      console.log("notification", JSON.stringify(notification))
-    });
-
-    // Since we're using PNs to open specific page - we only interested in the response
-    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-      const path = response.notification?.request?.content?.data?.path;
-
-      console.log("response", path, JSON.stringify(response))
+  useEffect(() => {    
+    if (
+      lastNotificationResponse &&
+      lastNotificationResponse.notification?.request?.content?.data?.path &&
+      lastNotificationResponse.actionIdentifier === Notifications.DEFAULT_ACTION_IDENTIFIER
+    ) {
+      const path = lastNotificationResponse.notification?.request?.content?.data?.path;
 
       if (path) {
-        timeoutRef = setTimeout(() => {
-          console.log("pushing to", path)
-          router.push(path);
-        }, Timing.normal);
+        router.push(path);
       }
-    });
-
-    return () => {
-      Notifications.removeNotificationSubscription(notificationListener.current);
-      Notifications.removeNotificationSubscription(responseListener.current);
-    };
-  }, []);
+    }
+  }, [lastNotificationResponse])
 }

@@ -58,8 +58,6 @@ function ReadingRow(props: { reading?: DataPoint, delta?: number }) {
   )
 }
 
-// TODO: This is causing performance issues on devices
-// figure out how to optimize that
 const MaxReading = observer(
   function MaxReading(props: { forecast: Forecast }) {
     const { forecast } = props

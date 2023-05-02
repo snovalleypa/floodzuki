@@ -10,7 +10,7 @@ import { AbsoluteContainer, Cell, Row } from "@common-ui/components/Common"
 import { Colors } from "@common-ui/constants/colors"
 import { useStores } from "@models/helpers/useStores"
 import { Spacing } from "@common-ui/constants/spacing"
-import { LabelText, LargerTitle, RegularLargeText, SmallerText, SmallTitle, TinyText } from "@common-ui/components/Text"
+import { LabelText, LargerTitle, SmallerText, SmallTitle, TinyText } from "@common-ui/components/Text"
 import { Card } from "@common-ui/components/Card"
 import { Label, LargeLabel } from "@common-ui/components/Label"
 import { If, Ternary } from "@common-ui/components/Conditional"
@@ -168,7 +168,6 @@ const HomeScreen = observer(
     return (
       <Screen>
         <Stack.Screen options={{ title: `${t("common.title")} - ${t("homeScreen.title")}` }} />
-        <RegularLargeText>Large Text</RegularLargeText>
         <Row justify="flex-start">
           <If condition={!isMobile}>
             <Card

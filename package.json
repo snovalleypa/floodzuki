@@ -76,6 +76,7 @@
     "@babel/plugin-proposal-export-namespace-from": "^7.18.9",
     "@types/i18n-js": "^3.8.4",
     "babel-plugin-react-native-web": "^0.18.12",
+    "babel-plugin-transform-inline-environment-variables": "^0.4.4",
     "postcss-loader": "^4.2.0",
     "prettier": "^2.8.6",
     "prettier-plugin-tailwindcss": "^0.2.5",
