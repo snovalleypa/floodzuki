@@ -5,8 +5,8 @@ import * as Notifications from 'expo-notifications';
 import { Subscription } from 'expo-modules-core';
 import { Colors } from '@common-ui/constants/colors';
 import { useRouter } from 'expo-router';
-import { useStores } from '@models/helpers/useStores';
 import { isAndroid, isWeb } from '@common-ui/utils/responsive';
+import { Timing } from '@common-ui/constants/timing';
 
 // This is for foreground notifications
 Notifications.setNotificationHandler({
@@ -64,29 +64,36 @@ export async function registerForPushNotificationsAsync(requestPermissions: bool
 }
 
 export function useRegisterPushNotificationsListener(requestPermissions: boolean) {
-  // const notificationListener = useRef<Subscription>();
+  const notificationListener = useRef<Subscription>();
   const responseListener = useRef<Subscription>();
   const router = useRouter();
 
   useEffect(() => {
     registerForPushNotificationsAsync(requestPermissions);
 
+    let timeoutRef: NodeJS.Timeout;
+
     // We're not using this at the moment
-    // notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
-    //   console.log("notification", JSON.stringify(notification))
-    // });
+    notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+      console.log("notification", JSON.stringify(notification))
+    });
 
     // Since we're using PNs to open specific page - we only interested in the response
     responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
       const path = response.notification?.request?.content?.data?.path;
 
+      console.log("response", path, JSON.stringify(response))
+
       if (path) {
-        router.push(path);
+        timeoutRef = setTimeout(() => {
+          console.log("pushing to", path)
+          router.push(path);
+        }, Timing.normal);
       }
     });
 
     return () => {
-      // Notifications.removeNotificationSubscription(notificationListener.current);
+      Notifications.removeNotificationSubscription(notificationListener.current);
       Notifications.removeNotificationSubscription(responseListener.current);
     };
   }, []);
