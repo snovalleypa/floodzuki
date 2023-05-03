@@ -85,6 +85,7 @@ export type ProcessGoogleTokenParams = {
 export type PushTokenParams = {
   token: string,
   platform: "ios" | "android",
+  language: string,
   deviceId?: string,
 }
 

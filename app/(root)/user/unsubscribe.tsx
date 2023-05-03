@@ -1,6 +1,5 @@
-import React, { useEffect, useMemo, useRef, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { ErrorBoundaryProps, Stack, useLocalSearchParams, useRouter } from "expo-router"
-import { t } from "@i18n/translate"
 
 import { Screen, Content } from "@common-ui/components/Screen"
 import { MediumText, RegularText } from "@common-ui/components/Text"
@@ -9,16 +8,15 @@ import TitleWithBackButton from "@components/TitleWithBackButton"
 import { ROUTES } from "app/_layout"
 import { Spacing } from "@common-ui/constants/spacing"
 import { Card, CardContent } from "@common-ui/components/Card"
-import { Cell, Row, RowOrCell } from "@common-ui/components/Common"
-import { Input } from "@common-ui/components/Input"
+import { Cell, Row } from "@common-ui/components/Common"
 import { OutlinedButton, SimpleLinkButton, SolidButton } from "@common-ui/components/Button"
 import { observer } from "mobx-react-lite"
 import { useStores } from "@models/helpers/useStores"
 import { If, Ternary } from "@common-ui/components/Conditional"
 import ErrorMessage from "@common-ui/components/ErrorMessage"
-import { useValidations } from "@utils/useValidations"
 import { normalizeSearchParams, openLinkInBrowser } from "@utils/navigation"
 import SuccessMessage from "@common-ui/components/SuccessMessage"
+import { useLocale } from "@common-ui/contexts/LocaleContext"
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -28,6 +26,7 @@ export function ErrorBoundary(props: ErrorBoundaryProps) {
 const UnsubscribeScreen = observer(
   function UnsubscribeScreen() {
     const router = useRouter()
+    const { t } = useLocale();
     const { authSessionStore } = useStores()
 
     const { userId, email } = useLocalSearchParams()
@@ -77,45 +76,45 @@ const UnsubscribeScreen = observer(
                 <Ternary condition={authSessionStore.isError}>
                   <Cell>
                     <ErrorMessage
-                      errorText={authSessionStore.errorMessage ?? "We're sorry, but an error has occurred while processing your unsubscribe request."}
+                      errorText={authSessionStore.errorMessage ?? t("unsubscribeScreen.errorMessage")}
                     />
                     <RegularText>
-                      Please <SimpleLinkButton text="contact us" onPress={contactUs} /> so we can remove your subscription.
+                      {t("unsubscribeScreen.please")} <SimpleLinkButton text={t("unsubscribeScreen.contactUs")} onPress={contactUs} /> {t("unsubscribeScreen.soWeCanRemove")}.
                     </RegularText>
                     <SolidButton
                       selfAlign="center"
-                      title="Try again"
+                      title={t("unsubscribeScreen.tryAgain")}
                       onPress={unsubscribe}
                     />
                   </Cell>
                   <Ternary condition={isUnsubscribed}>
                     <Cell>
                       <SuccessMessage
-                        successText="Your preferences have been updated."
+                        successText={t("unsubscribeScreen.successMessage")}
                       />
                       <Row align="space-evenly" top={Spacing.small} bottom={Spacing.large}>
                         <OutlinedButton
                           minWidth={Spacing.extraExtraHuge}
                           selfAlign="center"
-                          title="Manage your alerts"
+                          title={t("unsubscribeScreen.manageAlerts")}
                           onPress={goBack}
                         />
                         <SolidButton
                           minWidth={Spacing.extraExtraHuge}
                           selfAlign="center"
-                          title="Continue to Floodzilla"
+                          title={t("unsubscribeScreen.continue")}
                           onPress={goHome}
                         />
                       </Row>
                     </Cell>
                     <Cell>
                       <RegularText align="center">
-                        If you unsubscribe, you will no longer receive Floodzilla Alerts at <MediumText>{email}</MediumText>.
+                        {t("unsubscribeScreen.description")} <MediumText>{email}</MediumText>.
                       </RegularText>
                       <SolidButton
                         top={Spacing.medium}
                         selfAlign="center"
-                        title="Unsubscribe All"
+                        title={t("unsubscribeScreen.unsubscribeAll")}
                         onPress={unsubscribe}
                       />
                     </Cell>

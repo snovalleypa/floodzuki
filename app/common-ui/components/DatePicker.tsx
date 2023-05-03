@@ -14,6 +14,7 @@ import { useResponsive } from "@common-ui/utils/responsive"
 import { BottomSheetModal } from "@gorhom/bottom-sheet"
 import { useDatePicker } from "@common-ui/contexts/DatePickerContext"
 import { measure, useAnimatedRef } from "react-native-reanimated"
+import { useLocale } from "@common-ui/contexts/LocaleContext"
 
 /**
  * A DatePicker component with a calendar and a range support
@@ -28,20 +29,6 @@ type DatePickerProps = {
 }
 
 type Mode = "day" | "month" | "year"
-const MODES = [
-  {
-    key: "day",
-    title: "Day"
-  },
-  {
-    key: "month",
-    title: "Month"
-  },
-  {
-    key: "year",
-    title: "Year"
-  }
-]
 
 const PICKER_WIDTH = 300
 const PICKER_HEIGHT = 270
@@ -172,6 +159,8 @@ const Years = ({ minYear, maxYear, onSelect }: { minYear: number, maxYear: numbe
 }
 
 const DatePicker = (props: DatePickerProps) => {
+  const { t } = useLocale()
+
   const { minYear = 1990, maxYear = localDayJs().year(), selectedDate, title, onChange } = props
   
   const [currentMode, setCurrentMode] = useState<Mode>("day")
@@ -200,6 +189,15 @@ const DatePicker = (props: DatePickerProps) => {
     onConfirm()
   }
 
+  const modes = useMemo(
+    () => [
+      { key: "day", title: t("datePicker.day") },
+      { key: "month", title: t("datePicker.month") },
+      { key: "year", title: t("datePicker.year") },
+    ],
+    [t]
+  )
+
   return (
     <>
       <If condition={!!title}>
@@ -212,7 +210,7 @@ const DatePicker = (props: DatePickerProps) => {
       </If>
       <SegmentControl
         bottom={Spacing.zero}
-        segments={MODES}
+        segments={modes}
         selectedSegment={currentMode}
       />
       <If condition={currentMode === "day"}>

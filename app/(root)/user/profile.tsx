@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from "react"
 import { ErrorBoundaryProps, Redirect, Stack, useNavigation, useRouter } from "expo-router";
 import { observer } from "mobx-react-lite";
-import { t } from "@i18n/translate";
 
 import { Content, Screen } from "@common-ui/components/Screen"
 import { MediumText, RegularText } from "@common-ui/components/Text"
@@ -20,6 +19,7 @@ import { Colors } from "@common-ui/constants/colors";
 import { If, Ternary } from "@common-ui/components/Conditional";
 import ErrorMessage from "@common-ui/components/ErrorMessage";
 import SuccessMessage from "@common-ui/components/SuccessMessage";
+import { useLocale } from "@common-ui/contexts/LocaleContext";
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -35,6 +35,7 @@ const ProfileScreen = observer(
     const router = useRouter()
     const navigation = useNavigation()
 
+    const { t } = useLocale();
     const { authSessionStore } = useStores()
 
     const [email, setEmail] = useState(authSessionStore.userEmail)

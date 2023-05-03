@@ -9,10 +9,12 @@ import { ROUTES } from "app/_layout";
 import { If } from "@common-ui/components/Conditional";
 import ErrorMessage from "@common-ui/components/ErrorMessage";
 import { useGoogleAuth } from "@common-ui/contexts/GoogleAuthContext";
+import { useLocale } from "@common-ui/contexts/LocaleContext";
 
 const GoogleSigninButton = observer(
   function GoogleSigninButton() {
     const { authSessionStore } = useStores()
+    const { t } = useLocale()
     const router = useRouter()
     const googleAuth = useGoogleAuth()
 
@@ -33,7 +35,7 @@ const GoogleSigninButton = observer(
     return (
       <Cell>
         <If condition={googleAuth.isError}>
-          <ErrorMessage errorText="Something went wrong. Please try again." />
+          <ErrorMessage errorText={t("googlesigninButton.error")} />
         </If>
         <OutlinedButton
           disabled={googleAuth.isDisabled}
@@ -41,7 +43,7 @@ const GoogleSigninButton = observer(
           selfAlign="center"
           leftIcon="at-sign"
           type="lightBlue"
-          title="Sign in with Google"
+          title={t("googlesigninButton.title")}
           onPress={googleAuth.authorize}
         />
       </Cell>

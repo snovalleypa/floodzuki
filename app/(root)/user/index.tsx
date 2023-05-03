@@ -1,12 +1,11 @@
 import React from "react"
 import { ErrorBoundaryProps, Redirect, Stack, useRouter } from "expo-router"
 import * as Application from 'expo-application';
-import { t } from "@i18n/translate"
 
 import { Screen, Content } from "@common-ui/components/Screen"
 import { LabelText, LargeTitle, RegularText } from "@common-ui/components/Text"
 import { ErrorDetails } from "@components/ErrorDetails"
-import { Cell } from "@common-ui/components/Common"
+import { Cell, Row } from "@common-ui/components/Common"
 import { Spacing } from "@common-ui/constants/spacing"
 import { Card, CardListLinkItem } from "@common-ui/components/Card"
 import { openLinkInBrowser } from "@utils/navigation"
@@ -19,6 +18,8 @@ import { isWeb } from "@common-ui/utils/responsive";
 import { Ternary } from "@common-ui/components/Conditional";
 import { useStores } from "@models/helpers/useStores";
 import { observer } from "mobx-react-lite";
+import { useLocale } from "@common-ui/contexts/LocaleContext";
+import LocaleChange from "@components/LocaleChange";
 
 
 // We use this to wrap each screen with an error boundary
@@ -29,6 +30,7 @@ export function ErrorBoundary(props: ErrorBoundaryProps) {
 const AboutScreen = observer(
   function AboutScreen() {
     const router = useRouter()
+    const { t } = useLocale();
     const { authSessionStore } = useStores()
 
     if (isWeb) {
@@ -84,16 +86,19 @@ const AboutScreen = observer(
           bottom={Spacing.extraSmall}
           top={Spacing.medium}
         >
-          <LargeTitle>
-            {t("navigation.aboutScreen")}
-          </LargeTitle>
+          <Row align="space-between">
+            <LargeTitle>
+              {t("navigation.aboutScreen")}
+            </LargeTitle>
+            <LocaleChange />
+          </Row>
         </Cell>
         {/* Content */}
         <Content scrollable>
           <Ternary condition={authSessionStore.isLoggedIn}>
             <>
               <LabelText>
-                Manage flooding notifications
+                {t("aboutScreen.manageNotitifications")}
               </LabelText>
               <Card top={Spacing.small} innerVertical={Spacing.zero}>
                 <CardListLinkItem
@@ -112,7 +117,7 @@ const AboutScreen = observer(
             </>
             <>
               <LabelText>
-                Log In to receive flooding notifications
+                {t("aboutScreen.logIn")}
               </LabelText>
               <Card top={Spacing.small} innerVertical={Spacing.zero}>
                 <CardListLinkItem
@@ -129,7 +134,7 @@ const AboutScreen = observer(
           {/*  */}
           <Cell top={Spacing.extraLarge} bottom={Spacing.small}>
             <LabelText>
-              Details
+              {t("aboutScreen.details")}
             </LabelText>
           </Cell>
           <Card bottom={Spacing.larger} innerVertical={Spacing.zero}>
@@ -174,7 +179,7 @@ const AboutScreen = observer(
           </Cell>
           <Cell top={Spacing.large} align="center">
             <LabelText>
-              App Version: {Application?.nativeApplicationVersion}
+              {t("aboutScreen.appVersion")}: {Application?.nativeApplicationVersion}
             </LabelText>
           </Cell>
         </Content>

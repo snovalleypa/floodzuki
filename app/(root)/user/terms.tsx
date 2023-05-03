@@ -6,7 +6,6 @@ import { ExtraLargeTitle, HugeTitle, LargeTitle, MediumText, MediumTitle, Regula
 import { IconButton, SimpleLinkButton } from "@common-ui/components/Button"
 import { openLinkInBrowser } from "@utils/navigation"
 import { ErrorDetails } from "@components/ErrorDetails"
-import { t } from "@i18n/translate"
 import { Row, Spacer } from "@common-ui/components/Common"
 import { Spacing } from "@common-ui/constants/spacing"
 import { FloodzillaLink, SVPALink } from "./privacy"
@@ -14,6 +13,7 @@ import { ROUTES } from "app/_layout"
 import Config from "@config/config"
 import { isMobile } from "@common-ui/utils/responsive"
 import { If } from "@common-ui/components/Conditional"
+import { useLocale } from "@common-ui/contexts/LocaleContext"
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -28,6 +28,7 @@ const EmailLink = () => {
 
 export const PrivacyLink = () => {
   const router = useRouter()
+  const { t } = useLocale();
 
   const openPrivacyPolicy = () => {
     router.push({ pathname: ROUTES.Privacy })
@@ -40,6 +41,7 @@ export const PrivacyLink = () => {
 
 const TermsOfUseScreen = () => {
   const router = useRouter();
+  const { t } = useLocale();
   
   const goBack = () => {
     router.push({ pathname: ROUTES.About })

@@ -1,6 +1,5 @@
 import React, { useState } from "react"
 import { ErrorBoundaryProps, Redirect, Stack, useLocalSearchParams, useNavigation, useRouter } from "expo-router"
-import { t } from "@i18n/translate"
 
 import { Screen, Content } from "@common-ui/components/Screen"
 import { ErrorDetails } from "@components/ErrorDetails"
@@ -11,6 +10,7 @@ import { ROUTES } from "app/_layout"
 import ChangePasswordForm, { PasswordSubmitActionProps } from "@components/ChangePasswordForm"
 import { Spacing } from "@common-ui/constants/spacing"
 import { normalizeSearchParams } from "@utils/navigation"
+import { useLocale } from "@common-ui/contexts/LocaleContext"
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -21,6 +21,7 @@ const ResetPasswordScreen = observer(
   function ResetPasswordScreen() {
     const router = useRouter()
     const navigation = useNavigation()
+    const { t } = useLocale();
 
     const { userId, code } = useLocalSearchParams()
 
@@ -45,7 +46,7 @@ const ResetPasswordScreen = observer(
 
       if (authSessionStore.isError) return
       
-      setSuccessMessage("Done!")
+      setSuccessMessage(t("resetpasswordScreen.successMessage"))
     }
 
     const goBack = () => {
@@ -64,7 +65,7 @@ const ResetPasswordScreen = observer(
         <Content maxWidth={Spacing.tabletWidth} scrollable>
           <ChangePasswordForm
             submitAction={onSubmit}
-            submitActionText="Update"
+            submitActionText={t("resetpasswordScreen.submit")}
             successMessage={successMessage}
             errorMessage={authSessionStore.errorMessage}
           />

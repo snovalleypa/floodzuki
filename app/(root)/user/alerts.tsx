@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react"
 import { ErrorBoundaryProps, Redirect, Stack, useLocalSearchParams, useRouter } from "expo-router"
-import { t } from "@i18n/translate"
 
 import { Screen, Content } from "@common-ui/components/Screen"
 import { LabelText, RegularText, SmallTitle } from "@common-ui/components/Text"
@@ -24,6 +23,7 @@ import ErrorMessage from "@common-ui/components/ErrorMessage"
 import { Gage } from "@models/Gage"
 import { Alert, Switch } from "react-native"
 import { isPushNotificationsEnabledAsync } from "@services/pushNotifications"
+import { useLocale } from "@common-ui/contexts/LocaleContext"
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -33,6 +33,7 @@ export function ErrorBoundary(props: ErrorBoundaryProps) {
 const AlertSettingsCard = observer(
   function AlertSettings() {
     const { authSessionStore } = useStores()
+    const { t } = useLocale()
     const router = useRouter()
 
     const [isEmailSent, setIsEmailSent] = useState(false)
@@ -79,11 +80,11 @@ const AlertSettingsCard = observer(
 
         if (!permissionGranted) {
           Alert.alert(
-            "Push Notifications Disabled",
-            "You must enable push notifications in your device settings to receive alerts",
+            t("alertsScreen.pnsDisabledTitle"),
+            t("alertsScreen.pnsDisabledMessage"),
             [
               {
-                text: "Open Settings",
+                text: t("alertsScreen.pnsDisabledButton"),
                 onPress: () => openAppSettings(),
               }
             ]
@@ -106,7 +107,7 @@ const AlertSettingsCard = observer(
     return (
       <Card bottom={Spacing.large}>
         <CardHeader>
-          <SmallTitle>Alert Settings</SmallTitle>
+          <SmallTitle>{t("alertsScreen.alertSettings")}</SmallTitle>
         </CardHeader>
         <CardContent>
           {/* Push Notifications */}
@@ -114,7 +115,7 @@ const AlertSettingsCard = observer(
             <Row align="space-between" bottom={Spacing.small}>
               <Cell>
                 <RegularText>
-                  Enable Push Notifications:
+                {t("alertsScreen.enablePushNotifications")}
                 </RegularText>
               </Cell>
               <Cell left={Spacing.extraSmall}>
@@ -130,14 +131,14 @@ const AlertSettingsCard = observer(
           <Cell>
             <If condition={!isEmailVerified}>
               <RegularText>
-                Verify your email address to receive email alerts
+                {t("alertsScreen.verifyEmail")}
               </RegularText>
             </If>
             <Cell top={Spacing.extraSmall}>
               <CheckBoxItem
                 isLoading={isUpdatingEmail}
                 disabled={!isEmailVerified}
-                label={`Send alerts via email to: ${authSessionStore.user?.email}`}
+                label={`${t("alertsScreen.sendEmailAlertsTo")}: ${authSessionStore.user?.email}`}
                 value={emailAlertsEnabled}
                 onChange={updateEmailAlertsEnabled}
               />
@@ -149,9 +150,9 @@ const AlertSettingsCard = observer(
               <RegularText>
                 <SimpleLinkButton
                   color={Colors.lightBlue}
-                  text="Enter a phone number "
+                  text={t("alertsScreen.enterPhoneNumber")}
                   onPress={openPhoneNumber}
-                />to receive SMS alerts
+                />${t("alertsScreen.toReceiveAlerts")}
               </RegularText>
             </Cell>
           </If>
@@ -160,14 +161,14 @@ const AlertSettingsCard = observer(
               <CheckBoxItem
                 isLoading={isUpdatingSms}
                 disabled={!isPhoneVerified}
-                label={`Send alerts via SMS to: ${authSessionStore.userPhone ?? ""}`}
+                label={`${t("alertsScreen.sendSmsAlerts")}: ${authSessionStore.userPhone ?? ""}`}
                 value={smsAlertsEnabled}
                 onChange={updateSmsAlertsEnabled}
               />
             </Cell>
             <Cell flex>
               <LinkButton
-                title="(Change Phone Number)"
+                title={t("alertsScreen.changePhone")}
                 onPress={openPhoneNumber}
               />
             </Cell>
@@ -180,14 +181,14 @@ const AlertSettingsCard = observer(
             </If>
             <Ternary condition={isEmailSent && !authSessionStore.isError}>
               <RegularText>
-                An email has been sent to {authSessionStore.user?.email}. Please click on the link in that email to verify your email address.
+                {t("alertsScreen.emailSent", { email: authSessionStore.user?.email })}
               </RegularText>
               <SolidButton
                 small
                 type="blue"
                 selfAlign="center"
                 isLoading={authSessionStore.isFetching}
-                title="Verify Email Address"
+                title={t("alertsScreen.verifyEmailTitle")}
                 onPress={verifyEmail}
               />
             </Ternary>
@@ -200,6 +201,7 @@ const AlertSettingsCard = observer(
 
 const ForecastsCard = observer(
   function ForecastsCard() {
+    const { t } = useLocale()
     const { authSessionStore } = useStores()
 
     const [isUpdatingForecast, setIsUpdatingForecast] = useState(false)
@@ -233,21 +235,21 @@ const ForecastsCard = observer(
     return (
       <Card bottom={Spacing.large}>
         <CardHeader>
-          <SmallTitle>Forecasts</SmallTitle>
+          <SmallTitle>{t("alertsScreen.forecasts")}</SmallTitle>
         </CardHeader>
         <CardContent>
           <Cell bottom={Spacing.medium}>
-            <RegularText>Floodzilla can send you river forecasts.</RegularText>
+            <RegularText>{t("alertsScreen.forecastsTitle")}</RegularText>
           </Cell>
           <CheckBoxItem
             isLoading={isUpdatingForecast}
-            label="Send me flood forecast alerts (typically once or twice a day during flood events)."
+            label={t("alertsScreen.genericForecast")}
             value={forecastsEnabled}
             onChange={updateForecastsEnabled}
           />
           <CheckBoxItem
             isLoading={isUpdatingDailyForecast}
-            label="Send me daily river status and crest forecasts."
+            label={t("alertsScreen.dailyForecast")}
             value={dailyForecastsEnabled}
             onChange={updateDailyForecastsEnabled}
           />
@@ -294,19 +296,20 @@ const GageCheckboxItem = observer(
 
 const GagesCard = observer(
   function GagesCard() {
+    const { t } = useLocale()
     const { getLocationsWithGages, authSessionStore } = useStores()
     const locations = getLocationsWithGages()
 
     return (
       <Card bottom={Spacing.large}>
         <CardHeader>
-          <SmallTitle>Forecasts</SmallTitle>
+          <SmallTitle>{t("alertsScreen.gageAlerts")}</SmallTitle>
         </CardHeader>
         <CardContent>
           <Cell bottom={Spacing.medium}>
-            <RegularText>Alert me about status changes for these gages:</RegularText>
+            <RegularText>{t("alertsScreen.gageAlertsTitle")}</RegularText>
             <If condition={!authSessionStore.isNotificationsEnabled}>
-              <LabelText>Please enable one of the notifications channels (Email, SMS, Push Notifications) to manage this settings</LabelText>
+              <LabelText>{t("alertsScreen.gageAlertsSubtitle")}</LabelText>
             </If>
           </Cell>
           {locations.map((gage) => (
@@ -324,6 +327,7 @@ const GagesCard = observer(
 const AlertsScreen = observer(
   function AlertsScreen() {
     const router = useRouter()
+    const { t } = useLocale();
     const { authSessionStore } = useStores()
     
     const isLoggedIn = authSessionStore.isLoggedIn
@@ -363,12 +367,11 @@ const AlertsScreen = observer(
           {/* Title */}
           <Card bottom={Spacing.large}>
             <CardHeader>
-              <SmallTitle>Floodzilla Alerts Beta</SmallTitle>
+              <SmallTitle>{t("alertsScreen.title")}</SmallTitle>
             </CardHeader>
             <CardContent>
               <RegularText lineHeight={Spacing.large}>
-                Welcome to the Floodzilla Alerts Beta! We will send you alerts via email or SMS Text message when we detect flood conditions.{"\n\n"}
-                We need your feedback. <SimpleLinkButton color={Colors.lightBlue} text="Let us know" onPress={mailTo} /> how we're doing.
+                {t("alertsScreen.welcomeText")}<SimpleLinkButton color={Colors.lightBlue} text={t("alertsScreen.letUsKnow")} onPress={mailTo} />{t("alertsScreen.howWeAreDoing")}
               </RegularText>
             </CardContent>
           </Card>
@@ -384,14 +387,14 @@ const AlertsScreen = observer(
               <SolidButton
                 selfAlign="center"
                 type="blue"
-                title="Edit Profile"
+                title={t("alertsScreen.editProfile")}
                 onPress={editProfile}
                 right={Spacing.large}
               />
               <SolidButton
                 selfAlign="center"
                 type="danger"
-                title="Log Out"
+                title={t("alertsScreen.logOut")}
                 onPress={authSessionStore.logOut}
               />
             </Row>

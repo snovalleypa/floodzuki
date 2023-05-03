@@ -81,6 +81,133 @@ const en = {
   profileScreen: {
     title: "Profile",
   },
+  aboutScreen: {
+    manageNotitifications: "Manage flooding notifications",
+    logIn: "Log In to receive flooding notifications",
+    details: "Details",
+    appVersion: "App Version",
+  },
+  alertsScreen: {
+    title: "Floodzilla Alerts",
+    welcomeText: "Welcome to the Floodzilla Alerts! We will send you alerts via email or SMS Text message when we detect flood conditions.\n\nWe need your feedback. ",
+    letUsKnow: "Let us know",
+    howWeAreDoing: " how we're doing",
+    editProfile: "Edit Profile",
+    logOut: "Log Out",
+    pnsDisabledTitle: "Push Notifications Disabled",
+    pnsDisabledMessage: "You must enable push notifications in your device settings to receive alerts.",
+    pnsDisabledButton: "Open Settings",
+    alertSettings: "Alert Settings",
+    enablePushNotifications: "Enable Push Notifications",
+    verifyEmail: "Verify your email address to receive email alerts",
+    sendEmailAlertsTo: "Send alerts via email to",
+    enterPhoneNumber: "Enter a phone number ",
+    toReceiveAlerts: "to receive SMS alerts",
+    sendSmsAlerts: "Send alerts via SMS to",
+    changePhone: "(Change Phone Number)",
+    emailSent: "An email has been sent to {email}. Please click on the link in that email to verify your email address.",
+    verifyEmailTitle: "Verify Email Address",
+    forecasts: "Forecasts",
+    forecastsTitle: "Floodzilla can send you river forecasts.",
+    genericForecast: "Send me flood forecast alerts (typically once or twice a day during flood events).",
+    dailyForecast: "Send me daily river status and crest forecasts.",
+    gageAlerts: "Gage Alerts",
+    gageAlertsTitle: "Alert me about status changes for these gages:",
+    gageAlertsSubtitle: "Please enable one of the notifications channels (Email, SMS, Push Notifications) to manage this settings.",
+  },
+  changeemailScreen: {
+    newEmailAddress: "New Email Address",
+    enterEmail: "Enter your email",
+    button: "Update"
+  },
+  createpasswordScreen: {
+    title: "In order to change your email address, you must first create a password for your Floodzilla account.",
+    submit: "Update"
+  },
+  newScreen: {
+    firstName: "First Name",
+    firstNamePlaceholder: "Enter your First Name",
+    lastName: "Last Name",
+    lastNamePlaceholder: "Enter your Last Name",
+    email: "Email",
+    emailPlaceholder: "Enter your email",
+    password: "Password",
+    passwordPlaceholder: "Enter your password",
+    confirmPassword: "Confirm Password",
+    confirmPasswordPlaceholder: "Confirm your password",
+    rememberMe: "Remember me",
+    login: "Log In",
+    createAccount: "Create Account",
+  },
+  passwordforgotScreen: {
+    description: "Enter your email address. We will send you a link to allow you to reset your password.",
+    emailSent: "An email has been sent to {{email}} with a link to reset your password.\nIf there is no matching account no email will be sent.",
+    email: "Email",
+    emailPlaceholder: "Enter your email",
+    submit: "Send Email"
+  },
+  resetpasswordScreen: {
+    successMessage: "Done! You can now log in with your new password.",
+    submit: "Update"
+  },
+  setpasswordScreen: {
+    successMessage: "Done! You can now log in with your new password.",
+    submit: "Update"
+  },
+  unsubscribeScreen: {
+    errorMessage: "We're sorry, but an error has occurred while processing your unsubscribe request.",
+    please: "Please",
+    contactUs: "contact us",
+    soWeCanRemove: "so we can remove your subscription.",
+    tryAgain: "Try Again",
+    successMessage: "You have been unsubscribed from all Floodzilla alerts.",
+    manageAlerts: "Manage your Alerts",
+    continue: "Continue to Floodzilla",
+    description: "If you unsubscribe, you will no longer receive Floodzilla Alerts at ",
+    unsubscribeAll: "Unsubscribe from all Floodzilla Alerts",
+  },
+  verifyemailScreen: {
+    errorMessage: "We're sorry, but an error has occurred while processing your email verification request.",
+    tryAgain: "Try Again",
+    successMessage: "Your email address has been verified.",
+    continue: "Continue to Floodzilla",
+  },
+  verifyphonenumberScreen: {
+    sendVerification: "Send Verification Code",
+    resendVerification: "Resend Verification Code",
+    description: "Please enter a phone number where Floodzilla can send SMS Alerts.  Floodzilla will send you an SMS with a verification code.",
+    phoneNumber: "Phone Number",
+    confirmationText: "We sent a verification code to {{phoneNumber}}. Please enter the code below.",
+    verificationCode: "Verification Code:",
+    verificationCodePlaceholder: "Enter the verification code",
+    submit: "Verify Phone Number",
+  },
+  googlesigninButton: {
+    error: "Something went wrong. Please try again.",
+    title: "Sign in with Google",
+  },
+  changePasswordForm: {
+    currentPassword: "Current Password",
+    newPassword: "New Password",
+    confirmPassword: "Confirm Password",
+    proceed: "Click here to proceed to Flodzilla",
+  },
+  validations: {
+    passwordsDontMatch: "Passwords do not match",
+    passwordLength: "Password must be at least {{length}} characters",
+    presence: "{{fieldName}} can't be blank",
+  },
+  loginScreen: {
+    title: "Log In or Create Account to receive flooding notifications and other updates.",
+    email: "Email",
+    emailPlaceholder: "Enter your email",
+    password: "Password",
+    passwordPlaceholder: "Enter your password",
+    passwordForgot: "Forgot Password?",
+    rememberMe: "Remember Me",
+    createAccount: "Create Account",
+    login: "Log In",
+  },
   forecastChart: {
     observed: "Observed",
     forecast: "Forecast",
@@ -134,6 +261,7 @@ const en = {
     roadSaddle: "road saddle",
     level: "level",
     below: "below",
+    over: "over",
     above: "above",
     logInToGetAlerts: "Log in to get Alerts when status changes",
     getAlerts: "Get Alerts when status changes",
@@ -141,6 +269,8 @@ const en = {
     statusLevels: "Status Levels",
     Below: "Below",
     atAndAbove: "At and above",
+    predicted: "Predicted",
+    water: "Water",
   },
   footer: {
     svpaTitle: "The Snoqualmie Valley Preservation Alliance",
@@ -150,9 +280,17 @@ const en = {
     addressLine2: "U.S. Mail",
     copyright: "© Snoqualmie Valley Preservation Alliance"
   },
-  about: {
-
-  }
+  datePicker: {
+    startDate: "Start Date",
+    endDate: "End Date",
+    day: "Day",
+    month: "Month",
+    year: "Year",
+  },
+  privacyPolicyScreen: {
+  },
+  termsOfServiceScreen: {
+  },
 }
 
 export default en

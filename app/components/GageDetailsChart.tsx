@@ -13,7 +13,6 @@ import { Card, CardFooter, CardHeader } from "@common-ui/components/Card";
 import { Spacing } from "@common-ui/constants/spacing";
 
 import { Cell, Row } from "@common-ui/components/Common";
-import { t } from "@i18n/translate";
 import { SegmentControl } from "@common-ui/components/SegmentControl";
 import useGageChartOptions from "@utils/useGageChartOptions";
 import useChartRange from "@utils/useChartRange";
@@ -33,6 +32,7 @@ import Icon from "@common-ui/components/Icon";
 import DateRangePicker from "@common-ui/components/DateRangePicker";
 import { Dayjs } from "dayjs";
 import { normalizeSearchParams } from "@utils/navigation";
+import { useLocale } from "@common-ui/contexts/LocaleContext";
 
 interface GageDetailsChartProps {
   gage: Gage
@@ -43,7 +43,7 @@ interface ChartsProps {
 }
 
 // Ranges available for selection
-const RANGES = [
+const RANGES = (t) => [
   {
     key: "14",
     title: t("forecastChart.rangeDays", { days: 14 }),
@@ -63,7 +63,7 @@ const RANGES = [
 ]
 
 // Possible chart data types
-const CHART_DATA_TYPES = [
+const CHART_DATA_TYPES = (t) => [
   {
     key: GageChartDataType.LEVEL,
     title: t("gageDetailsChart.waterLevel")
@@ -74,7 +74,7 @@ const CHART_DATA_TYPES = [
   }
 ]
 
-const SELECT_EVENT = t("gageDetailsChart._selectEvent")
+const SELECT_EVENT = "gageDetailsChart._selectEvent"
 
 const Charts = (props: ChartsProps) => {
   const { options } = props
@@ -104,6 +104,7 @@ const PickerSelector = ({
   historicEventId?: string | string[];
   onHistoricEventSelected: (historicEventId: string) => void
 }) => {
+  const { t } = useLocale()
   const eventId = Array.isArray(historicEventId) ? historicEventId[0] : historicEventId
 
   const width = isAndroid ? { width: 200 } : {}
@@ -115,7 +116,7 @@ const PickerSelector = ({
       onValueChange={onHistoricEventSelected}
       style={[$pickerStyle, width]}
     >
-      <Picker.Item label={SELECT_EVENT} value={SELECT_EVENT} />
+      <Picker.Item label={t(SELECT_EVENT)} value={SELECT_EVENT} />
       {floodEvents?.map((event, index) => (
         <Picker.Item key={event.id} label={event.eventName} value={event.id} />
       ))}
@@ -127,6 +128,7 @@ const PickerSelector = ({
 const HistoricEvents = observer(
   function HistoricEvents({ floodEvents = [] }: { floodEvents: FloodEvent[] }) {
     const router = useRouter()
+    const { t } = useLocale()
     const { historicEventId } = useLocalSearchParams()
     const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
@@ -215,6 +217,8 @@ const HistoricEvents = observer(
 /** Water level rate of change */
 const RateOfChange = observer(
   function RateOfChange({ gage }: { gage: Gage }) {
+    const { t } = useLocale()
+
     if (!gage?.locationId) return null;
 
     // set rate of change
@@ -269,6 +273,8 @@ const RateOfChange = observer(
 /** Crest Info */
 const CrestInfo = observer(
   function CrestInfo({ crest }: { crest: DataPoint }) {
+    const { t } = useLocale()
+
     if (!crest) return null
     
     return (
@@ -285,8 +291,9 @@ const CrestInfo = observer(
 export const GageDetailsChart = observer(
   function GageDetailsChart(props: GageDetailsChartProps) {
     const { gage } = props
-
+    
     const router = useRouter()
+    const { t } = useLocale()
     const { from, to } = useLocalSearchParams()
     const { gagesStore, isDataFetched } = useStores();
 
@@ -384,7 +391,7 @@ export const GageDetailsChart = observer(
           <If condition={gage?.locationInfo?.hasDischarge}>
             <SegmentControl
               bottom={Spacing.small}
-              segments={CHART_DATA_TYPES}
+              segments={CHART_DATA_TYPES(t)}
               selectedSegment={chartDataType}
               onChange={onChartDataTypeChange}
             />
@@ -394,7 +401,7 @@ export const GageDetailsChart = observer(
             <Cell flex>
               <SegmentControl
                 bottom={Spacing.zero}
-                segments={RANGES}
+                segments={RANGES(t)}
                 selectedSegment={rangeOption}
                 onChange={onRangeChange}
                 />
@@ -420,7 +427,7 @@ export const GageDetailsChart = observer(
           </Row>
         </CardHeader>
         <Ternary condition={!Object.keys(chartOptions).length}>
-          <Cell flex>
+          <Cell height={320} flex>
             <ActivityIndicator animating />
           </Cell>
           <Charts options={chartOptions} />

@@ -16,6 +16,7 @@ import { useRouter } from "expo-router"
 import { ROUTES } from "app/_layout"
 import { useValidations } from "@utils/useValidations"
 import Config from "@config/config"
+import { useLocale } from "@common-ui/contexts/LocaleContext"
 
 export type PasswordSubmitActionProps = {
   oldPassword: string
@@ -36,6 +37,7 @@ const ChangePasswordForm = observer(
     const { description, errorMessage, successMessage, showOldPasswordForm, submitAction, submitActionText } = props
 
     const router = useRouter()
+    const { t } = useLocale();
     const { authSessionStore } = useStores()
 
     const [oldPassword, setCurrentPassword] = useState("")
@@ -64,12 +66,12 @@ const ChangePasswordForm = observer(
 
       // Validate Password
       if (newPassword && newPassword.length < Config.PASSWORD_MIN_LENGTH) {
-        setPasswordError(`Password must be at least ${Config.PASSWORD_MIN_LENGTH} characters`)
+        setPasswordError(t("validations.passwordLength", { length: Config.PASSWORD_MIN_LENGTH }))
       }
 
       // Validate Password Confirmation
       if (newPassword && confirmPassword && confirmPassword !== newPassword) {
-        setPasswordError("Passwords do not match")
+        setPasswordError(t("validations.passwordsDontMatch"))
       }
     }, [oldPassword, newPassword, confirmPassword, showOldPasswordForm])
 
@@ -97,13 +99,13 @@ const ChangePasswordForm = observer(
           <If condition={showOldPasswordForm}>
             <RowOrCell vertical={Spacing.small}>
               <Cell flex={1}>
-                <MediumText>Current Password:</MediumText>
+                <MediumText>{t("changePasswordForm.currentPassword")}:</MediumText>
               </Cell>
               <Cell flex={4}>
                 <Input
                   value=""
                   secureTextEntry
-                  placeholder="Current Password"
+                  placeholder={t("changePasswordForm.currentPassword")}
                   onChangeText={setCurrentPassword}
                 />
               </Cell>
@@ -111,26 +113,26 @@ const ChangePasswordForm = observer(
           </If>
           <RowOrCell vertical={Spacing.small}>
             <Cell flex={1}>
-              <MediumText>New Password:</MediumText>
+              <MediumText>{t("changePasswordForm.newPassword")}:</MediumText>
             </Cell>
             <Cell flex={4}>
               <Input
                 value=""
                 secureTextEntry
-                placeholder="New Password"
+                placeholder={t("changePasswordForm.newPassword")}
                 onChangeText={setNewPassword}
               />
             </Cell>
           </RowOrCell>
           <RowOrCell vertical={Spacing.small}>
             <Cell flex={1}>
-              <MediumText>Confirm Password:</MediumText>
+              <MediumText>{t("changePasswordForm.confirmPassword")}:</MediumText>
             </Cell>
             <Cell flex={4}>
               <Input
                 value=""
                 secureTextEntry
-                placeholder="Confirm Password"
+                placeholder={t("changePasswordForm.confirmPassword")}
                 onChangeText={setConfirmPassword}
               />
             </Cell>
@@ -142,7 +144,7 @@ const ChangePasswordForm = observer(
             <SuccessMessage successText={successMessage} />
             <LinkButton
               selfAlign="center"
-              title="Click here to proceed to Floodzilla"
+              title={t("changePasswordForm.proceed")}
               onPress={goToHomeScreen}
             />
           </If>

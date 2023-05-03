@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react"
 import { ErrorBoundaryProps, Stack, useRouter } from "expo-router"
-import { t } from "@i18n/translate"
 
 import { Screen, Content } from "@common-ui/components/Screen"
 import { MediumText } from "@common-ui/components/Text"
@@ -17,6 +16,7 @@ import { useStores } from "@models/helpers/useStores"
 import { If } from "@common-ui/components/Conditional"
 import ErrorMessage from "@common-ui/components/ErrorMessage"
 import { useValidations } from "@utils/useValidations"
+import { useLocale } from "@common-ui/contexts/LocaleContext"
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -26,6 +26,7 @@ export function ErrorBoundary(props: ErrorBoundaryProps) {
 const ChangeEmailScreen = observer(
   function ChangeEmailScreen() {
     const router = useRouter()
+    const { t } = useLocale();
     const { authSessionStore } = useStores()
 
     const [email, setEmail] = useState("")
@@ -60,12 +61,13 @@ const ChangeEmailScreen = observer(
             <CardContent>
               <RowOrCell vertical={Spacing.small}>
                 <Cell flex={1}>
-                  <MediumText>New Email Address</MediumText>
+                  <MediumText>{t("changeemailScreen.newEmailAddress")}</MediumText>
                 </Cell>
                 <Cell flex={5}>
                   <Input
                     value=""
-                    placeholder="Enter your email"
+                    keyboardType="email-address"
+                    placeholder={t("changeemailScreen.enterEmail")}
                     onChangeText={setEmail}
                   />
                 </Cell>
@@ -78,7 +80,7 @@ const ChangeEmailScreen = observer(
                   isLoading={authSessionStore.isFetching}
                   minWidth={Spacing.extraExtraHuge}
                   selfAlign="center"
-                  title="Update"
+                  title={t("changeemailScreen.button")}
                   onPress={submit}
                 />
               </Row>

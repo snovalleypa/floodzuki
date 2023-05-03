@@ -6,8 +6,8 @@ import { GageSummary } from "@models/RootStore";
 import { useStores } from "@models/helpers/useStores";
 import { Forecast } from "@models/Forecasts";
 
-import { t } from "@i18n/translate";
 import { Colors } from "@common-ui/constants/colors";
+import { useLocale } from "@common-ui/contexts/LocaleContext";
 
 const STAGE_TWO_YAXIS_MARGIN = 500;
 
@@ -42,7 +42,7 @@ const getFloodStageLabel = (forecast: Forecast, isCombinedForecast: boolean) => 
     }
 }
 
-const buildSeries = (forecasts: Forecast[], gages: GageSummary[]) => {
+const buildSeries = (forecasts: Forecast[], gages: GageSummary[], t) => {
   const series = []
 
   forecasts.forEach((forecast) => {
@@ -118,7 +118,7 @@ const buildSeries = (forecasts: Forecast[], gages: GageSummary[]) => {
   return series
 }
 
-const buildOptions = (props: BuildOptionsProps) => {
+const buildOptions = (props: BuildOptionsProps, t) => {
   const {
     daysBefore,
     daysAfter,
@@ -241,13 +241,14 @@ const buildOptions = (props: BuildOptionsProps) => {
         text: `${t("forecastChart.discharge")} (${t("measure.cfs")})`,
       },
     },
-    series: buildSeries(forecasts, gages)
+    series: buildSeries(forecasts, gages, t)
   }
 
   return options
 }
 
 const useForecastOptions = (gages: GageSummary[], daysBefore: number, daysAfter: number) => {
+  const { t } = useLocale()
   const rootStore = useStores()
 
   const gageIds = gages.map(gage => gage?.id)
@@ -262,7 +263,7 @@ const useForecastOptions = (gages: GageSummary[], daysBefore: number, daysAfter:
       forecasts,
       gages,
       timezone: rootStore.getTimezone()
-    }))
+    }, t))
   }, [gages, daysBefore, daysAfter])
 
   return options

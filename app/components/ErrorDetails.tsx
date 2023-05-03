@@ -6,9 +6,11 @@ import { HugeTitle, LargeTitle, MediumText } from "@common-ui/components/Text"
 import { SolidButton } from "@common-ui/components/Button"
 import { Cell } from "@common-ui/components/Common"
 import { Spacing } from "@common-ui/constants/spacing"
-import { t } from "@i18n/translate"
+import { useLocale } from "@common-ui/contexts/LocaleContext"
 
 export function ErrorDetails(props: ErrorBoundaryProps) {
+  const { t } = useLocale();
+  
   return (
     <Screen>
       <Cell left={Spacing.medium}>

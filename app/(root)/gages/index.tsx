@@ -2,7 +2,6 @@ import React, { useEffect } from "react"
 import { ViewStyle, FlatList, TouchableOpacity, useWindowDimensions } from "react-native"
 import { ErrorBoundaryProps, Stack, useRouter } from "expo-router"
 import { observer } from "mobx-react-lite"
-import { t } from "@i18n/translate"
 
 import { Screen } from "@common-ui/components/Screen"
 import { ErrorDetails } from "@components/ErrorDetails"
@@ -17,7 +16,7 @@ import { If, Ternary } from "@common-ui/components/Conditional"
 import { isWeb, useResponsive } from "@common-ui/utils/responsive"
 import { Gage, STATUSES } from "@models/Gage"
 
-import { formatFlow, formatHeight } from "@utils/utils"
+import { useUtils } from "@utils/utils"
 import { formatReadingTime } from "@utils/useTimeFormat"
 import { ROUTES } from "app/_layout"
 import TrendIcon, { levelTrendIconName } from "@components/TrendIcon"
@@ -27,6 +26,7 @@ import { GageChart } from "@components/GageChart"
 import GageMap from "@components/GageMap";
 import GageListItemChart from "@components/GageListItemChart";
 import WebFooter from "@components/WebFooter"
+import { useLocale } from "@common-ui/contexts/LocaleContext"
 
 const ITEM_HEIGHT = 200
 const MAP_WIDTH = 400
@@ -42,6 +42,8 @@ interface GageItemProps {
 }
 
 const GageStatus = observer(({ gage }: { gage: Gage }) => {
+  const { t } = useLocale();
+
   return (
     <LargeLabel
       type={STATUSES[gage?.gageStatus?.floodLevel]}
@@ -53,6 +55,7 @@ const GageItem = observer(
   function GageItem({ item }: GageItemProps) {
     const router = useRouter();
     const { isMobile } = useResponsive()
+    const { formatFlow, formatHeight } = useUtils()
 
     const gage = item
 
@@ -148,6 +151,7 @@ const getItemLayout = (data: Gage[], index: number) => ({
 const HomeScreen = observer(
   function HomeScreen() {
     const { gagesStore, getLocationsWithGages } = useStores()
+    const { t } = useLocale();
     const { isMobile } = useResponsive()
 
     const { height } = useWindowDimensions()
@@ -163,7 +167,7 @@ const HomeScreen = observer(
 
     const locations = getLocationsWithGages()
 
-    const mapCardHeight = height - HEADER_HEIGHT - Spacing.small
+    const mapCardHeight = height - HEADER_HEIGHT - Spacing.button
 
     return (
       <Screen>
@@ -181,7 +185,7 @@ const HomeScreen = observer(
               <GageMap gages={locations} />
             </Card>
           </If>
-          <Cell flex height={isMobile ? "100%" : height}>
+          <Cell flex height={isMobile ? "100%" : mapCardHeight + Spacing.small}>
             <FlatList
               contentContainerStyle={$listStyles}
               data={locations}

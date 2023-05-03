@@ -1,17 +1,15 @@
-import React, { useState } from "react"
+import React from "react"
 import { ErrorBoundaryProps, Stack, useNavigation, useRouter } from "expo-router"
-import { t } from "@i18n/translate"
 
 import { Screen, Content } from "@common-ui/components/Screen"
-import { RegularText } from "@common-ui/components/Text"
 import { ErrorDetails } from "@components/ErrorDetails"
 import TitleWithBackButton from "@components/TitleWithBackButton"
 import { observer } from "mobx-react-lite"
-import { Card } from "@common-ui/components/Card"
 import { useStores } from "@models/helpers/useStores"
 import { ROUTES } from "app/_layout"
 import ChangePasswordForm, { PasswordSubmitActionProps } from "@components/ChangePasswordForm"
 import { Spacing } from "@common-ui/constants/spacing"
+import { useLocale } from "@common-ui/contexts/LocaleContext"
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -24,6 +22,7 @@ const CreatePasswordScreen = observer(
     const navigation = useNavigation()
 
     const { authSessionStore } = useStores()
+    const { t } = useLocale();
 
     const onSubmit = async (params: PasswordSubmitActionProps) => {
       await authSessionStore.createPassword({
@@ -50,9 +49,9 @@ const CreatePasswordScreen = observer(
         />
         <Content maxWidth={Spacing.tabletWidth} scrollable>
           <ChangePasswordForm
-            description="In order to change your email address, you must first create a password for your Floodzilla account."
+            description={t("createpasswordScreen.title")}
             submitAction={onSubmit}
-            submitActionText="Update"
+            submitActionText={t("createpasswordScreen.submit")}
             errorMessage={authSessionStore.errorMessage}
           />
         </Content>

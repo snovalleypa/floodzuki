@@ -1,6 +1,5 @@
 import React, { useState } from "react"
 import { ErrorBoundaryProps, Stack, useNavigation, useRouter } from "expo-router"
-import { t } from "@i18n/translate"
 
 import { Screen, Content } from "@common-ui/components/Screen"
 import { ErrorDetails } from "@components/ErrorDetails"
@@ -10,6 +9,7 @@ import { useStores } from "@models/helpers/useStores"
 import { ROUTES } from "app/_layout"
 import ChangePasswordForm, { PasswordSubmitActionProps } from "@components/ChangePasswordForm"
 import { Spacing } from "@common-ui/constants/spacing"
+import { useLocale } from "@common-ui/contexts/LocaleContext"
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -20,6 +20,7 @@ const SetPasswordScreen = observer(
   function SetPasswordScreen() {
     const router = useRouter()
     const navigation = useNavigation()
+    const { t } = useLocale();
 
     const { authSessionStore } = useStores()
 
@@ -32,7 +33,7 @@ const SetPasswordScreen = observer(
 
       if (authSessionStore.isError) return
       
-      setSuccessMessage("Done!")
+      setSuccessMessage(t("setpasswordScreen.successMessage"))
     }
 
     const goBack = () => {
@@ -52,7 +53,7 @@ const SetPasswordScreen = observer(
           <ChangePasswordForm
             showOldPasswordForm
             submitAction={onSubmit}
-            submitActionText="Update"
+            submitActionText={t("setpasswordScreen.submit")}
             successMessage={successMessage}
             errorMessage={authSessionStore.errorMessage}
           />

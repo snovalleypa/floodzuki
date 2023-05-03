@@ -1,9 +1,8 @@
 import React, { useEffect } from "react";
-import { Pressable } from "react-native";
-import { usePathname, Slot, Link } from "expo-router";
+import { Pressable, TouchableOpacity } from "react-native";
+import { usePathname, useRouter, Slot, Link } from "expo-router";
 import Head from "expo-router/head";
 import { Image } from "expo-image";
-import { t } from "@i18n/translate";
 
 import '@expo/match-media';
 
@@ -21,6 +20,8 @@ import { openLinkInBrowser } from "@utils/navigation";
 import { useAppAssets } from "@common-ui/contexts/AssetsContext";
 import { useRegisterPushNotificationsListener } from "@services/pushNotifications";
 import { useCheckForUpdates } from "@services/expoUpdates";
+import { useLocale } from "@common-ui/contexts/LocaleContext";
+import LocaleChange from "@components/LocaleChange";
 
 // Main App Layout
 export default function AppLayout() {
@@ -79,7 +80,12 @@ export default function AppLayout() {
 
 function HeaderLink({ href, children }) {
   const pathname = usePathname();
+  const router = useRouter();
   const { isMobile } = useResponsive();
+
+  const handlePress = () => {
+    router.push({ pathname: href })
+  }
 
   const isActive = pathname.includes(href);
   const $color = isActive ? Colors.primary : Colors.lightDark
@@ -88,43 +94,45 @@ function HeaderLink({ href, children }) {
   const spacing = isMobile ? Spacing.small : Spacing.large
 
   return (
-    <Link asChild href={href}>
-      <Pressable>
-        {({ pressed, hovered }) => (
-          <Cell horizontal={spacing}>
-            <Title
-              color={hovered ? Colors.primary : $color}
-            >
-              {children}
-            </Title>
-          </Cell>
-        )}
-      </Pressable>
-    </Link>
+    <Pressable onPress={handlePress}>
+      {({ pressed, hovered }) => (
+        <Cell horizontal={spacing}>
+          <Title color={hovered ? Colors.primary : $color}>
+            {children}
+          </Title>
+        </Cell>
+      )}
+    </Pressable>
   );
 }
 
 function FooterLink({ route, children }: { route: MainRoute, children: string }) {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handlePress = () => {
+    router.push({ pathname: route.path })
+  }
 
   const isActive = pathname.includes(route.path);
   const $color = isActive ? Colors.primary : Colors.darkGrey
 
   return (
-    <Link href={route.path}>
+    <TouchableOpacity onPress={handlePress}>
       <Cell align="center">
         <Icon name={route?.icon} color={$color} />
         <LabelText color={$color}>
           {children}
         </LabelText>
       </Cell>
-    </Link>
+    </TouchableOpacity>
   );
 }
 
 function Header() {
   const { isMobile } = useResponsive();
   const { getAsset } = useAppAssets();
+  const { t } = useLocale();
 
   const openSVPA = () => {
     openLinkInBrowser("https://svpa.us/floodzilla-gage-network/")
@@ -159,12 +167,14 @@ function Header() {
         <Row flex align="center" right={Spacing.mediumXL}>
           {Object.values(routes).map(route => (
             <HeaderLink key={route.path} href={route.path}>
-              {route.title}
+              {t(route.title)}
             </HeaderLink>
           ))}
         </Row>
         <If condition={!isMobile}>
-          <Cell flex />
+          <Cell flex align="flex-end" right={Spacing.medium}>
+            <LocaleChange />
+          </Cell>
         </If>
       </Row>
       <Separator size={Spacing.micro} />
@@ -174,6 +184,7 @@ function Header() {
 
 function TabBar() {
   const { bottom } = useSafeAreaInsets()
+  const { t } = useLocale();
 
   const $bottomOffset = bottom ? bottom : Spacing.medium
   
@@ -183,7 +194,7 @@ function TabBar() {
       <Row top={Spacing.medium} bottom={$bottomOffset} align="space-evenly" justify="center">
         {Object.values(routes).map(route => (
           <FooterLink key={route.path} route={route}>
-            {route.title}
+            {t(route.title)}
           </FooterLink>
         ))}
       </Row>

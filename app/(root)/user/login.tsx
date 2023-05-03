@@ -1,7 +1,6 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import React, { useEffect, useMemo, useRef, useState } from "react"
 import { ErrorBoundaryProps, Redirect, Stack, useRouter } from "expo-router"
 import { observer } from "mobx-react-lite"
-import { t } from "@i18n/translate"
 
 import { Screen, Content } from "@common-ui/components/Screen"
 import { MediumText, RegularText } from "@common-ui/components/Text"
@@ -20,6 +19,7 @@ import { If } from "@common-ui/components/Conditional"
 import ErrorMessage from "@common-ui/components/ErrorMessage"
 import { useValidations } from "@utils/useValidations"
 import GoogleSigninButton from "@components/GoogleSigninButton"
+import { useLocale } from "@common-ui/contexts/LocaleContext"
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -29,6 +29,7 @@ export function ErrorBoundary(props: ErrorBoundaryProps) {
 const LoginScreen = observer(
   function LoginScreen() {
     const router = useRouter()
+    const { t } = useLocale();
     const { authSessionStore } = useStores()
 
     const recaptcha = useRef(null)
@@ -109,17 +110,18 @@ const LoginScreen = observer(
             <CardContent>
               <CardHeader>
                 <RegularText align="center">
-                  Log In or Create Account to receive flooding notifications and other updates.
+                  {t("loginScreen.title")}
                 </RegularText>
               </CardHeader>
               <RowOrCell bottom={Spacing.small} top={Spacing.medium}>
                 <Cell flex={1}>
-                  <MediumText>Email</MediumText>
+                  <MediumText>{t("loginScreen.email")}</MediumText>
                 </Cell>
                 <Cell flex={5}>
                   <Input
                     value=""
-                    placeholder="Enter your email"
+                    keyboardType="email-address"
+                    placeholder={t("loginScreen.emailPlaceholder")}
                     onChangeText={setEmail}
                   />
                 </Cell>
@@ -127,13 +129,13 @@ const LoginScreen = observer(
               <Cell>
                 <RowOrCell bottom={Spacing.small}>
                   <Cell flex={1}>
-                    <MediumText>Password</MediumText>
+                    <MediumText>{t("loginScreen.password")}</MediumText>
                   </Cell>
                   <Cell flex={5}>
                     <Input
                       value=""
                       secureTextEntry
-                      placeholder="Enter your password"
+                      placeholder={t("loginScreen.passwordPlaceholder")}
                       onChangeText={setPassword}
                     />
                   </Cell>
@@ -141,13 +143,13 @@ const LoginScreen = observer(
                 <LinkButton
                   disabled={authSessionStore.isFetching}
                   selfAlign="center"
-                  title="Forgot password?"
+                  title={t("loginScreen.passwordForgot")}
                   onPress={forgotPassword}
                 />
               </Cell>
               <Cell top={Spacing.medium}>
                 <CheckBoxItem
-                  label={`Remember me`}
+                  label={t("loginScreen.rememberMe")}
                   value={rememberMe}
                   onChange={setRememberMe}
                 />
@@ -160,14 +162,14 @@ const LoginScreen = observer(
                   disabled={authSessionStore.isFetching}
                   minWidth={Spacing.extraExtraHuge}
                   selfAlign="center"
-                  title="Create Account"
+                  title={t("loginScreen.createAccount")}
                   onPress={createAccount}
                 />
                 <SolidButton
                   isLoading={authSessionStore.isFetching}
                   minWidth={Spacing.extraExtraHuge}
                   selfAlign="center"
-                  title="Login"
+                  title={t("loginScreen.login")}
                   onPress={submit}
                 />
               </Row>

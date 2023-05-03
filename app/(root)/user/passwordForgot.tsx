@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react"
 import { ErrorBoundaryProps, Stack, useRouter } from "expo-router"
-import { t } from "@i18n/translate"
 
 import { Screen, Content } from "@common-ui/components/Screen"
 import { MediumText, RegularText } from "@common-ui/components/Text"
@@ -18,6 +17,7 @@ import GoogleRecaptcha from "@components/GoogleRecaptcha"
 import { If } from "@common-ui/components/Conditional"
 import ErrorMessage from "@common-ui/components/ErrorMessage"
 import { useValidations } from "@utils/useValidations"
+import { useLocale } from "@common-ui/contexts/LocaleContext"
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -27,6 +27,7 @@ export function ErrorBoundary(props: ErrorBoundaryProps) {
 const PasswordForgotScreen = observer(
   function PasswordForgotScreen() {
     const router = useRouter()
+    const { t } = useLocale();
     const { authSessionStore } = useStores()
 
     const recaptcha = useRef(null)
@@ -76,8 +77,8 @@ const PasswordForgotScreen = observer(
     }
 
     const text = emailSent && !authSessionStore.isError ?
-      `An email has been sent to ${email} with a link to reset your password.\nIf there is no matching account no email will be sent.` :
-      "Enter your email address. We will send you a link to allow you to reset your password."
+      t("passwordforgotScreen.emailSent", { email }) :
+      t("passwordforgotScreen.description")
 
     return (
       <Screen>
@@ -99,12 +100,12 @@ const PasswordForgotScreen = observer(
               </RegularText>
               <RowOrCell vertical={Spacing.small}>
                 <Cell flex={1}>
-                  <MediumText>Email</MediumText>
+                  <MediumText>{t("passwordforgotScreen.email")}</MediumText>
                 </Cell>
                 <Cell flex={5}>
                   <Input
                     value=""
-                    placeholder="Enter your email"
+                    placeholder={t("passwordforgotScreen.emailPlaceholder")}
                     onChangeText={setEmail}
                   />
                 </Cell>
@@ -117,7 +118,7 @@ const PasswordForgotScreen = observer(
                   isLoading={authSessionStore.isFetching}
                   minWidth={Spacing.extraExtraHuge}
                   selfAlign="center"
-                  title="Send Email"
+                  title={t("passwordforgotScreen.submit")}
                   onPress={submit}
                 />
               </Row>

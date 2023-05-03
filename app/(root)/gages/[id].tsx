@@ -1,6 +1,5 @@
 import React from "react";
 import { TouchableOpacity } from "react-native";
-import { t } from "@i18n/translate";
 import { ErrorBoundaryProps, Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { observer } from "mobx-react-lite";
 
@@ -29,6 +28,7 @@ import Icon from "@common-ui/components/Icon";
 import { Card } from "@common-ui/components/Card";
 import EmptyComponent from "@common-ui/components/EmptyComponent";
 import GageMap from "@components/GageMap";
+import { useLocale } from "@common-ui/contexts/LocaleContext";
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -38,6 +38,7 @@ export function ErrorBoundary(props: ErrorBoundaryProps) {
 const UpstreamGageLink = observer(
   function UpstreamGageLink({ gage }: { gage: Gage }) {
     const { getUpstreamGageLocation } = useStores();
+    const { t } = useLocale();
     const { isMobile } = useResponsive();
     const router = useRouter();
 
@@ -70,6 +71,7 @@ const UpstreamGageLink = observer(
 const DownstreamGageLink = observer(
   function DownstreamGageLink({ gage }: { gage: Gage }) {
     const { getDownstreamGageLocation } = useStores();
+    const { t } = useLocale();
     const { isMobile } = useResponsive();
     const router = useRouter();
 
@@ -102,6 +104,7 @@ const DownstreamGageLink = observer(
 const GageDetailsScreen = observer(
   function GageDetailsScreen({ gage }: { gage: Gage }) {
     const router = useRouter();
+    const { t } = useLocale();
     
     const { id } = useLocalSearchParams();
     

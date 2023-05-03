@@ -1,5 +1,4 @@
 import React from "react"
-import { t } from "@i18n/translate"
 
 import { SimpleLinkButton } from "@common-ui/components/Button"
 import { Cell, Separator } from "@common-ui/components/Common"
@@ -8,8 +7,11 @@ import { Spacing } from "@common-ui/constants/spacing"
 
 import { openLinkInBrowser } from "@utils/navigation"
 import Config from "@config/config"
+import { useLocale } from "@common-ui/contexts/LocaleContext"
 
 const ForecastFooter = () => {
+  const { t } = useLocale()
+  
   const openNoaaSite = () => {
     openLinkInBrowser(Config.NOAA_URL)
   }

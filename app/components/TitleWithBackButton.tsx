@@ -7,8 +7,7 @@ import { LargeTitle } from "@common-ui/components/Text";
 import { Colors } from "@common-ui/constants/colors";
 import { Spacing } from "@common-ui/constants/spacing";
 import { useResponsive } from "@common-ui/utils/responsive";
-
-import { t } from "@i18n/translate";
+import { useLocale } from "@common-ui/contexts/LocaleContext";
 
 type TitleWithBackButtonProps = {
   title: string
@@ -23,6 +22,7 @@ const TitleWithBackButton = ({
   mobileEnabled = true,
   onPress
 }: TitleWithBackButtonProps) => {
+  const { t } = useLocale()
   const { isMobile } = useResponsive()
   
   return (

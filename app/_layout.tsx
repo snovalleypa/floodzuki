@@ -7,12 +7,11 @@ import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { customFontsToLoad } from "@common-ui/constants/typography";
 import { useInitialRootStore } from "@models/helpers/useStores";
 
-import "@i18n/i18n";
-import { t } from "@i18n/translate";
 import { DatePickerProvider } from "@common-ui/contexts/DatePickerContext";
 import { AssetsProvider } from "@common-ui/contexts/AssetsContext";
 import { isWeb } from "@common-ui/utils/responsive";
 import { GoogleAuthProvider } from "@common-ui/contexts/GoogleAuthContext";
+import { LocaleProvider } from "@common-ui/contexts/LocaleContext";
 
 /**
  * Root layout for Expo router (entry file for the app)
@@ -47,17 +46,17 @@ export const routes = {
   [ROUTES.Gages]: {
     path: ROUTES.Gages,
     icon: "activity",
-    title: t("navigation.homeScreen")
+    title: "navigation.homeScreen"
   },
   [ROUTES.Forecast]: {
     path: ROUTES.Forecast,
     icon: "trending-up",
-    title: t("navigation.forecastScreen")
+    title: "navigation.forecastScreen"
   },
   [ROUTES.UserAlerts]: {
     path: ROUTES.About,
     icon: "bell",
-    title: t("navigation.alertsScreen")
+    title: "navigation.alertsScreen"
   },
 } as const;
 
@@ -79,15 +78,17 @@ export default function AppLayout() {
 function App() {
   return (
     <SafeAreaProvider>
-      <BottomSheetModalProvider>
-        <DatePickerProvider>
-          <AssetsProvider>
-            <GoogleAuthProvider>
-              <Slot />
-            </GoogleAuthProvider>
-          </AssetsProvider>
-        </DatePickerProvider>
-      </BottomSheetModalProvider>
+      <LocaleProvider>
+        <BottomSheetModalProvider>
+          <DatePickerProvider>
+            <AssetsProvider>
+              <GoogleAuthProvider>
+                  <Slot />
+              </GoogleAuthProvider>
+            </AssetsProvider>
+          </DatePickerProvider>
+        </BottomSheetModalProvider>
+      </LocaleProvider>
     </SafeAreaProvider>
   )
 }

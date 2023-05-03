@@ -12,16 +12,19 @@ import localDayJs from "@services/localDayJs";
 import { If } from "@common-ui/components/Conditional";
 import { useStores } from "@models/helpers/useStores";
 import { formatReadingTime } from "@utils/useTimeFormat";
-import { formatFlow, formatHeight, formatTrend, isNullish } from "@utils/utils";
+import { useUtils, isNullish } from "@utils/utils";
 import { LargeLabel } from "@common-ui/components/Label";
 import TrendIcon, { levelTrendIconName } from "@components/TrendIcon";
 import { Spacing } from "@common-ui/constants/spacing";
-import { t } from "@i18n/translate";
+import { useLocale } from "@common-ui/contexts/LocaleContext";
 
 const CalloutReading = observer(
   function CalloutReadingCard({ gage }: { gage: Gage }) {
     const { gagesStore } = useStores()
+    const { t } = useLocale();
     const { from, to } = useLocalSearchParams()
+
+    const { formatFlow, formatHeight, formatTrend } = useUtils()
 
     const isNow = !!from && !!to ? to === localDayJs().format("YYYY-MM-DD") : true
     
@@ -87,7 +90,7 @@ const CalloutReading = observer(
               <RegularText>{t("calloutReading.road")}</RegularText>
               <MediumText>
                 {roadStatus?.deltaFormatted}{" "}
-                {roadStatus?.preposition}{t("calloutReading.roadSmall")}
+                {t(`statusLevelsCard.${roadStatus?.preposition}`)}{t("calloutReading.roadSmall")}
               </MediumText>
             </CardItem>
           </If>

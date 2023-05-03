@@ -11,7 +11,7 @@ import { useStores } from "@models/helpers/useStores";
 import { GageSummary } from "@models/RootStore";
 
 import { formatDateTime } from "@utils/useTimeFormat";
-import { formatFlow, formatFlowTrend, formatHeight } from "@utils/utils";
+import { useUtils } from "@utils/utils";
 import { Spacing } from "@common-ui/constants/spacing";
 import { Colors } from "@common-ui/constants/colors";
 import { useRouter } from "expo-router";
@@ -19,9 +19,9 @@ import { ROUTES } from "app/_layout";
 import { useTimeout } from "@utils/useTimeout";
 import { Timing } from "@common-ui/constants/timing";
 import { isMobile, useResponsive } from "@common-ui/utils/responsive";
-import { t } from "@i18n/translate";
 import { IconButton, LinkButton } from "@common-ui/components/Button";
 import { openLinkInBrowser } from "@utils/navigation";
+import { useLocale } from "@common-ui/contexts/LocaleContext";
 
 interface GageSummaryProps {
   gage: GageSummary
@@ -31,6 +31,8 @@ interface GageSummaryProps {
 
 function ReadingRow(props: { reading?: DataPoint, delta?: number }) {
   const { reading, delta } = props
+
+  const { formatFlow, formatFlowTrend, formatHeight } = useUtils()
 
   if (!reading) {
     return null
@@ -60,6 +62,7 @@ function ReadingRow(props: { reading?: DataPoint, delta?: number }) {
 
 const MaxReading = observer(
   function MaxReading(props: { forecast: Forecast }) {
+    const { t } = useLocale()
     const { forecast } = props
 
     return (
@@ -77,6 +80,7 @@ export const GageSummaryCard = observer(
   function GageSummaryCard(props: GageSummaryProps) {
     const { gage, firstItem, noDetails } = props
 
+    const { t } = useLocale()
     const { forecastsStore } = useStores()
     const { isWideScreen } = useResponsive()
     const router = useRouter()
@@ -175,6 +179,7 @@ export const ExtendedGageSummaryCard = observer(
   function ExtendedGageSummaryCard(props: GageSummaryProps) {
     const { gage } = props
 
+    const { t } = useLocale()
     const { isMobile } = useResponsive()
     const { forecastsStore } = useStores()
 

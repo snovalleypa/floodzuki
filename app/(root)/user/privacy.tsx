@@ -1,6 +1,5 @@
 import React from "react"
 import { ErrorBoundaryProps, Stack, useRouter } from "expo-router"
-import { t } from "@i18n/translate"
 
 import { Screen, Content } from "@common-ui/components/Screen"
 import { HugeTitle, MediumTitle, RegularText } from "@common-ui/components/Text"
@@ -12,6 +11,7 @@ import { Spacing } from "@common-ui/constants/spacing"
 import { isMobile } from "@common-ui/utils/responsive"
 import { If } from "@common-ui/components/Conditional"
 import { ROUTES } from "app/_layout"
+import { useLocale } from "@common-ui/contexts/LocaleContext"
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -32,6 +32,7 @@ export const FloodzillaLink = () => {
 
 const PrivacyPolicyScreen = () => {
   const router = useRouter();
+  const { t } = useLocale();
   
   const goBack = () => {
     router.push({ pathname: ROUTES.About })

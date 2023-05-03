@@ -8,6 +8,7 @@ import { Pressable, View, ViewStyle } from "react-native"
 import { Spacing } from "@common-ui/constants/spacing"
 import { Cell } from "./Common"
 import localDayJs from "@services/localDayJs"
+import { useLocale } from "@common-ui/contexts/LocaleContext"
 
 type DateRangePickerProps = {
   startDate: Dayjs
@@ -27,6 +28,8 @@ const DateRangePicker = (props: DateRangePickerProps) => {
     maxYear = new Date().getFullYear(),
     onChange,
   } = props
+
+  const { t } = useLocale()
 
   const startRef = useRef(null)
   const endRef = useRef(null)
@@ -90,7 +93,7 @@ const DateRangePicker = (props: DateRangePickerProps) => {
     <Pressable style={$viewStyle} onPress={openDateSelector}>
       <Icon name="calendar" color={Colors.darkGrey} size={Spacing.medium} right={Spacing.extraSmall} />
       <DatePicker
-        title="Start Date"
+        title={t("datePicker.startDate")}
         ref={startRef}
         selectedDate={start.current}
         minYear={minYear}
@@ -101,7 +104,7 @@ const DateRangePicker = (props: DateRangePickerProps) => {
         <RegularText>-</RegularText>
       </Cell>
       <DatePicker
-        title="End Date"
+        title={t("datePicker.startDate")}
         ref={endRef}
         selectedDate={end.current}
         minYear={minYear}

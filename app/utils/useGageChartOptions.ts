@@ -1,17 +1,15 @@
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import dayjs from "dayjs"
 
 import { Gage, GageChartDataType } from "@models/Gage"
 import { useTimeout } from "./useTimeout"
-import { isMobile } from "@common-ui/utils/responsive"
-import { Timing } from "@common-ui/constants/timing"
 import { useStores } from "@models/helpers/useStores"
 
 import localDayJs from "@services/localDayJs"
-import { t } from "@i18n/translate"
 import Config from "@config/config"
 import { Colors } from "@common-ui/constants/colors"
 import { DataPoint } from "@models/Forecasts"
+import { useLocale } from "@common-ui/contexts/LocaleContext"
 
 interface Range {
   chartStartDate: dayjs.Dayjs
@@ -29,7 +27,7 @@ const DEBUGGING_TIMESPAN_MARGIN = 0; // 300;
 const PREDICTION_WINDOW_MINUTES = 60 * 6; // 6 hours of predictions
 
 const CHART_OPTIONS = {
-  dashboardOptions: (options: Highcharts.Options) => {
+  dashboardOptions: (options: Highcharts.Options, gage: Gage, range: Range, t) => {
     options.chart.height = 182;
     options.xAxis.labels = { enabled: false };
     options.xAxis.tickLength = 0;
@@ -72,7 +70,8 @@ const CHART_OPTIONS = {
   gageDetailsOptions: (
     options: Highcharts.Options,
     gage: Gage,
-    range?: Range
+    range: Range,
+    t
   ) => {
     let predictionWindow = 0;
     
@@ -103,7 +102,7 @@ const CHART_OPTIONS = {
       options.xAxis.plotLines.push(
         makePlotLine({
           value: crest.timestamp.valueOf(),
-          label: "Max " + crest.reading.toFixed(2) + " ft",
+          label: `${t("measure.max")} ${crest.reading.toFixed(2)} ${t("measure.ft")}`,
         })
       );
     }
@@ -162,7 +161,7 @@ function calculateCrest(
   return null;
 }  
 
-function dataPointPopup(gage: Gage) {
+function dataPointPopup(gage: Gage, t) {
   return function() {
     const roadStatus = gage.getCalculatedRoadStatus(this.y);
     
@@ -171,12 +170,12 @@ function dataPointPopup(gage: Gage) {
     if (roadStatus) {
       roadDesc = `<br />
         <span class="data-point-content">${roadStatus.deltaFormatted}</span>
-        <span class="data-point-title"> ${roadStatus.preposition} road</span>`;
+        <span class="data-point-title"> ${t(`statusLevelsCard.${roadStatus?.preposition}`)} ${t("calloutReading.roadSmall")}</span>`;
     }
     return ` <div class="data-point">
-        <span class="data-point-title">${this.point.isPrediction ? "Predicted" : "Water"} level: </span>
+        <span class="data-point-title">${this.point.isPrediction ? t("statusLevelsCard.predicted") : t("statusLevelsCard.water")} ${t("statusLevelsCard.level")}: </span>
         <span class="data-point-content">
-          ${this.y.toFixed(2)} ft.
+          ${this.y.toFixed(2)} ${t("measure.ft")}.
         </span>
         <br />
         <span class="data-point-content">
@@ -371,8 +370,8 @@ function createDataAndReturnMin(gage: Gage, chartDataType: GageChartDataType) {
   return [chartData, min] as const;
 }
 
-const buildBasicOptions = (props: BuildOptionsProps) => {
-  const { timezone, gage, chartDataType } = props
+const buildBasicOptions = (props: BuildOptionsProps, t) => {
+  const { gage, chartDataType } = props
 
   const options: Highcharts.Options = {
     chart: {
@@ -398,7 +397,7 @@ const buildBasicOptions = (props: BuildOptionsProps) => {
     },
     tooltip: {
       useHTML: true,
-      formatter: dataPointPopup(gage),
+      formatter: dataPointPopup(gage, t),
     },
     xAxis: {
       type: "datetime",
@@ -471,6 +470,7 @@ const useGageChartOptions = (
   range?: Range
 ) => {
   const rootStore = useStores()
+  const { t } = useLocale()
 
   const [isVisible, setIsVisible] = useState(false)
   const [options, setOptions] = useState<[Highcharts.Options, DataPoint]>([{}, null])
@@ -486,9 +486,10 @@ const useGageChartOptions = (
         timezone: rootStore.getTimezone(),
         gage,
         chartDataType,
-      }),
+      }, t),
       gage,
-      range
+      range,
+      t
     )
   }
 

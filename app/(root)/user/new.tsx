@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react"
 import { ErrorBoundaryProps, Redirect, Stack, useRouter } from "expo-router"
 import { observer } from "mobx-react-lite"
-import { t } from "@i18n/translate"
 
 import { Screen, Content } from "@common-ui/components/Screen"
 import { MediumText } from "@common-ui/components/Text"
@@ -20,6 +19,7 @@ import ErrorMessage from "@common-ui/components/ErrorMessage"
 import Config from "@config/config"
 import GoogleRecaptcha from "@components/GoogleRecaptcha"
 import GoogleSigninButton from "@components/GoogleSigninButton"
+import { useLocale } from "@common-ui/contexts/LocaleContext"
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -29,6 +29,7 @@ export function ErrorBoundary(props: ErrorBoundaryProps) {
 const NewScreen = observer(
   function NewScreen() {
     const router = useRouter()
+    const { t } = useLocale();
     const { authSessionStore } = useStores()
 
     const recaptcha = useRef(null)
@@ -55,13 +56,13 @@ const NewScreen = observer(
       // Validate Password
       if (password && password.length < Config.PASSWORD_MIN_LENGTH) {
         isValid = false
-        setValidationError(`Password must be at least ${Config.PASSWORD_MIN_LENGTH} characters`)
+        setValidationError(t("validations.passwordLength", { length: Config.PASSWORD_MIN_LENGTH }))
       }
 
       // Validate Password Confirmation
       if (password && passwordConfirmation && passwordConfirmation !== password) {
         isValid = false
-        setValidationError("Passwords do not match")
+        setValidationError(t("validations.passwordsDontMatch"))
       }
 
       // Validate Presence
@@ -136,37 +137,37 @@ const NewScreen = observer(
             <CardContent>
               <RowOrCell bottom={Spacing.small}>
                 <Cell flex={1}>
-                  <MediumText>First Name</MediumText>
+                  <MediumText>{t("newScreen.firstName")}</MediumText>
                 </Cell>
                 <Cell flex={5}>
                   <Input
                     value=""
-                    placeholder="Enter your First Name"
+                    placeholder={t("newScreen.firstNamePlaceholder")}
                     onChangeText={setFirstName}
                   />
                 </Cell>
               </RowOrCell>
               <RowOrCell bottom={Spacing.small}>
                 <Cell flex={1}>
-                  <MediumText>Last Name</MediumText>
+                  <MediumText>{t("newScreen.lastName")}</MediumText>
                 </Cell>
                 <Cell flex={5}>
                   <Input
                     value=""
-                    placeholder="Enter your Last Name"
+                    placeholder={t("newScreen.lastNamePlaceholder")}
                     onChangeText={setLastName}
                   />
                 </Cell>
               </RowOrCell>
               <RowOrCell bottom={Spacing.small}>
                 <Cell flex={1}>
-                  <MediumText>Email</MediumText>
+                  <MediumText>{t("newScreen.email")}</MediumText>
                 </Cell>
                 <Cell flex={5}>
                   <Input
                     value=""
                     keyboardType="email-address"
-                    placeholder="Enter your email"
+                    placeholder={t("newScreen.emailPlaceholder")}
                     onChangeText={setEmail}
                   />
                 </Cell>
@@ -174,13 +175,13 @@ const NewScreen = observer(
               <Cell>
                 <RowOrCell bottom={Spacing.small}>
                   <Cell flex={1}>
-                    <MediumText>Password</MediumText>
+                    <MediumText>{t("newScreen.password")}</MediumText>
                   </Cell>
                   <Cell flex={5}>
                     <Input
                       value=""
                       secureTextEntry
-                      placeholder="Enter your password"
+                      placeholder={t("newScreen.passwordPlaceholder")}
                       onChangeText={setPassword}
                     />
                   </Cell>
@@ -189,13 +190,13 @@ const NewScreen = observer(
               <Cell>
                 <RowOrCell bottom={Spacing.small}>
                   <Cell flex={1}>
-                    <MediumText>Confirm Password</MediumText>
+                    <MediumText>{t("newScreen.confirmPassword")}</MediumText>
                   </Cell>
                   <Cell flex={5}>
                     <Input
                       value=""
                       secureTextEntry
-                      placeholder="Enter your password"
+                      placeholder={t("newScreen.confirmPasswordPlaceholder")}
                       onChangeText={setPasswordConfirmation}
                     />
                   </Cell>
@@ -203,7 +204,7 @@ const NewScreen = observer(
               </Cell>
               <Cell top={Spacing.medium}>
                 <CheckBoxItem
-                  label={`Remember me`}
+                  label={t("newScreen.rememberMe")}
                   value={rememberMe}
                   onChange={setRememberMe}
                 />
@@ -216,14 +217,14 @@ const NewScreen = observer(
                   disabled={authSessionStore.isFetching}
                   minWidth={Spacing.extraExtraHuge}
                   selfAlign="center"
-                  title="Login"
+                  title={t("newScreen.login")}
                   onPress={loginUser}
                 />
                 <SolidButton
                   isLoading={authSessionStore.isFetching}
                   minWidth={Spacing.extraExtraHuge}
                   selfAlign="center"
-                  title="Create Account"
+                  title={t("newScreen.createAccount")}
                   onPress={submit}
                 />
               </Row>

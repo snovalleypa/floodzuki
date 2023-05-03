@@ -56,7 +56,7 @@ export async function registerForPushNotificationsAsync(requestPermissions: bool
 
     token = (await Notifications.getExpoPushTokenAsync()).data;
   } else {
-    Alert.alert('Must use physical device for Push Notifications');
+    console.warn('Must use physical device for Push Notifications');
   }
 
   return token;
@@ -67,9 +67,9 @@ export function useRegisterPushNotificationsListener(requestPermissions: boolean
 
   const lastNotificationResponse = Notifications.useLastNotificationResponse();
 
-  registerForPushNotificationsAsync(requestPermissions);
-
   useEffect(() => {    
+    registerForPushNotificationsAsync(requestPermissions);
+    
     if (
       lastNotificationResponse &&
       lastNotificationResponse.notification?.request?.content?.data?.path &&

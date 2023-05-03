@@ -1,6 +1,5 @@
-import React, { useEffect, useMemo, useRef, useState } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 import { ErrorBoundaryProps, Redirect, Stack, useNavigation, useRouter } from "expo-router"
-import { t } from "@i18n/translate"
 
 import { Screen, Content } from "@common-ui/components/Screen"
 import { MediumText, RegularText } from "@common-ui/components/Text"
@@ -17,6 +16,7 @@ import { useStores } from "@models/helpers/useStores"
 import { If } from "@common-ui/components/Conditional"
 import ErrorMessage from "@common-ui/components/ErrorMessage"
 import { useValidations } from "@utils/useValidations"
+import { useLocale } from "@common-ui/contexts/LocaleContext"
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -27,6 +27,7 @@ const VerifyPhoneNumberScreen = observer(
   function VerifyPhoneNumberScreen() {
     const router = useRouter()
     const navigation = useNavigation()
+    const { t } = useLocale();
     
     const { authSessionStore } = useStores()
 
@@ -84,8 +85,8 @@ const VerifyPhoneNumberScreen = observer(
       t("navigation.verifyPhoneNnumberScreen")
 
     const sendButtonTitle = codeSent ?
-      "Resend Verification Code" :
-      "Send Verification Code"
+      t("verifyphonenumberScreen.resendVerification") :
+      t("verifyphonenumberScreen.sendVerification")
     
     return (
       <Screen>
@@ -99,14 +100,12 @@ const VerifyPhoneNumberScreen = observer(
             <CardContent>
               {/* Description */}
               <RegularText lineHeight={Spacing.large}>
-                Please enter a phone number where Floodzilla can
-                send SMS Alerts.  Floodzilla will send you an SMS
-                with a verification code.
+                {t("verifyphonenumberScreen.description")}
               </RegularText>
               {/* Phone Number */}
               <RowOrCell vertical={Spacing.small}>
                 <Cell flex={1}>
-                  <MediumText>Phone Number</MediumText>
+                  <MediumText>{t("verifyphonenumberScreen.phoneNumber")}</MediumText>
                 </Cell>
                 <Cell flex={5}>
                   <Input
@@ -134,17 +133,16 @@ const VerifyPhoneNumberScreen = observer(
               <If condition={codeSent}>
                 <Spacer />
                 <RegularText>
-                  A 6-digit verification code has been sent to {phone}.
-                  Please enter the code below.
+                  {t("verifyphonenumberScreen.confirmationText", { phoneNumber: phone })}
                 </RegularText>
                 <RowOrCell vertical={Spacing.small}>
                   <Cell flex={1}>
-                    <MediumText>Verification Code:</MediumText>
+                    <MediumText>{t("verifyphonenumberScreen.verificationCode")}</MediumText>
                   </Cell>
                   <Cell flex={5}>
                     <Input
                       value=""
-                      placeholder="Enter the verification code"
+                      placeholder={t("verifyphonenumberScreen.verificationCodePlaceholder")}
                       onChangeText={setCode}
                     />
                   </Cell>
@@ -155,7 +153,7 @@ const VerifyPhoneNumberScreen = observer(
                     isLoading={authSessionStore.isFetching}
                     minWidth={Spacing.extraExtraHuge}
                     selfAlign="center"
-                    title="Verify Phone Number"
+                    title={t("verifyphonenumberScreen.submit")}
                     onPress={submitCodeVerification}
                     type="blue"
                   />

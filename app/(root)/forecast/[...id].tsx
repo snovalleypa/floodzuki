@@ -1,5 +1,6 @@
 import React from "react"
 import { ErrorBoundaryProps, useSearchParams, Stack, useRouter } from "expo-router";
+import { observer } from "mobx-react-lite";
 
 import { Content, Screen } from "@common-ui/components/Screen"
 import { LargeTitle } from "@common-ui/components/Text"
@@ -10,7 +11,6 @@ import { Cell, Row } from "@common-ui/components/Common";
 import { Spacing } from "@common-ui/constants/spacing";
 
 import { useStores } from "@models/helpers/useStores";
-import { t } from "@i18n/translate";
 import { useResponsive } from "@common-ui/utils/responsive";
 import { IconButton, LinkButton } from "@common-ui/components/Button";
 import { Ternary } from "@common-ui/components/Conditional";
@@ -18,7 +18,7 @@ import { Colors } from "@common-ui/constants/colors";
 import { useTimeout } from "@utils/useTimeout";
 import { GageSummary } from "@models/RootStore";
 import { ROUTES } from "app/_layout";
-import { observer } from "mobx-react-lite";
+import { useLocale } from "@common-ui/contexts/LocaleContext";
 import ForecastFooter from "@components/ForecastFooter";
 
 // We use this to wrap each screen with an error boundary
@@ -29,6 +29,7 @@ export function ErrorBoundary(props: ErrorBoundaryProps) {
 const ForecastDetailsScreen = observer(
   function ForecastDetailsScreen() {
     const { id } = useSearchParams()
+    const { t } = useLocale();
     const router = useRouter()
     const store = useStores()
 

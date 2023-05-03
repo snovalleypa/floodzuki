@@ -59,7 +59,6 @@ export const MetagageModelStore = types
       const response = yield api.getMetagages<Metagage[]>()
 
       if (response.kind === "ok") {
-        console.log("Metagage response", response.data)
         store.metagages = (response.data || []).map(m => ({
           id: m.ids,
           ...m,

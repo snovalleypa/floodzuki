@@ -1,12 +1,14 @@
-import React, { useEffect, useRef, useState } from "react"
+import { useLocale } from "@common-ui/contexts/LocaleContext"
+import { useEffect, useState } from "react"
 
 const VALIDATIONS = {
-  presence: (fieldName: string, value: string) => {
-    return value.length > 0 ? true : `${fieldName} can't be blank`
+  presence: (fieldName: string, value: string, t) => {
+    return value.length > 0 ? true : t("validations.presence", { fieldName })
   }
 }
 
 export const useValidations = (values: Record<string, any>) => {
+  const { t } = useLocale()
   const [isValid, setIsValid] = useState(false)
   const [errors, setErrorMessages] = useState<string>()
 
@@ -18,7 +20,7 @@ export const useValidations = (values: Record<string, any>) => {
       const validation = VALIDATIONS.presence
 
       if (validation) {
-        const error = validation(key, value)
+        const error = validation(key, value, t)
 
         if (typeof error !== "boolean") {
           errors[key] = error

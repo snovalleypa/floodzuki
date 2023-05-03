@@ -1,7 +1,6 @@
 import React from "react"
 import { observer } from "mobx-react-lite";
 import { useRouter } from "expo-router";
-import { t } from "@i18n/translate";
 
 import { LinkButton } from "@common-ui/components/Button";
 import { Card, CardFooter, CardHeader, CardItem } from "@common-ui/components/Card";
@@ -10,11 +9,12 @@ import { If } from "@common-ui/components/Conditional";
 import { LargeLabel } from "@common-ui/components/Label";
 import { RegularText, SmallText, SmallTitle } from "@common-ui/components/Text";
 import { Gage } from "@models/Gage";
-import { formatHeight } from "@utils/utils";
+import { useUtils } from "@utils/utils";
 import { useStores } from "@models/helpers/useStores";
 import { ROUTES } from "app/_layout";
+import { useLocale } from "@common-ui/contexts/LocaleContext";
 
-const formatToRoadText = (diff: number) => {
+const formatToRoadText = (diff: number, t) => {
   if (Math.abs(diff) <.1) {
     return `(${t("statusLevelsCard.roadSaddle")} ${t("statusLevelsCard.level")})`;
   }
@@ -25,11 +25,11 @@ const StatusLevelsCard = observer(
   function StatusLevelsCard({ gage }: { gage: Gage }) {
     const router = useRouter()
     const { authSessionStore } = useStores()
+    const { formatHeight } = useUtils()
+    const { t } = useLocale()
 
     const isLoggedIn = authSessionStore.isLoggedIn
     const isSubscribed = isLoggedIn && authSessionStore.gageSubscriptions.includes(gage.locationId)
-
-    console.log("StatusLevelsCard", gage.locationId, authSessionStore.gageSubscriptions.toJSON())
 
     const handleManageLinkPress = () => {
       if (isSubscribed) {
@@ -69,7 +69,7 @@ const StatusLevelsCard = observer(
             <RegularText>
               {t("statusLevelsCard.atAndAbove")} {formatHeight(gage.yellowStage)}{"\n"}
               <If condition={!!gage.roadSaddleHeight}>
-                <SmallText>{formatToRoadText(gage.roadToYellowStage)}</SmallText>
+                <SmallText>{formatToRoadText(gage.roadToYellowStage, t)}</SmallText>
               </If>
             </RegularText>
           </CardItem>
@@ -78,7 +78,7 @@ const StatusLevelsCard = observer(
             <RegularText>
               {t("statusLevelsCard.atAndAbove")} {formatHeight(gage.redStage)}{"\n"}
               <If condition={!!gage.roadSaddleHeight}>
-                <SmallText>{formatToRoadText(gage.roadToRedStage)}</SmallText>
+                <SmallText>{formatToRoadText(gage.roadToRedStage, t)}</SmallText>
               </If>
             </RegularText>
           </CardItem>

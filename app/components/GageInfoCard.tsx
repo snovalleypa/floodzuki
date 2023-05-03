@@ -8,10 +8,12 @@ import { If } from "@common-ui/components/Conditional";
 import { MediumText, RegularText, SmallTitle } from "@common-ui/components/Text";
 import { Gage } from "@models/Gage";
 import { openLinkInBrowser } from "@utils/navigation";
-import { t } from "@i18n/translate";
+import { useLocale } from "@common-ui/contexts/LocaleContext";
 
 const GageInfoCard = observer(
   function GageInfoCard({ gage }: { gage: Gage }) {
+    const { t } = useLocale()
+
     const goToUSGSWebsite = () => {
       if (!gage.usgsInfo) return
       

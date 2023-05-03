@@ -13,6 +13,8 @@ import { applySnapshot, IDisposer, onSnapshot } from "mobx-state-tree"
 import type { RootStore } from "../RootStore"
 import * as storage from "@utils/storage"
 import { api } from "@services/api"
+import { changeLocale } from "@i18n/i18n"
+import localDayJs from "@services/localDayJs"
 
 /**
  * The key we'll be saving our state as within async storage.
@@ -41,9 +43,15 @@ export async function setupRootStore(rootStore: RootStore) {
 
     // Setup Auth Token
     // @ts-ignore
-    if (restoredState?.authSessionStore?.authToken) {
+    if (loadedState?.authSessionStore?.authToken) {
       // @ts-ignore
-      api.setHeader("Authorization", `Bearer ${restoredState.authSessionStore.authToken}`)
+      api.setHeader("Authorization", `Bearer ${loadedState.authSessionStore.authToken}`)
+    }
+
+    // Check the language
+    if (loadedState?.authSessionStore?.preferredLocale) {
+      changeLocale(loadedState.authSessionStore.preferredLocale)
+      localDayJs.locale(loadedState.authSessionStore.preferredLocale)
     }
 
     applySnapshot(rootStore, restoredState)

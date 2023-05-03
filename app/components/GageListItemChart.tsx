@@ -7,7 +7,7 @@ import * as d3 from "d3"
 import { Gage, GageChartDataType } from "@models/Gage"
 import { Colors } from "@common-ui/constants/colors"
 import { If } from "@common-ui/components/Conditional"
-import { t } from "@i18n/translate"
+import { useLocale } from "@common-ui/contexts/LocaleContext"
 
 const CHART_HEIGHT = 182
 const OFFSET_BOTTOM = 10
@@ -73,6 +73,7 @@ const useChartData = (gage: Gage, layout) => {
 
 const GageListItemChart = observer(
   function GageListItemChart({ gage }: { gage: Gage }) {
+    const { t } = useLocale()
     const [layout, setLayout] = useState({ width: 0, height: 182 })
 
     const handleLayout = (event) => {

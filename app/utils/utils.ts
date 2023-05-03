@@ -2,26 +2,37 @@
  * Generic formatting utils
  */
 
-import { t } from "@i18n/translate";
+import { useLocale } from "@common-ui/contexts/LocaleContext";
 
-export function formatHeight(height) {
-  return height?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ` ${t("measure.ft")}`;
-}
+export const useUtils = () => {
+  const { t } = useLocale();
 
-export function formatFlow(flow) {
-  return flow?.toLocaleString(undefined, { maximumFractionDigits: 0 }) + ` ${t("measure.cfs")}`;
-}
-
-export function formatTrend(trend) {
-  return trend?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ` ${t("measure.ft")}/${t("measure.hr")}`;
-}
-
-export function formatFlowTrend(trend) {
-  let fmtTrend = trend?.toLocaleString(undefined, { maximumFractionDigits: 0 })
-  if (trend > 0) {
-    fmtTrend = "+" + fmtTrend
+  function formatHeight(height) {
+    return height?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ` ${t("measure.ft")}`;
   }
-  return fmtTrend + ` ${t("measure.ft")}/${t("measure.hr")}`;
+  
+  function formatFlow(flow) {
+    return flow?.toLocaleString(undefined, { maximumFractionDigits: 0 }) + ` ${t("measure.cfs")}`;
+  }
+  
+  function formatTrend(trend) {
+    return trend?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ` ${t("measure.ft")}/${t("measure.hr")}`;
+  }
+  
+  function formatFlowTrend(trend) {
+    let fmtTrend = trend?.toLocaleString(undefined, { maximumFractionDigits: 0 })
+    if (trend > 0) {
+      fmtTrend = "+" + fmtTrend
+    }
+    return fmtTrend + ` ${t("measure.ft")}/${t("measure.hr")}`;
+  }
+  
+  return {
+    formatHeight,
+    formatFlow,
+    formatTrend,
+    formatFlowTrend,
+  } as const
 }
 
 export function isNullish(value) {

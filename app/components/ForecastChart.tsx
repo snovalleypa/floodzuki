@@ -13,9 +13,9 @@ import { Spacing } from "@common-ui/constants/spacing";
 
 import useForecastOptions from "@utils/useForecastOptions";
 import { Cell } from "@common-ui/components/Common";
-import { t } from "@i18n/translate";
 import { SegmentControl } from "@common-ui/components/SegmentControl";
 import { useStores } from "@models/helpers/useStores";
+import { useLocale } from "@common-ui/contexts/LocaleContext";
 
 interface ForecastChartProps {
   gages: GageSummary[]
@@ -25,7 +25,7 @@ interface ChartsProps {
   options: Highcharts.Options
 }
 
-const RANGES = [
+const RANGES = (t) => [
   {
     key: 'DF',
     title: t("forecastChart.fullRangeTitle"),
@@ -77,18 +77,19 @@ const Charts = (props: ChartsProps) => {
 export const ForecastChart = observer(
   function ForecastChart(props: ForecastChartProps) {
     const { forecastsStore } = useStores()
+    const { t } = useLocale();
     const { gages } = props
 
     const [range, setRange] = useState('DF')
     
-    const selectedRange = RANGES.find(r => r.key === range)
+    const selectedRange = RANGES(t).find(r => r.key === range)
 
     const chartOptions = useForecastOptions(gages, selectedRange.before, selectedRange.after)
 
     return (
       <>
         <SegmentControl
-          segments={RANGES}
+          segments={RANGES(t)}
           selectedSegment={range}
           onChange={setRange}
         />

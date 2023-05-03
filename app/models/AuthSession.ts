@@ -6,6 +6,7 @@ import { ChangeEmailParams, CreateAccountParams, CreatePasswordParams, ForgotPas
 import { registerForPushNotificationsAsync } from "@services/pushNotifications"
 import { Platform } from "react-native"
 import { unregisterForNotificationsAsync } from "expo-notifications"
+import { i18n } from "@i18n/i18n"
 
 // AuthSession
 
@@ -70,11 +71,17 @@ export const AuthSessionStoreModel = types
     gageSubscriptions: types.optional(types.array(types.string), []),
     isPushNotificationsEnabled: types.optional(types.boolean, false),
     pushToken: types.maybe(types.string),
+    locale: types.optional(types.string, i18n.locale), // Locale that we get from device
+    preferredLocale: types.optional(types.string, ""), // Locale that user selected
     ...dataFetchingProps
   })
   .actions(withDataFetchingActions)
   .actions(withSetPropAction)
   .views(store => ({
+    get userLocale() {
+      return store.preferredLocale || store.locale
+    },
+
     get isNotificationsEnabled() {
       return store.userSettings?.notifyViaEmail ||
         store.userSettings?.notifyViaSms ||
@@ -433,10 +440,11 @@ export const AuthSessionStoreModel = types
       store.setIsFetching(false)
     })
 
-    const registerPushToken = flow(function*(token: string) {
+    const registerPushToken = flow(function*(token: string, locale?: string) {
       const response = yield api.registerDevicePushToken({
         token,
         platform: Platform.OS === 'ios' ? "ios" : "android",
+        language: locale || store.userLocale,
       })
 
       if (response.kind !== 'ok') {
@@ -467,6 +475,14 @@ export const AuthSessionStoreModel = types
       }
     })
 
+    const setPrefferedLocale = flow(function*(locale: string) {
+      store.setProp("preferredLocale", locale)
+
+      if (!store.authToken || !store.pushToken) return
+
+      yield registerPushToken(store.pushToken, locale)
+    })
+
     return {
       logIn,
       createAccount,
@@ -488,7 +504,8 @@ export const AuthSessionStoreModel = types
       getSubscribedGages,
       setGageSubscription,
       unsubscribeFromNotifications,
-      togglePushNotificationsEnabled
+      togglePushNotificationsEnabled,
+      setPrefferedLocale,
     }
   })
 

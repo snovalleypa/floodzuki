@@ -4,6 +4,9 @@
 
 import dayjs from "dayjs"
 
+require('dayjs/locale/en')
+require('dayjs/locale/es')
+
 var utc = require('dayjs/plugin/utc')
 var timezone = require('dayjs/plugin/timezone') // dependent on utc plugin
 var duration = require('dayjs/plugin/duration')
@@ -20,6 +23,13 @@ dayjs.updateLocale('en', {
   months: [
     "January", "February", "March", "April", "May", "June", "July",
     "August", "September", "October", "November", "December"
+  ]
+})
+
+dayjs.updateLocale('es', {
+  months: [
+    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio",
+    "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
   ]
 })
 

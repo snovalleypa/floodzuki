@@ -1,5 +1,6 @@
 import React, { useEffect } from "react"
 import { ErrorBoundaryProps, Stack } from "expo-router";
+import { observer } from "mobx-react-lite";
 
 import { Content, Screen } from "@common-ui/components/Screen"
 import { ErrorDetails } from "@components/ErrorDetails";
@@ -10,10 +11,9 @@ import { Spacing } from "@common-ui/constants/spacing";
 
 import { useStores } from "@models/helpers/useStores";
 import Config from "@config/config";
-import { t } from "@i18n/translate";
-import { observer } from "mobx-react-lite";
 import { useTimeout } from "@utils/useTimeout";
 import { Timing } from "@common-ui/constants/timing";
+import { useLocale } from "@common-ui/contexts/LocaleContext";
 import ForecastFooter from "@components/ForecastFooter";
 
 // We use this to wrap each screen with an error boundary
@@ -24,6 +24,7 @@ export function ErrorBoundary(props: ErrorBoundaryProps) {
 const ForecastScreen = observer(
   function ForecastScreen() {
     const store = useStores()
+    const { t } = useLocale();
 
     const [hidden, setHidden] = React.useState(true)
 

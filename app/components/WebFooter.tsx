@@ -1,6 +1,5 @@
 import React from "react"
 import { Image } from "expo-image"
-import { t } from "@i18n/translate"
 
 import { Cell, Row, RowOrCell, Separator } from "@common-ui/components/Common"
 import { Colors } from "@common-ui/constants/colors"
@@ -14,8 +13,11 @@ import Config from "@config/config"
 import { useRouter } from "expo-router"
 import { ROUTES } from "app/_layout"
 import { Spacing } from "@common-ui/constants/spacing"
+import { useLocale } from "@common-ui/contexts/LocaleContext"
+import LocaleChange from "./LocaleChange"
 
 const WebFooter = () => {
+  const { t } = useLocale()
   const { isMobile } = useResponsive()
   const { getAsset } = useAppAssets()
   const router = useRouter()
@@ -85,6 +87,8 @@ const WebFooter = () => {
           textStyle={[{ lineHeight: Spacing.midLarge }]}
           color={Colors.darkerGrey}
         >
+          <LocaleChange />
+          {separator}
           <SimpleLinkButton
             text={t("navigation.aboutScreen")}
             onPress={openSvpaWebsite}
