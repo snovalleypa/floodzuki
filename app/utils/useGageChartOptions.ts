@@ -10,6 +10,7 @@ import Config from "@config/config"
 import { Colors } from "@common-ui/constants/colors"
 import { DataPoint } from "@models/Forecasts"
 import { useLocale } from "@common-ui/contexts/LocaleContext"
+import { Timing } from "@common-ui/constants/timing"
 
 interface Range {
   chartStartDate: dayjs.Dayjs
@@ -478,7 +479,7 @@ const useGageChartOptions = (
   // Move chart calculations to the next tick to prevent blocking the UI
   useTimeout(() => {
     setIsVisible(true)
-  }, 50)
+  }, Timing.instant)
 
   const getOptions = () => {
     return CHART_OPTIONS[optionType](

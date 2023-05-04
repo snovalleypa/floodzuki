@@ -8,6 +8,8 @@ import { Gage, GageChartDataType } from "@models/Gage"
 import { Colors } from "@common-ui/constants/colors"
 import { If } from "@common-ui/components/Conditional"
 import { useLocale } from "@common-ui/contexts/LocaleContext"
+import { useTimeout } from "@utils/useTimeout"
+import { Timing } from "@common-ui/constants/timing"
 
 const CHART_HEIGHT = 182
 const OFFSET_BOTTOM = 10
@@ -75,6 +77,12 @@ const GageListItemChart = observer(
   function GageListItemChart({ gage }: { gage: Gage }) {
     const { t } = useLocale()
     const [layout, setLayout] = useState({ width: 0, height: 182 })
+
+    const [displayChart, setDisplayChart] = useState(false)
+
+    useTimeout(() => {
+      setDisplayChart(true)
+    }, Timing.instant)
 
     const handleLayout = (event) => {
       const { width, height } = event.nativeEvent.layout
@@ -163,35 +171,37 @@ const GageListItemChart = observer(
                 {gage?.roads[0]?.name}
               </Text>
             </If>
-            {/* Area */}
-            <If condition={isPathSafe(areaData)}>
-              <Path
-                d={areaData}
-                strokeWidth="0"
-                stroke="none"
-                fill={Colors.gageChartColor}
-                fillOpacity={0.5}
-              />
+            <If condition={displayChart}>
+              {/* Area */}
+              <If condition={isPathSafe(areaData)}>
+                <Path
+                  d={areaData}
+                  strokeWidth="0"
+                  stroke="none"
+                  fill={Colors.gageChartColor}
+                  fillOpacity={0.5}
+                />
+              </If>
+              {/* Line */}
+              <If condition={isPathSafe(lineData)}>
+                <Path
+                  d={lineData}
+                  strokeWidth="0.5"
+                  stroke={Colors.gageChartColor}
+                />
+              </If>
+              {/* Circles */}
+              {circleData.map((d, i) => (
+                <Circle
+                  stroke="none"
+                  fill={Colors.gageChartColor}
+                  key={d.cx}
+                  cx={d.cx}
+                  cy={d.cy}
+                  r={d.r}
+                />
+              ))}
             </If>
-            {/* Line */}
-            <If condition={isPathSafe(lineData)}>
-              <Path
-                d={lineData}
-                strokeWidth="0.5"
-                stroke={Colors.gageChartColor}
-              />
-            </If>
-            {/* Circles */}
-            {circleData.map((d, i) => (
-              <Circle
-                stroke="none"
-                fill={Colors.gageChartColor}
-                key={d.cx}
-                cx={d.cx}
-                cy={d.cy}
-                r={d.r}
-              />
-            ))}
           </G>
         </Svg>
       </View>

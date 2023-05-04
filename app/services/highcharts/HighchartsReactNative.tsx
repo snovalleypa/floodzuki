@@ -6,8 +6,6 @@ import {
     ViewStyle,
 } from 'react-native';
 import { WebView, WebViewMessageEvent, WebViewProps } from 'react-native-webview';
-import { Asset } from 'expo-asset';
-import * as FileSystem from 'expo-file-system';
 import { LAYOUT_HTML } from './HighchartsLayout';
 
 const stringifiedScripts = {};
@@ -106,17 +104,6 @@ const buildScripts = (props: ScriptsProps) => {
   )
 }
 
-const getAssetAsString = async (asset: Asset) => {
-  const downloadedModules = await FileSystem.readDirectoryAsync(FileSystem.cacheDirectory)
-  let fileName = 'ExponentAsset-' + asset.hash + '.' + asset.type
-
-  if (!downloadedModules.includes(fileName)) {
-      await asset.downloadAsync()
-  }
-
-  return await FileSystem.readAsStringAsync(FileSystem.cacheDirectory + fileName)
-}
-
 const addScript = async (name: string, isModule: boolean) => {
   const moduleUrl = httpProto + cdnPath + (isModule ? 'modules/' : '') + name + '.js'
 
@@ -142,7 +129,6 @@ const HighchartsReactNative = React.memo((props: HighchartsReactNativeProps) => 
   const webviewRef = useRef<WebView>(null)
 
   const [modulesReady, setModulesReady] = useState(false)
-  // const [layoutHTML, setLayoutHTML] = useState('')
 
   const handleMessage = (event: WebViewMessageEvent) => {
     onMessage && onMessage(event.nativeEvent.data)
@@ -158,8 +144,6 @@ const HighchartsReactNative = React.memo((props: HighchartsReactNativeProps) => 
 
   useEffect(() => {
     const getModules = async () => {
-      // const indexHTML = await getAssetAsString(Asset.fromModule(require('./highcharts-layout.html')))
-
       await addScript('highcharts', false)
 
       if (modules.length > 0) {
@@ -171,7 +155,6 @@ const HighchartsReactNative = React.memo((props: HighchartsReactNativeProps) => 
       }
 
       setModulesReady(true)
-      // setLayoutHTML(indexHTML)
     }
 
     getModules()
