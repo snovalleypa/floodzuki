@@ -8,6 +8,7 @@ import {
 import { WebView, WebViewMessageEvent, WebViewProps } from 'react-native-webview';
 import { Asset } from 'expo-asset';
 import * as FileSystem from 'expo-file-system';
+import { LAYOUT_HTML } from './HighchartsLayout';
 
 const stringifiedScripts = {};
 
@@ -141,7 +142,7 @@ const HighchartsReactNative = React.memo((props: HighchartsReactNativeProps) => 
   const webviewRef = useRef<WebView>(null)
 
   const [modulesReady, setModulesReady] = useState(false)
-  const [layoutHTML, setLayoutHTML] = useState('')
+  // const [layoutHTML, setLayoutHTML] = useState('')
 
   const handleMessage = (event: WebViewMessageEvent) => {
     onMessage && onMessage(event.nativeEvent.data)
@@ -157,7 +158,7 @@ const HighchartsReactNative = React.memo((props: HighchartsReactNativeProps) => 
 
   useEffect(() => {
     const getModules = async () => {
-      const indexHTML = await getAssetAsString(Asset.fromModule(require('./highcharts-layout.html')))
+      // const indexHTML = await getAssetAsString(Asset.fromModule(require('./highcharts-layout.html')))
 
       await addScript('highcharts', false)
 
@@ -170,7 +171,7 @@ const HighchartsReactNative = React.memo((props: HighchartsReactNativeProps) => 
       }
 
       setModulesReady(true)
-      setLayoutHTML(indexHTML)
+      // setLayoutHTML(indexHTML)
     }
 
     getModules()
@@ -188,7 +189,7 @@ const HighchartsReactNative = React.memo((props: HighchartsReactNativeProps) => 
       <WebView
         ref={webviewRef}
         onMessage={handleMessage}
-        source={{ html: layoutHTML }}
+        source={{ html: LAYOUT_HTML }}
         injectedJavaScript={runFirst}
         originWhitelist={["*"]}
         automaticallyAdjustContentInsets={true}

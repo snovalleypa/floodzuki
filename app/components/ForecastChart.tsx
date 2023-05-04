@@ -86,6 +86,8 @@ export const ForecastChart = observer(
 
     const chartOptions = useForecastOptions(gages, selectedRange.before, selectedRange.after)
 
+    const isLoading = (forecastsStore.isFetching && !Object.keys(forecastsStore.forecasts).length) || !Object.keys(chartOptions).length
+
     return (
       <>
         <SegmentControl
@@ -97,7 +99,7 @@ export const ForecastChart = observer(
           innerHorizontal={Spacing.extraSmall}
           innerVertical={Spacing.extraSmall}
           height={400}>
-          <Ternary condition={!Object.keys(chartOptions).length}>
+          <Ternary condition={isLoading}>
             <Cell flex>
               <ActivityIndicator />
             </Cell>
