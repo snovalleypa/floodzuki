@@ -463,7 +463,7 @@ export const AuthSessionStoreModel = types
       if (nextState) {
         const newToken = yield registerForPushNotificationsAsync(true)
         
-        if (!token || token !== newToken) {
+        if (!token || token !== newToken && newToken) {
           store.setProp("pushToken",  newToken)
           yield registerPushToken(newToken)
         }

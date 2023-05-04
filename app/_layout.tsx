@@ -46,16 +46,19 @@ export const routes = {
   [ROUTES.Gages]: {
     path: ROUTES.Gages,
     icon: "activity",
+    tabName: "gages",
     title: "navigation.homeScreen"
   },
   [ROUTES.Forecast]: {
     path: ROUTES.Forecast,
     icon: "trending-up",
+    tabName: "forecast",
     title: "navigation.forecastScreen"
   },
   [ROUTES.UserAlerts]: {
     path: ROUTES.About,
     icon: "bell",
+    tabName: "user",
     title: "navigation.alertsScreen"
   },
 } as const;

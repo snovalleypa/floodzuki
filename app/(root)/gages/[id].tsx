@@ -164,11 +164,11 @@ const GageDetailsScreen = observer(
               </Card>
             </If>
             <Cell flex gap={Spacing.small}>
-              <RowOrCell align="flex-start" top={Spacing.small} gap={Spacing.small}>
+              <RowOrCell align="flex-start" justify="flex-start" top={Spacing.small} gap={Spacing.small}>
                 <CalloutReadingCard gage={gage} />
                 <GageImageCard gage={gage} />
               </RowOrCell>
-              <RowOrCell align="flex-start" gap={Spacing.small}>
+              <RowOrCell align="flex-start" justify="flex-start" gap={Spacing.small}>
                 <GageInfoCard gage={gage} />
                 <StatusLevelsCard gage={gage} />
               </RowOrCell>

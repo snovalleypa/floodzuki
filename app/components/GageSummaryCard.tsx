@@ -124,7 +124,7 @@ export const GageSummaryCard = observer(
               textColor={Colors.blue}
               onPress={showDetails}
             />
-            <If condition={!gage.isMetagage}>
+            <If condition={!gage?.isMetagage}>
               <IconButton
                 title={t("forecastScreen.viewGage")}
                 rightIcon="chevron-right"
@@ -159,7 +159,7 @@ export const GageSummaryCard = observer(
             <ReadingRow key={peak.timestamp} reading={peak} />
           ))}
         </Cell>
-        <If condition={!gage.isMetagage && noDetails}>
+        <If condition={!gage?.isMetagage && noDetails}>
           <CardFooter>
             <Cell flex align="center">
               <LinkButton

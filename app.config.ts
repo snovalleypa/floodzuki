@@ -100,7 +100,7 @@ export default {
   ],
   extra: {
     router: {
-      origin: "https://floodzuki.ngrok.io",
+      origin: "https://floodzilla.com/",
     },
     eas: {
       projectId: "0f52b777-109a-423d-a18b-1ccfb5dea8e0"

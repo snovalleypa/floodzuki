@@ -56,7 +56,7 @@ export async function registerForPushNotificationsAsync(requestPermissions: bool
 
     token = (await Notifications.getExpoPushTokenAsync()).data;
   } else {
-    console.warn('Must use physical device for Push Notifications');
+    console.log('Must use physical device for Push Notifications');
   }
 
   return token;

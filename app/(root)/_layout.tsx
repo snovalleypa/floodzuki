@@ -1,12 +1,12 @@
 import React, { useEffect } from "react";
 import { Pressable, TouchableOpacity } from "react-native";
-import { usePathname, useRouter, Slot, Link } from "expo-router";
+import { usePathname, useRouter, Slot, Link, Tabs } from "expo-router";
 import Head from "expo-router/head";
 import { Image } from "expo-image";
 
 import '@expo/match-media';
 
-import { If } from "@common-ui/components/Conditional";
+import { If, Ternary } from "@common-ui/components/Conditional";
 import { Colors } from "@common-ui/constants/colors";
 import { Spacing } from "@common-ui/constants/spacing";
 import { MainRoute, ROUTES, routes } from "app/_layout";
@@ -45,35 +45,35 @@ export default function AppLayout() {
 
   return (
     <>
-      <If condition={isWeb}>
-        <Header />
-        {/** This is used to ensure that favicon is displayed on web */}
-        <Head>
-          <link rel="icon" href={getAsset("favicon").uri} />
-          <script
-            async
-            src="https://www.googletagmanager.com/gtag/js?id=UA-302444-12"
-          ></script>
-          <script src="//apis.google.com/js/client:platform.js?onload=start"></script>
-          <script src="//www.google.com/recaptcha/api.js" async defer></script>
-          <script>{`
-            window.dataLayer = window.dataLayer || [];
-            
-            function gtag() {
-              dataLayer.push(arguments)
-            }
-            
-            gtag("js", new Date())
+      <Ternary condition={isWeb}>
+        <>
+          {/** This is used to ensure that favicon is displayed on web */}
+          <Head>
+            <link rel="icon" href={getAsset("favicon").uri} />
+            <script
+              async
+              src="https://www.googletagmanager.com/gtag/js?id=UA-302444-12"
+            ></script>
+            <script src="//apis.google.com/js/client:platform.js?onload=start"></script>
+            <script src="//www.google.com/recaptcha/api.js" async defer></script>
+            <script>{`
+              window.dataLayer = window.dataLayer || [];
+              
+              function gtag() {
+                dataLayer.push(arguments)
+              }
+              
+              gtag("js", new Date())
 
-            gtag("config", "UA-302444-12")
-          `}
-          </script>
-        </Head>
-      </If>
-      <Slot />
-      <If condition={!isWeb}>
-        <TabBar />
-      </If>
+              gtag("config", "UA-302444-12")
+            `}
+            </script>
+          </Head>
+          <Header />
+          <Slot />
+        </>
+        <TabView />
+      </Ternary>
     </>
   )
 }
@@ -200,4 +200,26 @@ function TabBar() {
       </Row>
     </Cell>
   );
+}
+
+function TabView() {
+  const { t } = useLocale();
+
+  return (
+    <Tabs
+      tabBar={(props) => <TabBar />}
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      {Object.values(routes).map(route => (
+        <Tabs.Screen
+          name={route.tabName}
+          options={{
+            href: route.path,
+          }}
+        />
+      ))}
+    </Tabs>
+  )
 }

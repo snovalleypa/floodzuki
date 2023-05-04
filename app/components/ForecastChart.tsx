@@ -97,7 +97,7 @@ export const ForecastChart = observer(
           innerHorizontal={Spacing.extraSmall}
           innerVertical={Spacing.extraSmall}
           height={400}>
-          <Ternary condition={forecastsStore.isFetching || !Object.keys(chartOptions).length}>
+          <Ternary condition={!Object.keys(chartOptions).length}>
             <Cell flex>
               <ActivityIndicator />
             </Cell>
