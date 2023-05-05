@@ -48,16 +48,7 @@ const buildSeries = (forecasts: Forecast[], gages: GageSummary[], t) => {
   forecasts.forEach((forecast) => {
     const gage = gages.find(g => g.id === forecast.id)
 
-    const dataPoints = forecast.dataPoints.map((dp) => {      
-      return {
-        x: dp.timestamp.valueOf(),
-        xLabel: dp.timestamp.format("ddd, MMM D, h:mm A"),
-        y: dp.waterDischarge,
-        stage: dp.reading,
-        isForecast: false,
-      }
-    }).slice().reverse()
-
+    const dataPoints = forecast.chartReadings
     // Data Points
     series.push({
       animation:false,
@@ -85,15 +76,7 @@ const buildSeries = (forecasts: Forecast[], gages: GageSummary[], t) => {
       },
     })
 
-    const forecastDataPoints = forecast.forecastDataPoints.map((dp) => {
-      return {
-        x: dp.timestamp.valueOf(),
-        xLabel: dp.timestamp.format("ddd, MMM D, h:mm A"),
-        y: dp.waterDischarge,
-        stage: dp.reading,
-        isForecast: true,
-      }
-    }).slice()
+    const forecastDataPoints = forecast.chartForecastReadings
 
     // Forecast Data Points
     series.push({

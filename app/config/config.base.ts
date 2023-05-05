@@ -8,8 +8,8 @@ const API = {
   reading: {
     GET_STATUS_URL: "/api/GetGageStatusAndRecentReadings",
     GET_READINGS_URL: "/api/GetGageReadingsUTC",
-    GET_READINGS_V2_URL: "/api/v2/GetRecentReadings",
     GET_FORECAST_URL: "/api/GetForecastsUTC",
+    GET_READINGS_V2_URL: "/api/v2/GetRecentReadings",
     GET_FORECAST_V2_URL: "/api/v2/GetForecast",
   },
 

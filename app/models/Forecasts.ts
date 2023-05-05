@@ -77,6 +77,7 @@ const DataPointModel = types
     reading: types.maybe(types.number),
     waterDischarge: types.maybe(types.number),
     timestamp: types.maybe(types.frozen()), // dayjs instance
+    timestampMs: types.maybe(types.number), // miliseconds since epoch
     isDeleted: types.maybe(types.boolean),
   })
 
@@ -157,20 +158,26 @@ const ForecastModel = types
   .views(store => ({
     get dataPoints() {
       return store.readings?.map(reading => {
+        const timestamp = localDayJs.tz(reading.timestamp)
+
         return {
           reading: reading.waterHeight,
           waterDischarge: reading.waterDischarge,
-          timestamp: localDayJs.tz(reading.timestamp),
+          timestamp: timestamp,
+          timestampMs: timestamp.valueOf(),
         } as DataPoint
       })
     },
 
     get forecastDataPoints() {
       return store.noaaForecast?.data?.map(forecast => {
+        const timestamp = localDayJs.tz(forecast.timestamp)
+
         return {
           reading: forecast.stage,
           waterDischarge: forecast.discharge,
-          timestamp: localDayJs.tz(forecast.timestamp),
+          timestamp: timestamp,
+          timestampMs: timestamp.valueOf(),
         } as DataPoint
       })
     },
@@ -205,7 +212,7 @@ const ForecastModel = types
         for (let i = 1; i < dataPoints.length; i++) {
           const reading = dataPoints[i]
           
-          if (reading.timestamp.valueOf() < cutoff) break
+          if (reading.timestampMs < cutoff) break
           
           if (reading.waterDischarge > max) {
             maxReading = reading
@@ -222,6 +229,30 @@ const ForecastModel = types
 
       get last100ForecastReadings() {
         return store?.forecastDataPoints.slice(0, 100)
+      },
+
+      get chartReadings() {
+        return store.dataPoints.map((dp) => {      
+          return {
+            x: dp.timestampMs,
+            xLabel: dp.timestamp.format("ddd, MMM D, h:mm A"),
+            y: dp.waterDischarge,
+            stage: dp.reading,
+            isForecast: false,
+          }
+        }).slice().reverse()
+      },
+
+      get chartForecastReadings() {
+        return store.forecastDataPoints.map((dp) => {
+          return {
+            x: dp.timestampMs,
+            xLabel: dp.timestamp.format("ddd, MMM D, h:mm A"),
+            y: dp.waterDischarge,
+            stage: dp.reading,
+            isForecast: true,
+          }
+        }).slice()
       },
 
       getForecastGage,
@@ -252,12 +283,6 @@ export const ForecastStoreModel = types
         toDateTime,
       )
 
-      // TODO: Enable once /api/v2/GetForecast is available
-      // const response = yield api.getForecasts<{[gageId: string]: Forecast}>(
-      //   Config.FORECAST_GAGE_IDS.join(','),
-      //   fromDateTime,
-      // )
-
       if (response.kind === 'ok') {
         // Augment data with id
         Object.keys(response.data).forEach((gageId, index) => {
@@ -280,8 +305,38 @@ export const ForecastStoreModel = types
       store.setIsFetching(false)
     })
 
+    const fetchRecentReadings = flow(function*() {
+      store.setIsFetching(true)
+
+      const response = yield api.getReadings({
+        gageIds: Config.FORECAST_GAGE_IDS.join(','),
+      })
+
+      console.log("fetchRecentReadings", response)
+
+      store.setIsFetching(false)
+    })
+
+    const fetchForecast = flow(function*() {
+      store.setIsFetching(true)
+
+      const response = yield api.getForecasts(
+        Config.FORECAST_GAGE_IDS.join(','),
+        dayjs().subtract(
+          Config.FRONT_PAGE_CHART_DURATION_NUMBER,
+          Config.FRONT_PAGE_CHART_DURATION_UNIT
+        ).toDate().toISOString()  
+      )
+
+      console.log("fetchForecast", response)
+
+      store.setIsFetching(false)
+    })
+
     return {
-      fetchData
+      fetchData,
+      fetchRecentReadings,
+      fetchForecast,
     }
   })
   .views(store => ({

@@ -34,10 +34,15 @@ const ForecastScreen = observer(
 
     useEffect(() => {
       store.forecastsStore.fetchData()
+
+      // store.forecastsStore.fetchRecentReadings()
+      // store.forecastsStore.fetchForecast()
     }, [])
 
     const gageIds = Config.FORECAST_GAGE_IDS
     const forecastGages = hidden ? [] : store.getForecastGages(gageIds)
+
+    console.log("forecastGages", forecastGages)
 
     return (
       <Screen>

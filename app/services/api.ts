@@ -96,6 +96,12 @@ export type NewSettingsParams = {
   notifyDailyForecasts: boolean,
 }
 
+export type GetGageReadingsParams = {
+  gageIds: string,
+  minutes?: number, // 2 days
+  prevMaxReadingId?: number,
+}
+
 /**
  * Configuring the apisauce instance.
  */
@@ -310,11 +316,30 @@ export class Api {
     )
   }
 
+  async getReadings<T>(params: GetGageReadingsParams) {
+    this.apisauce.setBaseURL(Config.BASE_URL)
+
+    const props = {
+      regionId: this.regionId,
+      gaugeIds: params.gageIds,
+    }
+
+    props["minutes"] = params.minutes || 2880
+    props["prevMaxReadingId"] = params.prevMaxReadingId || 0
+
+
+    return await genericGetRequest<T>(
+      this.apisauce,
+      Config.API.reading.GET_READINGS_V2_URL,
+      props
+    )
+  }
+
   async getForecasts<T>(
     gageIds: string,
     fromDateTime?: string,
   ) {
-    this.apisauce.setBaseURL(Config.READING_BASE_URL)
+    this.apisauce.setBaseURL(Config.BASE_URL)
 
     const params = {
       regionId: this.regionId,
