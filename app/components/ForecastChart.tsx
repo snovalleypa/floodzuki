@@ -86,7 +86,7 @@ export const ForecastChart = observer(
 
     const chartOptions = useForecastOptions(gages, selectedRange.before, selectedRange.after)
 
-    const isLoading = (forecastsStore.isFetching && !Object.keys(forecastsStore.forecasts).length) || !Object.keys(chartOptions).length
+    const isLoading = (forecastsStore.isFetching && !Object.keys(forecastsStore.forecasts).length) || !chartOptions?.series?.length
 
     return (
       <>

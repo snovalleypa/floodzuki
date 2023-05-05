@@ -242,12 +242,14 @@ const ForecastsCard = observer(
             <RegularText>{t("alertsScreen.forecastsTitle")}</RegularText>
           </Cell>
           <CheckBoxItem
+            disabled={!authSessionStore.isNotificationsEnabled}
             isLoading={isUpdatingForecast}
             label={t("alertsScreen.genericForecast")}
             value={forecastsEnabled}
             onChange={updateForecastsEnabled}
           />
           <CheckBoxItem
+            disabled={!authSessionStore.isNotificationsEnabled}
             isLoading={isUpdatingDailyForecast}
             label={t("alertsScreen.dailyForecast")}
             value={dailyForecastsEnabled}

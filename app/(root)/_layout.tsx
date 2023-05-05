@@ -214,6 +214,7 @@ function TabView() {
     >
       {Object.values(routes).map(route => (
         <Tabs.Screen
+          key={route.path}
           name={route.tabName}
           options={{
             href: route.path,

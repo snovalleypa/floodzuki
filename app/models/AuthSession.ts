@@ -83,8 +83,8 @@ export const AuthSessionStoreModel = types
     },
 
     get isNotificationsEnabled() {
-      return store.userSettings?.notifyViaEmail ||
-        store.userSettings?.notifyViaSms ||
+      return (store.userSettings?.notifyViaEmail && store.user?.emailVerified) ||
+        (store.userSettings?.notifyViaSms && store.user?.phoneVerified) ||
         store.isPushNotificationsEnabled
     },
 

@@ -67,9 +67,11 @@ export function useRegisterPushNotificationsListener(requestPermissions: boolean
 
   const lastNotificationResponse = Notifications.useLastNotificationResponse();
 
-  useEffect(() => {    
+  useEffect(() => {
     registerForPushNotificationsAsync(requestPermissions);
-    
+  }, [])
+
+  useEffect(() => {
     if (
       lastNotificationResponse &&
       lastNotificationResponse.notification?.request?.content?.data?.path &&
