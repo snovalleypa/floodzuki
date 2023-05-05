@@ -51,7 +51,8 @@ The entry point of the app is defined in `app/_layout.js` file. You can add new 
 To fully utilize all supported features in development mode you'll need to run the app with some environment variables passed. You can do that by creating a `.env` file in the root of the project and adding the following variables to it:
 
 ```bash
-  APP_ENV="dev"
+  BUILD_ENV="local"
+  SENTRY_AUTH_TOKEN=""
   GOOGLE_AUTH_CLIENT_SECRET=""
   GOOGLE_RECAPTCH_SITE_KEY=""
   GOOGLE_MAPS_API_KEY=""
@@ -64,7 +65,7 @@ To fully utilize all supported features in development mode you'll need to run t
 or just run the app with the following command:
 
 ```bash
-$ APP_ENV="dev" GOOGLE_AUTH_CLIENT_SECRET="" GOOGLE_RECAPTCH_SITE_KEY="" GOOGLE_MAPS_API_KEY="" GOOGLE_AUTH_EXPO_ID="" GOOGLE_AUTH_WEB_ID="" GOOGLE_AUTH_IOS_ID="" GOOGLE_AUTH_ANDROID_ID="" npx expo start
+$ BUILD_ENV="local" SENTRY_AUTH_TOKEN="" GOOGLE_AUTH_CLIENT_SECRET="" GOOGLE_RECAPTCH_SITE_KEY="" GOOGLE_MAPS_API_KEY="" GOOGLE_AUTH_EXPO_ID="" GOOGLE_AUTH_WEB_ID="" GOOGLE_AUTH_IOS_ID="" GOOGLE_AUTH_ANDROID_ID="" npx expo start
 ```
 
 #### Push Notifications
@@ -100,7 +101,34 @@ Android and iOS apps support OTA updates. If the new update is awailable - it'll
 
 The updates are created locally and don't have access to Expo Secrets therefore it is expected that to provide all the necessary environment variables when running an update. To publish a new update to the production app you'll need to run `$ eas update --channel production` command. Refer to `eas.json` to check other channels that are available for publishing.
 
-The full command will look more like this (`APP_ENV="dev"` is used to bundle local `google-services.json` file):
+The full command will look more like this (`BUILD_ENV="local"` is used to bundle local `google-services.json` file):
 ```bash
-$ APP_ENV="dev" GOOGLE_AUTH_CLIENT_SECRET="" GOOGLE_RECAPTCH_SITE_KEY="" GOOGLE_MAPS_API_KEY="" GOOGLE_AUTH_EXPO_ID="" GOOGLE_AUTH_WEB_ID="" GOOGLE_AUTH_IOS_ID="" GOOGLE_AUTH_ANDROID_ID="" eas update --channel production
+$ BUILD_ENV="local" SENTRY_AUTH_TOKEN="" GOOGLE_AUTH_CLIENT_SECRET="" GOOGLE_RECAPTCH_SITE_KEY="" GOOGLE_MAPS_API_KEY="" GOOGLE_AUTH_EXPO_ID="" GOOGLE_AUTH_WEB_ID="" GOOGLE_AUTH_IOS_ID="" GOOGLE_AUTH_ANDROID_ID="" eas update --channel production
+```
+
+To upload source maps for Sentry you need to take the following steps to upload the source maps for your update to Sentry:
+
+Run eas update. This will generate a dist folder in your project root, which contains your JavaScript bundles and source maps. This command will also output the 'Android update ID' and 'iOS update ID' that we'll need in the next step.
+Copy or rename the bundle names in the `dist/bundles` folder to match `index.android.bundle` (Android) or `main.jsbundle` (iOS).
+Next, you can use the Sentry CLI to upload your bundles and source maps:
+release name should be set to `${bundleIdentifier}@${version}+${buildNumber}` (iOS) or `${androidPackage}@${version}+${versionCode}` (Android), so for example com.floodzilla.floodzuki@1.0.0+1. `dist` should be set to the Update ID that eas update generated.
+
+Android:
+```bash
+node_modules/@sentry/cli/bin/sentry-cli releases \
+    files <release name> \
+    upload-sourcemaps \
+    --dist <Android Update ID> \
+    --rewrite \
+    dist/bundles/index.android.bundle dist/bundles/android-<hash>.map
+```
+
+iOS:
+```bash
+node_modules/@sentry/cli/bin/sentry-cli releases \
+    files <release name> \
+    upload-sourcemaps \
+    --dist <iOS Update ID> \
+    --rewrite \
+    dist/bundles/main.jsbundle dist/bundles/ios-<hash>.map
 ```

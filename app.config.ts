@@ -1,6 +1,6 @@
 /** @type {import('expo/config').ExpoConfig} */
 
-const isDevelopment = process.env.APP_ENV === "dev";
+const isLocalBuild = process.env.BUILD_ENV === "local";
 
 export default {
   name: "Floodzilla",
@@ -42,7 +42,7 @@ export default {
   },
   android: {
     package: "com.floodzilla.floodzuki",
-    googleServicesFile: isDevelopment ? "./google-services.json" : process.env.GOOGLE_SERVICES_JSON,
+    googleServicesFile: isLocalBuild ? "./google-services.json" : process.env.GOOGLE_SERVICES_JSON,
     intentFilters: [
       {
         action: "VIEW",
@@ -91,6 +91,7 @@ export default {
   },
   plugins: [
     "expo-localization",
+    "sentry-expo",
     [
       "expo-updates",
       {
@@ -98,6 +99,17 @@ export default {
       }
     ]
   ],
+  hooks: {
+    postPublish: [
+      {
+        file: "sentry-expo/upload-sourcemaps",
+        config: {
+          organization: "snoqualmie-valley-preservation",
+          project: "floodzilla"
+        }
+      }
+    ]
+  },
   extra: {
     router: {
       origin: "https://floodzilla.com/",

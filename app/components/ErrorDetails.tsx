@@ -1,5 +1,7 @@
-import React from "react"
+import React, { useEffect } from "react"
 import { ErrorBoundaryProps } from "expo-router"
+
+import * as Sentry from "sentry-expo"
 
 import { Screen, Content } from "@common-ui/components/Screen"
 import { HugeTitle, LargeTitle, MediumText } from "@common-ui/components/Text"
@@ -10,6 +12,11 @@ import { useLocale } from "@common-ui/contexts/LocaleContext"
 
 export function ErrorDetails(props: ErrorBoundaryProps) {
   const { t } = useLocale();
+
+  // Track error with sentry when loaded
+  useEffect(() => {
+    Sentry.Native.captureException(props.error);
+  }, [])
   
   return (
     <Screen>
