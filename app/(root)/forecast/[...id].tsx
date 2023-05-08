@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useEffect } from "react"
 import { ErrorBoundaryProps, useSearchParams, Stack, useRouter } from "expo-router";
 import { observer } from "mobx-react-lite";
 
@@ -41,6 +41,14 @@ const ForecastDetailsScreen = observer(
     const gageId = Array.isArray(id) ? id.join("/") : id
 
     const [hidden, setHidden] = React.useState(true)
+
+    // Fetch data on mount
+    useEffect(() => {
+      if (store.isFetched)  {
+        store.forecastsStore.fetchData()
+      }
+    }, [store.isFetched])
+    
 
     useTimeout(() => {
       setHidden(false)

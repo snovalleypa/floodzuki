@@ -36,6 +36,14 @@ import { GageModel } from "./Gage"
 // yMin: 9
 // yellowStage: 12.5
 
+// "Metagage" Example data
+// id: "USGS-SF17/USGS-NF10/USGS-MF11"
+// name: "Sum of the 3 forks"
+// shortName: "Forks"
+// siteId: "GARW1-SNQW1-TANW1"
+// stageOne: 10000
+// stageTwo: 12000
+
 const FloodEventModel = types
   .model("FloodEvent")
   .props({
@@ -49,26 +57,33 @@ export const LocationInfoModel = types
   .model("LocationInfo")
   .props({
     id: types.identifier,
-    deviceTypeName: types.string,
-    dischargeMax: types.maybe(types.number),
-    dischargeMin: types.maybe(types.number),
-    floodEvents: types.array(FloodEventModel),
+    ids: types.optional(types.string, ""), // Metagage Prop
+    isMetagage: types.optional(types.boolean, false), // Metagage Prop
+    deviceTypeName: types.optional(types.string, ""), // Gage prop
+    shortName: types.optional(types.string, ""), // Metagage prop
+    name: types.optional(types.string, ""), // Metagage prop
+    dischargeMax: types.optional(types.number, 0),
+    dischargeMin: types.optional(types.number, 0),
+    dischargeStageOne: types.optional(types.number, 0), // Gage prop
+    dischargeStageTwo: types.optional(types.number, 0), // Gage prop
+    floodEvents: types.optional(types.array(FloodEventModel), []),
     groundHeight: types.maybe(types.number),
-    hasDischarge: types.boolean,
-    isCurrentlyOffline: types.boolean,
-    isOffline: types.boolean,
+    siteIds: types.maybe(types.string),
+    siteId: types.maybe(types.string),
+    hasDischarge: types.optional(types.boolean, false),
+    isCurrentlyOffline: types.optional(types.boolean, false),
+    isOffline: types.optional(types.boolean, false),
     latitude: types.maybe(types.number),
-    locationName: types.string,
+    locationName: types.optional(types.string, ""),
     locationImages: types.array(types.string),
     longitude: types.maybe(types.number),
     maxChangeThreshold: types.maybe(types.number),
     noaaSiteId: types.maybe(types.string),
-    rank: types.number,
+    rank: types.optional(types.number, 0),
     redStage: types.maybe(types.number),
     roadDisplayName: types.maybe(types.string),
     roadSaddleHeight: types.maybe(types.number),
-    shortName: types.maybe(types.string),
-    timeZoneName: types.string,
+    timeZoneName: types.optional(types.string, ""),
     usgsSiteId: types.maybe(types.number),
     yMax: types.maybe(types.number),
     yMin: types.maybe(types.number),
@@ -85,7 +100,7 @@ export const LocationInfoModelStore = types
   .actions(withDataFetchingActions)
   .actions(withSetPropAction)
   .actions(store => {
-    const fetchData = flow(function*() {
+    const fetchLocations = flow(function*() {
       store.setIsFetching(true)
       
       const response = yield api.getLocationInfo<LocationInfo[]>()
@@ -97,6 +112,33 @@ export const LocationInfoModelStore = types
       }
       
       store.setIsFetching(false)
+    })
+
+    const fetchMetagages = flow(function*() {
+      store.setIsFetching(true)
+      
+      const response = yield api.getMetagages<LocationInfo[]>()
+
+      if (response.kind === "ok") {
+        const metagages = (response.data || []).map(m => ({
+          id: m.ids,
+          dischargeStageTwo: m.stageTwo,
+          dischargeStageOne: m.stageOne,
+          ...m,
+          isMetagage: true,
+        }))
+
+        store.locationInfos.push(...metagages)
+      } else {
+        store.setError(response.kind)
+      }
+      
+      store.setIsFetching(false)
+    })
+
+    const fetchData = flow(function*() {
+      yield fetchLocations()
+      yield fetchMetagages()
     })
 
     return {

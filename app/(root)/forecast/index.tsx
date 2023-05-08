@@ -11,7 +11,7 @@ import { Spacing } from "@common-ui/constants/spacing";
 
 import { useStores } from "@models/helpers/useStores";
 import Config from "@config/config";
-import { useTimeout } from "@utils/useTimeout";
+import { useInterval, useTimeout } from "@utils/useTimeout";
 import { Timing } from "@common-ui/constants/timing";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import ForecastFooter from "@components/ForecastFooter";
@@ -32,17 +32,25 @@ const ForecastScreen = observer(
       setHidden(false)
     }, Timing.zero)
 
-    useEffect(() => {
-      store.forecastsStore.fetchData()
+    // Check for new readings every 1 minute
+    useInterval(() => {
+      store.forecastsStore.fetchRecentReadings()
+    }, Timing.oneMinute)
 
-      // store.forecastsStore.fetchRecentReadings()
-      // store.forecastsStore.fetchForecast()
-    }, [])
+    // Check for forecast data every 5 mins
+    useInterval(() => {
+      store.forecastsStore.fetchForecast()
+    }, Timing.fiveMinutes)
+
+    // Fetch data on mount
+    useEffect(() => {
+      if (store.isFetched)  {
+        store.forecastsStore.fetchData()
+      }
+    }, [store.isFetched])
 
     const gageIds = Config.FORECAST_GAGE_IDS
     const forecastGages = hidden ? [] : store.getForecastGages(gageIds)
-
-    console.log("forecastGages", forecastGages)
 
     return (
       <Screen>

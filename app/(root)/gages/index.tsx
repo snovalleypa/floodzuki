@@ -27,6 +27,7 @@ import GageMap from "@components/GageMap";
 import GageListItemChart from "@components/GageListItemChart";
 import WebFooter from "@components/WebFooter"
 import { useLocale } from "@common-ui/contexts/LocaleContext"
+import { Timing } from "@common-ui/constants/timing"
 
 const ITEM_HEIGHT = 200
 const MAP_WIDTH = 400
@@ -150,20 +151,23 @@ const getItemLayout = (data: Gage[], index: number) => ({
 
 const HomeScreen = observer(
   function HomeScreen() {
-    const { gagesStore, getLocationsWithGages } = useStores()
+    const { gagesStore, getLocationsWithGages, isFetched } = useStores()
     const { t } = useLocale();
     const { isMobile } = useResponsive()
 
     const { height } = useWindowDimensions()
 
+    // Fetch data on mount
     useEffect(() => {
-      gagesStore.fetchData()
-    }, [])
+      if (isFetched)  {
+        gagesStore.fetchData()
+      }
+    }, [isFetched])
 
     // Update gage status every 5 minutes
     useInterval(() => {
       gagesStore.fetchData()
-    }, 5 * 60 * 1000)
+    }, Timing.fiveMinutes)
 
     const locations = getLocationsWithGages()
 

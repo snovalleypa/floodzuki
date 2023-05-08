@@ -84,7 +84,7 @@ Google Auth is only supported in the broser and standalone builds. It is not sup
 ### Distribution
 
 #### Web
-To build the web version of the app run `$ npx expo build` (make sure that all the environment variables are apssed to the build). This will create a production build of the app in the `dist/` directory. You can read more about it in the [Expo Router docs](https://expo.github.io/router/docs/guides/hosting).
+To build the web version of the app run `$ npx expo build` (make sure that all the environment variables are passed to the build). This will create a production build of the app in the `dist/` directory. You can read more about it in the [Expo Router docs](https://expo.github.io/router/docs/guides/hosting).
 
 #### Mobile
 To build the Android version of the app run `$ eas build --profile production --platform all` (all environment variables will be provided by EAS). This will trigger builds for both Android and iOS platforms. You can read more about it in the [EAS docs](https://docs.expo.dev/build/introduction/).

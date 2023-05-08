@@ -10,4 +10,6 @@ export enum Timing {
   normal = 500,
   slow = 1000,
   verySlow = 2000,
+  oneMinute = 60000,
+  fiveMinutes = 300000,
 }

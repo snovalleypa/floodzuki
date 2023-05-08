@@ -38,6 +38,10 @@ export async function setupRootStore(rootStore: RootStore) {
 
     restoredState = {
       ...loadedState,
+      forecastsStore: {
+        ...loadedState.forecastsStore,
+        maxReadingId: null
+      },
       isFetched: false,
     }
 

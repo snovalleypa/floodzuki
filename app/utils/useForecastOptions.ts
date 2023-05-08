@@ -25,11 +25,11 @@ const shouldShowFloodLine = (forecast: Forecast, isCombinedForecast: boolean) =>
   }
   
   // For the combined forecast, only show Falls.
-  return (forecast.noaaForecast?.noaaSiteId === "SQUW1");
+  return (forecast?.noaaSiteId === "SQUW1");
 }
 
 const getFloodStageLabel = (forecast: Forecast, isCombinedForecast: boolean) => {
-  switch (forecast.noaaForecast?.noaaSiteId) {
+  switch (forecast?.noaaSiteId) {
     default: 
       return "";
     case "SQUW1":
@@ -114,7 +114,7 @@ const buildOptions = (props: BuildOptionsProps, t) => {
   const isCombinedForecast = forecasts.length > 1;
   const floodLines = []
   
-  const now = localDayJs()
+  const now = localDayJs.tz()
 
   const min = now.clone().subtract(daysBefore, "days")
   const max = now.clone().add(daysAfter, "days")

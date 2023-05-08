@@ -81,15 +81,6 @@ const DataPointModel = types
     isDeleted: types.maybe(types.boolean),
   })
 
-const ForecastPredictionModel = types
-  .model("ForecastPrediction")
-  .props({
-    timestamp: types.maybe(types.string),
-    waterHeight: types.maybe(types.number),
-    waterDischarge: types.maybe(types.number),
-    isDeleted: types.maybe(types.boolean),
-  })
-
 const NOAAForecastDataModel = types
   .model("NOAAForecastData")
   .props({
@@ -139,62 +130,123 @@ export const NOAAForecastModel = types
     state: types.maybe(types.string),
   })
 
+// API V2 Model
+const ReadingModel = types
+  .model("Reading")
+  .props({
+    discharges: types.array(types.number),
+    readingIds: types.array(types.number),
+    timestamps: types.array(types.string),
+    trendCfsPerHour: types.maybe(types.number),
+    trendFeetPerHour: types.maybe(types.number),
+    waterHeights: types.array(types.number),
+  })
+
+// API V2 Model
+const PeakModel = types
+  .model("Peak")
+  .props({
+    discharges: types.array(types.number),
+    timestamps: types.array(types.string),
+    waterHeights: types.array(types.number),
+  })
+
+// API V2 Model
+const PredictionModel = types
+  .model("Prediction")
+  .props({
+    discharges: types.array(types.number),
+    waterHeights: types.array(types.number),
+    forecastCreated: types.string,
+    forecastId: types.maybeNull(types.number),
+    noaaSiteId: types.optional(types.string, ""),
+    timestamps: types.array(types.string),
+    peaks: types.maybeNull(PeakModel)
+  })
+
 const ForecastModel = types
   .model("Forecast")
   .props({
     id: types.string,
-    dischargeStageOne: types.number,
-    dischargeStageTwo: types.number,
-    lastReadingId: types.number,
-    noData: types.boolean,
-    noaaForecast: NOAAForecastModel,
-    predictedCfsPerHour: types.number,
-    predictedFeetPerHour: types.number,
     color: types.maybe(types.string),
-    predictions: types.array(ForecastPredictionModel),
-    readings: types.array(GageReadingModel),
     locationInfo: types.safeReference(LocationInfoModel),
+    recentReadings: types.maybeNull(ReadingModel), // API V2 Model
+    predictions: types.maybeNull(PredictionModel), // API V2 Model
   })
   .views(store => ({
+    get dischargeStageOne() {
+      return store.locationInfo?.dischargeStageOne || store.locationInfo?.dischargeMin
+    },
+
+    get dischargeStageTwo() {
+      return store.locationInfo?.dischargeStageTwo || store.locationInfo?.dischargeMax
+    },
+
+    get predictedCfsPerHour() {
+      return store.recentReadings?.trendCfsPerHour
+    },
+
+    get predictedFeetPerHour() {
+      return store.recentReadings?.trendFeetPerHour
+    },
+
+    get noaaSiteId() {
+      return store.predictions?.noaaSiteId
+    }
+  }))
+  .views(store => ({
     get dataPoints() {
-      return store.readings?.map(reading => {
-        const timestamp = localDayJs.tz(reading.timestamp)
+      const timestamps = store.recentReadings?.timestamps || []
+      const waterHeights = store.recentReadings?.waterHeights || []
+      const discharges = store.recentReadings?.discharges || []
+
+      return (timestamps || []).map((timestamp, index) => {
+        const ts = localDayJs.tz(timestamp)
 
         return {
-          reading: reading.waterHeight,
-          waterDischarge: reading.waterDischarge,
-          timestamp: timestamp,
-          timestampMs: timestamp.valueOf(),
+          reading: waterHeights[index],
+          waterDischarge: discharges[index],
+          timestamp: ts,
+          timestampMs: ts.valueOf(),
         } as DataPoint
       })
     },
 
     get forecastDataPoints() {
-      return store.noaaForecast?.data?.map(forecast => {
-        const timestamp = localDayJs.tz(forecast.timestamp)
+      const timestamps = store.predictions?.timestamps || []
+      const discharges = store.predictions?.discharges || []
+      const waterHeights = store.predictions?.waterHeights || []
+
+      return (timestamps || []).map((timestamp, index) => {
+        const ts = localDayJs.tz(timestamp)
 
         return {
-          reading: forecast.stage,
-          waterDischarge: forecast.discharge,
-          timestamp: timestamp,
-          timestampMs: timestamp.valueOf(),
+          reading: waterHeights[index],
+          waterDischarge: discharges[index],
+          timestamp: ts,
+          timestampMs: ts.valueOf(),
         } as DataPoint
       })
     },
+
+    get peaks() {
+      const timestamps = store.predictions?.peaks?.timestamps || []
+      const discharges = store.predictions?.peaks?.discharges || []
+      const waterHeights = store.predictions?.peaks?.waterHeights || []
+
+      return discharges.map((discharge, index) => {
+        const ts = localDayJs.tz(timestamps[index])
+
+        return {
+          timestamp: ts,
+          timestampMs: ts.valueOf(),
+          reading: waterHeights[index],
+          waterDischarge: discharge,
+        }
+      })
+    }
   }))
   .views(store => {
-    const getForecastGage = () => {
-      return {
-        id: store.id,
-        nwrfcId: store?.noaaForecast?.noaaSiteId,
-        title: store?.locationInfo?.shortName,
-        warningDischarge: store.dischargeStageOne,
-        floodDischarge: store.dischargeStageTwo,
-        isMetagage: false,
-        color: store.color,
-      } as GageSummary
-    }
-
     return {
       get latestReading() {
         return store?.dataPoints[0]
@@ -205,7 +257,7 @@ const ForecastModel = types
 
         if (!dataPoints) return null
 
-        const cutoff = localDayJs().subtract(24, 'hours').valueOf()
+        const cutoff = localDayJs.tz().subtract(24, 'hours').valueOf()
         let maxReading = dataPoints[0]
         let max = maxReading?.waterDischarge
 
@@ -255,7 +307,18 @@ const ForecastModel = types
         }).slice()
       },
 
-      getForecastGage,
+      get forecastGage() {
+        return {
+          id: store.id,
+          nwrfcId: store?.noaaSiteId,
+          title: store?.locationInfo?.name || store?.locationInfo?.shortName,
+          warningDischarge: store.dischargeStageOne,
+          floodDischarge: store.dischargeStageTwo,
+          isMetagage: store?.locationInfo?.isMetagage,
+          color: store.color,
+        } as GageSummary
+      }
+  
     }
   })
 
@@ -264,55 +327,58 @@ export const ForecastStoreModel = types
   .model("ForecastStore")
   .props({
     forecasts: types.map(ForecastModel),
+    maxReadingId: types.maybeNull(types.number),
     ...dataFetchingProps
   })
   .actions(withDataFetchingActions)
   .actions(store => {
-    const fetchData = flow(function*() {
-      store.setIsFetching(true)
-      
-      const toDateTime = new Date().toISOString()
-      const fromDateTime = dayjs().subtract(
-        Config.FRONT_PAGE_CHART_DURATION_NUMBER,
-        Config.FRONT_PAGE_CHART_DURATION_UNIT
-      ).toDate().toISOString()
+    const buildData = (response: Record<string, Predictions | Readings>) => {
+      Object.keys(response).map((gageId, index) => {
+        const value = response[gageId]
 
-      const response = yield api.getForecastsUTC<{[gageId: string]: Forecast}>(
-        Config.FORECAST_GAGE_IDS.join(','),
-        fromDateTime,
-        toDateTime,
-      )
+        if (!value) return
 
-      if (response.kind === 'ok') {
-        // Augment data with id
-        Object.keys(response.data).forEach((gageId, index) => {
-          const value = response.data[gageId]
-          
-          const extendedValue = {
-            id: gageId,
-            locationInfo: gageId,
-            color: ChartColorsHex[index],
-            ...value,
-          }
-          
-          store.forecasts.set(gageId, extendedValue)
-        })
+        const existingValue = store.forecasts.get(gageId)
 
-      } else {
-        store.setError(response.kind)
-      }
-      
-      store.setIsFetching(false)
-    })
+        const extendedValue = {
+          ...existingValue,
+          id: gageId,
+          locationInfo: gageId,
+          color: ChartColorsHex[index],
+        }
+
+        if ('forecastId' in value) {
+          extendedValue.predictions = value
+        } else {
+          extendedValue.recentReadings = value
+        }
+
+        store.forecasts.set(gageId, extendedValue)
+      })
+    }
 
     const fetchRecentReadings = flow(function*() {
       store.setIsFetching(true)
 
-      const response = yield api.getReadings({
+      const params = {
         gageIds: Config.FORECAST_GAGE_IDS.join(','),
-      })
+      }
 
-      console.log("fetchRecentReadings", response)
+      if (store.maxReadingId) {
+        params['prevMaxReadingId'] = store.maxReadingId
+      }
+
+      const response = yield api.getReadings(params)
+
+      if (response.kind === 'ok') {
+        buildData(response.data?.readings)
+
+        if (response.data?.maxReadingId) {
+          store.maxReadingId = response.data.maxReadingId
+        }
+      } else {
+        store.setError(response.kind)
+      }
 
       store.setIsFetching(false)
     })
@@ -328,9 +394,18 @@ export const ForecastStoreModel = types
         ).toDate().toISOString()  
       )
 
-      console.log("fetchForecast", response)
+      if (response.kind === 'ok') {
+        buildData(response.data)
+      } else {
+        store.setError(response.kind)
+      }
 
       store.setIsFetching(false)
+    })
+
+    const fetchData = flow(function*() {
+      fetchRecentReadings()
+      fetchForecast()
     })
 
     return {
@@ -352,5 +427,7 @@ export interface ForecastStoreSnapshot extends SnapshotOut<typeof ForecastStoreM
 export interface Forecast extends Instance<typeof ForecastModel> {}
 export interface NOAAForecast extends Instance<typeof NOAAForecastModel> {}
 export interface DataPoint extends Instance<typeof DataPointModel> {}
+export interface Predictions extends Instance<typeof PredictionModel> {}
+export interface Readings extends Instance<typeof ReadingModel> {}
 export interface ForecastSnapshotOut extends SnapshotOut<typeof ForecastModel> {}
 export interface ForecastSnapshotIn extends SnapshotIn<typeof ForecastModel> {}

@@ -108,7 +108,7 @@ export const GageSummaryCard = observer(
     const forecast = forecastsStore.getForecast(gage?.id)
     
     const gageTitle = gage?.title
-    const peaks = forecast?.noaaForecast?.peaks
+    const peaks = forecast?.peaks
 
     const $offsetLeft = (!firstItem && isWideScreen) ? Spacing.medium : 0
     const $offsetTop = (!isWideScreen && firstItem) ? 0 : Spacing.medium

@@ -24,7 +24,7 @@ export const useUtils = () => {
     if (trend > 0) {
       fmtTrend = "+" + fmtTrend
     }
-    return fmtTrend + ` ${t("measure.ft")}/${t("measure.hr")}`;
+    return fmtTrend + ` ${t("measure.cfs")}/${t("measure.hr")}`;
   }
   
   return {

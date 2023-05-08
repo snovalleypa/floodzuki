@@ -3,7 +3,6 @@ import { ForecastStoreModel } from "./Forecasts"
 import { GageStoreModel } from "./Gage"
 import { GageReadingStoreModel } from "./GageReading"
 import { LocationInfoModelStore } from "./LocationInfo"
-import { MetagageModelStore } from "./Metagage"
 import { RegionModelStore } from "./Region"
 import { AuthSessionStoreModel } from "./AuthSession"
 
@@ -16,7 +15,6 @@ export const RootStoreModel = types.model("RootStore")
     gagesStore: types.optional(GageStoreModel, {}),
     gageReadingsStore: types.optional(GageReadingStoreModel, {}),
     regionStore: types.optional(RegionModelStore, {}),
-    metagageStore: types.optional(MetagageModelStore, {}),
     locationInfoStore: types.optional(LocationInfoModelStore, {}),
     forecastsStore: types.optional(ForecastStoreModel, {}),
     authSessionStore: types.optional(AuthSessionStoreModel, {}),
@@ -31,7 +29,6 @@ export const RootStoreModel = types.model("RootStore")
 
       yield store.regionStore.fetchData()
       yield store.locationInfoStore.fetchData()
-      yield store.metagageStore.fetchData()
       yield store.gagesStore.fetchData()
       yield store.forecastsStore.fetchData()
 
@@ -44,16 +41,10 @@ export const RootStoreModel = types.model("RootStore")
   })
   .views(store => {
     const getForecastGage = (gageId: string) => {
-      const metaGage = store.metagageStore.metagages.find(gage => gage.id === gageId)
-      
-      if (metaGage) {
-        return metaGage.getForecastGage()
-      }
-
       const gage = store.forecastsStore.forecasts.get(gageId)
 
       if (gage) {
-        return gage.getForecastGage()
+        return gage.forecastGage
       }
 
       return null

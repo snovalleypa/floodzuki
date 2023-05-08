@@ -324,7 +324,7 @@ export class Api {
       gaugeIds: params.gageIds,
     }
 
-    props["minutes"] = params.minutes || 2880
+    props["minutes"] = params.minutes || 5760
     props["prevMaxReadingId"] = params.prevMaxReadingId || 0
 
 

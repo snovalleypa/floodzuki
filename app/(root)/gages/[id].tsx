@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { TouchableOpacity } from "react-native";
 import { ErrorBoundaryProps, Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { observer } from "mobx-react-lite";
@@ -200,11 +200,18 @@ const GageScreen = observer(
   function GageScreen() {
     const { id } = useLocalSearchParams();
 
-    const { gagesStore } = useStores();
+    const { gagesStore, isFetched } = useStores();
     
     const gageId = Array.isArray(id) ? id.join("/") : id
     const gage = gagesStore.gages.find(gage => gage.locationId === gageId)
 
+    // Fetch data on mount
+    useEffect(() => {
+      if (isFetched)  {
+        gagesStore.fetchData()
+      }
+    }, [isFetched])
+    
     if (!gage?.locationId) {
       return <EmptyComponent />
     }
