@@ -168,7 +168,7 @@ const HighchartsReactNative = React.memo((props: HighchartsReactNativeProps) => 
   const runFirst = buildScripts({ data, modules, options, setOptions })
 
   return (
-    <View style={[styles, { backgroundColor: "green" }]}>
+    <View style={styles}>
       <WebView
         ref={webviewRef}
         onMessage={handleMessage}
@@ -183,7 +183,7 @@ const HighchartsReactNative = React.memo((props: HighchartsReactNativeProps) => 
         mixedContentMode='always'
         allowFileAccessFromFileURLs={true}
         startInLoadingState={startInLoadingState}
-        style={[webviewStyles, { backgroundColor: "red" }]}
+        style={webviewStyles}
         androidHardwareAccelerationDisabled
         {...webviewProps}
       />
