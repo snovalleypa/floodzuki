@@ -453,7 +453,7 @@ export const AuthSessionStoreModel = types
       }
     })
 
-    const togglePushNotificationsEnabled = flow(function*() {
+    const togglePushNotificationsEnabled = flow(function*(t) {
       const nextState = !store.isPushNotificationsEnabled
       const token = store.pushToken
 
@@ -461,7 +461,7 @@ export const AuthSessionStoreModel = types
 
       // If nextState is true, we need to register the token
       if (nextState) {
-        const newToken = yield registerForPushNotificationsAsync(true)
+        const newToken = yield registerForPushNotificationsAsync(true, t)
         
         if (!token || token !== newToken && newToken) {
           store.setProp("pushToken",  newToken)

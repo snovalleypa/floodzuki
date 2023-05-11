@@ -6,6 +6,8 @@ import { Colors } from '@common-ui/constants/colors';
 import { useRouter } from 'expo-router';
 import { isAndroid, isWeb } from '@common-ui/utils/responsive';
 import { Timing } from '@common-ui/constants/timing';
+import { openAppSettings } from '@utils/navigation';
+import { useLocale } from '@common-ui/contexts/LocaleContext';
 
 // This is for foreground notifications
 Notifications.setNotificationHandler({
@@ -21,7 +23,7 @@ export async function isPushNotificationsEnabledAsync() {
   return existingStatus === 'granted';
 }
 
-export async function registerForPushNotificationsAsync(requestPermissions: boolean): Promise<string> {
+export async function registerForPushNotificationsAsync(requestPermissions: boolean, t): Promise<string> {
   let token: string;
 
   // We're not interested in PN's on web
@@ -50,8 +52,19 @@ export async function registerForPushNotificationsAsync(requestPermissions: bool
     }
 
     if (requestPermissions && finalStatus !== 'granted') {
-      Alert.alert('Push Notifications not enabled!', JSON.stringify(permResponse));
+      Alert.alert(
+        t("alertsScreen.pnsDisabledTitle"),
+        t("alertsScreen.pnsDisabledMessage"),
+        [
+          {
+            text: t("alertsScreen.pnsDisabledButton"),
+            onPress: () => openAppSettings(),
+          }
+        ]
+      )
+      // Alert.alert('Push Notifications not enabled!', JSON.stringify(permResponse));
       // Alert.alert('Push Notifications not enabled!', 'Please enable push notifications in your settings');
+      
       return "";
     }
 
@@ -65,11 +78,12 @@ export async function registerForPushNotificationsAsync(requestPermissions: bool
 
 export function useRegisterPushNotificationsListener(requestPermissions: boolean) {
   const router = useRouter();
+  const { t } = useLocale();
 
   const lastNotificationResponse = Notifications.useLastNotificationResponse();
 
   useEffect(() => {
-    registerForPushNotificationsAsync(requestPermissions);
+    registerForPushNotificationsAsync(requestPermissions, t);
   }, [])
 
   useEffect(() => {

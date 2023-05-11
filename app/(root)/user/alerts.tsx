@@ -75,26 +75,26 @@ const AlertSettingsCard = observer(
     }
 
     const handlePushNotificationsValueChange = async () => {
-      if (!authSessionStore.isPushNotificationsEnabled) {
-        const permissionGranted = await isPushNotificationsEnabledAsync()
+      // if (authSessionStore.isPushNotificationsEnabled) {
+      //   const permissionGranted = await isPushNotificationsEnabledAsync()
 
-        if (!permissionGranted) {
-          Alert.alert(
-            t("alertsScreen.pnsDisabledTitle"),
-            t("alertsScreen.pnsDisabledMessage"),
-            [
-              {
-                text: t("alertsScreen.pnsDisabledButton"),
-                onPress: () => openAppSettings(),
-              }
-            ]
-          )
+      //   if (!permissionGranted) {
+      //     Alert.alert(
+      //       t("alertsScreen.pnsDisabledTitle"),
+      //       t("alertsScreen.pnsDisabledMessage"),
+      //       [
+      //         {
+      //           text: t("alertsScreen.pnsDisabledButton"),
+      //           onPress: () => openAppSettings(),
+      //         }
+      //       ]
+      //     )
 
-          return
-        }
-      }
+      //     return
+      //   }
+      // }
 
-      authSessionStore.togglePushNotificationsEnabled()
+      authSessionStore.togglePushNotificationsEnabled(t)
     }
 
     const openPhoneNumber = () => {
