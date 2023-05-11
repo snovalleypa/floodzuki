@@ -42,15 +42,16 @@ export async function registerForPushNotificationsAsync(requestPermissions: bool
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
     
     let finalStatus = existingStatus;
-    
+    let permResponse;
 
     if (requestPermissions && existingStatus !== 'granted') {
-      const { status } = await Notifications.requestPermissionsAsync();
-      finalStatus = status;
+      permResponse = await Notifications.requestPermissionsAsync();
+      finalStatus = permResponse.status;
     }
 
     if (requestPermissions && finalStatus !== 'granted') {
-      Alert.alert('Push Notifications not enabled!', 'Please enable push notifications in your settings');
+      Alert.alert('Push Notifications not enabled!', JSON.stringify(permResponse));
+      // Alert.alert('Push Notifications not enabled!', 'Please enable push notifications in your settings');
       return "";
     }
 
