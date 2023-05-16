@@ -7,7 +7,7 @@ import { ErrorDetails } from "@components/ErrorDetails"
 import TitleWithBackButton from "@components/TitleWithBackButton"
 import { Card, CardContent, CardFooter, CardHeader } from "@common-ui/components/Card"
 import { LinkButton, SimpleLinkButton, SolidButton } from "@common-ui/components/Button"
-import { openAppSettings, openLinkInBrowser } from "@utils/navigation"
+import { openLinkInBrowser } from "@utils/navigation"
 import { Spacing } from "@common-ui/constants/spacing"
 import CheckBoxItem from "@common-ui/components/CheckBoxItem"
 
@@ -21,8 +21,7 @@ import { If, Ternary } from "@common-ui/components/Conditional"
 import { isIOS, isWeb } from "@common-ui/utils/responsive"
 import ErrorMessage from "@common-ui/components/ErrorMessage"
 import { Gage } from "@models/Gage"
-import { Alert, Switch } from "react-native"
-import { isPushNotificationsEnabledAsync } from "@services/pushNotifications"
+import { Switch } from "react-native"
 import { useLocale } from "@common-ui/contexts/LocaleContext"
 
 // We use this to wrap each screen with an error boundary
@@ -75,25 +74,6 @@ const AlertSettingsCard = observer(
     }
 
     const handlePushNotificationsValueChange = async () => {
-      // if (authSessionStore.isPushNotificationsEnabled) {
-      //   const permissionGranted = await isPushNotificationsEnabledAsync()
-
-      //   if (!permissionGranted) {
-      //     Alert.alert(
-      //       t("alertsScreen.pnsDisabledTitle"),
-      //       t("alertsScreen.pnsDisabledMessage"),
-      //       [
-      //         {
-      //           text: t("alertsScreen.pnsDisabledButton"),
-      //           onPress: () => openAppSettings(),
-      //         }
-      //       ]
-      //     )
-
-      //     return
-      //   }
-      // }
-
       authSessionStore.togglePushNotificationsEnabled(t)
     }
 

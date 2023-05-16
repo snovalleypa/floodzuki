@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { ActivityIndicator, TextStyle, TouchableOpacity, View, ViewStyle } from "react-native";
+import { ActivityIndicator, LayoutChangeEvent, TextStyle, TouchableOpacity, View, ViewStyle } from "react-native";
 import { observer } from "mobx-react-lite";
 import { useLocalSearchParams, useRouter } from "expo-router"
 
@@ -36,6 +36,7 @@ import { useLocale } from "@common-ui/contexts/LocaleContext";
 
 interface GageDetailsChartProps {
   gage: Gage
+  hideChart?: boolean
 }
 
 interface ChartsProps {
@@ -290,7 +291,7 @@ const CrestInfo = observer(
 
 export const GageDetailsChart = observer(
   function GageDetailsChart(props: GageDetailsChartProps) {
-    const { gage } = props
+    const { gage, hideChart } = props
     
     const router = useRouter()
     const { t } = useLocale()
@@ -426,7 +427,7 @@ export const GageDetailsChart = observer(
             </Cell>
           </Row>
         </CardHeader>
-        <Ternary condition={!Object.keys(chartOptions).length}>
+        <Ternary condition={!Object.keys(chartOptions).length || hideChart}>
           <Cell height={320} flex>
             <ActivityIndicator animating />
           </Cell>

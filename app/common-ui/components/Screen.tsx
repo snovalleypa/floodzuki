@@ -16,6 +16,7 @@ export type ContentProps = {
   style?: ViewStyle
   scrollViewStyle?: ScrollViewProps
   scrollable?: boolean
+  onScroll?: ScrollViewProps["onScroll"]
   maxWidth?: number
 } & OffsetProps & ViewProps &
   ScrollViewProps
@@ -36,7 +37,7 @@ export type ContentProps = {
  * </Content>
  */
 export const Content = (props: ContentProps) => {
-  const { children, noPadding, noBackground, bgColor, style, scrollViewStyle, scrollable, maxWidth, ...rest } =
+  const { children, noPadding, noBackground, bgColor, style, scrollViewStyle, scrollable, maxWidth, onScroll, ...rest } =
     props
 
   const Container = scrollable ? ScrollView : View
@@ -75,6 +76,8 @@ export const Content = (props: ContentProps) => {
     <Container
       contentInsetAdjustmentBehavior="automatic"
       showsVerticalScrollIndicator={false}
+      scrollEventThrottle={16}
+      onScroll={onScroll}
       style={scrollStyles}>
       <View style={holderStyles} {...rest}>
         {children}

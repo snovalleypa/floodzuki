@@ -17,7 +17,7 @@ const GageInfoCard = observer(
     const goToUSGSWebsite = () => {
       if (!gage.usgsInfo) return
       
-      const url = `https://waterdata.usgs.gov/monitoring-location/${gage.usgsInfo.id}`
+      const url = `https://waterdata.usgs.gov/monitoring-location/${gage.usgsInfo?.id}`
       openLinkInBrowser(url)
     }
 

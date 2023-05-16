@@ -66,7 +66,9 @@ const useChartData = (gage: Gage, layout) => {
       r: 2,
     }))
 
-    return circleData.filter((c,i) => circleData.indexOf(c) === i)
+    const circleDataXValues = circleData.map(c => c.cx)
+
+    return circleData.filter((c,i) => circleDataXValues.indexOf(c.cx) === i)
   }
       
   

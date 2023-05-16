@@ -84,6 +84,8 @@ export function useRegisterPushNotificationsListener(requestPermissions: boolean
 
   useEffect(() => {
     registerForPushNotificationsAsync(requestPermissions, t);
+    // Clear badge count on app open
+    Notifications.setBadgeCountAsync(0);
   }, [])
 
   useEffect(() => {

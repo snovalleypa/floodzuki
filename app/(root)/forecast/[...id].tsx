@@ -1,4 +1,4 @@
-import React, { useEffect } from "react"
+import React, { useEffect, useState } from "react"
 import { ErrorBoundaryProps, useSearchParams, Stack, useRouter } from "expo-router";
 import { observer } from "mobx-react-lite";
 
@@ -11,7 +11,7 @@ import { Cell, Row } from "@common-ui/components/Common";
 import { Spacing } from "@common-ui/constants/spacing";
 
 import { useStores } from "@models/helpers/useStores";
-import { useResponsive } from "@common-ui/utils/responsive";
+import { isAndroid, useResponsive } from "@common-ui/utils/responsive";
 import { IconButton, LinkButton } from "@common-ui/components/Button";
 import { Ternary } from "@common-ui/components/Conditional";
 import { Colors } from "@common-ui/constants/colors";
@@ -20,6 +20,7 @@ import { GageSummary } from "@models/RootStore";
 import { ROUTES } from "app/_layout";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import ForecastFooter from "@components/ForecastFooter";
+import { NativeScrollEvent, NativeSyntheticEvent } from "react-native";
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -56,6 +57,26 @@ const ForecastDetailsScreen = observer(
 
     const forecastGage = hidden ? {} as GageSummary : store.getForecastGage(gageId)
 
+    const [hideChart, setHideChart] = useState(false)
+
+    // On Android WebView might crash if user scrolls to the bottom of the screen
+    // and triggers the scroll bounce effect. This is a workaround to prevent that.
+    // As soon as the chart goes out of view, we hide it.
+    const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      if (!isAndroid) {
+        return
+      }
+
+      const { y: scrollHeight } = event.nativeEvent.contentOffset
+      const { height: screenHeight } = event.nativeEvent.layoutMeasurement 
+
+      const nextHideChart = scrollHeight > screenHeight
+      
+      if (hideChart !== nextHideChart) {
+        setHideChart(nextHideChart)
+      }
+    }
+
     const goBack = () => {
       router.push({ pathname: ROUTES.Forecast })
     }
@@ -81,8 +102,8 @@ const ForecastDetailsScreen = observer(
             {forecastGage?.title}
           </LargeTitle>
         </Row>
-        <Content scrollable>
-          <ForecastChart gages={[forecastGage]} />
+        <Content scrollable onScroll={handleScroll}>
+          <ForecastChart gages={[forecastGage]} hideChart={hideChart} />
           <Cell top={Spacing.mediumXL}>
             <GageSummaryCard
               firstItem

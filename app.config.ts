@@ -13,7 +13,7 @@ export default {
   icon: "./assets/app-icon/ios-universal.png",
   web: {
     bundler: "metro",
-    favicon: "./assets/favicon.png",
+    favicon: "./assets/favicon-180.png",
     title: "Floodzilla Gage Network - SVPA",
     description: "A network of river gages on the Snoqualmie River deployed and managed by The Snoqualmie Valley Preservation Alliance",
     splash: {
@@ -92,6 +92,13 @@ export default {
   plugins: [
     "expo-localization",
     "sentry-expo",
+    [
+      "expo-notifications",
+      {
+        "icon": "./assets/favicon-96.png",
+        "color": "#ffffff",
+      },
+    ],
     [
       "expo-updates",
       {

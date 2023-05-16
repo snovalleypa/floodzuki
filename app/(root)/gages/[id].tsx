@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { TouchableOpacity } from "react-native";
+import React, { useRef, useState } from "react";
+import { LayoutChangeEvent, LayoutRectangle, NativeScrollEvent, NativeSyntheticEvent, TouchableOpacity } from "react-native";
 import { ErrorBoundaryProps, Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { observer } from "mobx-react-lite";
 
@@ -111,6 +111,26 @@ const GageDetailsScreen = observer(
     const gageId = Array.isArray(id) ? id.join("/") : id
 
     const { isMobile } = useResponsive();
+
+    const [hideChart, setHideChart] = useState(false)
+
+    // On Android WebView might crash if user scrolls to the bottom of the screen
+    // and triggers the scroll bounce effect. This is a workaround to prevent that.
+    // As soon as the chart goes out of view, we hide it.
+    const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      if (!isAndroid) {
+        return
+      }
+
+      const { y: scrollHeight } = event.nativeEvent.contentOffset
+      const { height: screenHeight } = event.nativeEvent.layoutMeasurement 
+
+      const nextHideChart = scrollHeight > screenHeight
+      
+      if (hideChart !== nextHideChart) {
+        setHideChart(nextHideChart)
+      }
+    }
     
     const goBack = () => {
       router.push({ pathname: ROUTES.Home })
@@ -148,8 +168,11 @@ const GageDetailsScreen = observer(
           </Cell>
         </Row>
         {/* Content */}
-        <Content scrollable>
-          <GageDetailsChart gage={gage} />
+        <Content scrollable onScroll={handleScroll}>
+          <GageDetailsChart
+            gage={gage}
+            hideChart={hideChart}
+          />
           <Row>
             <If condition={!isMobile}>
               <Card
@@ -200,17 +223,10 @@ const GageScreen = observer(
   function GageScreen() {
     const { id } = useLocalSearchParams();
 
-    const { gagesStore, isFetched } = useStores();
+    const { gagesStore } = useStores();
     
     const gageId = Array.isArray(id) ? id.join("/") : id
     const gage = gagesStore.gages.find(gage => gage.locationId === gageId)
-
-    // Fetch data on mount
-    useEffect(() => {
-      if (isFetched)  {
-        gagesStore.fetchData()
-      }
-    }, [isFetched])
     
     if (!gage?.locationId) {
       return <EmptyComponent />

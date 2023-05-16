@@ -19,6 +19,7 @@ import { useLocale } from "@common-ui/contexts/LocaleContext";
 
 interface ForecastChartProps {
   gages: GageSummary[]
+  hideChart?: boolean
 }
 
 interface ChartsProps {
@@ -78,7 +79,7 @@ export const ForecastChart = observer(
   function ForecastChart(props: ForecastChartProps) {
     const { forecastsStore } = useStores()
     const { t } = useLocale();
-    const { gages } = props
+    const { gages, hideChart } = props
 
     const [range, setRange] = useState('DF')
     
@@ -99,7 +100,7 @@ export const ForecastChart = observer(
           innerHorizontal={Spacing.extraSmall}
           innerVertical={Spacing.extraSmall}
           height={400}>
-          <Ternary condition={isLoading}>
+          <Ternary condition={isLoading || hideChart}>
             <Cell flex>
               <ActivityIndicator />
             </Cell>
