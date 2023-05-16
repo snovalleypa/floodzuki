@@ -1,4 +1,4 @@
-import React, { useEffect } from "react"
+import React, { useEffect, useState } from "react"
 import { ErrorBoundaryProps, Stack } from "expo-router";
 import { observer } from "mobx-react-lite";
 
@@ -15,6 +15,8 @@ import { useInterval, useTimeout } from "@utils/useTimeout";
 import { Timing } from "@common-ui/constants/timing";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import ForecastFooter from "@components/ForecastFooter";
+import { NativeScrollEvent, NativeSyntheticEvent } from "react-native";
+import { isAndroid } from "@common-ui/utils/responsive";
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -49,6 +51,28 @@ const ForecastScreen = observer(
       }
     }, [store.isFetched])
 
+    const [hideChart, setHideChart] = useState(false)
+
+    // On Android WebView might crash if user scrolls to the bottom of the screen
+    // and triggers the scroll bounce effect. This is a workaround to prevent that.
+    // As soon as the chart goes out of view, we hide it.
+    const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      if (!isAndroid) {
+        return
+      }
+
+      const { y: scrollHeight } = event.nativeEvent.contentOffset
+      const { height: screenHeight } = event.nativeEvent.layoutMeasurement
+      const { height: contentHeight } = event.nativeEvent.contentSize
+      const bottomOffset = 100
+
+      const nextHideChart = scrollHeight + screenHeight + bottomOffset > contentHeight
+      
+      if (hideChart !== nextHideChart && !!scrollHeight) {
+        setHideChart(nextHideChart)
+      }
+    }
+
     const gageIds = Config.FORECAST_GAGE_IDS
     const forecastGages = hidden ? [] : store.getForecastGages(gageIds)
 
@@ -56,8 +80,8 @@ const ForecastScreen = observer(
       <Screen>
         {/* This is purely for documentTitle setting */}
         <Stack.Screen options={{ title: `${t("common.title")} - ${t("forecastScreen.title")}` }} />
-        <Content scrollable>
-          <ForecastChart gages={forecastGages} />
+        <Content scrollable onScroll={handleScroll}>
+          <ForecastChart gages={forecastGages} hideChart={hideChart} />
           <RowOrCell flex align="flex-start" justify="stretch" top={Spacing.mediumXL}>
             {forecastGages.map((gage, i) => (
               <GageSummaryCard firstItem={i === 0} key={gage.id} gage={gage} />

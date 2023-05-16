@@ -68,11 +68,13 @@ const ForecastDetailsScreen = observer(
       }
 
       const { y: scrollHeight } = event.nativeEvent.contentOffset
-      const { height: screenHeight } = event.nativeEvent.layoutMeasurement 
+      const { height: screenHeight } = event.nativeEvent.layoutMeasurement
+      const { height: contentHeight } = event.nativeEvent.contentSize
+      const bottomOffset = 100
 
-      const nextHideChart = scrollHeight > screenHeight
+      const nextHideChart = scrollHeight + screenHeight + bottomOffset > contentHeight
       
-      if (hideChart !== nextHideChart) {
+      if (hideChart !== nextHideChart && !!scrollHeight) {
         setHideChart(nextHideChart)
       }
     }
