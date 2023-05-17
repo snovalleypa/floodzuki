@@ -37,7 +37,7 @@ export default {
       backgroundColor: "#ffffff"
     },
     config: {
-      googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY
+      googleMapsApiKey: process.env.GOOGLE_MAPS_IOS_API_KEY
     }
   },
   android: {
@@ -79,7 +79,7 @@ export default {
     },
     config: {
       googleMaps: {
-        apiKey: process.env.GOOGLE_MAPS_API_KEY
+        apiKey: process.env.GOOGLE_MAPS_ANDROID_API_KEY
       }
     }
   },
@@ -125,7 +125,6 @@ export default {
       projectId: "0f52b777-109a-423d-a18b-1ccfb5dea8e0"
     },
     recaptchaKey: process.env.GOOGLE_RECAPTCH_SITE_KEY,
-    googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
     googleOAuthWebClientId: process.env.GOOGLE_AUTH_WEB_ID,
     googleOAuthAndroidClientId: process.env.GOOGLE_AUTH_ANDROID_ID,
     googleOAuthIOSClientId: process.env.GOOGLE_AUTH_IOS_ID,

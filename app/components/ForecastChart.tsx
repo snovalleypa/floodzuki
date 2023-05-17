@@ -17,6 +17,8 @@ import { SegmentControl } from "@common-ui/components/SegmentControl";
 import { useStores } from "@models/helpers/useStores";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 
+export const CHART_HEIGHT = 400
+
 interface ForecastChartProps {
   gages: GageSummary[]
   hideChart?: boolean
@@ -67,7 +69,7 @@ const Charts = (props: ChartsProps) => {
       <HighchartsReactNative
         startInLoadingState
         styles={{ flex: 1 }}
-        webviewStyles={{ height: 400 - Spacing.extraSmall * 2 }}
+        webviewStyles={{ height: CHART_HEIGHT - Spacing.extraSmall * 2 }}
         options={options}
       />
       <LocalHighchartsReact options={options} />
@@ -99,7 +101,7 @@ export const ForecastChart = observer(
         <Card
           innerHorizontal={Spacing.extraSmall}
           innerVertical={Spacing.extraSmall}
-          height={400}>
+          height={CHART_HEIGHT}>
           <Ternary condition={isLoading || hideChart}>
             <Cell flex>
               <ActivityIndicator />

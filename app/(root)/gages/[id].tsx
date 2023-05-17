@@ -29,6 +29,7 @@ import { Card } from "@common-ui/components/Card";
 import EmptyComponent from "@common-ui/components/EmptyComponent";
 import GageMap from "@components/GageMap";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
+import { useHideCharts } from "@utils/useHideCharts";
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -112,25 +113,7 @@ const GageDetailsScreen = observer(
 
     const { isMobile } = useResponsive();
 
-    const [hideChart, setHideChart] = useState(false)
-
-    // On Android WebView might crash if user scrolls to the bottom of the screen
-    // and triggers the scroll bounce effect. This is a workaround to prevent that.
-    // As soon as the chart goes out of view, we hide it.
-    const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-      if (!isAndroid) {
-        return
-      }
-
-      const { y: scrollHeight } = event.nativeEvent.contentOffset
-      const { height: screenHeight } = event.nativeEvent.layoutMeasurement 
-
-      const nextHideChart = scrollHeight > screenHeight
-      
-      if (hideChart !== nextHideChart) {
-        setHideChart(nextHideChart)
-      }
-    }
+    const [hideChart, handleScroll] = useHideCharts(500)
     
     const goBack = () => {
       router.push({ pathname: ROUTES.Home })

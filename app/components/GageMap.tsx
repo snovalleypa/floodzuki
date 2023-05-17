@@ -19,15 +19,13 @@ import { observer } from "mobx-react-lite"
 import { isWeb } from "@common-ui/utils/responsive"
 import { Ternary } from "@common-ui/components/Conditional"
 import { MobileMapIcon, getMapIcon } from "./TrendIcon"
-import { useRouter } from "expo-router"
+import { useFocusEffect, useRouter } from "expo-router"
 import { ROUTES } from "app/_layout"
 import { Spacing } from "@common-ui/constants/spacing";
 
 type GageMapProps = {
   gages: Gage[]
 }
-
-const API_KEY = Constants.expoConfig.extra.googleMapsApiKey
 
 const getMapOptions = maps => {
   return {
@@ -156,7 +154,6 @@ const WebMap = ({ gages }: GageMapProps) => {
 
   return (
     <Map
-      bootstrapURLKeys={{ key: API_KEY }}
       zoom={4}
       center={{ lat: 47.622403, lng: -121.933723 }}
       options={getMapOptions}
@@ -181,7 +178,7 @@ const MobileMap = ({ gages }: GageMapProps) => {
     longitudeDelta: 0.0421,
   })
 
-  useEffect(() => {
+  const fitToMarkers = () => {
     mapRef.current?.fitToSuppliedMarkers(markerIds, {
       edgePadding: {
         top: Spacing.large,
@@ -191,7 +188,15 @@ const MobileMap = ({ gages }: GageMapProps) => {
       },
       animated: true,
     })
+  }
+
+  useEffect(() => {
+    fitToMarkers()
   }, [markerIds, mapRef.current])
+
+  useFocusEffect(() => {
+    fitToMarkers()
+  })
 
   const onMarkerPress = (e) => {
     const { id } = e.nativeEvent
@@ -214,7 +219,7 @@ const MobileMap = ({ gages }: GageMapProps) => {
       mapPadding={{ top: Spacing.extraSmall, right: Spacing.extraSmall, bottom: Spacing.extraSmall, left: Spacing.extraSmall }}
     >
       {gages.map(gage => {
-        if (gage.latitude && gage.longitude) {
+        if (gage?.latitude && gage?.longitude) {
           return (
             <MapMarker
               key={gage.locationId}
@@ -225,7 +230,7 @@ const MobileMap = ({ gages }: GageMapProps) => {
               }}
               title={gage.locationName}
             >
-              <MobileMapIcon levelTrend={gage.status.levelTrend} />
+              <MobileMapIcon levelTrend={gage?.status?.levelTrend} />
             </MapMarker>
           )
         }

@@ -55,17 +55,18 @@ To fully utilize all supported features in development mode you'll need to run t
   SENTRY_AUTH_TOKEN=""
   GOOGLE_AUTH_CLIENT_SECRET=""
   GOOGLE_RECAPTCH_SITE_KEY=""
-  GOOGLE_MAPS_API_KEY=""
   GOOGLE_AUTH_EXPO_ID=""
   GOOGLE_AUTH_WEB_ID=""
   GOOGLE_AUTH_IOS_ID=""
   GOOGLE_AUTH_ANDROID_ID=""
+  GOOGLE_MAPS_IOS_API_KEY=""
+  GOOGLE_MAPS_ANDROID_API_KEY=""
 ```
 
 or just run the app with the following command:
 
 ```bash
-$ BUILD_ENV="local" SENTRY_AUTH_TOKEN="" GOOGLE_AUTH_CLIENT_SECRET="" GOOGLE_RECAPTCH_SITE_KEY="" GOOGLE_MAPS_API_KEY="" GOOGLE_AUTH_EXPO_ID="" GOOGLE_AUTH_WEB_ID="" GOOGLE_AUTH_IOS_ID="" GOOGLE_AUTH_ANDROID_ID="" npx expo start
+$ BUILD_ENV="local" SENTRY_AUTH_TOKEN="" GOOGLE_AUTH_CLIENT_SECRET="" GOOGLE_RECAPTCH_SITE_KEY="" GOOGLE_AUTH_EXPO_ID="" GOOGLE_AUTH_WEB_ID="" GOOGLE_AUTH_IOS_ID="" GOOGLE_AUTH_ANDROID_ID="" GOOGLE_MAPS_IOS_API_KEY="" GOOGLE_MAPS_ANDROID_API_KEY="" npx expo start
 ```
 
 #### Push Notifications
@@ -103,7 +104,7 @@ The updates are created locally and don't have access to Expo Secrets therefore 
 
 The full command will look more like this (`BUILD_ENV="local"` is used to bundle local `google-services.json` file):
 ```bash
-$ BUILD_ENV="local" SENTRY_AUTH_TOKEN="" GOOGLE_AUTH_CLIENT_SECRET="" GOOGLE_RECAPTCH_SITE_KEY="" GOOGLE_MAPS_API_KEY="" GOOGLE_AUTH_EXPO_ID="" GOOGLE_AUTH_WEB_ID="" GOOGLE_AUTH_IOS_ID="" GOOGLE_AUTH_ANDROID_ID="" eas update --channel production
+$ BUILD_ENV="local" SENTRY_AUTH_TOKEN="" GOOGLE_AUTH_CLIENT_SECRET="" GOOGLE_RECAPTCH_SITE_KEY="" GOOGLE_AUTH_EXPO_ID="" GOOGLE_AUTH_WEB_ID="" GOOGLE_AUTH_IOS_ID="" GOOGLE_AUTH_ANDROID_ID="" GOOGLE_MAPS_IOS_API_KEY="" GOOGLE_MAPS_ANDROID_API_KEY="" eas update --channel production
 ```
 
 To upload source maps for Sentry you need to take the following steps to upload the source maps for your update to Sentry:
