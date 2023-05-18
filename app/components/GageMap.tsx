@@ -27,6 +27,9 @@ type GageMapProps = {
   gages: Gage[]
 }
 
+// Web Maps API key
+const API_KEY = Constants.expoConfig.extra.googleMapsWebApiKey
+
 const getMapOptions = maps => {
   return {
     streetViewControl: false,
@@ -155,6 +158,7 @@ const WebMap = ({ gages }: GageMapProps) => {
   return (
     <Map
       zoom={4}
+      bootstrapURLKeys={{ key: API_KEY }}
       center={{ lat: 47.622403, lng: -121.933723 }}
       options={getMapOptions}
       yesIWantToUseGoogleMapApiInternals

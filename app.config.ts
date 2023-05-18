@@ -125,6 +125,7 @@ export default {
       projectId: "0f52b777-109a-423d-a18b-1ccfb5dea8e0"
     },
     recaptchaKey: process.env.GOOGLE_RECAPTCH_SITE_KEY,
+    googleMapsWebApiKey: process.env.GOOGLE_MAPS_WEB_API_KEY,
     googleOAuthWebClientId: process.env.GOOGLE_AUTH_WEB_ID,
     googleOAuthAndroidClientId: process.env.GOOGLE_AUTH_ANDROID_ID,
     googleOAuthIOSClientId: process.env.GOOGLE_AUTH_IOS_ID,

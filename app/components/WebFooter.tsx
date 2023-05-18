@@ -87,8 +87,8 @@ const WebFooter = () => {
           textStyle={[{ lineHeight: Spacing.midLarge }]}
           color={Colors.darkerGrey}
         >
-          <LocaleChange />
-          {separator}
+          {/* <LocaleChange />
+          {separator} */}
           <SimpleLinkButton
             text={t("navigation.aboutScreen")}
             onPress={openSvpaWebsite}

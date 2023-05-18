@@ -50,6 +50,8 @@ export default function AppLayout() {
           {/** This is used to ensure that favicon is displayed on web */}
           <Head>
             <link rel="icon" href={getAsset("favicon").uri} />
+            {/* Load custom fonts */}
+            <link type="text/css" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600,700|Open+Sans:300,400,500,600,700;lang=en" />
             <script
               async
               src="https://www.googletagmanager.com/gtag/js?id=UA-302444-12"

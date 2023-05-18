@@ -1,5 +1,6 @@
 /* eslint-disable camelcase */
 import { TextStyle } from "react-native"
+import { isWeb } from "@common-ui/utils/responsive"
 import { Colors } from "./colors"
 
 import {
@@ -32,18 +33,18 @@ export const customFontsToLoad = {
 export const Fonts = {
   openSans: {
     // Cross-platform Google font.
-    light: "OpenSans_300Light",
-    normal: "OpenSans_400Regular",
-    medium: "OpenSans_500Medium",
-    semiBold: "OpenSans_600SemiBold",
-    bold: "OpenSans_700Bold",
+    light: isWeb ? "Open Sans" : "OpenSans_300Light",
+    normal: isWeb ? "Open Sans" : "OpenSans_400Regular",
+    medium: isWeb ? "Open Sans" : "OpenSans_500Medium",
+    semiBold: isWeb ? "Open Sans" : "OpenSans_600SemiBold",
+    bold: isWeb ? "Open Sans" : "OpenSans_700Bold",
   },
   montserrat: {
     // Main Google font.
-    normal: "Montserrat_400Regular",
-    medium: "Montserrat_500Medium",
-    semibold: "Montserrat_600SemiBold",
-    bold: "Montserrat_700Bold",
+    normal: isWeb ? "Montserrat" : "Montserrat_400Regular",
+    medium: isWeb ? "Montserrat" : "Montserrat_500Medium",
+    semibold: isWeb ? "Montserrat" : "Montserrat_600SemiBold",
+    bold: isWeb ? "Montserrat" : "Montserrat_700Bold",
   },
 }
 
@@ -106,7 +107,7 @@ export const Typography: TypographyType = {
 
   mediumText: {
     fontFamily: Fonts.openSans.bold,
-    fontWeight: "400",
+    fontWeight: "700",
     fontSize: 14,
     lineHeight: 20,
     color: Colors.dark,

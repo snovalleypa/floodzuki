@@ -33,7 +33,7 @@ export async function registerForPushNotificationsAsync(requestPermissions: bool
 
   if (isAndroid) {
     await Notifications.setNotificationChannelAsync('default', {
-      name: 'default',
+      name: 'All Notifications',
       importance: Notifications.AndroidImportance.MAX,
       vibrationPattern: [0, 250, 250, 250],
       lightColor: Colors.primary,
@@ -62,9 +62,7 @@ export async function registerForPushNotificationsAsync(requestPermissions: bool
           }
         ]
       )
-      // Alert.alert('Push Notifications not enabled!', JSON.stringify(permResponse));
-      // Alert.alert('Push Notifications not enabled!', 'Please enable push notifications in your settings');
-      
+
       return "";
     }
 
