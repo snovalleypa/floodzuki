@@ -1,8 +1,8 @@
 # Floodzuki
 ## Take control on your floods
 
-New Client for Floodzilla Gage Monitoring System.
-This client supports Web, iOS and Android platforms and allows you to view Gage status, check the flooding predictions and subscribe for alerts if things will go south.
+New Client for Floodzilla Gauge Monitoring System.
+This client supports Web, iOS and Android platforms and allows you to view Gauge status, check the flooding predictions and subscribe for alerts if things will go south.
 
 ## How to run the app
 

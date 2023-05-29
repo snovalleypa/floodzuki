@@ -75,6 +75,7 @@ const BaseConfig: {
   API: typeof API
 
   FORECAST_GAGE_IDS: string[]
+  GAGES_WITHOUT_DISHCARGE: string[]
 } = {
   BASE_URL: "https://floodzilla.com",
   AUTH_BASE_URL: "https://floodzilla.com",
@@ -100,6 +101,7 @@ const BaseConfig: {
   API: API,
 
   FORECAST_GAGE_IDS: ['USGS-SF17/USGS-NF10/USGS-MF11', 'USGS-38', 'USGS-22'],
+  GAGES_WITHOUT_DISHCARGE: ['USGS-9'],
 }
 
 export default BaseConfig

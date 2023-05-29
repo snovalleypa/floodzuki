@@ -11,7 +11,7 @@ import Icon from "./Icon"
 type CardProps = {
   children: React.ReactNode
   noBackground?: boolean
-  type?: keyof typeof ColorTypes
+  type?: keyof typeof ColorTypes | "default"
   outline?: boolean
   backgroundColor?: ColorValue
   noPadding?: boolean
@@ -53,7 +53,7 @@ const Base = (props: BaseProps): React.ReactElement => {
     style.push({ flex: flexValue })
   }
 
-  if (type || backgroundColor) {
+  if ((type && type !== "default") || backgroundColor) {
     const color: ColorValue | undefined = type ? Colors[type] : backgroundColor
 
     if (!outline) {

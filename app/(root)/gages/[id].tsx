@@ -8,10 +8,10 @@ import { Cell, Row, RowOrCell } from "@common-ui/components/Common";
 import { If, Ternary } from "@common-ui/components/Conditional";
 import { Label } from "@common-ui/components/Label";
 import { Content, Screen } from "@common-ui/components/Screen";
-import { LargeTitle, MediumTitle, RegularText } from "@common-ui/components/Text";
+import { LabelText, LargeTitle, MediumTitle, RegularText, SmallTitle } from "@common-ui/components/Text";
 import { Colors } from "@common-ui/constants/colors";
 import { Spacing } from "@common-ui/constants/spacing";
-import { isAndroid, useResponsive } from "@common-ui/utils/responsive";
+import { MobileScreen, WideScreen, isAndroid, isWeb, useResponsive } from "@common-ui/utils/responsive";
 
 import { useStores } from "@models/helpers/useStores";
 import { Gage } from "@models/Gage";
@@ -36,8 +36,13 @@ export function ErrorBoundary(props: ErrorBoundaryProps) {
   return <ErrorDetails {...props} />;
 }
 
+type GageLinkProps = {
+  gage: Gage;
+  simple?: boolean;
+};
+
 const UpstreamGageLink = observer(
-  function UpstreamGageLink({ gage }: { gage: Gage }) {
+  function UpstreamGageLink({ gage, simple }: GageLinkProps) {
     const { getUpstreamGageLocation } = useStores();
     const { t } = useLocale();
     const { isMobile } = useResponsive();
@@ -53,14 +58,20 @@ const UpstreamGageLink = observer(
       router.push({ pathname: ROUTES.GageDetails, params: { id: upstreamGageLocation?.id }})
     }
 
+    const title = simple ? t("gageScreen.upstreamGage") : t("gageScreen.goToUpstreamGage")
+    const iconSize = isMobile && simple ? 16 : 24
+    const Text = isMobile && simple ? LabelText : RegularText
+
     return (
       <Card flex={isMobile ? 1 : 0} >
         <TouchableOpacity onPress={navigateToGage}>
           <Row>
-            <Icon name="arrow-left" color={Colors.green} />
+            <Icon name="arrow-left" size={iconSize} color={Colors.green} />
             <Cell flex left={Spacing.extraSmall}>
-              <RegularText>{t("gageScreen.goToUpstreamGage")}</RegularText>
-              <MediumTitle>{upstreamGageLocation?.locationName}</MediumTitle>
+              <Text>{title}</Text>
+              <If condition={!simple}>
+                <MediumTitle>{upstreamGageLocation?.locationName}</MediumTitle>
+              </If>
             </Cell>
           </Row>
         </TouchableOpacity>
@@ -70,7 +81,7 @@ const UpstreamGageLink = observer(
 )
 
 const DownstreamGageLink = observer(
-  function DownstreamGageLink({ gage }: { gage: Gage }) {
+  function DownstreamGageLink({ gage, simple }: GageLinkProps) {
     const { getDownstreamGageLocation } = useStores();
     const { t } = useLocale();
     const { isMobile } = useResponsive();
@@ -86,15 +97,21 @@ const DownstreamGageLink = observer(
       router.push({ pathname: ROUTES.GageDetails, params: { id: downstreamGageLocation?.id }})
     }
 
+    const title = simple ? t("gageScreen.downstreamGage") : t("gageScreen.goToDownstreamGage")
+    const iconSize = isMobile && simple ? 16 : 24
+    const Text = isMobile && simple ? LabelText : RegularText
+
     return (
       <Card flex={isMobile ? 1 : 0} >
         <TouchableOpacity onPress={navigateToGage}>
           <Row>
             <Cell flex right={Spacing.extraSmall}>
-              <RegularText>{t("gageScreen.goToDownstreamGage")}</RegularText>
-              <MediumTitle>{downstreamGageLocation?.locationName}</MediumTitle>
+              <Text>{title}</Text>
+              <If condition={!simple}>
+                <MediumTitle>{downstreamGageLocation?.locationName}</MediumTitle>
+              </If>
             </Cell>
-            <Icon name="arrow-right" color={Colors.green} />
+            <Icon name="arrow-right" size={iconSize} color={Colors.green} />
           </Row>
         </TouchableOpacity>
       </Card>
@@ -146,12 +163,26 @@ const GageDetailsScreen = observer(
               </LargeTitle>
             </Cell>
           </Row>
+          {/* Top Navigation */}
+          <WideScreen>
+            <Row flex align="space-between" gap={Spacing.small} right={Spacing.extraLarge}>
+              <UpstreamGageLink gage={gage} simple />
+              <DownstreamGageLink gage={gage} simple />
+            </Row>
+          </WideScreen>
           <Cell>
             <Label text={gageId} />
           </Cell>
         </Row>
         {/* Content */}
         <Content scrollable onScroll={handleScroll}>
+          {/* Top Navigation */}
+          <MobileScreen>
+            <Row align="space-between" gap={Spacing.small} bottom={Spacing.small}>
+              <UpstreamGageLink gage={gage} simple />
+              <DownstreamGageLink gage={gage} simple />
+            </Row>
+          </MobileScreen>
           <GageDetailsChart
             gage={gage}
             hideChart={hideChart}

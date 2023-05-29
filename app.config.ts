@@ -14,8 +14,8 @@ export default {
   web: {
     bundler: "metro",
     favicon: "./assets/favicon-180.png",
-    title: "Floodzilla Gage Network - SVPA",
-    description: "A network of river gages on the Snoqualmie River deployed and managed by The Snoqualmie Valley Preservation Alliance",
+    title: "Floodzilla Gauge Network - SVPA",
+    description: "A network of river gauges on the Snoqualmie River deployed and managed by The Snoqualmie Valley Preservation Alliance",
     splash: {
       image: "./assets/splash-screen/logo.png",
       resizeMode: "contain",
@@ -49,6 +49,17 @@ export default {
         data: {
           scheme: "https",
           host: "floodzuki.ngrok.io"
+        },
+        category: [
+          "BROWSABLE",
+          "DEFAULT"
+        ]
+      },
+      {
+        action: "VIEW",
+        data: {
+          scheme: "https",
+          host: "fzbeta.azurewebsites.net"
         },
         category: [
           "BROWSABLE",

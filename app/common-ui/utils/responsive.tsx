@@ -47,17 +47,17 @@ export const useOrientation = () => {
 }
 
 // Compopnents to use in your app
-export const Desktop = ({ children }) => {
+export const DesktopScreen = ({ children }) => {
   const isDesktop = useDesktopMediaQuery()
   return isDesktop ? children : null
 }
 
-export const Tablet = ({ children }) => {
+export const TabletScreen = ({ children }) => {
   const isTablet = useTabletMediaQuery()
   return isTablet ? children : null
 }
 
-export const Mobile = ({ children }) => {
+export const MobileScreen = ({ children }) => {
   const isMobile = useMobileMediaQuery()
   return isMobile ? children : null
 }

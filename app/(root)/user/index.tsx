@@ -121,6 +121,10 @@ const AboutScreen = observer(
               </LabelText>
               <Card top={Spacing.small} innerVertical={Spacing.zero}>
                 <CardListLinkItem
+                  text={t("navigation.alertsScreen")}
+                  onPress={openAlerts}
+                />
+                <CardListLinkItem
                   text={t("navigation.loginScreen")}
                   onPress={openLogin}
                 />

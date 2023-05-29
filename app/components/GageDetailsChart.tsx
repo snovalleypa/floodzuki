@@ -383,13 +383,15 @@ export const GageDetailsChart = observer(
       range
     )
 
+    const hasDischargeControl = gage?.locationInfo?.hasDischarge && !Config.GAGES_WITHOUT_DISHCARGE.includes(gage?.locationId)
+
     return (
       <Card
         innerHorizontal={Spacing.extraSmall}
         innerVertical={Spacing.extraSmall}>
         <CardHeader
           horizontal={-Spacing.extraSmall}>
-          <If condition={gage?.locationInfo?.hasDischarge}>
+          <If condition={hasDischargeControl}>
             <SegmentControl
               bottom={Spacing.small}
               segments={CHART_DATA_TYPES(t)}

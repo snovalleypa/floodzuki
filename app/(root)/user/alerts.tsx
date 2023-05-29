@@ -2,11 +2,11 @@ import React, { useEffect, useState } from "react"
 import { ErrorBoundaryProps, Redirect, Stack, useLocalSearchParams, useRouter } from "expo-router"
 
 import { Screen, Content } from "@common-ui/components/Screen"
-import { LabelText, RegularText, SmallTitle } from "@common-ui/components/Text"
+import { LabelText, MediumText, RegularLargeText, RegularText, SmallTitle } from "@common-ui/components/Text"
 import { ErrorDetails } from "@components/ErrorDetails"
 import TitleWithBackButton from "@components/TitleWithBackButton"
 import { Card, CardContent, CardFooter, CardHeader } from "@common-ui/components/Card"
-import { LinkButton, SimpleLinkButton, SolidButton } from "@common-ui/components/Button"
+import { LinkButton, OutlinedButton, SimpleLinkButton, SolidButton } from "@common-ui/components/Button"
 import { openLinkInBrowser } from "@utils/navigation"
 import { Spacing } from "@common-ui/constants/spacing"
 import CheckBoxItem from "@common-ui/components/CheckBoxItem"
@@ -125,14 +125,14 @@ const AlertSettingsCard = observer(
             </Cell>
           </Cell>
           {/* Phone Settings */}
-          <If condition={!isPhoneVerified}>
+          <If condition={!isPhoneVerified && authSessionStore.isLoggedIn}>
             <Cell top={Spacing.small}>
               <RegularText>
                 <SimpleLinkButton
                   color={Colors.lightBlue}
                   text={t("alertsScreen.enterPhoneNumber")}
                   onPress={openPhoneNumber}
-                />${t("alertsScreen.toReceiveAlerts")}
+                />{t("alertsScreen.toReceiveAlerts")}
               </RegularText>
             </Cell>
           </If>
@@ -146,15 +146,17 @@ const AlertSettingsCard = observer(
                 onChange={updateSmsAlertsEnabled}
               />
             </Cell>
-            <Cell flex>
-              <LinkButton
-                title={t("alertsScreen.changePhone")}
-                onPress={openPhoneNumber}
-              />
-            </Cell>
+            <If condition={authSessionStore.isLoggedIn}>
+              <Cell flex>
+                <LinkButton
+                  title={t("alertsScreen.changePhone")}
+                  onPress={openPhoneNumber}
+                />
+              </Cell>
+            </If>
           </RowOrCell>
         </CardContent>
-        <If condition={!isEmailVerified}>
+        <If condition={!isEmailVerified && authSessionStore.isLoggedIn}>
           <CardFooter>
             <If condition={authSessionStore.isError}>
               <ErrorMessage errorText={authSessionStore.errorMessage} />
@@ -321,16 +323,20 @@ const AlertsScreen = observer(
       authSessionStore.getSubscribedGages()
     }, [])
 
-    if (!isLoggedIn) {
-      return <Redirect href={ROUTES.UserLogin} />
-    }
-
     const goBack = () => {
       router.push({ pathname: ROUTES.About })
     }
 
     const editProfile = () => {
       router.push({ pathname: ROUTES.UserProfile })
+    }
+
+    const navigateToLogin = () => {
+      router.push({ pathname: ROUTES.UserLogin })
+    }
+
+    const navigateToSignup = () => {
+      router.push({ pathname: ROUTES.UserNew })
     }
 
     const mailTo = () => {
@@ -353,10 +359,44 @@ const AlertsScreen = observer(
             </CardHeader>
             <CardContent>
               <RegularText lineHeight={Spacing.large}>
-                {t("alertsScreen.welcomeText")}<SimpleLinkButton color={Colors.lightBlue} text={t("alertsScreen.letUsKnow")} onPress={mailTo} />{t("alertsScreen.howWeAreDoing")}
+                {t("alertsScreen.welcomeText")}
+              </RegularText>
+              <RegularText lineHeight={Spacing.large}>
+                {t("alertsScreen.weNeedFeedback")}{" "}<SimpleLinkButton color={Colors.lightBlue} text={t("alertsScreen.letUsKnow")} onPress={mailTo} />{t("alertsScreen.howWeAreDoing")}
               </RegularText>
             </CardContent>
           </Card>
+          {/* LogIn Promo */}
+          <If condition={!isLoggedIn}>
+            <Card outline type="warning" bottom={Spacing.large}>
+              <RegularLargeText align="center" lineHeight={Spacing.large}>
+                {t("loginScreen.title")}
+              </RegularLargeText>
+              <RegularText align="center" lineHeight={Spacing.small}>
+                {"\n"}
+              </RegularText>
+              <CardFooter>
+              <Row align="center">
+                <OutlinedButton
+                  disabled={authSessionStore.isFetching}
+                  minWidth={Spacing.extraExtraHuge}
+                  selfAlign="center"
+                  title={t("loginScreen.createAccount")}
+                  onPress={navigateToSignup}
+                />
+                <SolidButton
+                  left={Spacing.large}
+                  isLoading={authSessionStore.isFetching}
+                  minWidth={Spacing.extraExtraHuge}
+                  selfAlign="center"
+                  title={t("loginScreen.login")}
+                  onPress={navigateToLogin}
+                />
+              </Row>
+              </CardFooter>
+            </Card>
+          </If>
+
           {/* Alert Settings */}
           <AlertSettingsCard />
           {/* Forecasts */}
