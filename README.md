@@ -91,7 +91,7 @@ To build the web version of the app run `$ npx expo export` (make sure that all 
 To check whether the build really working - serve it locally with `$ npx serve dist --single`
 
 #### Mobile
-To build the Android version of the app run `$ eas build --profile production --platform all` (all environment variables will be provided by EAS). This will trigger builds for both Android and iOS platforms. You can read more about it in the [EAS docs](https://docs.expo.dev/build/introduction/).
+To build the Android version of the app run `$ eas build --profile preview --platform all` (all environment variables will be provided by EAS). This will trigger builds for both Android and iOS platforms. You can read more about it in the [EAS docs](https://docs.expo.dev/build/introduction/).
 
 
 #### Internal Distribution

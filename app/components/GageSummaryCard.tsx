@@ -14,11 +14,11 @@ import { formatDateTime } from "@utils/useTimeFormat";
 import { useUtils } from "@utils/utils";
 import { Spacing } from "@common-ui/constants/spacing";
 import { Colors } from "@common-ui/constants/colors";
-import { useRouter } from "expo-router";
+import { Link } from "expo-router";
 import { ROUTES } from "app/_layout";
 import { useTimeout } from "@utils/useTimeout";
 import { Timing } from "@common-ui/constants/timing";
-import { isMobile, useResponsive } from "@common-ui/utils/responsive";
+import { useResponsive } from "@common-ui/utils/responsive";
 import { IconButton, LinkButton } from "@common-ui/components/Button";
 import { openLinkInBrowser } from "@utils/navigation";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
@@ -83,7 +83,6 @@ export const GageSummaryCard = observer(
     const { t } = useLocale()
     const { forecastsStore } = useStores()
     const { isWideScreen } = useResponsive()
-    const router = useRouter()
 
     const [showMaxReading, setShowMaxReading] = React.useState<boolean>(true)
 
@@ -92,14 +91,6 @@ export const GageSummaryCard = observer(
     useTimeout(() => {
       setShowMaxReading(true)
     }, Timing.zero)
-
-    const showDetails = () => {
-      router.push({ pathname: ROUTES.ForecastDetails, params: { id: gage.id }})
-    }
-
-    const showGage = () => {
-      router.push({ pathname: ROUTES.GageDetails, params: { id: gage.id }})
-    }
 
     const openNoaaPage = () => {
       openLinkInBrowser(`http://www.nwrfc.noaa.gov/river/station/flowplot/flowplot.cgi?${gage?.nwrfcId}`)
@@ -118,19 +109,21 @@ export const GageSummaryCard = observer(
         <Row align="space-between">
           <SmallTitle color={Colors.primary}>{gageTitle}</SmallTitle>
           <Ternary condition={!noDetails}>
-            <IconButton
-              title={t("forecastScreen.details")}
-              rightIcon="chevron-right"
-              textColor={Colors.blue}
-              onPress={showDetails}
-            />
-            <If condition={!gage?.isMetagage}>
+            <Link href={{ pathname: ROUTES.ForecastDetails, params: { id: gage.id } }} asChild>
               <IconButton
-                title={t("forecastScreen.viewGage")}
+                title={t("forecastScreen.details")}
                 rightIcon="chevron-right"
                 textColor={Colors.blue}
-                onPress={showGage}
               />
+            </Link>
+            <If condition={!gage?.isMetagage}>
+              <Link href={{ pathname: ROUTES.GageDetails, params: { id: gage.id } }} asChild>
+                <IconButton
+                  title={t("forecastScreen.viewGage")}
+                  rightIcon="chevron-right"
+                  textColor={Colors.blue}
+                />
+              </Link>
             </If>
           </Ternary>
         </Row>

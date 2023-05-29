@@ -52,6 +52,7 @@ export default function AppLayout() {
             <link rel="icon" href={getAsset("favicon").uri} />
             {/* Load custom fonts */}
             <link type="text/css" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600,700|Open+Sans:300,400,500,600,700;lang=en" />
+            <meta property="expo:handoff" content="true" />
             <script
               async
               src="https://www.googletagmanager.com/gtag/js?id=UA-302444-12"
@@ -82,12 +83,7 @@ export default function AppLayout() {
 
 function HeaderLink({ href, children }) {
   const pathname = usePathname();
-  const router = useRouter();
   const { isMobile } = useResponsive();
-
-  const handlePress = () => {
-    router.push({ pathname: href })
-  }
 
   const isActive = pathname.includes(href);
   const $color = isActive ? Colors.primary : Colors.lightDark
@@ -96,38 +92,46 @@ function HeaderLink({ href, children }) {
   const spacing = isMobile ? Spacing.small : Spacing.large
 
   return (
-    <Pressable onPress={handlePress}>
-      {({ pressed, hovered }) => (
-        <Cell horizontal={spacing}>
-          <Title color={hovered ? Colors.primary : $color}>
-            {children}
-          </Title>
-        </Cell>
-      )}
-    </Pressable>
+    <Link href={href} asChild>
+      <Pressable>
+        {({ pressed, hovered }) => (
+          <Cell horizontal={spacing}>
+            <Title color={hovered ? Colors.primary : $color}>
+              {children}
+            </Title>
+          </Cell>
+        )}
+      </Pressable>
+    </Link>
   );
 }
 
 function FooterLink({ route, children }: { route: MainRoute, children: string }) {
   const pathname = usePathname();
-  const router = useRouter();
+  const { getAsset } = useAppAssets();
 
-  const handlePress = () => {
-    router.push({ pathname: route.path })
-  }
-
+  const imageSize = 32
   const isActive = pathname.includes(route.path);
+  
   const $color = isActive ? Colors.primary : Colors.darkGrey
+  const $imageStyle = { width: imageSize, height: imageSize, marginBottom: -2, marginTop: -6 }
 
   return (
-    <TouchableOpacity onPress={handlePress}>
-      <Cell align="center">
-        <Icon name={route?.icon} color={$color} />
-        <LabelText color={$color}>
-          {children}
-        </LabelText>
-      </Cell>
-    </TouchableOpacity>
+    <Link href={route.path} asChild>
+      <Pressable>
+        {({ pressed }) => (
+          <Cell align="center">
+            <Ternary condition={route.path === ROUTES.Gages}>
+              <Image source={getAsset('favicon')} style={$imageStyle} />
+              <Icon name={route?.icon} color={$color} />
+            </Ternary>
+            <LabelText color={pressed ? Colors.primary : $color}>
+              {children}
+            </LabelText>
+          </Cell>
+        )}
+      </Pressable>
+    </Link>
   );
 }
 
@@ -193,7 +197,7 @@ function TabBar() {
   return (
     <Cell>
       <Separator size={Spacing.micro} />
-      <Row top={Spacing.medium} bottom={$bottomOffset} align="space-evenly" justify="center">
+      <Row top={Spacing.small} bottom={$bottomOffset} align="space-evenly" justify="center">
         {Object.values(routes).map(route => (
           <FooterLink key={route.path} route={route}>
             {t(route.title)}

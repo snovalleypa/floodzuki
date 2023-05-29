@@ -2,6 +2,9 @@
 
 const isLocalBuild = process.env.BUILD_ENV === "local";
 
+process.env.EXPO_TUNNEL_SUBDOMAIN = "floodzuki";
+const ngrokUrl = `${process.env.EXPO_TUNNEL_SUBDOMAIN}.ngrok.io`;
+
 export default {
   name: "Floodzilla",
   slug: "floodzuki",
@@ -26,8 +29,15 @@ export default {
     bundleIdentifier: "com.floodzilla.floodzuki",
     supportsTablet: true,
     associatedDomains: [
-      "applinks:floodzuki.ngrok.io",
-      "applinks:floodzilla.com"
+      "applinks:floodzilla.com",
+      "activitycontinuation:floodzilla.com",
+      "webcredentials:floodzilla.com",
+      "applinks:fzbeta.azurewebsites.net",
+      "activitycontinuation:fzbeta.azurewebsites.net",
+      "webcredentials:fzbeta.azurewebsites.net",
+      `applinks:${ngrokUrl}`,
+      `activitycontinuation:${ngrokUrl}`,
+      `webcredentials:${ngrokUrl}`,
     ],
     icon: "./assets/app-icon/ios-universal.png",
     splash: {

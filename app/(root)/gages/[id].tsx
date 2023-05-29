@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 import { LayoutChangeEvent, LayoutRectangle, NativeScrollEvent, NativeSyntheticEvent, TouchableOpacity } from "react-native";
-import { ErrorBoundaryProps, Stack, useLocalSearchParams, useRouter } from "expo-router";
+import { ErrorBoundaryProps, Link, Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { observer } from "mobx-react-lite";
 
 import { IconButton, LinkButton } from "@common-ui/components/Button";
@@ -54,27 +54,25 @@ const UpstreamGageLink = observer(
       return <Cell />
     }
 
-    const navigateToGage = () => {
-      router.push({ pathname: ROUTES.GageDetails, params: { id: upstreamGageLocation?.id }})
-    }
-
     const title = simple ? t("gageScreen.upstreamGage") : t("gageScreen.goToUpstreamGage")
     const iconSize = isMobile && simple ? 16 : 24
     const Text = isMobile && simple ? LabelText : RegularText
 
     return (
       <Card flex={isMobile ? 1 : 0} >
-        <TouchableOpacity onPress={navigateToGage}>
-          <Row>
-            <Icon name="arrow-left" size={iconSize} color={Colors.green} />
-            <Cell flex left={Spacing.extraSmall}>
-              <Text>{title}</Text>
-              <If condition={!simple}>
-                <MediumTitle>{upstreamGageLocation?.locationName}</MediumTitle>
-              </If>
-            </Cell>
-          </Row>
-        </TouchableOpacity>
+        <Link href={{ pathname: ROUTES.GageDetails, params: { id: upstreamGageLocation?.id }}} asChild>
+          <TouchableOpacity>
+            <Row>
+              <Icon name="arrow-left" size={iconSize} color={Colors.green} />
+              <Cell flex left={Spacing.extraSmall}>
+                <Text>{title}</Text>
+                <If condition={!simple}>
+                  <MediumTitle>{upstreamGageLocation?.locationName}</MediumTitle>
+                </If>
+              </Cell>
+            </Row>
+          </TouchableOpacity>
+        </Link>
       </Card>
     )
   }
@@ -93,27 +91,25 @@ const DownstreamGageLink = observer(
       return <Cell />
     }
 
-    const navigateToGage = () => {
-      router.push({ pathname: ROUTES.GageDetails, params: { id: downstreamGageLocation?.id }})
-    }
-
     const title = simple ? t("gageScreen.downstreamGage") : t("gageScreen.goToDownstreamGage")
     const iconSize = isMobile && simple ? 16 : 24
     const Text = isMobile && simple ? LabelText : RegularText
 
     return (
       <Card flex={isMobile ? 1 : 0} >
-        <TouchableOpacity onPress={navigateToGage}>
-          <Row>
-            <Cell flex right={Spacing.extraSmall}>
-              <Text>{title}</Text>
-              <If condition={!simple}>
-                <MediumTitle>{downstreamGageLocation?.locationName}</MediumTitle>
-              </If>
-            </Cell>
-            <Icon name="arrow-right" size={iconSize} color={Colors.green} />
-          </Row>
-        </TouchableOpacity>
+        <Link href={{ pathname: ROUTES.GageDetails, params: { id: downstreamGageLocation?.id }}} asChild>
+          <TouchableOpacity>
+            <Row>
+              <Cell flex right={Spacing.extraSmall}>
+                <Text>{title}</Text>
+                <If condition={!simple}>
+                  <MediumTitle>{downstreamGageLocation?.locationName}</MediumTitle>
+                </If>
+              </Cell>
+              <Icon name="arrow-right" size={iconSize} color={Colors.green} />
+            </Row>
+          </TouchableOpacity>
+        </Link>
       </Card>
     )
   }

@@ -1,6 +1,6 @@
 import React, { useEffect } from "react"
 import { ViewStyle, FlatList, TouchableOpacity, useWindowDimensions } from "react-native"
-import { ErrorBoundaryProps, Stack, useRouter } from "expo-router"
+import { ErrorBoundaryProps, Link, Stack, useRouter } from "expo-router"
 import { observer } from "mobx-react-lite"
 
 import { Screen } from "@common-ui/components/Screen"
@@ -74,53 +74,55 @@ const GageItem = observer(
 
     return (
       <Card height={ITEM_HEIGHT} bottom={Spacing.medium} innerHorizontal={0} innerVertical={0}>
-        <TouchableOpacity style={{ flex: 1 }} onPress={goToDetails}>
-          <AbsoluteContainer sticks={["bottom", "left", "right", "top"]}>
-            <Ternary condition={isWeb}>
-              <GageChart gage={gage} optionType="dashboardOptions" />
-              <GageListItemChart gage={gage} />
-            </Ternary>
-          </AbsoluteContainer>
-          <Cell
-            flex
-            justify="center"
-            horizontal={0}
-            innerHorizontal={horizontalPadding + Spacing.small}
-            bgColor={"rgba(255,255,255,0.5)"}
-          >
-            <Row align="space-between" justify="flex-start">
-              <Cell flex>
-                <Title color={Colors.lightDark}>{gage?.locationInfo?.locationName}</Title>
-              </Cell>
-              <Cell>
-                <Label text={gage?.locationId} />
-              </Cell>
-            </Row>
-            <Row wrap align="space-between" top={Spacing.medium}>
-              <Row>
-                <GageStatus gage={gage} />
-                <Cell left={Spacing.medium}>
-                  <TrendIcon iconName={levelTrendIconName(gage?.status?.levelTrend)} />
+        <Link href={{ pathname: ROUTES.GageDetails, params: { id: gage?.locationId } }} asChild>
+          <TouchableOpacity style={{ flex: 1 }}>
+            <AbsoluteContainer sticks={["bottom", "left", "right", "top"]}>
+              <Ternary condition={isWeb}>
+                <GageChart gage={gage} optionType="dashboardOptions" />
+                <GageListItemChart gage={gage} />
+              </Ternary>
+            </AbsoluteContainer>
+            <Cell
+              flex
+              justify="center"
+              horizontal={0}
+              innerHorizontal={horizontalPadding + Spacing.small}
+              bgColor={"rgba(255,255,255,0.5)"}
+            >
+              <Row align="space-between" justify="flex-start">
+                <Cell flex>
+                  <Title color={Colors.lightDark}>{gage?.locationInfo?.locationName}</Title>
+                </Cell>
+                <Cell>
+                  <Label text={gage?.locationId} />
                 </Cell>
               </Row>
-              <Row justify="flex-end" left={Spacing.tiny}>
-                <If condition={!!lastReading?.waterHeight}>
-                  <DescriptiveText color={Colors.lightDark}>
-                    {formatHeight(lastReading?.waterHeight)}
-                    <If condition={lastReading?.waterDischarge > 0}>
-                      {" / "}{formatFlow(lastReading?.waterDischarge)}
-                    </If>
-                  </DescriptiveText>
-                </If>
-                <If condition={!!lastReading?.timestamp}>
-                  <SmallText>
-                    {" @ "}{formatReadingTime(lastReading?.timestamp)}
-                  </SmallText>
-                </If>
+              <Row wrap align="space-between" top={Spacing.medium}>
+                <Row>
+                  <GageStatus gage={gage} />
+                  <Cell left={Spacing.medium}>
+                    <TrendIcon iconName={levelTrendIconName(gage?.status?.levelTrend)} />
+                  </Cell>
+                </Row>
+                <Row justify="flex-end" left={Spacing.tiny}>
+                  <If condition={!!lastReading?.waterHeight}>
+                    <DescriptiveText color={Colors.lightDark}>
+                      {formatHeight(lastReading?.waterHeight)}
+                      <If condition={lastReading?.waterDischarge > 0}>
+                        {" / "}{formatFlow(lastReading?.waterDischarge)}
+                      </If>
+                    </DescriptiveText>
+                  </If>
+                  <If condition={!!lastReading?.timestamp}>
+                    <SmallText>
+                      {" @ "}{formatReadingTime(lastReading?.timestamp)}
+                    </SmallText>
+                  </If>
+                </Row>
               </Row>
-            </Row>
-          </Cell>
-        </TouchableOpacity>
+            </Cell>
+          </TouchableOpacity>
+        </Link>
       </Card>
     )
   }

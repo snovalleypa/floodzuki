@@ -19,7 +19,7 @@ import { OffsetProps, useOffsetStyles } from "@common-ui/utils/useOffset"
 type SimpleLinkProps = {
   text: string
   color?: ColorValue
-  onPress: () => void
+  onPress?: () => void
 }
 
 
@@ -27,7 +27,7 @@ type BaseButtonProps = {
   title?: string
   icon?: keyof typeof Feather.glyphMap
   iconSize?: number
-  onPress: () => void
+  onPress?: () => void
   loadingTitle?: string
   disabled?: boolean
   isLoading?: boolean
