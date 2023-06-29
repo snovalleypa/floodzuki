@@ -63,10 +63,6 @@ const GageItem = observer(
     const status = gage?.gageStatus
     const lastReading = status?.lastReading
 
-    const goToDetails = () => {
-      router.push({ pathname: ROUTES.GageDetails, params: { id: gage?.locationId }})
-    }
-
     const Title = isMobile ? SmallTitle : LargerTitle
     const DescriptiveText = isMobile ? LabelText : SmallTitle
     const SmallText = isMobile ? TinyText : SmallerText

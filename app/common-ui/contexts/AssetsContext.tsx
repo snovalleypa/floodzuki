@@ -6,6 +6,7 @@ import { isWeb } from "@common-ui/utils/responsive";
 // All assets used by the app
 const ASSETS = {
   favicon: require("@assets/favicon-180.png"),
+  favicon_gray: require("@assets/favicon-180-gray.png"),
   logo: require("@assets/app-icon/ios-universal.png"),
   svpaLogo: require("@assets/images/SVPA_Logo.png"),
 }

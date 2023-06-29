@@ -1,6 +1,6 @@
 import { Stack } from 'expo-router';
 
-export default function ForecastLayout() {
+export default function GageLayout() {
     return (
       <Stack
         screenOptions={{

@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
-import { Pressable, TouchableOpacity } from "react-native";
-import { usePathname, useRouter, Slot, Link, Tabs } from "expo-router";
+import { Pressable } from "react-native";
+import { usePathname, Slot, Link, Tabs } from "expo-router";
 import Head from "expo-router/head";
 import { Image } from "expo-image";
 
@@ -15,7 +15,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LabelText, LargeTitle, RegularLargeText, SmallerText, SmallText, TinyText } from "@common-ui/components/Text";
 import { Cell, Row, Separator } from "@common-ui/components/Common";
 import Icon from "@common-ui/components/Icon";
-import { isWeb, useResponsive } from "@common-ui/utils/responsive";
+import { isMobile, isWeb, useResponsive } from "@common-ui/utils/responsive";
 import { openLinkInBrowser } from "@utils/navigation";
 import { useAppAssets } from "@common-ui/contexts/AssetsContext";
 import { useRegisterPushNotificationsListener } from "@services/pushNotifications";
@@ -81,11 +81,16 @@ export default function AppLayout() {
   )
 }
 
-function HeaderLink({ href, children }) {
+const useIsLinkActive = (path: string) => {
   const pathname = usePathname();
-  const { isMobile } = useResponsive();
 
-  const isActive = pathname.includes(href);
+  return pathname.includes(path);
+}
+
+function HeaderLink({ href, children }) {
+  const { isMobile } = useResponsive();
+  const isActive = useIsLinkActive(href);
+
   const $color = isActive ? Colors.primary : Colors.lightDark
 
   const Title = isMobile ? LabelText : LargeTitle
@@ -107,11 +112,10 @@ function HeaderLink({ href, children }) {
 }
 
 function FooterLink({ route, children }: { route: MainRoute, children: string }) {
-  const pathname = usePathname();
   const { getAsset } = useAppAssets();
+  const isActive = useIsLinkActive(route.path);
 
   const imageSize = 32
-  const isActive = pathname.includes(route.path);
   
   const $color = isActive ? Colors.primary : Colors.darkGrey
   const $imageStyle = { width: imageSize, height: imageSize, marginBottom: -2, marginTop: -6 }
@@ -122,7 +126,7 @@ function FooterLink({ route, children }: { route: MainRoute, children: string })
         {({ pressed }) => (
           <Cell align="center">
             <Ternary condition={route.path === ROUTES.Gages}>
-              <Image source={getAsset('favicon')} style={$imageStyle} />
+              <Image source={isActive ? getAsset('favicon') : getAsset('favicon_gray')} style={$imageStyle} />
               <Icon name={route?.icon} color={$color} />
             </Ternary>
             <LabelText color={pressed ? Colors.primary : $color}>
@@ -209,11 +213,9 @@ function TabBar() {
 }
 
 function TabView() {
-  const { t } = useLocale();
-
   return (
     <Tabs
-      tabBar={(props) => <TabBar />}
+      tabBar={() => <TabBar />}
       screenOptions={{
         headerShown: false,
       }}

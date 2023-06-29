@@ -2,6 +2,7 @@ import React from "react";
 import { Slot, SplashScreen } from "expo-router";
 import * as Sentry from 'sentry-expo';
 import { useFonts } from "expo-font";
+import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 
@@ -31,8 +32,8 @@ export enum ROUTES {
   Home = "/",
   Forecast = "/forecast",
   ForecastDetails = "/forecast/[...id]",
-  Gages = "/gages",
-  GageDetails = "/gages/[id]",
+  Gages = "/gage",
+  GageDetails = "/gage/[id]",
   UserAlerts = "/user/alerts",
   UserProfile = "/user/profile",
   UserLogin = "/user/login",
@@ -54,7 +55,7 @@ export const routes = {
   [ROUTES.Gages]: {
     path: ROUTES.Gages,
     icon: "activity",
-    tabName: "gages",
+    tabName: "gage",
     title: "navigation.homeScreen"
   },
   [ROUTES.Forecast]: {
@@ -95,6 +96,7 @@ function App() {
             <AssetsProvider>
               <GoogleAuthProvider>
                   <Slot />
+                  <StatusBar style="dark" />
               </GoogleAuthProvider>
             </AssetsProvider>
           </DatePickerProvider>
