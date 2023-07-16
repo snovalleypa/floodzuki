@@ -15,13 +15,14 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LabelText, LargeTitle, RegularLargeText, SmallerText, SmallText, TinyText } from "@common-ui/components/Text";
 import { Cell, Row, Separator } from "@common-ui/components/Common";
 import Icon from "@common-ui/components/Icon";
-import { isMobile, isWeb, useResponsive } from "@common-ui/utils/responsive";
+import { isWeb, useResponsive } from "@common-ui/utils/responsive";
 import { openLinkInBrowser } from "@utils/navigation";
 import { useAppAssets } from "@common-ui/contexts/AssetsContext";
 import { useRegisterPushNotificationsListener } from "@services/pushNotifications";
 import { useCheckForUpdates } from "@services/expoUpdates";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import LocaleChange from "@components/LocaleChange";
+import TasteOfTheValleyBanner from "@components/TasteOfTheValleyBanner";
 
 // Main App Layout
 export default function AppLayout() {
@@ -73,6 +74,7 @@ export default function AppLayout() {
             </script>
           </Head>
           <Header />
+          <TasteOfTheValleyBanner />
           <Slot />
         </>
         <TabView />

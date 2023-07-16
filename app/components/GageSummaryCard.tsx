@@ -109,7 +109,7 @@ export const GageSummaryCard = observer(
         <Row align="space-between">
           <SmallTitle color={Colors.primary}>{gageTitle}</SmallTitle>
           <Ternary condition={!noDetails}>
-            <Link href={{ pathname: ROUTES.ForecastDetails, params: { id: gage.id } }} asChild>
+            <Link href={{ pathname: ROUTES.ForecastDetails, params: { id: gage?.id } }} asChild>
               <IconButton
                 title={t("forecastScreen.details")}
                 rightIcon="chevron-right"
@@ -117,7 +117,7 @@ export const GageSummaryCard = observer(
               />
             </Link>
             <If condition={!gage?.isMetagage}>
-              <Link href={{ pathname: ROUTES.GageDetails, params: { id: gage.id } }} asChild>
+              <Link href={{ pathname: ROUTES.GageDetails, params: { id: gage?.id } }} asChild>
                 <IconButton
                   title={t("forecastScreen.viewGage")}
                   rightIcon="chevron-right"
