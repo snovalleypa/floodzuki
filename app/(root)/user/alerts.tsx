@@ -23,6 +23,8 @@ import ErrorMessage from "@common-ui/components/ErrorMessage"
 import { Gage } from "@models/Gage"
 import { Switch } from "react-native"
 import { useLocale } from "@common-ui/contexts/LocaleContext"
+import { Image } from "expo-image"
+import { useAppAssets } from "@common-ui/contexts/AssetsContext"
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -313,6 +315,7 @@ const AlertsScreen = observer(
     const router = useRouter()
     const { t } = useLocale();
     const { authSessionStore } = useStores()
+    const { getAsset } = useAppAssets();
     
     const isLoggedIn = authSessionStore.isLoggedIn
 
@@ -361,6 +364,10 @@ const AlertsScreen = observer(
               <RegularText lineHeight={Spacing.large}>
                 {t("alertsScreen.welcomeText")}
               </RegularText>
+              <Row>
+                <Image style={{ width: 25, height: 25 }} source={getAsset('favicon_gray')} />
+                <Image style={{ width: 25, height: 25 }} source={getAsset('favicon')} />
+              </Row>
               <RegularText lineHeight={Spacing.large}>
                 {t("alertsScreen.weNeedFeedback")}{" "}<SimpleLinkButton lineHeight={Spacing.large} color={Colors.lightBlue} text={t("alertsScreen.letUsKnow")} onPress={mailTo} />{t("alertsScreen.howWeAreDoing")}
               </RegularText>

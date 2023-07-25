@@ -122,13 +122,15 @@ function FooterLink({ route, children }: { route: MainRoute, children: string })
   const $color = isActive ? Colors.primary : Colors.darkGrey
   const $imageStyle = { width: imageSize, height: imageSize, marginBottom: -2, marginTop: -6 }
 
+  const gageImageIconSource = isActive ? getAsset('favicon') : getAsset('favicon_gray')
+
   return (
     <Link href={route.path} asChild>
       <Pressable>
         {({ pressed }) => (
           <Cell align="center">
             <Ternary condition={route.path === ROUTES.Gages}>
-              <Image source={isActive ? getAsset('favicon') : getAsset('favicon_gray')} style={$imageStyle} />
+              <Image source={gageImageIconSource} style={$imageStyle} />
               <Icon name={route?.icon} color={$color} />
             </Ternary>
             <LabelText color={pressed ? Colors.primary : $color}>

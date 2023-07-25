@@ -224,6 +224,7 @@ const MobileMap = ({ gages }: GageMapProps) => {
       provider="google"
       mapType="hybrid"
       onMarkerPress={onMarkerPress}
+      onMapReady={fitToMarkers}
       mapPadding={{ top: Spacing.extraSmall, right: Spacing.extraSmall, bottom: Spacing.extraSmall, left: Spacing.extraSmall }}
     >
       {gages.map(gage => {
