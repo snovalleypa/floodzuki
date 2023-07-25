@@ -19,6 +19,7 @@ import { OffsetProps, useOffsetStyles } from "@common-ui/utils/useOffset"
 type SimpleLinkProps = {
   text: string
   color?: ColorValue
+  lineHeight?: number
   onPress?: () => void
 }
 
@@ -312,7 +313,7 @@ export function LinkButton(props: ButtonProps) {
  */
 
 export function SimpleLinkButton(props: SimpleLinkProps) {
-  const { text, color, onPress } = props
+  const { text, color, lineHeight, onPress } = props
   
   const $basicStyle = [$simpleLinkButton]
 
@@ -325,6 +326,7 @@ export function SimpleLinkButton(props: SimpleLinkProps) {
       {({ pressed, hovered }) => (
         <RegularText
           text={text}
+          lineHeight={lineHeight}
           style={[(hovered || pressed) ? $simpleLinkButtonHovered : $basicStyle]}
         />
       )}

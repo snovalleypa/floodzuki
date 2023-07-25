@@ -78,6 +78,7 @@ export const Content = (props: ContentProps) => {
       showsVerticalScrollIndicator={false}
       scrollEventThrottle={16}
       onScroll={onScroll}
+      overScrollMode="never"
       style={scrollStyles}>
       <View style={holderStyles} {...rest}>
         {children}

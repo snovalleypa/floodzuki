@@ -1,6 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
-import { isWeb } from "@common-ui/utils/responsive"
-import { Platform, View } from "react-native";
+import React from "react";
+import { Platform } from "react-native";
 
 import { Cell } from "@common-ui/components/Common";
 // Use direct import othervise it'll break the web build

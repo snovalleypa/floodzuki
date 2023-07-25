@@ -362,7 +362,7 @@ const AlertsScreen = observer(
                 {t("alertsScreen.welcomeText")}
               </RegularText>
               <RegularText lineHeight={Spacing.large}>
-                {t("alertsScreen.weNeedFeedback")}{" "}<SimpleLinkButton color={Colors.lightBlue} text={t("alertsScreen.letUsKnow")} onPress={mailTo} />{t("alertsScreen.howWeAreDoing")}
+                {t("alertsScreen.weNeedFeedback")}{" "}<SimpleLinkButton lineHeight={Spacing.large} color={Colors.lightBlue} text={t("alertsScreen.letUsKnow")} onPress={mailTo} />{t("alertsScreen.howWeAreDoing")}
               </RegularText>
             </CardContent>
           </Card>

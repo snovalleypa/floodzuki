@@ -29,7 +29,6 @@ import { Card } from "@common-ui/components/Card";
 import EmptyComponent from "@common-ui/components/EmptyComponent";
 import GageMap from "@components/GageMap";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
-import { useHideCharts } from "@utils/useHideCharts";
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -125,8 +124,6 @@ const GageDetailsScreen = observer(
     const gageId = Array.isArray(id) ? id.join("/") : id
 
     const { isMobile } = useResponsive();
-
-    const [hideChart, handleScroll] = useHideCharts(500)
     
     const goBack = () => {
       router.push({ pathname: ROUTES.Home })
@@ -171,7 +168,7 @@ const GageDetailsScreen = observer(
           </Cell>
         </Row>
         {/* Content */}
-        <Content scrollable onScroll={handleScroll}>
+        <Content scrollable>
           {/* Top Navigation */}
           <MobileScreen>
             <Row align="space-between" gap={Spacing.small} bottom={Spacing.small}>
@@ -179,10 +176,7 @@ const GageDetailsScreen = observer(
               <DownstreamGageLink gage={gage} simple />
             </Row>
           </MobileScreen>
-          <GageDetailsChart
-            gage={gage}
-            hideChart={hideChart}
-          />
+          <GageDetailsChart gage={gage} />
           <Row>
             <If condition={!isMobile}>
               <Card

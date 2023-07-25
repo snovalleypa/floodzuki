@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react"
+import React, { useCallback, useEffect, useRef, useState } from "react"
 import { Platform, ViewStyle } from "react-native";
 import Constants from 'expo-constants';
 
@@ -175,11 +175,13 @@ const MobileMap = ({ gages }: GageMapProps) => {
 
   const markerIds = gages.map(g => g.locationId)
 
+  const singleGage = gages.length === 1 ? gages[0] : null
+
   const [region] = useState({
-    latitude: 47.622403,
-    longitude: -121.933723,
-    latitudeDelta: 0.0922,
-    longitudeDelta: 0.0421,
+    latitude: singleGage ? singleGage?.latitude : 47.622403,
+    longitude: singleGage ? singleGage?.longitude : -121.933723,
+    latitudeDelta: singleGage ? 0.00922 : 0.0922,
+    longitudeDelta: singleGage ? 0.00421 : 0.0421,
   })
 
   const fitToMarkers = () => {
@@ -198,9 +200,11 @@ const MobileMap = ({ gages }: GageMapProps) => {
     fitToMarkers()
   }, [markerIds, mapRef.current])
 
-  useFocusEffect(() => {
-    fitToMarkers()
-  })
+  useFocusEffect(
+    useCallback(() => {
+      fitToMarkers()
+    }, [markerIds])
+  )
 
   const onMarkerPress = (e) => {
     const { id } = e.nativeEvent
