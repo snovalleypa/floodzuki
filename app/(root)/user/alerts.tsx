@@ -23,7 +23,6 @@ import ErrorMessage from "@common-ui/components/ErrorMessage"
 import { Gage } from "@models/Gage"
 import { Switch } from "react-native"
 import { useLocale } from "@common-ui/contexts/LocaleContext"
-import { Image } from "expo-image"
 import { useAppAssets } from "@common-ui/contexts/AssetsContext"
 
 // We use this to wrap each screen with an error boundary
@@ -96,12 +95,13 @@ const AlertSettingsCard = observer(
           <If condition={!isWeb}>
             <Row align="space-between" bottom={Spacing.small}>
               <Cell>
-                <RegularText>
-                {t("alertsScreen.enablePushNotifications")}
+                <RegularText muted={!authSessionStore.isLoggedIn}>
+                  {t("alertsScreen.enablePushNotifications")}
                 </RegularText>
               </Cell>
               <Cell left={Spacing.extraSmall}>
                 <Switch
+                  disabled={!authSessionStore.isLoggedIn}
                   trackColor={isIOS ? { false: Colors.lightGrey, true: Colors.primary } : {}}
                   value={authSessionStore.isPushNotificationsEnabled}
                   onValueChange={handlePushNotificationsValueChange}
@@ -111,7 +111,7 @@ const AlertSettingsCard = observer(
           </If>
           {/* Email Settings */}
           <Cell>
-            <If condition={!isEmailVerified}>
+            <If condition={!isEmailVerified && authSessionStore.isLoggedIn}>
               <RegularText>
                 {t("alertsScreen.verifyEmail")}
               </RegularText>
@@ -120,7 +120,7 @@ const AlertSettingsCard = observer(
               <CheckBoxItem
                 isLoading={isUpdatingEmail}
                 disabled={!isEmailVerified}
-                label={`${t("alertsScreen.sendEmailAlertsTo")}: ${authSessionStore.user?.email}`}
+                label={`${t("alertsScreen.sendEmailAlertsTo")}: ${authSessionStore.isLoggedIn ? authSessionStore.user?.email : ""}`}
                 value={emailAlertsEnabled}
                 onChange={updateEmailAlertsEnabled}
               />
