@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react"
-import { ErrorBoundaryProps, Redirect, Stack, useLocalSearchParams, useRouter } from "expo-router"
+import { ErrorBoundaryProps, Stack, useLocalSearchParams, useRouter } from "expo-router"
 
 import { Screen, Content } from "@common-ui/components/Screen"
-import { LabelText, MediumText, RegularLargeText, RegularText, SmallTitle } from "@common-ui/components/Text"
+import { LabelText, RegularLargeText, RegularText, SmallTitle } from "@common-ui/components/Text"
 import { ErrorDetails } from "@components/ErrorDetails"
 import TitleWithBackButton from "@components/TitleWithBackButton"
 import { Card, CardContent, CardFooter, CardHeader } from "@common-ui/components/Card"
@@ -364,10 +364,6 @@ const AlertsScreen = observer(
               <RegularText lineHeight={Spacing.large}>
                 {t("alertsScreen.welcomeText")}
               </RegularText>
-              <Row>
-                <Image style={{ width: 25, height: 25 }} source={getAsset('favicon_gray')} />
-                <Image style={{ width: 25, height: 25 }} source={getAsset('favicon')} />
-              </Row>
               <RegularText lineHeight={Spacing.large}>
                 {t("alertsScreen.weNeedFeedback")}{" "}<SimpleLinkButton lineHeight={Spacing.large} color={Colors.lightBlue} text={t("alertsScreen.letUsKnow")} onPress={mailTo} />{t("alertsScreen.howWeAreDoing")}
               </RegularText>

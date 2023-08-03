@@ -24,6 +24,11 @@ import { useLocale } from "@common-ui/contexts/LocaleContext";
 import LocaleChange from "@components/LocaleChange";
 import TasteOfTheValleyBanner from "@components/TasteOfTheValleyBanner";
 
+const GAGE_ICONS = {
+  active: require("@assets/images/floodzuki.png"),
+  inactive: require("@assets/images/floodzuki-gray.png"),
+}
+
 // Main App Layout
 export default function AppLayout() {
   const store = useStores()
@@ -122,7 +127,7 @@ function FooterLink({ route, children }: { route: MainRoute, children: string })
   const $color = isActive ? Colors.primary : Colors.darkGrey
   const $imageStyle = { width: imageSize, height: imageSize, marginBottom: -2, marginTop: -6 }
 
-  const gageImageIconSource = isActive ? getAsset('favicon') : getAsset('favicon_gray')
+  const gageImageIconSource = isActive ? GAGE_ICONS.active : GAGE_ICONS.inactive
 
   return (
     <Link href={route.path} asChild>
