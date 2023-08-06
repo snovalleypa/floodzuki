@@ -1,8 +1,12 @@
 {
+  "cli": {
+    "appVersionSource": "remote"
+  },
   "build": {
     "production": {
       "node": "16.15.1",
-      "channel": "production"
+      "channel": "production",
+      "autoIncrement": true
     },
     "development": {
       "developmentClient": true,
