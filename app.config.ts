@@ -28,6 +28,7 @@ export default {
   ios: {
     bundleIdentifier: "com.floodzilla.floodzuki",
     supportsTablet: true,
+    usesAppleSignIn: true,
     associatedDomains: [
       "applinks:floodzilla.com",
       "activitycontinuation:floodzilla.com",
