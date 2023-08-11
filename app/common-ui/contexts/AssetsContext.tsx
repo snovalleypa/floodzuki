@@ -10,6 +10,7 @@ const ASSETS = {
   svpaLogo: require("@assets/images/SVPA_Logo.png"),
   tasteOfTheValley: require("@assets/images/taste_of_the_valley.png"),
   tasteOfTheValleyMobile: require("@assets/images/taste_of_the_valley_mobile.png"),
+  google_button: require("@assets/images/btn_google.png"),
 }
 
 const ASSET_KEYS = [...Object.keys(ASSETS), ...Object.keys(MAP_IMAGE_ICONS)]

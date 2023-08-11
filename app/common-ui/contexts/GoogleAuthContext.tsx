@@ -1,4 +1,4 @@
-import React, { useContext, createContext, useState, useEffect } from "react"
+import React, { useContext, createContext, useState, useEffect, useMemo, useCallback } from "react"
 
 import Constants from "expo-constants";
 import * as WebBrowser from 'expo-web-browser';
@@ -74,7 +74,7 @@ export const GoogleAuthProvider = ({ children }) => {
     }
   }, [response])
 
-  const authorize = async () => {
+  const authorize = useCallback(async () => {
     setIsLoading(true)
     setIsError(false)
 
@@ -87,15 +87,15 @@ export const GoogleAuthProvider = ({ children }) => {
     finally {
       setIsLoading(false)
     }
-  }
+  }, [])
 
-  const values = {
+  const values = useMemo(() => ({
     isDisabled: !request,
     isLoading,
     isError,
     idToken,
     authorize
-  }
+  }), [request, isLoading, isError, idToken, authorize])
 
   return (
     <GoogleAuthContext.Provider value={values}>

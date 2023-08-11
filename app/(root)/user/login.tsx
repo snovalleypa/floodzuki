@@ -20,6 +20,7 @@ import ErrorMessage from "@common-ui/components/ErrorMessage"
 import { useValidations } from "@utils/useValidations"
 import GoogleSigninButton from "@components/GoogleSigninButton"
 import { useLocale } from "@common-ui/contexts/LocaleContext"
+import { AppleSigninButton } from "@components/AppleSigninButton"
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -176,6 +177,7 @@ const LoginScreen = observer(
             </CardContent>
             <CardFooter>
               <GoogleSigninButton />
+              <AppleSigninButton />
             </CardFooter>
           </Card>
         </Content>

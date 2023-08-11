@@ -315,7 +315,6 @@ const AlertsScreen = observer(
     const router = useRouter()
     const { t } = useLocale();
     const { authSessionStore } = useStores()
-    const { getAsset } = useAppAssets();
     
     const isLoggedIn = authSessionStore.isLoggedIn
 

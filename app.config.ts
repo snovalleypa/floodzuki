@@ -112,6 +112,7 @@ export default {
   },
   plugins: [
     "expo-localization",
+    "expo-apple-authentication",
     "sentry-expo",
     [
       "expo-notifications",

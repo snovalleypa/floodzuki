@@ -10,6 +10,11 @@ import { If } from "@common-ui/components/Conditional";
 import ErrorMessage from "@common-ui/components/ErrorMessage";
 import { useGoogleAuth } from "@common-ui/contexts/GoogleAuthContext";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
+import { ActivityIndicator, Pressable, ViewStyle } from "react-native";
+import { MediumText } from "@common-ui/components/Text";
+import { Colors } from "@common-ui/constants/colors";
+import { Spacing } from "@common-ui/constants/spacing";
+import { Image } from "expo-image";
 
 const GoogleSigninButton = observer(
   function GoogleSigninButton() {
@@ -18,7 +23,7 @@ const GoogleSigninButton = observer(
     const router = useRouter()
     const googleAuth = useGoogleAuth()
 
-    useEffect(() => {      
+    useEffect(() => {
       if (!!googleAuth.idToken) {
         authorizeUser(googleAuth.idToken)
       }
@@ -32,23 +37,72 @@ const GoogleSigninButton = observer(
       }
     }
 
+    const loadingText = "Loading..."
+    const buttonText = googleAuth.isLoading ? loadingText : t("googlesigninButton.title")
+    const isButtonDisabled = googleAuth.isDisabled || googleAuth.isLoading
+
     return (
       <Cell>
         <If condition={googleAuth.isError}>
           <ErrorMessage errorText={t("googlesigninButton.error")} />
         </If>
-        <OutlinedButton
-          disabled={googleAuth.isDisabled}
-          isLoading={googleAuth.isLoading}
-          selfAlign="center"
-          leftIcon="at-sign"
-          type="lightBlue"
-          title={t("googlesigninButton.title")}
+        <Pressable
+          accessible
+          accessibilityRole="button"
+          accessibilityLabel={buttonText}
+          disabled={isButtonDisabled}
           onPress={googleAuth.authorize}
-        />
+          style={state => [
+            $button,
+            !isButtonDisabled && state.pressed && $buttonHovered,
+            !isButtonDisabled && state.hovered && $buttonHovered,
+            !isButtonDisabled && state.focused && $buttonHovered,
+            isButtonDisabled && $buttonDisabled,
+          ]}
+        >
+          <Image source={require("@assets/images/btn_google.png")} style={{ width: 48, height: 48, marginRight: 10 }} />
+          <If condition={googleAuth.isLoading}>
+            <ActivityIndicator size="small" color={Colors.white} style={$activityIndicator} />
+          </If>
+          <MediumText color={Colors.white}>{buttonText}</MediumText>
+        </Pressable>
       </Cell>
     )
   }
 )
+
+const $button: ViewStyle = {
+  alignItems: "center",
+  backgroundColor: "#4285F4",
+  borderColor: "#4285F4",
+  borderRadius: Spacing.micro,
+  borderWidth: 0,
+  flexDirection: "row",
+  height: Spacing.button,
+  justifyContent: "center",
+  paddingLeft: Spacing.zero,
+  paddingRight: Spacing.medium,
+  alignSelf: "center",
+  shadowColor: "#000",
+  shadowOffset: {
+    width: 0,
+    height: 1,
+  },
+  shadowOpacity: 0.22,
+  shadowRadius: 2.22,
+  elevation: 3,
+}
+
+const $activityIndicator: ViewStyle = {
+  marginRight: Spacing.small,
+}
+
+const $buttonHovered: ViewStyle = {
+  opacity: 0.8,
+}
+
+const $buttonDisabled: ViewStyle = {
+  opacity: 0.5,
+}
 
 export default GoogleSigninButton
