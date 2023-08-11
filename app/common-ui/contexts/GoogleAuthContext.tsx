@@ -87,7 +87,7 @@ export const GoogleAuthProvider = ({ children }) => {
     finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [promptAsync])
 
   const values = useMemo(() => ({
     isDisabled: !request,

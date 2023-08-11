@@ -30,6 +30,7 @@ const API = {
     CREATEACCOUNT_URL: "/Account/CreateAccount",
     REAUTHENTICATE_URL: "/Account/Reauthenticate",
     AUTHENTICATE_WITH_GOOGLE_URL: "/Account/AuthenticateWithGoogle",
+    AUTHENTICATE_WITH_APPLE_URL: "/Account/AuthenticateWithApple",
     AUTHENTICATE_WITH_FACEBOOK_URL: "/Account/AuthenticateWithFacebook",
     UPDATEACCOUNT_URL: "/Account/UpdateAccount",
     FORGOTPASSWORD_URL: "/Account/APIForgotPassword",

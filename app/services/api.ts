@@ -82,6 +82,10 @@ export type ProcessGoogleTokenParams = {
   idToken: string,
 }
 
+export type ProcessAppleTokenParams = {
+  idToken: string,
+}
+
 export type PushTokenParams = {
   token: string,
   platform: "ios" | "android",
@@ -493,6 +497,16 @@ export class Api {
     return await genericPostRequest<T>(
       this.apisauce,
       Config.API.auth.AUTHENTICATE_WITH_GOOGLE_URL,
+      params.idToken
+    )
+  }
+
+  async processAppleToken<T>(params: ProcessAppleTokenParams) {
+    this.apisauce.setBaseURL(Config.AUTH_BASE_URL)
+    
+    return await genericPostRequest<T>(
+      this.apisauce,
+      Config.API.auth.AUTHENTICATE_WITH_APPLE_URL,
       params.idToken
     )
   }

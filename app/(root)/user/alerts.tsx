@@ -23,7 +23,6 @@ import ErrorMessage from "@common-ui/components/ErrorMessage"
 import { Gage } from "@models/Gage"
 import { Switch } from "react-native"
 import { useLocale } from "@common-ui/contexts/LocaleContext"
-import { useAppAssets } from "@common-ui/contexts/AssetsContext"
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -84,6 +83,7 @@ const AlertSettingsCard = observer(
 
     const isEmailVerified = authSessionStore.isEmailVerified
     const isPhoneVerified = authSessionStore.isPhoneVerified
+    const isLoggedIn = authSessionStore.isLoggedIn
 
     return (
       <Card bottom={Spacing.large}>
@@ -111,7 +111,7 @@ const AlertSettingsCard = observer(
           </If>
           {/* Email Settings */}
           <Cell>
-            <If condition={!isEmailVerified && authSessionStore.isLoggedIn}>
+            <If condition={!isEmailVerified && isLoggedIn}>
               <RegularText>
                 {t("alertsScreen.verifyEmail")}
               </RegularText>
@@ -119,15 +119,15 @@ const AlertSettingsCard = observer(
             <Cell top={Spacing.extraSmall}>
               <CheckBoxItem
                 isLoading={isUpdatingEmail}
-                disabled={!isEmailVerified}
-                label={`${t("alertsScreen.sendEmailAlertsTo")}: ${authSessionStore.isLoggedIn ? authSessionStore.user?.email : ""}`}
-                value={emailAlertsEnabled}
+                disabled={!isEmailVerified || !isLoggedIn}
+                label={`${t("alertsScreen.sendEmailAlertsTo")}: ${isLoggedIn ? authSessionStore.user?.email : ""}`}
+                value={emailAlertsEnabled && isLoggedIn}
                 onChange={updateEmailAlertsEnabled}
               />
             </Cell>
           </Cell>
           {/* Phone Settings */}
-          <If condition={!isPhoneVerified && authSessionStore.isLoggedIn}>
+          <If condition={!isPhoneVerified && isLoggedIn}>
             <Cell top={Spacing.small}>
               <RegularText>
                 <SimpleLinkButton
@@ -142,13 +142,13 @@ const AlertSettingsCard = observer(
             <Cell flex>
               <CheckBoxItem
                 isLoading={isUpdatingSms}
-                disabled={!isPhoneVerified}
+                disabled={!isPhoneVerified || !isLoggedIn}
                 label={`${t("alertsScreen.sendSmsAlerts")}: ${authSessionStore.userPhone ?? ""}`}
-                value={smsAlertsEnabled}
+                value={smsAlertsEnabled && isLoggedIn}
                 onChange={updateSmsAlertsEnabled}
               />
             </Cell>
-            <If condition={authSessionStore.isLoggedIn}>
+            <If condition={isLoggedIn}>
               <Cell flex>
                 <LinkButton
                   title={t("alertsScreen.changePhone")}
@@ -216,6 +216,8 @@ const ForecastsCard = observer(
       setIsUpdatingDailyForecast(false)
     }
 
+    const { isLoggedIn, isNotificationsEnabled } = authSessionStore
+
     return (
       <Card bottom={Spacing.large}>
         <CardHeader>
@@ -226,14 +228,14 @@ const ForecastsCard = observer(
             <RegularText>{t("alertsScreen.forecastsTitle")}</RegularText>
           </Cell>
           <CheckBoxItem
-            disabled={!authSessionStore.isNotificationsEnabled}
+            disabled={!isNotificationsEnabled || !isLoggedIn}
             isLoading={isUpdatingForecast}
             label={t("alertsScreen.genericForecast")}
             value={forecastsEnabled}
             onChange={updateForecastsEnabled}
           />
           <CheckBoxItem
-            disabled={!authSessionStore.isNotificationsEnabled}
+            disabled={!isNotificationsEnabled || !isLoggedIn}
             isLoading={isUpdatingDailyForecast}
             label={t("alertsScreen.dailyForecast")}
             value={dailyForecastsEnabled}
@@ -267,13 +269,14 @@ const GageCheckboxItem = observer(
     }
 
     const isSubscribed = (authSessionStore.gageSubscriptions ?? []).includes(gage.locationId)
+    const { isLoggedIn, isNotificationsEnabled } = authSessionStore
 
     return (
       <CheckBoxItem
-        disabled={!authSessionStore.isNotificationsEnabled}
+        disabled={!isNotificationsEnabled || !isLoggedIn}
         isLoading={isUpdating}
         label={`${gage.locationId} ${gage.locationInfo?.locationName}`}
-        value={isSubscribed}
+        value={isSubscribed && isLoggedIn}
         onChange={updateGageEnabled}
       />
     )

@@ -11,11 +11,19 @@ import { i18n } from "@i18n/i18n"
 // AuthSession
 
 const SessionStateEnum = types.enumeration(["loggedIn", "notLoggedIn", "loggingIn", "loggingOut"])
+const AuthProvidersEnum = types.enumeration(["google", "apple", "email"])
+
 export const SessionState = {
   loggedIn: "loggedIn",
   notLoggedIn: "notLoggedIn",
   loggingIn: "loggingIn",
   loggingOut: "loggingOut",
+} as const
+
+export const AuthProviders = {
+  google: "google",
+  apple: "apple",
+  email: "email",
 } as const
 
 type AuthResult = {
@@ -71,6 +79,7 @@ export const AuthSessionStoreModel = types
     gageSubscriptions: types.optional(types.array(types.string), []),
     isPushNotificationsEnabled: types.optional(types.boolean, false),
     pushToken: types.maybe(types.string),
+    authenticatedWith: types.maybe(AuthProvidersEnum), // Options are "google", "apple", "email"
     locale: types.optional(types.string, i18n.locale), // Locale that we get from device
     preferredLocale: types.optional(types.string, ""), // Locale that user selected
     ...dataFetchingProps
@@ -118,6 +127,14 @@ export const AuthSessionStoreModel = types
 
     get userLastName() {
       return store.user?.lastName
+    },
+
+    get isAuthneticatedWithGoogle() {
+      return store.authenticatedWith === AuthProviders.google
+    },
+
+    get isAuthneticatedWithApple() {
+      return store.authenticatedWith === AuthProviders.apple
     }
   }))
   .actions(store => {
@@ -360,8 +377,24 @@ export const AuthSessionStoreModel = types
       store.setIsFetching(false)
     })
 
+    const processAppleToken = flow(function*(params: ProcessGoogleTokenParams) {
+      store.setIsFetching(true)
+
+      const response = yield api.processAppleToken(params)
+
+      if (response.kind === 'ok') {
+        onAuthenticate(response.data)
+      } else {
+        onAuthFail()
+        store.setError(response.data)
+      }
+
+      store.setIsFetching(false)
+    })
+
     const logOut = flow(function*() {
       removeAuthToken()
+      
       store.setProp("sessionState", SessionState.notLoggedIn)
     })
 
@@ -498,6 +531,7 @@ export const AuthSessionStoreModel = types
       sendPhoneVerificationCode,
       verifyPhoneCode,
       processGoogleToken,
+      processAppleToken,
       logOut,
       getSettings,
       updateSettings,

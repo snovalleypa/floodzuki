@@ -20,6 +20,7 @@ import Config from "@config/config"
 import GoogleRecaptcha from "@components/GoogleRecaptcha"
 import GoogleSigninButton from "@components/GoogleSigninButton"
 import { useLocale } from "@common-ui/contexts/LocaleContext"
+import { AppleSigninButton } from "@components/AppleSigninButton"
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -230,6 +231,9 @@ const NewScreen = observer(
               </Row>
             </CardContent>
             <CardFooter>
+              <Cell align="center" bottom={Spacing.small}>
+                <AppleSigninButton />
+              </Cell>
               <GoogleSigninButton />
             </CardFooter>
           </Card>

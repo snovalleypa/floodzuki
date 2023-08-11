@@ -176,8 +176,10 @@ const LoginScreen = observer(
               </Row>
             </CardContent>
             <CardFooter>
+              <Cell align="center" bottom={Spacing.small}>
+                <AppleSigninButton />
+              </Cell>
               <GoogleSigninButton />
-              <AppleSigninButton />
             </CardFooter>
           </Card>
         </Content>

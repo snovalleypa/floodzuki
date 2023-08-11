@@ -37,6 +37,8 @@ const GoogleSigninButton = observer(
       }
     }
 
+    console.log("GoogleAuthContext", googleAuth)
+
     const loadingText = "Loading..."
     const buttonText = googleAuth.isLoading ? loadingText : t("googlesigninButton.title")
     const isButtonDisabled = googleAuth.isDisabled || googleAuth.isLoading
