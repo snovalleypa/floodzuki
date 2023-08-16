@@ -7,6 +7,7 @@ import { registerForPushNotificationsAsync } from "@services/pushNotifications"
 import { Platform } from "react-native"
 import { unregisterForNotificationsAsync } from "expo-notifications"
 import { i18n } from "@i18n/i18n"
+import { logError } from "@utils/sentry"
 
 // AuthSession
 
@@ -398,6 +399,18 @@ export const AuthSessionStoreModel = types
       store.setProp("sessionState", SessionState.notLoggedIn)
     })
 
+    const deleteAccount = flow(function*() {
+      const response = yield api.deleteAccount()
+
+      console.log("deleteAccount response", response)
+
+      if (response.kind === 'ok') {
+        logOut()
+      } else {
+        logError(response)
+      }
+    })
+
     const getSettings = flow(function*() {
       if (!store.authToken) return
 
@@ -533,6 +546,7 @@ export const AuthSessionStoreModel = types
       processGoogleToken,
       processAppleToken,
       logOut,
+      deleteAccount,
       getSettings,
       updateSettings,
       getSubscribedGages,

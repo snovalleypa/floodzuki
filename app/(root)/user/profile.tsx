@@ -5,7 +5,7 @@ import { observer } from "mobx-react-lite";
 import { Content, Screen } from "@common-ui/components/Screen"
 import { MediumText, RegularText } from "@common-ui/components/Text"
 import { ErrorDetails } from "@components/ErrorDetails";
-import { Cell, RowOrCell } from "@common-ui/components/Common";
+import { Cell, RowOrCell, Separator, Spacer } from "@common-ui/components/Common";
 import { Spacing } from "@common-ui/constants/spacing";
 import TitleWithBackButton from "@components/TitleWithBackButton";
 import { ROUTES } from "app/_layout";
@@ -14,12 +14,14 @@ import { Input } from "@common-ui/components/Input";
 
 import { useValidations } from "@utils/useValidations";
 import { useStores } from "@models/helpers/useStores";
-import { SimpleLinkButton, SolidButton } from "@common-ui/components/Button";
+import { LinkButton, SimpleLinkButton, SolidButton } from "@common-ui/components/Button";
 import { Colors } from "@common-ui/constants/colors";
 import { If, Ternary } from "@common-ui/components/Conditional";
 import ErrorMessage from "@common-ui/components/ErrorMessage";
 import SuccessMessage from "@common-ui/components/SuccessMessage";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
+import { Alert } from "react-native";
+import { isMobile } from "@common-ui/utils/responsive";
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -75,6 +77,27 @@ const ProfileScreen = observer(
       })
 
       setSubmitted(true)
+    }
+
+    const onAccountRemove = () => {
+      Alert.alert(
+        "Delete Account",
+        "Are you sure you want to delete your account? This action cannot be undone.",
+        [
+          {
+            text: "Cancel",
+            style: "cancel"
+          },
+          { text: "Delete", onPress: deleteAccount }
+        ],
+        { cancelable: false }
+      );
+    }
+
+    const deleteAccount = async () => {
+      await authSessionStore.deleteAccount()
+      
+      router.push({ pathname: ROUTES.Home })
     }
 
     const updatePhone = () => {
@@ -199,6 +222,19 @@ const ProfileScreen = observer(
                 selfAlign="center"
                 onPress={submit}
               />
+              <If condition={isMobile}>
+                <Spacer size={Spacing.large} />
+                <Separator />
+                <LinkButton
+                  type="danger"
+                  top={Spacing.medium}
+                  isLoading={authSessionStore.isFetching}
+                  minWidth={Spacing.extraExtraHuge}
+                  title="Delete Account"
+                  selfAlign="center"
+                  onPress={onAccountRemove}
+                />
+              </If>
             </CardFooter>
           </Card>
         </Content>

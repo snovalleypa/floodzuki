@@ -568,6 +568,15 @@ export class Api {
       params
     )
   }
+
+  async deleteAccount<T>() {
+    this.apisauce.setBaseURL(Config.AUTH_BASE_URL)
+
+    return await genericPostRequest<T>(
+      this.apisauce,
+      Config.API.auth.DELETE_ACCOUNT_URL,
+    )
+  }
 }
 
 // Singleton instance of the API for convenience

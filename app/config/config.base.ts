@@ -41,6 +41,7 @@ const API = {
     VERIFYEMAIL_URL: "/Account/VerifyEmail",
     SENDPHONEVERIFICATION_URL: "/Account/SendPhoneVerificationSms",
     VERIFYPHONE_URL: "/Account/VerifyPhone",
+    DELETE_ACCOUNT_URL: "/Account/FullyDeleteUser",
   
     FACEBOOK_LOGIN_PROVIDER_NAME: "Facebook",
     GOOGLE_LOGIN_PROVIDER_NAME: "Google",

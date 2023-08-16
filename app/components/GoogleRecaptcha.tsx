@@ -1,9 +1,11 @@
-import React, { useImperativeHandle, useRef, useState } from "react"
+import React, { useImperativeHandle, useRef } from "react"
 import Recaptcha, { RecaptchaHandles } from "react-native-recaptcha-that-works";
 
 import { Ternary } from "@common-ui/components/Conditional"
 import { isWeb } from "@common-ui/utils/responsive"
 import Constants from "expo-constants";
+import { useFocusEffect } from "expo-router";
+import { logError } from "@utils/sentry";
 
 type GoogleRecaptchaProps = {
   onVerify: (token: string) => void,
@@ -18,7 +20,9 @@ const WebRecpatcha = React.forwardRef(({
   onVerify,
   onExpire,
 }: WebRecpatcha, ref) => {
-  const [rendered, setRendered] = useState(false)
+  const isRendered = useRef(false)
+
+  const uniqueId = Math.random().toString(36).substring(2, 15)
 
   useImperativeHandle(ref, () => ({
     open: () => {
@@ -26,40 +30,30 @@ const WebRecpatcha = React.forwardRef(({
         onVerify(token)
       }
 
-      if (!rendered) {
-        try {
-          window.grecaptcha?.ready(function() {
-            window.grecaptcha?.render(document.getElementById('localRecaptchaContainer'), {
-              sitekey: RECAPTCHA_KEY,
-            }, true);
+      try {
+        window.grecaptcha?.ready(function() {
+          isRendered.current = true
 
-            setRendered(true)
-
-            window.grecaptcha?.execute()
-          })
-        }
-        catch (e) {
-          // Most likely the recaptcha script has been already rendered
-          // so we can ignore this error
-          // console.log("Error rendering recaptcha", e)
-        }
-
-        return
+          window.grecaptcha?.execute()
+        })
       }
-      
-      window.grecaptcha?.execute()
+      catch (e) {
+        logError(e)
+      }
     },
 
     reset: () => {
-      if (!rendered) return
-
+      if (!isRendered.current) {
+        return
+      }
+      
       window.grecaptcha?.reset()
     }
   }))
 
   return (
     <div
-      id='localRecaptchaContainer'
+      id={`localRecaptchaContainer_${uniqueId}`}
       className="g-recaptcha"
       data-callback="localRecaptchaCallback"
       data-size="invisible"
@@ -90,6 +84,13 @@ const GoogleRecaptcha = React.forwardRef((props: GoogleRecaptchaProps, ref) => {
       }
     }
   }))
+
+  // Reset recaptcha on focus
+  useFocusEffect(() => {
+    if (isWeb) {
+      recaptchaWeb.current?.reset()
+    }
+  })
 
   return (
     <Ternary condition={isWeb}>

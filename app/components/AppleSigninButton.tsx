@@ -7,6 +7,7 @@ import { ROUTES } from 'app/_layout';
 import { useLocale } from '@common-ui/contexts/LocaleContext';
 import { If } from '@common-ui/components/Conditional';
 import ErrorMessage from '@common-ui/components/ErrorMessage';
+import { logError } from '@utils/sentry';
 
 export const AppleSigninButton = () => {
   const { authSessionStore } = useStores()
@@ -41,11 +42,15 @@ export const AppleSigninButton = () => {
         idToken: credentials.identityToken,
       })
 
-      if (!authSessionStore.isError) {
-        router.push({ pathname: ROUTES.UserAlerts })
+      if (authSessionStore.isError) {
+        throw new Error(authSessionStore.errorMessage)
       }
+
+      router.push({ pathname: ROUTES.UserAlerts })
     }
     catch (error) {
+      logError(error, "AppleSigninButton.authorizeUser")
+
       setIsError(true)
     }
   }

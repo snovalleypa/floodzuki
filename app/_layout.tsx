@@ -1,6 +1,5 @@
 import React from "react";
 import { Slot, SplashScreen } from "expo-router";
-import * as Sentry from 'sentry-expo';
 import { useFonts } from "expo-font";
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -14,13 +13,9 @@ import { AssetsProvider } from "@common-ui/contexts/AssetsContext";
 import { isWeb } from "@common-ui/utils/responsive";
 import { GoogleAuthProvider } from "@common-ui/contexts/GoogleAuthContext";
 import { LocaleProvider } from "@common-ui/contexts/LocaleContext";
+import { initSentry } from "@utils/sentry";
 
-
-Sentry.init({
-  dsn: "https://7580ac526eb64f2f811ba952bb9409f1@o4505126543360000.ingest.sentry.io/4505132726681600",
-  enableInExpoDevelopment: false,
-  debug: false, // If `true`, Sentry will try to print out useful debugging information if something goes wrong with sending the event. Set it to `false` in production
-});
+initSentry()
 
 /**
  * Root layout for Expo router (entry file for the app)

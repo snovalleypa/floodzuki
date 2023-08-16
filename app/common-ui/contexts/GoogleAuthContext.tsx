@@ -6,6 +6,7 @@ import * as Google from 'expo-auth-session/providers/google';
 import { makeRedirectUri } from "expo-auth-session";
 
 import { isAndroid, isWeb } from "@common-ui/utils/responsive";
+import { logError } from "@utils/sentry";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -70,6 +71,7 @@ export const GoogleAuthProvider = ({ children }) => {
       setIdToken(idToken)
     }
     else if (response?.type === 'error') {
+      logError(response, "GoogleSigninButton.responseType")
       setIsError(true)
     }
   }, [response])
@@ -82,6 +84,7 @@ export const GoogleAuthProvider = ({ children }) => {
       await promptAsync()
     }
     catch (error) {
+      logError(error, "GoogleSigninButton.authorizeUser")
       setIsError(true)
     }
     finally {
