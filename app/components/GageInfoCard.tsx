@@ -15,14 +15,14 @@ const GageInfoCard = observer(
     const { t } = useLocale()
 
     const goToUSGSWebsite = () => {
-      if (!gage.usgsInfo) return
+      if (!gage?.usgsInfo) return
       
-      const url = `https://waterdata.usgs.gov/monitoring-location/${gage.usgsInfo?.id}`
+      const url = `https://waterdata.usgs.gov/monitoring-location/${gage?.usgsInfo?.id}`
       openLinkInBrowser(url)
     }
 
     const openLocationInMaps = () => {
-      const url = `https://www.google.com/maps/search/?api=1&query=${gage.locationInfo?.latitude},${gage.locationInfo?.longitude}`
+      const url = `https://www.google.com/maps/search/?api=1&query=${gage?.locationInfo?.latitude},${gage?.locationInfo?.longitude}`
       openLinkInBrowser(url)
     }
 
@@ -34,22 +34,22 @@ const GageInfoCard = observer(
         <Cell flex>
           <CardItem>
             <RegularText>{t("gageInfoCard.gageID")}</RegularText>
-            <MediumText>{gage.locationId}</MediumText>
+            <MediumText>{gage?.locationId}</MediumText>
           </CardItem>
           <CardItem>
             <RegularText>{t("gageInfoCard.operatedBy")}</RegularText>
-            <MediumText>{gage.opearatorName}</MediumText>
+            <MediumText>{gage?.opearatorName}</MediumText>
           </CardItem>
           <CardItem>
             <RegularText>{t("gageInfoCard.riverMile")}</RegularText>
-            <MediumText>{gage.riverMile}</MediumText>
+            <MediumText>{gage?.riverMile}</MediumText>
           </CardItem>
-          <If condition={!!gage.usgsInfo}>
+          <If condition={!!gage?.usgsInfo}>
             <CardItem>
               <RegularText>{t("gageInfoCard.usgsWebsite")}</RegularText>
               <LinkButton
                 align="right"
-                title={`${t("gageInfoCard.gage")} ${gage.usgsInfo?.id}`}
+                title={`${t("gageInfoCard.gage")} ${gage?.usgsInfo?.id}`}
                 onPress={goToUSGSWebsite}
               />
             </CardItem>
@@ -58,7 +58,7 @@ const GageInfoCard = observer(
             <RegularText>{`${t("gageInfoCard.latitude")},\n${t("gageInfoCard.longitude")}`}</RegularText>
             <LinkButton
               align="right"
-              title={`${gage.locationInfo?.latitude?.toFixed(6)}, ${gage.locationInfo?.longitude?.toFixed(6)}`}
+              title={`${gage?.locationInfo?.latitude?.toFixed(6)}, ${gage?.locationInfo?.longitude?.toFixed(6)}`}
               onPress={openLocationInMaps}
             />
           </CardItem>

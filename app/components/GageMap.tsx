@@ -73,7 +73,7 @@ const WebMap = ({ gages }: GageMapProps) => {
     
     if (google && gages.length) {
       // remove filtered out markers
-      const gageIds = gages.map(g => g.locationId);
+      const gageIds = gages.map(g => g?.locationId);
       
       for (var i = 0; i < mapMarkers.current.length; i++) {
         if (!gageIds.includes(mapMarkers.current[i].id)) {
@@ -86,10 +86,10 @@ const WebMap = ({ gages }: GageMapProps) => {
       const bounds = new google.maps.LatLngBounds();
       
       for (const gage of gages) {
-        if (gage.latitude && gage.longitude) {
+        if (gage?.latitude && gage?.longitude) {
           let marker =
             mapMarkers.current &&
-            mapMarkers.current.find(m => m.id === gage.locationId);
+            mapMarkers.current.find(m => m.id === gage?.locationId);
 
           marker = createOrUpdateGageMarker(gage, marker);
 
@@ -128,7 +128,7 @@ const WebMap = ({ gages }: GageMapProps) => {
   }, [gageSelected, google, mapBounds]);
 
   const createOrUpdateGageMarker = (gage, marker) => {
-    let gageStatus = gage.gageStatus
+    let gageStatus = gage?.gageStatus
     
     const icon = {
       url:
@@ -147,9 +147,9 @@ const WebMap = ({ gages }: GageMapProps) => {
     }
     
     return new google.maps.Marker({
-      position: { lat: gage.latitude, lng: gage.longitude },
-      title: gage.locationName,
-      id: gage.locationId,
+      position: { lat: gage?.latitude, lng: gage?.longitude },
+      title: gage?.locationName,
+      id: gage?.locationId,
       gage: gage,
       icon: icon,
     });
@@ -173,7 +173,7 @@ const MobileMap = ({ gages }: GageMapProps) => {
   const router = useRouter();
   const mapRef = useRef(null)
 
-  const markerIds = gages.map(g => g.locationId)
+  const markerIds = gages.map(g => g?.locationId)
 
   const singleGage = gages.length === 1 ? gages[0] : null
 
@@ -231,13 +231,13 @@ const MobileMap = ({ gages }: GageMapProps) => {
         if (gage?.latitude && gage?.longitude) {
           return (
             <MapMarker
-              key={gage.locationId}
-              identifier={gage.locationId}
+              key={gage?.locationId}
+              identifier={gage?.locationId}
               coordinate={{
-                latitude: gage.latitude,
-                longitude: gage.longitude,
+                latitude: gage?.latitude,
+                longitude: gage?.longitude,
               }}
-              title={gage.locationName}
+              title={gage?.locationName}
             >
               <MobileMapIcon levelTrend={gage?.status?.levelTrend} />
             </MapMarker>

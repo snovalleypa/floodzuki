@@ -28,7 +28,7 @@ const CalloutReading = observer(
 
     const isNow = !!from && !!to ? to === localDayJs().format("YYYY-MM-DD") : true
     
-    const status = isNow ? gage.status : gage.peakStatus
+    const status = isNow ? gage?.status : gage?.peakStatus
     const reading = status?.lastReading
     const label = isNow ? t("calloutReading.lastReading") : t("calloutReading.peak")
 

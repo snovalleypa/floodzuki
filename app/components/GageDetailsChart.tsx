@@ -220,8 +220,6 @@ const RateOfChange = observer(
   function RateOfChange({ gage }: { gage: Gage }) {
     const { t } = useLocale()
 
-    if (!gage?.locationId) return null;
-
     // set rate of change
     let rate = gage?.predictedFeetPerHour
     if (rate > -0.01 && rate < 0.01) {
@@ -230,6 +228,8 @@ const RateOfChange = observer(
 
     const crossingTime = useMemo(() => {
       let crossingTime = null;
+
+      if (!gage?.roadSaddleHeight) return null;
       
       for (var i = 0; i < gage.predictions.length - 1; i++) {
         let p = gage.predictions[i];
@@ -250,7 +250,9 @@ const RateOfChange = observer(
       }
 
       return crossingTime;
-    }, [gage.roadSaddleHeight]);
+    }, [gage?.roadSaddleHeight]);
+
+    if (!gage?.locationId) return null;
 
     if (!rate) return null
 

@@ -44,7 +44,7 @@ export const RootStoreModel = types.model("RootStore")
       const gage = store.forecastsStore.forecasts.get(gageId)
 
       if (gage) {
-        return gage.forecastGage
+        return gage?.forecastGage
       }
 
       return null

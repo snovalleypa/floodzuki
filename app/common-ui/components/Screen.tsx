@@ -1,6 +1,6 @@
 import React from "react"
 import { View, ScrollView, ViewProps, ScrollViewProps, ViewStyle } from "react-native"
-import { Edge, SafeAreaView } from "react-native-safe-area-context"
+import { Edge, SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context"
 
 import { Colors } from "@common-ui/constants/colors"
 import { Spacing } from "@common-ui/constants/spacing"
@@ -92,7 +92,6 @@ export const Content = (props: ContentProps) => {
  * Screen - generic wrapper for screens. Includes SafeAreaView and ErrorBoundary
  * @param {React.ReactNode} children - inner content for Screen component
  * @param {string} bgColor - set background color
- * @param {Edge[]} edges - edges to apply SafeAreaView to
  * @example
  * <Screen>
  *  <Content>
@@ -100,8 +99,8 @@ export const Content = (props: ContentProps) => {
  *  </Content>
  * </Screen>
  */
-export const Screen = (props: { children: React.ReactNode, bgColor?: string, edges?: Edge[] }) => {
-  const { children, bgColor, edges } = props
+export const Screen = (props: { children: React.ReactNode, bgColor?: string }) => {
+  const { children, bgColor } = props
 
   const styles = [$container]
 
@@ -109,14 +108,12 @@ export const Screen = (props: { children: React.ReactNode, bgColor?: string, edg
     styles.push({ backgroundColor: bgColor })
   }
 
-  const safeAreaEdges = edges || ["top", "right", "left"]
+  const insets = useSafeAreaInsets();
 
   return (
-    <SafeAreaView edges={safeAreaEdges} style={styles}>
-      <View style={$maxWidthHolder}>
-        {children}
-      </View>
-    </SafeAreaView>
+    <View style={[styles, $maxWidthHolder, { paddingTop: insets.top }]}>
+      {children}
+    </View>
   )
 }
 

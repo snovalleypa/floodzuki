@@ -364,7 +364,7 @@ export const GageStoreModel = types
         Config.FRONT_PAGE_CHART_DURATION_UNIT
       ).utc().format()
 
-      const gage = store.gages.find(gage => gage.locationId === locationId)
+      const gage = store.gages.find(gage => gage?.locationId === locationId)
 
       const response = yield api.getGageReadings<Gage>(
         locationId,

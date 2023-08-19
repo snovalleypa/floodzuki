@@ -1,5 +1,5 @@
-import React, { useEffect } from "react"
-import { ErrorBoundaryProps, useSearchParams, Stack, useRouter } from "expo-router";
+import React, { useEffect, useState } from "react"
+import { ErrorBoundaryProps, useSearchParams, Stack, useRouter, useNavigation } from "expo-router";
 import { observer } from "mobx-react-lite";
 
 import { Content, Screen } from "@common-ui/components/Screen"
@@ -11,15 +11,16 @@ import { Cell, Row } from "@common-ui/components/Common";
 import { Spacing } from "@common-ui/constants/spacing";
 
 import { useStores } from "@models/helpers/useStores";
-import { useResponsive } from "@common-ui/utils/responsive";
+import { isAndroid, useResponsive } from "@common-ui/utils/responsive";
 import { IconButton, LinkButton } from "@common-ui/components/Button";
-import { Ternary } from "@common-ui/components/Conditional";
+import { If, Ternary } from "@common-ui/components/Conditional";
 import { Colors } from "@common-ui/constants/colors";
 import { useTimeout } from "@utils/useTimeout";
 import { GageSummary } from "@models/RootStore";
 import { ROUTES } from "app/_layout";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import ForecastFooter from "@components/ForecastFooter";
+import { Timing } from "@common-ui/constants/timing";
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -31,6 +32,7 @@ const ForecastDetailsScreen = observer(
     const { id } = useSearchParams()
     const { t } = useLocale();
     const router = useRouter()
+    const navigation = useNavigation()
     const store = useStores()
 
     const { isMobile } = useResponsive()
@@ -40,7 +42,7 @@ const ForecastDetailsScreen = observer(
     // represented as an array of strings ["USGS-SF17", "USGS-38-0001"]
     const gageId = Array.isArray(id) ? id.join("/") : id
 
-    const [hidden, setHidden] = React.useState(true)
+    const [forecastGage, setForecastGage] = useState({} as GageSummary)
 
     // Fetch data on mount
     useEffect(() => {
@@ -51,13 +53,13 @@ const ForecastDetailsScreen = observer(
     
 
     useTimeout(() => {
-      setHidden(false)
-    }, 0)
-
-    const forecastGage = hidden ? {} as GageSummary : store.getForecastGage(gageId)
+      setForecastGage(store.getForecastGage(gageId))
+    }, isAndroid ? Timing.ultrafast : Timing.zero)
 
     const goBack = () => {
-      router.push({ pathname: ROUTES.Forecast })
+      navigation.canGoBack() ?
+        navigation.goBack() :
+        router.push({ pathname: ROUTES.Forecast })
     }
 
     return (
@@ -82,18 +84,20 @@ const ForecastDetailsScreen = observer(
           </LargeTitle>
         </Row>
         <Content scrollable>
-          <ForecastChart gages={[forecastGage]} />
-          <Cell top={Spacing.mediumXL}>
-            <GageSummaryCard
-              firstItem
-              noDetails
-              gage={forecastGage}
-            />
-          </Cell>
-          <Cell top={Spacing.mediumXL}>
-            <ExtendedGageSummaryCard gage={forecastGage} />
-          </Cell>
-          <ForecastFooter />
+          <If condition={!!forecastGage}>
+            <ForecastChart gages={[forecastGage]} />
+            <Cell top={Spacing.mediumXL}>
+              <GageSummaryCard
+                firstItem
+                noDetails
+                gage={forecastGage}
+              />
+            </Cell>
+            <Cell top={Spacing.mediumXL}>
+              <ExtendedGageSummaryCard gage={forecastGage} />
+            </Cell>
+            <ForecastFooter />
+          </If>
         </Content>
       </Screen>
     )

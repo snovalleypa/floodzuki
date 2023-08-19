@@ -40,6 +40,8 @@ export const AppleSigninButton = () => {
 
       await authSessionStore.processAppleToken({
         idToken: credentials.identityToken,
+        firstName: credentials.fullName?.givenName ?? "",
+        lastName: credentials.fullName?.familyName ?? "",
       })
 
       if (authSessionStore.isError) {

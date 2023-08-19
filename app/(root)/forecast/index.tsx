@@ -15,6 +15,7 @@ import { useInterval, useTimeout } from "@utils/useTimeout";
 import { Timing } from "@common-ui/constants/timing";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import ForecastFooter from "@components/ForecastFooter";
+import { isAndroid } from "@common-ui/utils/responsive";
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -30,7 +31,7 @@ const ForecastScreen = observer(
 
     useTimeout(() => {
       setHidden(false)
-    }, Timing.zero)
+    }, isAndroid ? Timing.ultrafast : Timing.zero)
 
     // Check for new readings every 1 minute
     useInterval(() => {

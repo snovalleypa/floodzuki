@@ -29,7 +29,7 @@ const StatusLevelsCard = observer(
     const { t } = useLocale()
 
     const isLoggedIn = authSessionStore.isLoggedIn
-    const isSubscribed = isLoggedIn && authSessionStore.gageSubscriptions.includes(gage.locationId)
+    const isSubscribed = isLoggedIn && authSessionStore.gageSubscriptions.includes(gage?.locationId)
 
     const handleManageLinkPress = () => {
       if (isSubscribed) {
@@ -37,7 +37,7 @@ const StatusLevelsCard = observer(
         return; 
       }
       else if (isLoggedIn) {
-        router.push({ pathname: ROUTES.UserAlerts, params: { add: gage.locationId } })
+        router.push({ pathname: ROUTES.UserAlerts, params: { add: gage?.locationId } })
         return; 
       }
 
@@ -62,23 +62,23 @@ const StatusLevelsCard = observer(
         <Cell flex>
           <CardItem>
             <LargeLabel type="success" text={t("status.normal")} />
-            <RegularText>{t("statusLevelsCard.Below")} {formatHeight(gage.yellowStage ?? gage.redStage)}</RegularText>
+            <RegularText>{t("statusLevelsCard.Below")} {formatHeight(gage?.yellowStage ?? gage?.redStage)}</RegularText>
           </CardItem>
           <CardItem>
             <LargeLabel type="warning" text={t("status.nearFlooding")} />
             <RegularText>
-              {t("statusLevelsCard.atAndAbove")} {formatHeight(gage.yellowStage)}{"\n"}
-              <If condition={!!gage.roadSaddleHeight}>
-                <SmallText>{formatToRoadText(gage.roadToYellowStage, t)}</SmallText>
+              {t("statusLevelsCard.atAndAbove")} {formatHeight(gage?.yellowStage)}{"\n"}
+              <If condition={!!gage?.roadSaddleHeight}>
+                <SmallText>{formatToRoadText(gage?.roadToYellowStage, t)}</SmallText>
               </If>
             </RegularText>
           </CardItem>
           <CardItem noBorder>
             <LargeLabel type="danger" text={t("status.flooding")} />
             <RegularText>
-              {t("statusLevelsCard.atAndAbove")} {formatHeight(gage.redStage)}{"\n"}
-              <If condition={!!gage.roadSaddleHeight}>
-                <SmallText>{formatToRoadText(gage.roadToRedStage, t)}</SmallText>
+              {t("statusLevelsCard.atAndAbove")} {formatHeight(gage?.redStage)}{"\n"}
+              <If condition={!!gage?.roadSaddleHeight}>
+                <SmallText>{formatToRoadText(gage?.roadToRedStage, t)}</SmallText>
               </If>
             </RegularText>
           </CardItem>

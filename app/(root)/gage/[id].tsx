@@ -1,6 +1,6 @@
-import React, { useRef, useState } from "react";
-import { LayoutChangeEvent, LayoutRectangle, NativeScrollEvent, NativeSyntheticEvent, TouchableOpacity } from "react-native";
-import { ErrorBoundaryProps, Link, Stack, useLocalSearchParams, useRouter } from "expo-router";
+import React, { useState } from "react";
+import { TouchableOpacity } from "react-native";
+import { ErrorBoundaryProps, Link, Stack, useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { observer } from "mobx-react-lite";
 
 import { IconButton, LinkButton } from "@common-ui/components/Button";
@@ -8,10 +8,10 @@ import { Cell, Row, RowOrCell } from "@common-ui/components/Common";
 import { If, Ternary } from "@common-ui/components/Conditional";
 import { Label } from "@common-ui/components/Label";
 import { Content, Screen } from "@common-ui/components/Screen";
-import { LabelText, LargeTitle, MediumTitle, RegularText, SmallTitle } from "@common-ui/components/Text";
+import { LabelText, LargeTitle, MediumTitle, RegularText } from "@common-ui/components/Text";
 import { Colors } from "@common-ui/constants/colors";
 import { Spacing } from "@common-ui/constants/spacing";
-import { MobileScreen, WideScreen, isAndroid, isWeb, useResponsive } from "@common-ui/utils/responsive";
+import { MobileScreen, WideScreen, isAndroid, useResponsive } from "@common-ui/utils/responsive";
 
 import { useStores } from "@models/helpers/useStores";
 import { Gage } from "@models/Gage";
@@ -29,6 +29,9 @@ import { Card } from "@common-ui/components/Card";
 import EmptyComponent from "@common-ui/components/EmptyComponent";
 import GageMap from "@components/GageMap";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
+import { useTimeout } from "@utils/useTimeout";
+import { Timing } from "@common-ui/constants/timing";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -47,7 +50,7 @@ const UpstreamGageLink = observer(
     const { isMobile } = useResponsive();
     const router = useRouter();
 
-    const upstreamGageLocation = getUpstreamGageLocation(gage.locationId)
+    const upstreamGageLocation = getUpstreamGageLocation(gage?.locationId)
 
     if (!upstreamGageLocation) {
       return <Cell />
@@ -82,9 +85,8 @@ const DownstreamGageLink = observer(
     const { getDownstreamGageLocation } = useStores();
     const { t } = useLocale();
     const { isMobile } = useResponsive();
-    const router = useRouter();
 
-    const downstreamGageLocation = getDownstreamGageLocation(gage.locationId)
+    const downstreamGageLocation = getDownstreamGageLocation(gage?.locationId)
 
     if (!downstreamGageLocation) {
       return <Cell />
@@ -117,6 +119,7 @@ const DownstreamGageLink = observer(
 const GageDetailsScreen = observer(
   function GageDetailsScreen({ gage }: { gage: Gage }) {
     const router = useRouter();
+    const navigation = useNavigation()
     const { t } = useLocale();
     
     const { id } = useLocalSearchParams();
@@ -126,7 +129,9 @@ const GageDetailsScreen = observer(
     const { isMobile } = useResponsive();
     
     const goBack = () => {
-      router.push({ pathname: ROUTES.Home })
+      navigation.canGoBack() ?
+        navigation.goBack() :
+        router.push({ pathname: ROUTES.Home })
     }
 
     return (
@@ -152,7 +157,7 @@ const GageDetailsScreen = observer(
             </Ternary>
             <Cell flex>
               <LargeTitle>
-                {gage?.locationInfo?.locationName}
+                {gage?.locationInfo?.locationName ?? ''}
               </LargeTitle>
             </Cell>
           </Row>
@@ -164,18 +169,22 @@ const GageDetailsScreen = observer(
             </Row>
           </WideScreen>
           <Cell>
-            <Label text={gageId} />
+            <Label text={gageId ?? ''} />
           </Cell>
         </Row>
+        <MobileScreen>
+          <Row
+            align="space-between"
+            gap={Spacing.small}
+            bottom={Spacing.small}
+            innerHorizontal={Spacing.medium}
+          >
+            <UpstreamGageLink gage={gage} simple />
+            <DownstreamGageLink gage={gage} simple />
+          </Row>
+        </MobileScreen>
         {/* Content */}
         <Content scrollable>
-          {/* Top Navigation */}
-          <MobileScreen>
-            <Row align="space-between" gap={Spacing.small} bottom={Spacing.small}>
-              <UpstreamGageLink gage={gage} simple />
-              <DownstreamGageLink gage={gage} simple />
-            </Row>
-          </MobileScreen>
           <GageDetailsChart gage={gage} />
           <Row>
             <If condition={!isMobile}>
@@ -226,13 +235,18 @@ const GageDetailsScreen = observer(
 const GageScreen = observer(
   function GageScreen() {
     const { id } = useLocalSearchParams();
-
     const { gagesStore } = useStores();
-    
+
     const gageId = Array.isArray(id) ? id.join("/") : id
-    const gage = gagesStore.gages.find(gage => gage.locationId === gageId)
-    
-    if (!gage?.locationId) {
+
+    const [gage, setGage] = useState<Gage>()
+
+    useTimeout(() => {
+      const gage = gagesStore.getGageByLocationId(gageId)
+      setGage(gage)
+    }, isAndroid ? Timing.ultrafast : Timing.instant)
+
+    if (!!gage && !gage?.locationId) {
       return <EmptyComponent />
     }
 

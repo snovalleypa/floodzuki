@@ -13,14 +13,14 @@ import { LabelText, LargerTitle, SmallerText, SmallTitle, TinyText } from "@comm
 import { Card } from "@common-ui/components/Card"
 import { Label, LargeLabel } from "@common-ui/components/Label"
 import { If, Ternary } from "@common-ui/components/Conditional"
-import { isWeb, useResponsive } from "@common-ui/utils/responsive"
+import { isAndroid, isWeb, useResponsive } from "@common-ui/utils/responsive"
 import { Gage, STATUSES } from "@models/Gage"
 
 import { useUtils } from "@utils/utils"
 import { formatReadingTime } from "@utils/useTimeFormat"
 import { ROUTES } from "app/_layout"
 import TrendIcon, { levelTrendIconName } from "@components/TrendIcon"
-import { useInterval } from "@utils/useTimeout"
+import { useInterval, useTimeout } from "@utils/useTimeout"
 import EmptyComponent from "@common-ui/components/EmptyComponent"
 import { GageChart } from "@components/GageChart"
 import GageMap from "@components/GageMap";
@@ -155,6 +155,8 @@ const HomeScreen = observer(
 
     const { height } = useWindowDimensions()
 
+    const [locations, setLocations] = React.useState<Gage[]>([])
+
     // Fetch data on mount
     useEffect(() => {
       if (isFetched)  {
@@ -167,7 +169,10 @@ const HomeScreen = observer(
       gagesStore.fetchData()
     }, Timing.fiveMinutes)
 
-    const locations = getLocationsWithGages()
+    useTimeout(() => {
+      const locations = getLocationsWithGages()
+      setLocations(locations)
+    }, isAndroid ? Timing.ultrafast : Timing.zero)
 
     const mapCardHeight = height - HEADER_HEIGHT - Spacing.button
 

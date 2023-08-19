@@ -76,7 +76,7 @@ const CHART_OPTIONS = {
   ) => {
     let predictionWindow = 0;
     
-    if (gage.predictedPoints) {
+    if (gage?.predictedPoints) {
       predictionWindow = PREDICTION_WINDOW_MINUTES;
     }
 
@@ -92,7 +92,7 @@ const CHART_OPTIONS = {
       .valueOf();
 
     const crest = calculateCrest(
-      gage.dataPoints,
+      gage?.dataPoints,
       {
         startDate: range.chartStartDate,
       }
@@ -164,7 +164,7 @@ function calculateCrest(
 
 function dataPointPopup(gage: Gage, t) {
   return function() {
-    const roadStatus = gage.getCalculatedRoadStatus(this.y);
+    const roadStatus = gage?.getCalculatedRoadStatus(this.y);
     
     let roadDesc = "";
     
@@ -180,7 +180,7 @@ function dataPointPopup(gage: Gage, t) {
         </span>
         <br />
         <span class="data-point-content">
-          ${localDayJs.tz(this.x, gage.timeZoneName).format("ddd, MMM D, h:mm A")}
+          ${localDayJs.tz(this.x, gage?.timeZoneName).format("ddd, MMM D, h:mm A")}
         </span>
         ${roadDesc}
       </div>`;
@@ -334,23 +334,23 @@ function createDataAndReturnMin(gage: Gage, chartDataType: GageChartDataType) {
   const chartData = [];
 
   // Get predicted points
-  if (gage.predictedPoints.length > 0) {
-    chartData.push(createPredictionSeries(gage.predictedPoints, gage.groundHeight, Colors.gageChartPredictionsLineColor));
+  if (gage?.predictedPoints.length > 0) {
+    chartData.push(createPredictionSeries(gage?.predictedPoints, gage?.groundHeight, Colors.gageChartPredictionsLineColor));
     hasPredictions = true;
   }
 
   // Get actual points
-  if (gage.actualPoints.length > 0) {
-    chartData.push(createActualDataSeries(gage.actualPoints, gage.groundHeight, Colors.gageChartActualDataLineColor));
+  if (gage?.actualPoints.length > 0) {
+    chartData.push(createActualDataSeries(gage?.actualPoints, gage?.groundHeight, Colors.gageChartActualDataLineColor));
   }
 
   // Get forecast points
-  if (gage.noaaForecastData.length > 0) {
-    chartData.push(createForecastDataSeries(gage.noaaForecastData, gage.groundHeight, Colors.gageChartForecastDataLineColor));
+  if (gage?.noaaForecastData.length > 0) {
+    chartData.push(createForecastDataSeries(gage?.noaaForecastData, gage?.groundHeight, Colors.gageChartForecastDataLineColor));
   }
 
   // Get readings
-  const dataPoints = gage.dataPoints;
+  const dataPoints = gage?.dataPoints;
 
   let min = 0;
   
@@ -426,14 +426,14 @@ const buildBasicOptions = (props: BuildOptionsProps, t) => {
 
   const [series, minVal] = createDataAndReturnMin(gage, chartDataType);
 
-  const { yMaximum, yMinimum } = gage.getChartMinAndMax(chartDataType);
+  const { yMaximum, yMinimum } = gage?.getChartMinAndMax(chartDataType);
 
   options.series = series;
-  const yAxisMin = Math.max(gage.groundHeight || 0, yMinimum);
+  const yAxisMin = Math.max(gage?.groundHeight || 0, yMinimum);
   options.yAxis.min = Math.min(minVal, yAxisMin);
   options.yAxis.max = yMaximum;
 
-  options.yAxis.plotLines = (gage.roads).map(cat => {
+  options.yAxis.plotLines = (gage?.roads).map(cat => {
     return {
       value: cat.elevation,
       label: {
@@ -497,6 +497,8 @@ const useGageChartOptions = (
   useEffect(() => {
     if (!isVisible) return
 
+    if (!gage?.locationId) return
+
     setOptions(getOptions())
   }, [
     isVisible,
@@ -504,10 +506,10 @@ const useGageChartOptions = (
     optionType,
     chartDataType,
     range,
-    gage.dataPoints,
-    gage.actualPoints,
-    gage.predictedPoints,
-    gage.noaaForecastData,
+    gage?.dataPoints,
+    gage?.actualPoints,
+    gage?.predictedPoints,
+    gage?.noaaForecastData,
   ])
 
   return options

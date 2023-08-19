@@ -84,6 +84,8 @@ export type ProcessGoogleTokenParams = {
 
 export type ProcessAppleTokenParams = {
   idToken: string,
+  firstName: string,
+  lastName: string,
 }
 
 export type PushTokenParams = {
@@ -507,7 +509,7 @@ export class Api {
     return await genericPostRequest<T>(
       this.apisauce,
       Config.API.auth.AUTHENTICATE_WITH_APPLE_URL,
-      params.idToken
+      params
     )
   }
 

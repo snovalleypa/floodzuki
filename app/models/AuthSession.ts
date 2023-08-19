@@ -2,7 +2,7 @@ import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import { flow } from "mobx-state-tree"
 import { dataFetchingProps, withDataFetchingActions } from "./helpers/withDataFetchingProps"
 import { withSetPropAction } from "./helpers/withSetPropsAction"
-import { ChangeEmailParams, CreateAccountParams, CreatePasswordParams, ForgotPasswordParams, LogInParams, NewSettingsParams, ProcessGoogleTokenParams, ResetPasswordParams, SendPhoneVerificationCodeParams, SetPasswordParams, UpdateProfileParams, VerifyEmailParams, VerifyPhoneParams, api } from "@services/api"
+import { ChangeEmailParams, CreateAccountParams, CreatePasswordParams, ForgotPasswordParams, LogInParams, NewSettingsParams, ProcessAppleTokenParams, ProcessGoogleTokenParams, ResetPasswordParams, SendPhoneVerificationCodeParams, SetPasswordParams, UpdateProfileParams, VerifyEmailParams, VerifyPhoneParams, api } from "@services/api"
 import { registerForPushNotificationsAsync } from "@services/pushNotifications"
 import { Platform } from "react-native"
 import { unregisterForNotificationsAsync } from "expo-notifications"
@@ -378,7 +378,7 @@ export const AuthSessionStoreModel = types
       store.setIsFetching(false)
     })
 
-    const processAppleToken = flow(function*(params: ProcessGoogleTokenParams) {
+    const processAppleToken = flow(function*(params: ProcessAppleTokenParams) {
       store.setIsFetching(true)
 
       const response = yield api.processAppleToken(params)
