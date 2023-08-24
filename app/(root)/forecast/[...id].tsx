@@ -42,7 +42,7 @@ const ForecastDetailsScreen = observer(
     // represented as an array of strings ["USGS-SF17", "USGS-38-0001"]
     const gageId = Array.isArray(id) ? id.join("/") : id
 
-    const [forecastGage, setForecastGage] = useState({} as GageSummary)
+    const [hidden, setHidden] = useState(true)
 
     // Fetch data on mount
     useEffect(() => {
@@ -50,10 +50,9 @@ const ForecastDetailsScreen = observer(
         store.forecastsStore.fetchData()
       }
     }, [store.isFetched])
-    
 
     useTimeout(() => {
-      setForecastGage(store.getForecastGage(gageId))
+      setHidden(false)
     }, isAndroid ? Timing.ultrafast : Timing.zero)
 
     const goBack = () => {
@@ -61,6 +60,8 @@ const ForecastDetailsScreen = observer(
         navigation.goBack() :
         router.push({ pathname: ROUTES.Forecast })
     }
+
+    const forecastGage = hidden ? undefined : store.getForecastGage(gageId)
 
     return (
       <Screen>

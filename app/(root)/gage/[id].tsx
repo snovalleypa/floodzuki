@@ -239,12 +239,13 @@ const GageScreen = observer(
 
     const gageId = Array.isArray(id) ? id.join("/") : id
 
-    const [gage, setGage] = useState<Gage>()
+    const [hidden, setHidden] = useState(true)
 
     useTimeout(() => {
-      const gage = gagesStore.getGageByLocationId(gageId)
-      setGage(gage)
-    }, isAndroid ? Timing.ultrafast : Timing.instant)
+      setHidden(false)
+    }, isAndroid ? Timing.ultrafast : Timing.zero)
+
+    const gage = hidden ? undefined : gagesStore.getGageByLocationId(gageId)
 
     if (!!gage && !gage?.locationId) {
       return <EmptyComponent />

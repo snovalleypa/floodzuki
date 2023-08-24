@@ -155,7 +155,7 @@ const HomeScreen = observer(
 
     const { height } = useWindowDimensions()
 
-    const [locations, setLocations] = React.useState<Gage[]>([])
+    const [hidden, setHidden] = React.useState(true)
 
     // Fetch data on mount
     useEffect(() => {
@@ -170,10 +170,11 @@ const HomeScreen = observer(
     }, Timing.fiveMinutes)
 
     useTimeout(() => {
-      const locations = getLocationsWithGages()
-      setLocations(locations)
+      setHidden(false)
     }, isAndroid ? Timing.ultrafast : Timing.zero)
-
+    
+    const locations = hidden ? [] : getLocationsWithGages()
+    
     const mapCardHeight = height - HEADER_HEIGHT - Spacing.button
 
     return (
