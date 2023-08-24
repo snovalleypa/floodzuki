@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect } from "react"
 import { ErrorBoundaryProps, useSearchParams, Stack, useRouter, useNavigation } from "expo-router";
 import { observer } from "mobx-react-lite";
 
@@ -42,7 +42,7 @@ const ForecastDetailsScreen = observer(
     // represented as an array of strings ["USGS-SF17", "USGS-38-0001"]
     const gageId = Array.isArray(id) ? id.join("/") : id
 
-    const [hidden, setHidden] = useState(true)
+    const [hidden, setHidden] = React.useState(isMobile ? true : false)
 
     // Fetch data on mount
     useEffect(() => {
@@ -53,7 +53,7 @@ const ForecastDetailsScreen = observer(
 
     useTimeout(() => {
       setHidden(false)
-    }, isAndroid ? Timing.ultrafast : Timing.zero)
+    }, Timing.zero)
 
     const goBack = () => {
       navigation.canGoBack() ?

@@ -11,7 +11,7 @@ import { Content, Screen } from "@common-ui/components/Screen";
 import { LabelText, LargeTitle, MediumTitle, RegularText } from "@common-ui/components/Text";
 import { Colors } from "@common-ui/constants/colors";
 import { Spacing } from "@common-ui/constants/spacing";
-import { MobileScreen, WideScreen, isAndroid, useResponsive } from "@common-ui/utils/responsive";
+import { MobileScreen, WideScreen, isAndroid, isMobile, useResponsive } from "@common-ui/utils/responsive";
 
 import { useStores } from "@models/helpers/useStores";
 import { Gage } from "@models/Gage";
@@ -239,11 +239,11 @@ const GageScreen = observer(
 
     const gageId = Array.isArray(id) ? id.join("/") : id
 
-    const [hidden, setHidden] = useState(true)
+    const [hidden, setHidden] = React.useState(isMobile ? true : false)
 
     useTimeout(() => {
       setHidden(false)
-    }, isAndroid ? Timing.ultrafast : Timing.zero)
+    }, Timing.zero)
 
     const gage = hidden ? undefined : gagesStore.getGageByLocationId(gageId)
 

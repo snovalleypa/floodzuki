@@ -155,7 +155,7 @@ const HomeScreen = observer(
 
     const { height } = useWindowDimensions()
 
-    const [hidden, setHidden] = React.useState(true)
+    const [hidden, setHidden] = React.useState(isMobile ? true : false)
 
     // Fetch data on mount
     useEffect(() => {
@@ -171,7 +171,7 @@ const HomeScreen = observer(
 
     useTimeout(() => {
       setHidden(false)
-    }, isAndroid ? Timing.ultrafast : Timing.zero)
+    }, Timing.zero)
     
     const locations = hidden ? [] : getLocationsWithGages()
     
