@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Platform, ViewStyle } from "react-native";
 import Constants from 'expo-constants';
 
@@ -169,20 +169,24 @@ const WebMap = ({ gages }: GageMapProps) => {
   )
 }
 
-const MobileMap = ({ gages }: GageMapProps) => {
-  const router = useRouter();
-  const mapRef = useRef(null)
-
-  const markerIds = gages.map(g => g?.locationId)
-
-  const singleGage = gages.length === 1 ? gages[0] : null
-
-  const [region] = useState({
+const buildRegion = (gages: Gage[]) => {
+  const singleGage = gages?.length === 1 ? gages[0] : null
+  
+  return {
     latitude: singleGage ? singleGage?.latitude : 47.622403,
     longitude: singleGage ? singleGage?.longitude : -121.933723,
     latitudeDelta: singleGage ? 0.00922 : 0.0922,
     longitudeDelta: singleGage ? 0.00421 : 0.0421,
-  })
+  }
+}
+
+const MobileMap = ({ gages }: GageMapProps) => {
+  const router = useRouter();
+  const mapRef = useRef(null)
+
+  const markerIds = useMemo(() => gages.map(g => g?.locationId), [gages])
+
+  const [region, setRegion] = useState(buildRegion(gages))
 
   const fitToMarkers = () => {
     mapRef.current?.fitToSuppliedMarkers(markerIds, {
@@ -197,8 +201,10 @@ const MobileMap = ({ gages }: GageMapProps) => {
   }
 
   useEffect(() => {
+    setRegion(buildRegion(gages))
+
     fitToMarkers()
-  }, [markerIds, mapRef.current])
+  }, [markerIds])
 
   useFocusEffect(
     useCallback(() => {
@@ -218,7 +224,7 @@ const MobileMap = ({ gages }: GageMapProps) => {
     <Map
       ref={mapRef}
       style={$mobileMapStyle}
-      initialRegion={region}
+      region={region}
       minZoomLevel={4}
       maxZoomLevel={18}
       provider="google"

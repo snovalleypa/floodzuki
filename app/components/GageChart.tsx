@@ -12,6 +12,10 @@ import { Cell } from "@common-ui/components/Common";
 import { Gage, GageChartDataType } from "@models/Gage";
 import useGageChartOptions from "@utils/useGageChartOptions";
 
+/**
+ * Web Version of Gage List Item Chart
+ */
+
 interface GageChartProps {
   gage: Gage
   optionType: 'dashboardOptions' | 'gageDetailsOptions'
