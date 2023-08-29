@@ -6,8 +6,9 @@ import { GageSummary } from "@models/RootStore";
 import { useStores } from "@models/helpers/useStores";
 import { Forecast } from "@models/Forecasts";
 
-import { Colors } from "@common-ui/constants/colors";
+import { Colors, lightenHexColor } from "@common-ui/constants/colors";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
+import { isMobile } from "@common-ui/utils/responsive";
 
 const STAGE_TWO_YAXIS_MARGIN = 500;
 
@@ -84,7 +85,7 @@ const buildSeries = (forecasts: Forecast[], gages: GageSummary[], t) => {
       name: `${t("forecastChart.forecast")}: ${gage?.title}`,
       data: forecastDataPoints,
       fillOpacity: 0,
-      color: gage?.color,
+      color: isMobile ? lightenHexColor(gage?.color) : gage?.color,
       threshold: 0,
       lineWidth: 2,
       states: {

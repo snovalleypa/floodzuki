@@ -33,6 +33,7 @@ import DateRangePicker from "@common-ui/components/DateRangePicker";
 import { Dayjs } from "dayjs";
 import { normalizeSearchParams } from "@utils/navigation";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
+import { GageDetailsChartNative } from "./GageDetailsChartNative";
 
 interface GageDetailsChartProps {
   gage: Gage
@@ -83,13 +84,7 @@ const Charts = (props: ChartsProps) => {
   return (
     <Cell height={320}>
       <Ternary condition={isMobile}>
-        <HighchartsReactNative
-          startInLoadingState
-          styles={{ flex: 1 }}
-          webviewStyles={{ height: 320 }}
-          options={options}
-          modules={['broken-axis']}
-        />
+        <GageDetailsChartNative options={options} />
         <LocalHighchartsReact options={options} />
       </Ternary>
     </Cell>

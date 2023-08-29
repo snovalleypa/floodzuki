@@ -157,3 +157,40 @@ export enum ColorTypes {
 }
 
 export const ChartColorsHex = ['#0000FF', '#008000', '#800000', '#800080', '#FF4500', '#00FF00'];
+
+
+export function lightenHexColor(hexColor: string): string {
+  // Convert the hex color to an RGB color
+  const rgbColor = hexToRgb(hexColor);
+
+  // Calculate the new RGB values by adding 20% to each value
+  const newRed = Math.min(Math.round(rgbColor.r * 1.4), 255);
+  const newGreen = Math.min(Math.round(rgbColor.g * 1.4), 255);
+  const newBlue = Math.min(Math.round(rgbColor.b * 1.4), 255);
+
+  // Convert the new RGB values back to a hex color
+  const newHexColor = rgbToHex(newRed, newGreen, newBlue);
+
+  return newHexColor;
+}
+
+function hexToRgb(hexColor: string): { r: number, g: number, b: number } {
+  // Remove the # symbol from the hex color
+  const hex = hexColor.replace('#', '');
+
+  // Convert the hex color to an RGB color
+  const r = parseInt(hex.substring(0, 2), 16);
+  const g = parseInt(hex.substring(2, 4), 16);
+  const b = parseInt(hex.substring(4, 6), 16);
+
+  return { r, g, b };
+}
+
+function rgbToHex(red: number, green: number, blue: number): string {
+  // Convert the RGB values to a hex color
+  const rHex = red.toString(16).padStart(2, '0');
+  const gHex = green.toString(16).padStart(2, '0');
+  const bHex = blue.toString(16).padStart(2, '0');
+
+  return `#${rHex}${gHex}${bHex}`;
+}
