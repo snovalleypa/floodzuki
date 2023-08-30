@@ -235,6 +235,16 @@ type GageDetailsChartOptions = {
  */
 
 const CHART_HEIGHT = 320
+const AXIS_COLOR = "#666666"
+
+const $labelStyle = {
+  fill: AXIS_COLOR,
+  color: AXIS_COLOR,
+  fontFamily: "OpenSans_400Regular",
+  fontSize: 11,
+}
+
+const DOT_SIZE = 2
 
 export const GageDetailsChartNative = (props: ChartsProps) => {
   const { options } = props
@@ -269,9 +279,12 @@ export const GageDetailsChartNative = (props: ChartsProps) => {
             padding: 40
           },
           axisLabel: {
-            color: "#969BAB",
+            ...$labelStyle,
             padding: 38,
             fontSize: 12,
+          },
+          tickLabels: {
+            ...$labelStyle
           },
           grid: {
             stroke: "rgba(150,155,171, 0.2)",
@@ -287,6 +300,12 @@ export const GageDetailsChartNative = (props: ChartsProps) => {
         style={{
           axis: {
             stroke: "#969BAB",
+          },
+          axisLabel: {
+            ...$labelStyle
+          },
+          tickLabels: {
+            ...$labelStyle
           },
           ticks: { stroke: "#969BAB", size: 5 },
         }}
@@ -319,7 +338,7 @@ export const GageDetailsChartNative = (props: ChartsProps) => {
           data={dot.data}
           x={(d) => Array.isArray(d) ? d[0] : d?.x}
           y={(d) => Array.isArray(d) ? d[1] : d?.y}
-          size={2}
+          size={DOT_SIZE}
           style={{
             data: {
               fill: dot.color,
@@ -337,7 +356,8 @@ export const GageDetailsChartNative = (props: ChartsProps) => {
               fillOpacity: area.fillOpacity
             }
           }}
-          barRatio={1.5}
+          barWidth={DOT_SIZE}
+          barRatio={1}
           data={area.data}
           x={(d) => Array.isArray(d) ? d[0] : d?.x}
           y={(d) => Array.isArray(d) ? d[1] : d?.y}
@@ -358,6 +378,7 @@ export const GageDetailsChartNative = (props: ChartsProps) => {
           axisLabel: {
             fill: "#969BAB",
             padding: 5,
+            fontSize: 12,
           },
           ticks: { stroke: "#969BAB", size: 0 },
           tickLabels: { fill: 'none' }

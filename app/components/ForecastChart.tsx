@@ -6,8 +6,8 @@ import HighchartsReactNative from "@services/highcharts/HighchartsReactNative";
 import LocalHighchartsReact from "@services/highcharts/LocalHighchartsReact";
 
 import { GageSummary } from "@models/RootStore";
-import { Ternary } from "@common-ui/components/Conditional";
-import { isMobile } from "@common-ui/utils/responsive";
+import { If, Ternary } from "@common-ui/components/Conditional";
+import { isMobile, isWeb } from "@common-ui/utils/responsive";
 import { Card } from "@common-ui/components/Card";
 import { Spacing } from "@common-ui/constants/spacing";
 
@@ -89,11 +89,13 @@ export const ForecastChart = observer(
 
     return (
       <>
-        <SegmentControl
-          segments={RANGES(t)}
-          selectedSegment={range}
-          onChange={setRange}
-        />
+        <If condition={isWeb}>
+          <SegmentControl
+            segments={RANGES(t)}
+            selectedSegment={range}
+            onChange={setRange}
+          />
+        </If>
         <Card
           innerHorizontal={Spacing.extraSmall}
           innerVertical={Spacing.extraSmall}
@@ -105,6 +107,15 @@ export const ForecastChart = observer(
             <Charts options={chartOptions}/>
           </Ternary>
         </Card>
+        <If condition={isMobile}>
+          <Cell top={Spacing.medium}>
+            <SegmentControl
+              segments={RANGES(t)}
+              selectedSegment={range}
+              onChange={setRange}
+            />
+          </Cell>
+        </If>
       </>
     )
   }

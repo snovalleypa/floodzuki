@@ -163,7 +163,7 @@ export function lightenHexColor(hexColor: string): string {
   // Convert the hex color to an RGB color
   const rgbColor = hexToRgb(hexColor);
 
-  // Calculate the new RGB values by adding 20% to each value
+  // Calculate the new RGB values by adding 40% to each value
   const newRed = Math.min(Math.round(rgbColor.r * 1.4), 255);
   const newGreen = Math.min(Math.round(rgbColor.g * 1.4), 255);
   const newBlue = Math.min(Math.round(rgbColor.b * 1.4), 255);

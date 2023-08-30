@@ -94,6 +94,6 @@
     "metro-resolver": "^0.73.7"
   },
   "name": "floodzuki",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true
 }

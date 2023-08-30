@@ -355,6 +355,15 @@ type ForecastChartOptions = {
  * 
  */
 
+const AXIS_COLOR = "#666666"
+
+const $labelStyle = {
+  fill: AXIS_COLOR,
+  color: AXIS_COLOR,
+  fontFamily: "OpenSans_400Regular",
+  fontSize: 11,
+}
+
 export const ForecastChartNative = (props: ChartsProps) => {
   const { options } = props
 
@@ -373,9 +382,8 @@ export const ForecastChartNative = (props: ChartsProps) => {
       },
   }))
 
-  const legendWidth = 210;
   const screenWidth = Dimensions.get('window').width
-  const legendOffset = screenWidth - legendWidth;
+  const legendOffset = screenWidth/2;
 
   const nowLabel = options.xAxis.plotLines[0]
   const floodStage = options.yAxis.plotLines[0]
@@ -395,11 +403,14 @@ export const ForecastChartNative = (props: ChartsProps) => {
     >
       <VictoryLegend
         x={legendOffset}
+        y={100}
         rowGutter={-10}
         data={labelData}
         style={{
           data: { strokeWidth: 1 },
-          labels: { fontSize: 10 },
+          labels: {            
+            fontSize: 10,
+          },
         }}
       />
       {/* Vertical Axis */}
@@ -412,9 +423,12 @@ export const ForecastChartNative = (props: ChartsProps) => {
             padding: 40
           },
           axisLabel: {
-            color: "#969BAB",
+            ...$labelStyle,
             padding: 38,
             fontSize: 12,
+          },
+          tickLabels: {
+            ...$labelStyle
           },
           grid: {
             stroke: "rgba(150,155,171, 0.2)",
@@ -430,6 +444,9 @@ export const ForecastChartNative = (props: ChartsProps) => {
         style={{
           axis: {
             stroke: "#969BAB",
+          },
+          tickLabels: {
+            ...$labelStyle
           },
           ticks: { stroke: "#969BAB", size: 5 },
         }}
