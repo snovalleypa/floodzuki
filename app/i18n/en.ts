@@ -191,7 +191,7 @@ const en = {
     currentPassword: "Current Password",
     newPassword: "New Password",
     confirmPassword: "Confirm Password",
-    proceed: "Click here to proceed to Flodzilla",
+    proceed: "Click here to proceed to Floodzilla",
   },
   validations: {
     passwordsDontMatch: "Passwords do not match",
