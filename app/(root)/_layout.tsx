@@ -23,6 +23,7 @@ import { useCheckForUpdates } from "@services/expoUpdates";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import LocaleChange from "@components/LocaleChange";
 import TasteOfTheValleyBanner from "@components/TasteOfTheValleyBanner";
+import AndroidPlayMarketBanner from "@components/AndroidPlayMarketBanner";
 
 const GAGE_ICONS = {
   active: require("@assets/images/floodzuki.png"),
@@ -59,7 +60,7 @@ export default function AppLayout() {
             {/* Load custom fonts */}
             <link type="text/css" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600,700|Open+Sans:300,400,500,600,700;lang=en" />
             <meta property="expo:handoff" content="true" />
-            <meta name="apple-itunes-app" content="app-id=6448645748, app-argument=https://floodzilla.com" />
+            <meta name="apple-itunes-app" content="app-id=6448645748, app-argument=https://floodzilla.com/" />
             <meta name="apple-mobile-web-app-capable" content="yes" />
             <link rel="apple-touch-icon" href={getAsset("favicon").uri} />
             <script
@@ -81,6 +82,7 @@ export default function AppLayout() {
             `}
             </script>
           </Head>
+          <AndroidPlayMarketBanner />
           <Header />
           <TasteOfTheValleyBanner />
           <Slot />

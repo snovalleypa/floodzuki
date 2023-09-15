@@ -12,9 +12,6 @@ const LocaleChange = () => {
   const { authSessionStore } = useStores();
   const { changeLocale } = useLocale();
 
-  // TODO: Remove this once we have proper spanish locale
-  return null
-
   const language = authSessionStore.userLocale
   const languageTitle = language.match("en") ? "Español" : "English"
 

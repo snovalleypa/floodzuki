@@ -10,12 +10,11 @@ import { useAppAssets } from "@common-ui/contexts/AssetsContext"
 import { isWeb, useResponsive } from "@common-ui/utils/responsive"
 import { openLinkInBrowser } from "@utils/navigation"
 import Config from "@config/config"
-import { Link, useRouter } from "expo-router"
+import { useRouter } from "expo-router"
 import { ROUTES } from "app/_layout"
 import { Spacing } from "@common-ui/constants/spacing"
 import { useLocale } from "@common-ui/contexts/LocaleContext"
 import LocaleChange from "./LocaleChange"
-import { Pressable } from "react-native"
 
 const WebFooter = () => {
   const { t } = useLocale()
@@ -90,8 +89,8 @@ const WebFooter = () => {
               textStyle={[{ lineHeight: Spacing.midLarge }]}
               color={Colors.darkerGrey}
             >
-              {/* <LocaleChange />
-              {separator} */}
+              <LocaleChange />
+              {separator}
               <SimpleLinkButton
                 text={t("navigation.aboutScreen")}
                 onPress={openSvpaWebsite}
