@@ -10,6 +10,7 @@ import { useResponsive } from "@common-ui/utils/responsive"
 type RowProps = {
   children?: React.ReactNode
   wrap?: boolean
+  reverseColumns?: boolean
   flex?: boolean | number | string
   gap?: number
   align?: "center" | "space-between" | "space-around" | "space-evenly" | "flex-start" | "flex-end"
@@ -155,6 +156,7 @@ export const Cell = ({ children, align, wrap, justify, flex, gap, bgColor, borde
 /**
  * RowOrCell is a flexbox container that lays out its children in a row or a column depending on the screen size.
  * @param {React.ReactNode} children - The children to render.
+ * @param {boolean} reverseColumns - Whether to reverse the order of the children when rendering as a column.
  * @param {boolean} wrap - Whether to wrap the children if they don't fit in a row.
  * @param {boolean | number} flex - Whether to use flexbox to layout the children.
  * @param {"center" | "space-between" | "space-around" | "space-evenly" | "flex-start" | "flex-end"} align - How to align the children in the row.
@@ -168,7 +170,7 @@ export const Cell = ({ children, align, wrap, justify, flex, gap, bgColor, borde
 export const RowOrCell = (props: RowProps) => {
   const { isWideScreen } = useResponsive()
 
-  const { children, align, justify, ...rest } = props
+  const { children, align, justify, reverseColumns, ...rest } = props
 
   if (isWideScreen) {
     return (
@@ -178,9 +180,24 @@ export const RowOrCell = (props: RowProps) => {
     )
   }
 
+  let columnChildren = [];
+
+  console.log("columnChildren", columnChildren)
+
+  if (Array.isArray(children)) {
+    columnChildren = [...children]
+
+    if (reverseColumns) {
+      columnChildren.reverse()
+    }
+  }
+  else {
+    columnChildren = [children]
+  }
+
   return (
     <Cell {...rest}>
-      {children}
+      {columnChildren}
     </Cell>
   )
 }

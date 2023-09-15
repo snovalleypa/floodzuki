@@ -50,11 +50,21 @@ const buildSeries = (forecasts: Forecast[], gages: GageSummary[], t) => {
     const gage = gages.find(g => g.id === forecast.id)
 
     const dataPoints = forecast.chartReadings
+
+    const seriesName = `${t("forecastChart.observed")}: ${gage?.title}`
+
+    const normalizedDataPoints = dataPoints.map((p) => {
+      return {
+        ...p,
+        name: seriesName
+      }
+    })
+    
     // Data Points
     series.push({
       animation:false,
-      name: `${t("forecastChart.observed")}: ${gage?.title}`,
-      data: dataPoints,
+      name: seriesName,
+      data: normalizedDataPoints,
       color: gage?.color,
       fillOpacity: 0.5,
       threshold: 0,
@@ -79,11 +89,20 @@ const buildSeries = (forecasts: Forecast[], gages: GageSummary[], t) => {
 
     const forecastDataPoints = forecast.chartForecastReadings
 
+    const forecastName = `${t("forecastChart.forecast")}: ${gage?.title}`
+
+    const noramlizedForecastDataPoints = forecastDataPoints.map((p) => {
+      return {
+        ...p,
+        name: forecastName
+      }
+    })
+
     // Forecast Data Points
     series.push({
       animation:false,
       name: `${t("forecastChart.forecast")}: ${gage?.title}`,
-      data: forecastDataPoints,
+      data: noramlizedForecastDataPoints,
       fillOpacity: 0,
       color: isMobile ? lightenHexColor(gage?.color) : gage?.color,
       threshold: 0,

@@ -59,6 +59,9 @@ export default function AppLayout() {
             {/* Load custom fonts */}
             <link type="text/css" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600,700|Open+Sans:300,400,500,600,700;lang=en" />
             <meta property="expo:handoff" content="true" />
+            <meta name="apple-itunes-app" content="app-id=6448645748, app-argument=https://floodzilla.com" />
+            <meta name="apple-mobile-web-app-capable" content="yes" />
+            <link rel="apple-touch-icon" href={getAsset("favicon").uri} />
             <script
               async
               src="https://www.googletagmanager.com/gtag/js?id=UA-302444-12"

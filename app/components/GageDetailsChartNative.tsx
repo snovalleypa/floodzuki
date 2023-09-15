@@ -1,14 +1,14 @@
+import { useLocale } from "@common-ui/contexts/LocaleContext";
 import React from "react";
 
 import {
   VictoryChart,
-  VictoryLine,
-  VictoryArea,
   VictoryAxis,
   VictoryBar,
   VictoryScatter,
+  VictoryVoronoiContainer,
+  VictoryTooltip,
 } from "victory-native";
-
 
 interface ChartsProps {
   options: GageDetailsChartOptions
@@ -247,6 +247,7 @@ const $labelStyle = {
 const DOT_SIZE = 2
 
 export const GageDetailsChartNative = (props: ChartsProps) => {
+  const { t } = useLocale()
   const { options } = props
 
   const lines = options?.series ?? []
@@ -268,6 +269,27 @@ export const GageDetailsChartNative = (props: ChartsProps) => {
         x: "time",
         y: options.yAxis.type === "linear" ? "linear" : "log",
       }}
+      containerComponent={
+        <VictoryVoronoiContainer
+          voronoiBlacklist={["bars"]}
+          voronoiDimension="x"
+          labels={({ datum }) => {
+
+            return `${datum?.name}: ${datum?.y?.toFixed(2)} ${t("measure.ft")}.`;
+          }}
+          labelComponent={<VictoryTooltip
+            constrainToVisibleArea
+            cornerRadius={4}
+            centerOffset={{ y: -65 }} 
+            pointerLength={0}
+            flyoutStyle={{
+              fill: "white",
+              stroke: "#969BAB",
+            }}/>
+          }
+        />
+      }
+
     >
       {/* Vertical Axis */}
       <VictoryAxis
@@ -336,8 +358,6 @@ export const GageDetailsChartNative = (props: ChartsProps) => {
         <VictoryScatter
           key={dot.name}
           data={dot.data}
-          x={(d) => Array.isArray(d) ? d[0] : d?.x}
-          y={(d) => Array.isArray(d) ? d[1] : d?.y}
           size={DOT_SIZE}
           style={{
             data: {
@@ -349,6 +369,7 @@ export const GageDetailsChartNative = (props: ChartsProps) => {
       {/* Area container */}
       {waterLines.map(area => (
         <VictoryBar
+          name="bars"
           key={area.name}
           style={{
             data: {
@@ -359,8 +380,6 @@ export const GageDetailsChartNative = (props: ChartsProps) => {
           barWidth={DOT_SIZE}
           barRatio={1}
           data={area.data}
-          x={(d) => Array.isArray(d) ? d[0] : d?.x}
-          y={(d) => Array.isArray(d) ? d[1] : d?.y}
         />
       ))}
       {/* Now label */}

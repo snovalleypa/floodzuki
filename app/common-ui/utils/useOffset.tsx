@@ -64,75 +64,75 @@ export function useOffsetStyles(styles: FlexStyle[], props: OffsetProps): Array<
     maxHeight,
   } = props
 
-  if (Object.hasOwn(props, "top")) {
+  if (props.hasOwnProperty("top")) {
     styles.push({ marginTop: top })
   }
 
-  if (Object.hasOwn(props, "left")) {
+  if (props.hasOwnProperty("left")) {
     styles.push({ marginLeft: left })
   }
 
-  if (Object.hasOwn(props, "bottom")) {
+  if (props.hasOwnProperty("bottom")) {
     styles.push({ marginBottom: bottom })
   }
 
-  if (Object.hasOwn(props, "right")) {
+  if (props.hasOwnProperty("right")) {
     styles.push({ marginRight: right })
   }
 
-  if (Object.hasOwn(props, "vertical")) {
+  if (props.hasOwnProperty("vertical")) {
     styles.push({ marginTop: vertical, marginBottom: vertical })
   }
 
-  if (Object.hasOwn(props, "horizontal")) {
+  if (props.hasOwnProperty("horizontal")) {
     styles.push({ marginLeft: horizontal, marginRight: horizontal })
   }
 
-  if (Object.hasOwn(props, "innerVertical")) {
+  if (props.hasOwnProperty("innerVertical")) {
     styles.push({ paddingTop: innerVertical, paddingBottom: innerVertical })
   }
 
-  if (Object.hasOwn(props, "innerHorizontal")) {
+  if (props.hasOwnProperty("innerHorizontal")) {
     styles.push({ paddingLeft: innerHorizontal, paddingRight: innerHorizontal })
   }
 
-  if (Object.hasOwn(props, "innerTop")) {
+  if (props.hasOwnProperty("innerTop")) {
     styles.push({ paddingTop: innerTop })
   }
 
-  if (Object.hasOwn(props, "innerLeft")) {
+  if (props.hasOwnProperty("innerLeft")) {
     styles.push({ paddingLeft: innerLeft })
   }
 
-  if (Object.hasOwn(props, "innerBottom")) {
+  if (props.hasOwnProperty("innerBottom")) {
     styles.push({ paddingBottom: innerBottom })
   }
 
-  if (Object.hasOwn(props, "innerRight")) {
+  if (props.hasOwnProperty("innerRight")) {
     styles.push({ paddingRight: innerRight })
   }
 
-  if (Object.hasOwn(props, "height")) {
+  if (props.hasOwnProperty("height")) {
     styles.push({ height })
   }
 
-  if (Object.hasOwn(props, "width")) {
+  if (props.hasOwnProperty("width")) {
     styles.push({ width })
   }
 
-  if (Object.hasOwn(props, "minHeight")) {
+  if (props.hasOwnProperty("minHeight")) {
     styles.push({ minHeight })
   }
 
-  if (Object.hasOwn(props, "minWidth")) {
+  if (props.hasOwnProperty("minWidth")) {
     styles.push({ minWidth })
   }
 
-  if (Object.hasOwn(props, "maxHeight")) {
+  if (props.hasOwnProperty("maxHeight")) {
     styles.push({ maxHeight })
   }
 
-  if (Object.hasOwn(props, "maxWidth")) {
+  if (props.hasOwnProperty("maxWidth")) {
     styles.push({ maxWidth })
   }
 

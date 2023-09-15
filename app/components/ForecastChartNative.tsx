@@ -6,6 +6,8 @@ import {
   VictoryAxis,
   VictoryScatter,
   VictoryLegend,
+  VictoryVoronoiContainer,
+  VictoryTooltip,
 } from "victory-native";
 import { Dimensions } from "react-native";
 import { CHART_HEIGHT } from "./ForecastChart";
@@ -83,7 +85,10 @@ type ForecastChartOptions = {
       text: string,
     }
   },
-  series: SeriesItem[]
+  series: SeriesItem[],
+  tooltip: {
+    formatter: () => string
+  }
 }
 
 /**
@@ -118,7 +123,15 @@ type ForecastChartOptions = {
     }
   },
   tooltip:{
-    
+    formatter: function () {
+      let stageDisplay = ""
+
+      if (this.point?.options?.stage) {
+        stageDisplay = `/ ${this.point?.options?.stage} ft`
+      }
+
+      return `<b>${this.series.name}</b><br/>${this.point?.options?.xLabel}: ${this.y} cfs ${stageDisplay}`
+    }
   },
   xAxis:{
     type:"datetime",
@@ -400,6 +413,30 @@ export const ForecastChartNative = (props: ChartsProps) => {
         x: "time",
         y: "sqrt",
       }}
+      containerComponent={
+        <VictoryVoronoiContainer
+          voronoiBlacklist={["dots"]}
+          voronoiDimension="x"
+          labels={({ datum }) => {
+            let stageDisplay = ""
+
+            if (datum?.stage) {
+              stageDisplay = `/ ${datum?.stage} ft`
+            }
+
+            return `${datum?.name}: ${datum?.xLabelShort} - ${datum?.y} cfs ${stageDisplay}`
+          }}
+          labelComponent={<VictoryTooltip
+            constrainToVisibleArea
+            cornerRadius={4}
+            centerOffset={{ y: -65 }} 
+            flyoutStyle={{
+              fill: "white",
+              stroke: "#969BAB",
+            }}/>
+          }
+        />
+      }
     >
       <VictoryLegend
         x={legendOffset}
@@ -469,6 +506,7 @@ export const ForecastChartNative = (props: ChartsProps) => {
       {/* Dots on the chart */}
       {dots.map(dot => (
         <VictoryScatter
+          name="dots"
           key={dot.name}
           data={dot.data}
           size={2}

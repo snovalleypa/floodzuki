@@ -11,6 +11,8 @@ const ASSETS = {
   tasteOfTheValley: require("@assets/images/taste_of_the_valley.png"),
   tasteOfTheValleyMobile: require("@assets/images/taste_of_the_valley_mobile.png"),
   google_button: require("@assets/images/btn_google.png"),
+  google_play_badge: require("@assets/images/google_play_badge.png"),
+  app_store_badge: require("@assets/images/app_store_badge.png"),
 }
 
 const ASSET_KEYS = [...Object.keys(ASSETS), ...Object.keys(MAP_IMAGE_ICONS)]

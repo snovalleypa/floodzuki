@@ -288,6 +288,7 @@ const ForecastModel = types
           return {
             x: dp.timestampMs,
             xLabel: dp.timestamp.format("ddd, MMM D, h:mm A"),
+            xLabelShort: dp.timestamp.format("h:mm A"),
             y: dp.waterDischarge,
             stage: dp.reading,
             isForecast: false,
@@ -300,6 +301,7 @@ const ForecastModel = types
           return {
             x: dp.timestampMs,
             xLabel: dp.timestamp.format("ddd, MMM D, h:mm A"),
+            xLabelShort: dp.timestamp.format("h:mm A"),
             y: dp.waterDischarge,
             stage: dp.reading,
             isForecast: true,
