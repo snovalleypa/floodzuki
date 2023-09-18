@@ -2,6 +2,7 @@ import React from "react";
 import { Slot, SplashScreen } from "expo-router";
 import { useFonts } from "expo-font";
 import { StatusBar } from 'expo-status-bar';
+import Head from "expo-router/head";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 
@@ -9,11 +10,12 @@ import { customFontsToLoad } from "@common-ui/constants/typography";
 import { useInitialRootStore } from "@models/helpers/useStores";
 
 import { DatePickerProvider } from "@common-ui/contexts/DatePickerContext";
-import { AssetsProvider } from "@common-ui/contexts/AssetsContext";
+import { AssetsProvider, useAppAssets } from "@common-ui/contexts/AssetsContext";
 import { isWeb } from "@common-ui/utils/responsive";
 import { GoogleAuthProvider } from "@common-ui/contexts/GoogleAuthContext";
-import { LocaleProvider } from "@common-ui/contexts/LocaleContext";
+import { LocaleProvider, useLocale } from "@common-ui/contexts/LocaleContext";
 import { initSentry } from "@utils/sentry";
+import { If } from "@common-ui/components/Conditional";
 
 initSentry()
 
@@ -79,10 +81,6 @@ export default function AppLayout() {
     return <SplashScreen />
   }
 
-  return <App />;
-}
-
-function App() {
   return (
     <SafeAreaProvider>
       <LocaleProvider>
@@ -90,13 +88,54 @@ function App() {
           <DatePickerProvider>
             <AssetsProvider>
               <GoogleAuthProvider>
-                  <Slot />
-                  <StatusBar style="dark" />
+                <App />
+                <StatusBar style="dark" />
               </GoogleAuthProvider>
             </AssetsProvider>
           </DatePickerProvider>
         </BottomSheetModalProvider>
       </LocaleProvider>
     </SafeAreaProvider>
+  )
+}
+
+function App() {
+  const { getAsset } = useAppAssets();
+  const { t } = useLocale();
+
+  return (
+    <>
+      <If condition={isWeb}>
+        {/** This is used to ensure that favicon is displayed on web */}
+        <Head>
+          <link rel="icon" href={getAsset("favicon").uri} />
+          {/* Load custom fonts */}
+          <link type="text/css" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600,700|Open+Sans:300,400,500,600,700;lang=en" />
+          <title>{t("common.title")} - {t("forecastScreen.title")}</title>
+          <meta property="expo:handoff" content="true" />
+          <meta name="apple-itunes-app" content="app-id=6448645748, app-argument=https://floodzilla.com/" />
+          <link rel="apple-touch-icon" href={getAsset("favicon").uri} />
+          <script
+            async
+            src="https://www.googletagmanager.com/gtag/js?id=UA-302444-12"
+          ></script>
+          <script src="//apis.google.com/js/client:platform.js?onload=start"></script>
+          <script src="//www.google.com/recaptcha/api.js" async defer></script>
+          <script>{`
+            window.dataLayer = window.dataLayer || [];
+            
+            function gtag() {
+              dataLayer.push(arguments)
+            }
+            
+            gtag("js", new Date())
+
+            gtag("config", "UA-302444-12")
+          `}
+          </script>
+        </Head>
+      </If>
+      <Slot />
+    </>
   )
 }

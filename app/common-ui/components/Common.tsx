@@ -182,8 +182,6 @@ export const RowOrCell = (props: RowProps) => {
 
   let columnChildren = [];
 
-  console.log("columnChildren", columnChildren)
-
   if (Array.isArray(children)) {
     columnChildren = [...children]
 

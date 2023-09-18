@@ -28,7 +28,7 @@ const TasteOfTheValleyBanner = () => {
     return null;
   }
 
-  if (/Android/i.test(navigator?.userAgent)) {
+  if (!/Android/i.test(navigator?.userAgent)) {
     return null;
   }
 

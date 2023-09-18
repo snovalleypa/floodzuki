@@ -86,7 +86,7 @@ const WaterTrendModel = types
   .model("WaterTrend")
   .props({
     trendValues: types.array(types.maybeNull(types.number)),
-    trendValue: types.number,
+    trendValue: types.maybe(types.number),
   })
 
 const GageStatusModel = types
@@ -386,26 +386,26 @@ export const GageStoreModel = types
         // We tend to ignore predictions only for historic events or events
         // that are in the past. In those cases, we don't want to update the lastReadingId
         if (includePredictions) {
-          gage.setProp("lastReadingId", data.lastReadingId)
+          gage?.setProp("lastReadingId", data.lastReadingId)
         }
         else {
-          gage.setProp("lastReadingId", undefined)
+          gage?.setProp("lastReadingId", undefined)
         }
         
         // If last reading id is included - add it to the readings array
         if (includeLastReading) {
-          gage.setProp("readings", [...gage.readings, ...data.readings])
+          gage?.setProp("readings", [...gage.readings, ...data.readings])
         }
         else {
           // Otherwise, just replace the readings array
-          gage.setProp("readings", data.readings)
+          gage?.setProp("readings", data.readings)
         }
         
-        gage.setProp("predictedCfsPerHour", data.predictedCfsPerHour)
-        gage.setProp("predictedFeetPerHour", data.predictedFeetPerHour)
-        gage.setProp("status", data.status)
-        gage.setProp("peakStatus", data.peakStatus)
-        gage.setProp("predictions", data.predictions || [])
+        gage?.setProp("predictedCfsPerHour", data.predictedCfsPerHour)
+        gage?.setProp("predictedFeetPerHour", data.predictedFeetPerHour)
+        gage?.setProp("status", data.status)
+        gage?.setProp("peakStatus", data.peakStatus)
+        gage?.setProp("predictions", data.predictions || [])
       } else {
         store.setError(response.kind)
       }

@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import { Pressable } from "react-native";
 import { usePathname, Slot, Link, Tabs } from "expo-router";
-import Head from "expo-router/head";
 import { Image } from "expo-image";
 
 import '@expo/match-media';
@@ -13,7 +12,7 @@ import { MainRoute, ROUTES, routes } from "app/_layout";
 import { useStores } from "@models/helpers/useStores";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LabelText, LargeTitle, RegularLargeText, SmallerText, SmallText, TinyText } from "@common-ui/components/Text";
-import { Cell, Row, Separator } from "@common-ui/components/Common";
+import { Cell, Row, RowOrCell, Separator } from "@common-ui/components/Common";
 import Icon from "@common-ui/components/Icon";
 import { isWeb, useResponsive } from "@common-ui/utils/responsive";
 import { openLinkInBrowser } from "@utils/navigation";
@@ -33,7 +32,6 @@ const GAGE_ICONS = {
 // Main App Layout
 export default function AppLayout() {
   const store = useStores()
-  const { getAsset } = useAppAssets();
 
   // Fetch data on app start
   useEffect(() => {
@@ -54,34 +52,6 @@ export default function AppLayout() {
     <>
       <Ternary condition={isWeb}>
         <>
-          {/** This is used to ensure that favicon is displayed on web */}
-          <Head>
-            <link rel="icon" href={getAsset("favicon").uri} />
-            {/* Load custom fonts */}
-            <link type="text/css" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600,700|Open+Sans:300,400,500,600,700;lang=en" />
-            <meta property="expo:handoff" content="true" />
-            <meta name="apple-itunes-app" content="app-id=6448645748, app-argument=https://floodzilla.com/" />
-            <meta name="apple-mobile-web-app-capable" content="yes" />
-            <link rel="apple-touch-icon" href={getAsset("favicon").uri} />
-            <script
-              async
-              src="https://www.googletagmanager.com/gtag/js?id=UA-302444-12"
-            ></script>
-            <script src="//apis.google.com/js/client:platform.js?onload=start"></script>
-            <script src="//www.google.com/recaptcha/api.js" async defer></script>
-            <script>{`
-              window.dataLayer = window.dataLayer || [];
-              
-              function gtag() {
-                dataLayer.push(arguments)
-              }
-              
-              gtag("js", new Date())
-
-              gtag("config", "UA-302444-12")
-            `}
-            </script>
-          </Head>
           <AndroidPlayMarketBanner />
           <Header />
           <TasteOfTheValleyBanner />
@@ -112,7 +82,7 @@ function HeaderLink({ href, children }) {
     <Link href={href} asChild>
       <Pressable>
         {({ pressed, hovered }) => (
-          <Cell horizontal={spacing}>
+          <Cell horizontal={spacing} vertical={Spacing.extraSmall}>
             <Title color={hovered ? Colors.primary : $color}>
               {children}
             </Title>
@@ -124,7 +94,6 @@ function HeaderLink({ href, children }) {
 }
 
 function FooterLink({ route, children }: { route: MainRoute, children: string }) {
-  const { getAsset } = useAppAssets();
   const isActive = useIsLinkActive(route.path);
 
   const imageSize = 32
@@ -154,7 +123,7 @@ function FooterLink({ route, children }: { route: MainRoute, children: string })
 }
 
 function Header() {
-  const { isMobile } = useResponsive();
+  const { isMobile, isWideScreen } = useResponsive();
   const { getAsset } = useAppAssets();
   const { t } = useLocale();
 
@@ -171,9 +140,9 @@ function Header() {
 
   return (
     <Cell>
-      <Row
-        top={Spacing.small}
-        bottom={Spacing.small}
+      <RowOrCell
+        top={isWideScreen ? Spacing.small : Spacing.extraSmall}
+        bottom={isWideScreen ? Spacing.small : Spacing.tiny}
         align="space-between"
         justify="center"
       >
@@ -200,7 +169,7 @@ function Header() {
             <LocaleChange />
           </Cell>
         </If>
-      </Row>
+      </RowOrCell>
       <Separator size={Spacing.micro} />
     </Cell>
   );
@@ -210,7 +179,7 @@ function TabBar() {
   const { bottom } = useSafeAreaInsets()
   const { t } = useLocale();
 
-  const $bottomOffset = bottom ? bottom : Spacing.medium
+  const $bottomOffset = bottom || Spacing.medium
   
   return (
     <Cell>
