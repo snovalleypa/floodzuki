@@ -6,11 +6,15 @@ const es = {
     confirm: "Confirmar",
     save: "Guardar",
     back: "Atrás",
+    appTitle: 'Floodzilla',
     title: "Red de Medidores Floodzilla",
+    description: "Floodzilla ofrece información en tiempo real sobre inundaciones para el Valle de Snoqualmie.",
+    metaDescription: "Una red de medidores de río en el Río Snoqualmie, desplegada y gestionada por la Alianza para la Preservación del Valle de Snoqualmie.",
     subtitle: "Un proyecto de SVPA",
     loading: "Cargando...",
     tel: "tel:",
-    email: "correo electrónico:"
+    email: "correo electrónico:",
+    install: "Instalar",
   },
   measure: {
     cfs: "ft³/s",
@@ -294,6 +298,11 @@ const es = {
   },
   termsOfServiceScreen: {
   },
+  donation: {
+    title: "Apoya a SVPA",
+    description: "Esta aplicación fue creada por la Alianza para la Preservación del Valle de Snoqualmie (SVPA).\nTu donación hoy nos ayudará a continuar con nuestra labor de defensa para los agricultores locales y el hermoso Valle de Snoqualmie.",
+    donate: "Donar",
+  }
 }
     
 export default es

@@ -20,6 +20,7 @@ import { useStores } from "@models/helpers/useStores";
 import { observer } from "mobx-react-lite";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import LocaleChange from "@components/LocaleChange";
+import Head from "expo-router/head";
 
 
 // We use this to wrap each screen with an error boundary
@@ -79,6 +80,9 @@ const AboutScreen = observer(
 
     return (
       <Screen>
+        <Head>
+          <title>{t("common.title")} - {t("homeScreen.title")}</title>
+        </Head>
         <Stack.Screen options={{ title: `${t("common.title")} - ${t("homeScreen.title")}` }} />
         {/* Header */}
         <Cell

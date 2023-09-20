@@ -16,6 +16,7 @@ import ErrorMessage from "@common-ui/components/ErrorMessage"
 import { normalizeSearchParams } from "@utils/navigation"
 import SuccessMessage from "@common-ui/components/SuccessMessage"
 import { useLocale } from "@common-ui/contexts/LocaleContext"
+import Head from "expo-router/head"
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -55,7 +56,9 @@ const VerifyEmailScreen = observer(
 
     return (
       <Screen>
-        <Stack.Screen options={{ title: `${t("common.title")} - ${t("homeScreen.title")}` }} />
+        <Head>
+          <title>{t("common.title")} - {t("homeScreen.title")}</title>
+        </Head>
         <TitleWithBackButton
           title={t("navigation.verifyemailScreen")}
           onPress={goBack}

@@ -366,6 +366,11 @@ export const GageStoreModel = types
 
       const gage = store.gages.find(gage => gage?.locationId === locationId)
 
+      if (!gage) {
+        store.setIsFetching(false)
+        return;
+      }
+
       const response = yield api.getGageReadings<Gage>(
         locationId,
         fromDateTime,

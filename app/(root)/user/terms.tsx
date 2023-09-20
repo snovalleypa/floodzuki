@@ -14,6 +14,7 @@ import Config from "@config/config"
 import { isMobile } from "@common-ui/utils/responsive"
 import { If } from "@common-ui/components/Conditional"
 import { useLocale } from "@common-ui/contexts/LocaleContext"
+import Head from "expo-router/head"
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -49,7 +50,9 @@ const TermsOfUseScreen = () => {
 
   return (
     <Screen>
-      <Stack.Screen options={{ title: `${t("common.title")} - ${t("homeScreen.title")}` }} />
+      <Head>
+        <title>{t("common.title")} - {t("homeScreen.title")}</title>
+      </Head>
       <Content scrollable>
         <Row>
           <If condition={isMobile}>

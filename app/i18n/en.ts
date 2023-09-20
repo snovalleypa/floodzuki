@@ -6,11 +6,15 @@ const en = {
     confirm: "Confirm",
     save: "Save",
     back: "Back",
+    appTitle: 'Floodzilla',
     title: "Floodzilla Gauge Network",
+    metaDescription: "A network of river gauges on the Snoqualmie River deployed and managed by The Snoqualmie Valley Preservation Alliance",
+    description: 'Floodzilla provides real-time flood information for the Snoqualmie Valley',
     subtitle: "An SVPA Project",
     loading: "Loading...",
     tel: "tel:",
     email: "email:",
+    install: "Install",
   },
   measure: {
     cfs: "cfs",
@@ -294,6 +298,11 @@ const en = {
   },
   termsOfServiceScreen: {
   },
+  donation: {
+    title: "Support SVPA",
+    description: "This app was built by the Snoqualmie Valley Preservation Alliance (SVPA).\nYour donation today will help us continue our advocacy work for local farmers and the beautiful Snoqualmie Valley.",
+    donate: "Donate",
+  }
 }
 
 export default en

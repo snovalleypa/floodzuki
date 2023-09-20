@@ -22,6 +22,7 @@ import SuccessMessage from "@common-ui/components/SuccessMessage";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import { Alert } from "react-native";
 import { isMobile } from "@common-ui/utils/responsive";
+import Head from "expo-router/head";
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -116,7 +117,9 @@ const ProfileScreen = observer(
 
     return (
       <Screen>
-        <Stack.Screen options={{ title: `${t("common.title")} - ${t("profileScreen.title")}` }} />
+        <Head>
+          <title>{t("common.title")} - {t("profileScreen.title")}</title>
+        </Head>
         <TitleWithBackButton
           title={t("navigation.profileScreen")}
           onPress={goBack}

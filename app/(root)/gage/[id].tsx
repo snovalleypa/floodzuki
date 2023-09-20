@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { TouchableOpacity } from "react-native";
 import { ErrorBoundaryProps, Link, Stack, useLocalSearchParams, useNavigation, useRouter } from "expo-router";
+import Head from "expo-router/head";
+
 import { observer } from "mobx-react-lite";
 
 import { IconButton, LinkButton } from "@common-ui/components/Button";
@@ -11,7 +13,7 @@ import { Content, Screen } from "@common-ui/components/Screen";
 import { LabelText, LargeTitle, MediumTitle, RegularText } from "@common-ui/components/Text";
 import { Colors } from "@common-ui/constants/colors";
 import { Spacing } from "@common-ui/constants/spacing";
-import { MobileScreen, WideScreen, isAndroid, isMobile, useResponsive } from "@common-ui/utils/responsive";
+import { MobileScreen, WideScreen, isMobile, useResponsive } from "@common-ui/utils/responsive";
 
 import { useStores } from "@models/helpers/useStores";
 import { Gage } from "@models/Gage";
@@ -31,7 +33,6 @@ import GageMap from "@components/GageMap";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import { useTimeout } from "@utils/useTimeout";
 import { Timing } from "@common-ui/constants/timing";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -48,7 +49,6 @@ const UpstreamGageLink = observer(
     const { getUpstreamGageLocation } = useStores();
     const { t } = useLocale();
     const { isMobile } = useResponsive();
-    const router = useRouter();
 
     const upstreamGageLocation = getUpstreamGageLocation(gage?.locationId)
 
@@ -136,6 +136,9 @@ const GageDetailsScreen = observer(
 
     return (
       <Screen>
+        <Head>
+          <title>{t("common.title")} - {t("homeScreen.title")}</title>
+        </Head>
         <Stack.Screen options={{
           title: `${gage?.locationInfo?.locationName} | ${t("common.title")} - ${t("homeScreen.title")}`
         }} />
@@ -236,10 +239,11 @@ const GageScreen = observer(
   function GageScreen() {
     const { id } = useLocalSearchParams();
     const { gagesStore } = useStores();
+    const { t } = useLocale();
 
     const gageId = Array.isArray(id) ? id.join("/") : id
 
-    const [hidden, setHidden] = React.useState(isMobile ? true : false)
+    const [hidden, setHidden] = useState(isMobile ? true : false)
 
     useTimeout(() => {
       setHidden(false)
@@ -248,7 +252,14 @@ const GageScreen = observer(
     const gage = hidden ? undefined : gagesStore.getGageByLocationId(gageId)
 
     if (!!gage && !gage?.locationId) {
-      return <EmptyComponent />
+      return (
+        <>
+          <Head>
+            <title>{t("common.title")} - {t("homeScreen.title")}</title>
+          </Head>
+          <EmptyComponent />
+        </>
+      )
     }
 
     return <GageDetailsScreen gage={gage} />

@@ -1,14 +1,17 @@
 import React from "react"
-import { Redirect, Stack } from "expo-router";
+import { Redirect } from "expo-router";
 import { ROUTES } from "app/_layout";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
+import Head from "expo-router/head";
 
 export default function Index() {
   const { t } = useLocale();
 
   return (
     <>
-      <Stack.Screen options={{ title: `${t("common.title")} - ${t("homeScreen.title")}` }} />
+      <Head>
+        <title>{t("common.title")} - {t("homeScreen.title")}</title>
+      </Head>
       <Redirect href={ROUTES.Gages} />
     </>
   );

@@ -21,6 +21,7 @@ import GoogleRecaptcha from "@components/GoogleRecaptcha"
 import GoogleSigninButton from "@components/GoogleSigninButton"
 import { useLocale } from "@common-ui/contexts/LocaleContext"
 import { AppleSigninButton } from "@components/AppleSigninButton"
+import Head from "expo-router/head"
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -123,7 +124,9 @@ const NewScreen = observer(
     
     return (
       <Screen>
-        <Stack.Screen options={{ title: `${t("common.title")} - ${t("homeScreen.title")}` }} />
+        <Head>
+          <title>{t("common.title")} - {t("homeScreen.title")}</title>
+        </Head>
         <TitleWithBackButton
           title={t("navigation.newAccountScreen")}
           onPress={goBack}

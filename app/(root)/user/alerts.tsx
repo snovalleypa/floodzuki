@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import { ErrorBoundaryProps, Stack, useLocalSearchParams, useRouter } from "expo-router"
+import { ErrorBoundaryProps, Link, Stack, useLocalSearchParams, useRouter } from "expo-router"
 
 import { Screen, Content } from "@common-ui/components/Screen"
 import { LabelText, RegularLargeText, RegularText, SmallTitle } from "@common-ui/components/Text"
@@ -23,6 +23,7 @@ import ErrorMessage from "@common-ui/components/ErrorMessage"
 import { Gage } from "@models/Gage"
 import { Switch } from "react-native"
 import { useLocale } from "@common-ui/contexts/LocaleContext"
+import Head from "expo-router/head"
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -344,19 +345,48 @@ const AlertsScreen = observer(
       router.push({ pathname: ROUTES.UserNew })
     }
 
+    const openDonationScreen = () => {
+      openLinkInBrowser("https://www.paypal.com/donate/?cmd=_s-xclick&hosted_button_id=MPUFPPAW7AMYA&ssrt=1694550998333")
+    }
+
     const mailTo = () => {
       openLinkInBrowser(`mailto:${Config.SVPA_EMAIL}?Subject=Alerts+Feedback`)
     }
 
     return (
       <Screen>
-        <Stack.Screen options={{ title: `${t("common.title")} - ${t("homeScreen.title")}` }} />
+        <Head>
+          <title>{t("common.title")} - {t("homeScreen.title")}</title>
+        </Head>
         <TitleWithBackButton
           title={t("navigation.alertsScreen")}
           onPress={goBack}
           webEnabled={false}
         />
         <Content maxWidth={Spacing.tabletWidth} scrollable>
+          {/* Support */}
+          <Card outline type="lightBlue" bottom={Spacing.large}>
+            <CardHeader>
+              <SmallTitle>{t("donation.title")}</SmallTitle>
+            </CardHeader>
+            <CardContent>
+              <RegularText lineHeight={Spacing.large}>
+                {t("donation.description")}
+              </RegularText>
+            </CardContent>
+            <CardFooter>
+              <Row align="center">
+                <SolidButton
+                  type="lightBlue"
+                  minWidth={Spacing.extraExtraHuge}
+                  selfAlign="center"
+                  leftIcon="heart"
+                  title={t("donation.donate")}
+                  onPress={openDonationScreen}
+                />
+              </Row>
+            </CardFooter>
+          </Card>
           {/* Title */}
           <Card bottom={Spacing.large}>
             <CardHeader>
@@ -383,7 +413,6 @@ const AlertsScreen = observer(
               <CardFooter>
               <Row align="center">
                 <OutlinedButton
-                  disabled={authSessionStore.isFetching}
                   minWidth={Spacing.extraExtraHuge}
                   selfAlign="center"
                   title={t("loginScreen.createAccount")}
@@ -391,7 +420,6 @@ const AlertsScreen = observer(
                 />
                 <SolidButton
                   left={Spacing.large}
-                  isLoading={authSessionStore.isFetching}
                   minWidth={Spacing.extraExtraHuge}
                   selfAlign="center"
                   title={t("loginScreen.login")}

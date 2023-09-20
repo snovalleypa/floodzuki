@@ -10,6 +10,7 @@ import { ROUTES } from "app/_layout"
 import ChangePasswordForm, { PasswordSubmitActionProps } from "@components/ChangePasswordForm"
 import { Spacing } from "@common-ui/constants/spacing"
 import { useLocale } from "@common-ui/contexts/LocaleContext"
+import Head from "expo-router/head"
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -44,7 +45,9 @@ const SetPasswordScreen = observer(
 
     return (
       <Screen>
-        <Stack.Screen options={{ title: `${t("common.title")} - ${t("homeScreen.title")}` }} />
+        <Head>
+          <title>{t("common.title")} - {t("homeScreen.title")}</title>
+        </Head>
         <TitleWithBackButton
           title={t("navigation.passwordSetScreen")}
           onPress={goBack}

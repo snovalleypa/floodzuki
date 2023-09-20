@@ -9,10 +9,12 @@ import { useAppAssets } from '@common-ui/contexts/AssetsContext';
 import { IconButton, SolidButton } from '@common-ui/components/Button';
 import { openLinkInBrowser } from '@utils/navigation';
 import { Colors } from '@common-ui/constants/colors';
+import { useLocale } from '@common-ui/contexts/LocaleContext';
 
 const TasteOfTheValleyBanner = () => {
   const { isMobile } = useResponsive();
-  const { getAsset } = useAppAssets()
+  const { getAsset } = useAppAssets();
+  const { t } = useLocale();
 
   const [isBannerVisible, setIsBannerVisible] = useState(true)
 
@@ -52,13 +54,13 @@ const TasteOfTheValleyBanner = () => {
           />
         </Cell>
         <Cell flex right={Spacing.small}>
-          <MediumText>Floodzilla</MediumText>
-          <SmallText>Floodzilla provides real-time flood information for the Snoqualmie Valley</SmallText>
+          <MediumText>{t("common.appTitle")}</MediumText>
+          <SmallText>{t("common.description")}</SmallText>
         </Cell>
         <Cell>
           <SolidButton
             small
-            title="Install"
+            title={t("common.install")}
             onPress={openPlayMarket}
             type='lightBlue'
           />

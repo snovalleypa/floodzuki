@@ -1,5 +1,7 @@
 import React, { useEffect } from "react"
 import { ErrorBoundaryProps, useSearchParams, Stack, useRouter, useNavigation } from "expo-router";
+import Head from "expo-router/head";
+
 import { observer } from "mobx-react-lite";
 
 import { Content, Screen } from "@common-ui/components/Screen"
@@ -16,7 +18,6 @@ import { IconButton, LinkButton } from "@common-ui/components/Button";
 import { If, Ternary } from "@common-ui/components/Conditional";
 import { Colors } from "@common-ui/constants/colors";
 import { useTimeout } from "@utils/useTimeout";
-import { GageSummary } from "@models/RootStore";
 import { ROUTES } from "app/_layout";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import ForecastFooter from "@components/ForecastFooter";
@@ -65,6 +66,9 @@ const ForecastDetailsScreen = observer(
 
     return (
       <Screen>
+        <Head>
+          <title>{t("common.title")} - {t("forecastScreen.title")}</title>
+        </Head>
         <Stack.Screen options={{ title: `${t("common.title")} - ${t("forecastScreen.title")}: ${forecastGage?.title}` }} />
         <Row left={Spacing.medium} bottom={Spacing.extraSmall} top={Spacing.medium}>
           <Ternary condition={isMobile}>

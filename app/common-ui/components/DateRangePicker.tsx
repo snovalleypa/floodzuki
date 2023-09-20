@@ -23,7 +23,7 @@ const DateRangePicker = (props: DateRangePickerProps) => {
   const {
     startDate,
     endDate,
-    maxRange = 60,
+    maxRange = 90,
     minYear = 2001,
     maxYear = new Date().getFullYear(),
     onChange,

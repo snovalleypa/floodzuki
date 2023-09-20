@@ -1,5 +1,7 @@
 import React, { useEffect } from "react"
 import { ErrorBoundaryProps, Stack } from "expo-router";
+import Head from "expo-router/head";
+
 import { observer } from "mobx-react-lite";
 
 import { Content, Screen } from "@common-ui/components/Screen"
@@ -15,7 +17,7 @@ import { useInterval, useTimeout } from "@utils/useTimeout";
 import { Timing } from "@common-ui/constants/timing";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import ForecastFooter from "@components/ForecastFooter";
-import { isAndroid, isMobile } from "@common-ui/utils/responsive";
+import { isMobile } from "@common-ui/utils/responsive";
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -56,7 +58,9 @@ const ForecastScreen = observer(
     return (
       <Screen>
         {/* This is purely for documentTitle setting */}
-        <Stack.Screen options={{ title: `${t("common.title")} - ${t("forecastScreen.title")}` }} />
+        <Head>
+          <title>{t("common.title")} - {t("forecastScreen.title")}</title>
+        </Head>
         <Content scrollable>
           <ForecastChart gages={forecastGages} />
           <RowOrCell flex align="flex-start" justify="stretch" top={Spacing.mediumXL}>

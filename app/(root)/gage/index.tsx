@@ -1,6 +1,8 @@
 import React, { useEffect } from "react"
 import { ViewStyle, FlatList, TouchableOpacity, useWindowDimensions } from "react-native"
-import { ErrorBoundaryProps, Link, Stack, useRouter } from "expo-router"
+import { ErrorBoundaryProps, Link, useRouter } from "expo-router"
+import Head from "expo-router/head"
+
 import { observer } from "mobx-react-lite"
 
 import { Screen } from "@common-ui/components/Screen"
@@ -179,7 +181,9 @@ const HomeScreen = observer(
 
     return (
       <Screen>
-        <Stack.Screen options={{ title: `${t("common.title")} - ${t("homeScreen.title")}` }} />
+        <Head>
+          <title>{t("common.title")} - {t("homeScreen.title")}</title>
+        </Head>
         <Row justify="flex-start">
           <If condition={!isMobile}>
             <Card

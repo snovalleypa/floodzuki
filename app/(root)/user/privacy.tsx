@@ -12,6 +12,7 @@ import { isMobile } from "@common-ui/utils/responsive"
 import { If } from "@common-ui/components/Conditional"
 import { ROUTES } from "app/_layout"
 import { useLocale } from "@common-ui/contexts/LocaleContext"
+import Head from "expo-router/head"
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -40,7 +41,9 @@ const PrivacyPolicyScreen = () => {
 
   return (
     <Screen>
-      <Stack.Screen options={{ title: `${t("common.title")} - ${t("homeScreen.title")}` }} />
+      <Head>
+        <title>{t("common.title")} - {t("homeScreen.title")}</title>
+      </Head>
       <Content scrollable>
         {/* SECTION */}
         <Row>
