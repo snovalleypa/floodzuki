@@ -48,7 +48,8 @@ export default {
       backgroundColor: "#ffffff"
     },
     config: {
-      googleMapsApiKey: process.env.GOOGLE_MAPS_IOS_API_KEY
+      googleMapsApiKey: process.env.GOOGLE_MAPS_IOS_API_KEY,
+      usesNonExemptEncryption: false,
     }
   },
   android: {
@@ -129,17 +130,6 @@ export default {
       }
     ]
   ],
-  hooks: {
-    postPublish: [
-      {
-        file: "sentry-expo/upload-sourcemaps",
-        config: {
-          organization: "snoqualmie-valley-preservation",
-          project: "floodzilla"
-        }
-      }
-    ]
-  },
   extra: {
     router: {
       origin: "https://floodzilla.com/",
