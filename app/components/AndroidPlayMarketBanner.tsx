@@ -22,15 +22,23 @@ const TasteOfTheValleyBanner = () => {
     openLinkInBrowser('https://play.google.com/store/apps/details?id=com.floodzilla.floodzuki')
   }
 
+  const openAppStore = () => {
+    openLinkInBrowser('https://apps.apple.com/us/app/floodzilla/id6448645748')
+  }
+
+  const openBannerLink = () => {
+    if (/Android/i.test(navigator?.userAgent)) {
+      openPlayMarket()
+    } else {
+      openAppStore()
+    }
+  }
+
   const closeBanner = () => {
     setIsBannerVisible(false)
   }
 
   if (!isMobile || !isBannerVisible) {
-    return null;
-  }
-
-  if (!/Android/i.test(navigator?.userAgent)) {
     return null;
   }
 
@@ -61,7 +69,7 @@ const TasteOfTheValleyBanner = () => {
           <SolidButton
             small
             title={t("common.install")}
-            onPress={openPlayMarket}
+            onPress={openBannerLink}
             type='lightBlue'
           />
         </Cell>
