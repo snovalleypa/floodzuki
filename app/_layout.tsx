@@ -134,6 +134,13 @@ function App() {
             gtag("config", "UA-302444-12")
           `}
           </script>
+          <style>{`
+            a {
+              text-decoration: none;
+              color: inherit;
+            }
+          `}
+          </style>
         </Head>
       </If>
       <Slot />

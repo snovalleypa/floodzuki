@@ -58,6 +58,7 @@ const BaseConfig: {
   RESOURCE_BASE_URL: string
   READING_BASE_URL: string
   GAGE_IMAGE_BASE_URL: string
+  DONATION_URL: string
 
   SVPA_URL: string
   SVPA_PHONE: string
@@ -84,6 +85,7 @@ const BaseConfig: {
   RESOURCE_BASE_URL: "//floodzilla.com",
   READING_BASE_URL: "https://prodplanreadingsvc.azurewebsites.net",
   GAGE_IMAGE_BASE_URL: "https://svpastorage.blob.core.windows.net/uploads/",
+  DONATION_URL: "https://snovalleypa.harnessgiving.org/campaigns/12172",
 
   SVPA_URL: "https://svpa.us",
   SVPA_PHONE: "425-549-0316",

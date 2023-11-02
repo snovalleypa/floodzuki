@@ -2,7 +2,6 @@ import React, { useEffect } from "react"
 import { observer } from "mobx-react-lite";
 import { useRouter } from "expo-router";
 
-import { OutlinedButton } from "@common-ui/components/Button"
 import { Cell } from "@common-ui/components/Common";
 import { useStores } from "@models/helpers/useStores";
 import { ROUTES } from "app/_layout";

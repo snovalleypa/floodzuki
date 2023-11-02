@@ -345,10 +345,6 @@ const AlertsScreen = observer(
       router.push({ pathname: ROUTES.UserNew })
     }
 
-    const openDonationScreen = () => {
-      openLinkInBrowser("https://www.paypal.com/donate/?cmd=_s-xclick&hosted_button_id=MPUFPPAW7AMYA&ssrt=1694550998333")
-    }
-
     const mailTo = () => {
       openLinkInBrowser(`mailto:${Config.SVPA_EMAIL}?Subject=Alerts+Feedback`)
     }
@@ -376,14 +372,16 @@ const AlertsScreen = observer(
             </CardContent>
             <CardFooter>
               <Row align="center">
-                <SolidButton
-                  type="lightBlue"
-                  minWidth={Spacing.extraExtraHuge}
-                  selfAlign="center"
-                  leftIcon="heart"
-                  title={t("donation.donate")}
-                  onPress={openDonationScreen}
-                />
+                <a href={Config.DONATION_URL}  target="_blank">
+                  <SolidButton
+                    type="lightBlue"
+                    minWidth={Spacing.extraExtraHuge}
+                    selfAlign="center"
+                    leftIcon="heart"
+                    title={t("donation.donate")}
+                    onPress={() => {}}
+                  />
+                </a>
               </Row>
             </CardFooter>
           </Card>

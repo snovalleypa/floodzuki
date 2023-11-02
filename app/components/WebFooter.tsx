@@ -4,7 +4,7 @@ import { Image } from "expo-image"
 import { Cell, Row, RowOrCell, Separator } from "@common-ui/components/Common"
 import { Colors } from "@common-ui/constants/colors"
 import { RegularLargeText, RegularText } from "@common-ui/components/Text"
-import { SimpleLinkButton } from "@common-ui/components/Button"
+import { OutlinedButton, SimpleLinkButton } from "@common-ui/components/Button"
 
 import { useAppAssets } from "@common-ui/contexts/AssetsContext"
 import { isWeb, useResponsive } from "@common-ui/utils/responsive"
@@ -115,6 +115,15 @@ const WebFooter = () => {
                 text={Config.SVPA_EMAIL}
                 onPress={sendAnEmail}
               />
+              {separator}
+              <a href={Config.DONATION_URL}  target="_blank">
+                <OutlinedButton
+                  small
+                  type="primary"
+                  onPress={() => {}}
+                  title={`${t('donation.title')} ❤️`}
+                />
+              </a>
             </Text>
           </Row>
           <Cell top={Spacing.large}>
@@ -128,7 +137,7 @@ const WebFooter = () => {
             </Text>
           </Cell>
         </Cell>
-        <Cell flex align={isMobile ? "center" : "flex-start"}>
+        <Cell align={isMobile ? "center" : "flex-start"}>
           <RowOrCell flex align="flex-end">
             <Cell
               width={190}
