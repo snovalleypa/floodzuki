@@ -9,13 +9,19 @@ import { SolidButton } from "@common-ui/components/Button"
 import { Cell } from "@common-ui/components/Common"
 import { Spacing } from "@common-ui/constants/spacing"
 import { useLocale } from "@common-ui/contexts/LocaleContext"
+import { isWeb } from "@common-ui/utils/responsive"
 
 export function ErrorDetails(props: ErrorBoundaryProps) {
   const { t } = useLocale();
 
   // Track error with sentry when loaded
   useEffect(() => {
-    Sentry.Native.captureException(props.error);
+    if (isWeb) {
+      Sentry.Browser?.captureException(props.error);
+      return;
+    }
+    
+    Sentry.Native?.captureException(props.error);
   }, [])
   
   return (

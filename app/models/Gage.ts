@@ -9,7 +9,7 @@ import { withSetPropAction } from "./helpers/withSetPropsAction"
 import Config from "@config/config"
 import { LocationInfoModel } from "./LocationInfo"
 import localDayJs from "@services/localDayJs"
-import { DataPoint, ForecastStoreModel, NOAAForecastModel } from "./Forecasts"
+import { DataPoint, NOAAForecastModel } from "./Forecasts"
 import USGS_INFO from "@utils/usgsInfo"
 
 // Gage data from https://waterservices.usgs.gov/rest/IV-Service.html

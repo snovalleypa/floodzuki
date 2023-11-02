@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
 
-import localDayJs from "@services/localDayJs";
-
 import { GageSummary } from "@models/RootStore";
 import { useStores } from "@models/helpers/useStores";
 import { Forecast } from "@models/Forecasts";
@@ -9,6 +7,7 @@ import { Forecast } from "@models/Forecasts";
 import { Colors, lightenHexColor } from "@common-ui/constants/colors";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import { isMobile } from "@common-ui/utils/responsive";
+import dayjs from "dayjs";
 
 const STAGE_TWO_YAXIS_MARGIN = 500;
 
@@ -134,7 +133,7 @@ const buildOptions = (props: BuildOptionsProps, t) => {
   const isCombinedForecast = forecasts.length > 1;
   const floodLines = []
   
-  const now = localDayJs.tz()
+  const now = dayjs()
 
   const min = now.clone().subtract(daysBefore, "days")
   const max = now.clone().add(daysAfter, "days")

@@ -3,12 +3,10 @@ import { api } from "@services/api"
 import { flow } from "mobx-state-tree"
 import dayjs from "dayjs"
 
-import { GageReadingModel } from "./GageReading"
 import { dataFetchingProps, withDataFetchingActions } from "./helpers/withDataFetchingProps"
 import Config from "@config/config"
 import { LocationInfoModel } from "./LocationInfo"
 import { GageSummary } from "./RootStore"
-import localDayJs from "@services/localDayJs"
 import { ChartColorsHex } from "@common-ui/constants/colors"
 
 // "Forecast" Example data
@@ -201,7 +199,7 @@ const ForecastModel = types
       const discharges = store.recentReadings?.discharges || []
 
       return (timestamps || []).map((timestamp, index) => {
-        const ts = localDayJs.tz(timestamp)
+        const ts = dayjs(timestamp);
 
         return {
           reading: waterHeights[index],
@@ -218,7 +216,7 @@ const ForecastModel = types
       const waterHeights = store.predictions?.waterHeights || []
 
       return (timestamps || []).map((timestamp, index) => {
-        const ts = localDayJs.tz(timestamp)
+        const ts = dayjs(timestamp);
 
         return {
           reading: waterHeights[index],
@@ -235,7 +233,7 @@ const ForecastModel = types
       const waterHeights = store.predictions?.peaks?.waterHeights || []
 
       return discharges.map((discharge, index) => {
-        const ts = localDayJs.tz(timestamps[index])
+        const ts = dayjs(timestamps[index]);
 
         return {
           timestamp: ts,
@@ -257,7 +255,7 @@ const ForecastModel = types
 
         if (!dataPoints) return null
 
-        const cutoff = localDayJs.tz().subtract(24, 'hours').valueOf()
+        const cutoff = dayjs().subtract(24, 'hours').valueOf()
         let maxReading = dataPoints[0]
         let max = maxReading?.waterDischarge
 

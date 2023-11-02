@@ -512,8 +512,6 @@ const useGageChartOptions = (
 
     if (!gage?.locationId) return
 
-    const options = getOptions()
-
     setOptions(getOptions())
   }, [
     isVisible,
