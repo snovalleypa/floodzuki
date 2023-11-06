@@ -30,6 +30,7 @@ import GageListItemChart from "@components/GageListItemChart";
 import WebFooter from "@components/WebFooter"
 import { useLocale } from "@common-ui/contexts/LocaleContext"
 import { Timing } from "@common-ui/constants/timing"
+import { RefreshControl } from "react-native-gesture-handler"
 
 const ITEM_HEIGHT = 200
 const MAP_WIDTH = 400
@@ -158,6 +159,7 @@ const HomeScreen = observer(
     const { height } = useWindowDimensions()
 
     const [hidden, setHidden] = React.useState(isMobile ? true : false)
+    const [refreshing, setRefreshing] = React.useState(false);
 
     // Fetch data on mount
     useEffect(() => {
@@ -174,6 +176,16 @@ const HomeScreen = observer(
     useTimeout(() => {
       setHidden(false)
     }, Timing.zero)
+
+    const handleOnRefresh = React.useCallback(() => {
+      setRefreshing(true);
+      
+      gagesStore.fetchData()
+      
+      setTimeout(() => {
+        setRefreshing(false);
+      }, 2000);
+    }, [gagesStore.fetchData]);
     
     const locations = hidden ? [] : getLocationsWithGages()
     
@@ -199,6 +211,7 @@ const HomeScreen = observer(
           </If>
           <Cell flex height={isMobile ? "100%" : mapCardHeight + Spacing.small}>
             <FlatList
+              refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleOnRefresh} />}
               contentContainerStyle={$listStyles}
               data={locations}
               showsVerticalScrollIndicator={false}

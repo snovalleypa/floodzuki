@@ -1,11 +1,12 @@
 import React from "react"
 import { View, ScrollView, ViewProps, ScrollViewProps, ViewStyle } from "react-native"
-import { Edge, SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
 
 import { Colors } from "@common-ui/constants/colors"
 import { Spacing } from "@common-ui/constants/spacing"
 import { OffsetProps, useOffsetStyles } from "@common-ui/utils/useOffset"
 import WebFooter from "@components/WebFooter"
+import { RefreshControl } from "react-native-gesture-handler"
 
 export type ContentProps = {
   children: React.ReactNode
@@ -17,6 +18,7 @@ export type ContentProps = {
   scrollViewStyle?: ScrollViewProps
   scrollable?: boolean
   onScroll?: ScrollViewProps["onScroll"]
+  onRefresh?: () => void
   maxWidth?: number
 } & OffsetProps & ViewProps &
   ScrollViewProps
@@ -31,19 +33,33 @@ export type ContentProps = {
  * @param {ScrollViewProps} scrollViewStyle - extra styles for the scrollable <Content />
  * @param {boolean} scrollable - whether the content is scrollable or not
  * @param {number} maxWidth - max width of the content, when appied - content will be centered horizontally
+ * @param {ScrollViewProps["onScroll"]} onScroll - callback for scroll event
+ * @param {ScrollViewProps["onRefresh"]} onRefresh - callback for pull-to-refresh event
  * @example
  * <Content scrollable>
  *   <Text>Some content</Text>
  * </Content>
  */
 export const Content = (props: ContentProps) => {
-  const { children, noPadding, noBackground, bgColor, style, scrollViewStyle, scrollable, maxWidth, onScroll, ...rest } =
+  const { children, noPadding, noBackground, bgColor, style, scrollViewStyle, scrollable, maxWidth, onRefresh, onScroll, ...rest } =
     props
 
   const Container = scrollable ? ScrollView : View
 
   const holderStyles: ViewStyle[] = useOffsetStyles([$content], rest)
   const scrollStyles: ViewStyle[] = [$scrollView]
+
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const handleOnRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    
+    onRefresh && onRefresh()
+    
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 2000);
+  }, [onRefresh]);
 
   if (noBackground) {
     holderStyles.push($noBackground)
@@ -78,6 +94,7 @@ export const Content = (props: ContentProps) => {
       showsVerticalScrollIndicator={false}
       scrollEventThrottle={16}
       onScroll={onScroll}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleOnRefresh} />}
       overScrollMode="never"
       style={scrollStyles}>
       <View style={holderStyles} {...rest}>

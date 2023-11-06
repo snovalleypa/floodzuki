@@ -31,6 +31,10 @@ const ForecastScreen = observer(
 
     const [hidden, setHidden] = React.useState(isMobile ? true : false)
 
+    const fetchData = () => {
+      store.forecastsStore.fetchData()
+    }
+
     useTimeout(() => {
       setHidden(false)
     }, Timing.zero)
@@ -48,7 +52,7 @@ const ForecastScreen = observer(
     // Fetch data on mount
     useEffect(() => {
       if (store.isFetched)  {
-        store.forecastsStore.fetchData()
+        fetchData()
       }
     }, [store.isFetched])
   
@@ -61,7 +65,7 @@ const ForecastScreen = observer(
         <Head>
           <title>{t("common.title")} - {t("forecastScreen.title")}</title>
         </Head>
-        <Content scrollable>
+        <Content scrollable onRefresh={fetchData}>
           <ForecastChart gages={forecastGages} />
           <RowOrCell flex align="flex-start" justify="stretch" top={Spacing.mediumXL}>
             {forecastGages.map((gage, i) => (

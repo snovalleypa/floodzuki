@@ -120,6 +120,7 @@ const GageDetailsScreen = observer(
   function GageDetailsScreen({ gage }: { gage: Gage }) {
     const router = useRouter();
     const navigation = useNavigation()
+    const { gagesStore } = useStores();
     const { t } = useLocale();
     
     const { id } = useLocalSearchParams();
@@ -187,7 +188,7 @@ const GageDetailsScreen = observer(
           </Row>
         </MobileScreen>
         {/* Content */}
-        <Content scrollable>
+        <Content scrollable onRefresh={() => gagesStore.fetchData}>
           <GageDetailsChart gage={gage} />
           <Row>
             <If condition={!isMobile}>
