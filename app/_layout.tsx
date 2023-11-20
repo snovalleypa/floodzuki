@@ -114,8 +114,8 @@ function App() {
           <title>{t("common.title")} - {t("homeScreen.title")}</title>
           <meta name="description" content={t("common.metaDescription")} />
           <meta property="expo:handoff" content="true" />
-          <meta name="apple-itunes-app" content="app-id=6448645748">
-          <meta name="google-play-app" content="app-id=com.floodzilla.floodzuki">
+          <meta name="apple-itunes-app" content="app-id=6448645748" />
+          <meta name="google-play-app" content="app-id=com.floodzilla.floodzuki" />
           <link rel="apple-touch-icon" href={getAsset("favicon").uri} />
           <script
             async
