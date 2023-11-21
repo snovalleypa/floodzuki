@@ -24,6 +24,7 @@ import { Gage } from "@models/Gage"
 import { Switch } from "react-native"
 import { useLocale } from "@common-ui/contexts/LocaleContext"
 import Head from "expo-router/head"
+import { FLink } from "@common-ui/components/FLink"
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -349,6 +350,10 @@ const AlertsScreen = observer(
       openLinkInBrowser(`mailto:${Config.SVPA_EMAIL}?Subject=Alerts+Feedback`)
     }
 
+    const openDonation = () => {
+      openLinkInBrowser(Config.DONATION_URL)
+    }
+
     return (
       <Screen>
         <Head>
@@ -372,16 +377,16 @@ const AlertsScreen = observer(
             </CardContent>
             <CardFooter>
               <Row align="center">
-                <a href={Config.DONATION_URL}  target="_blank">
+                <FLink href={Config.DONATION_URL}>
                   <SolidButton
                     type="lightBlue"
                     minWidth={Spacing.extraExtraHuge}
                     selfAlign="center"
                     leftIcon="heart"
                     title={t("donation.donate")}
-                    onPress={() => {}}
+                    onPress={openDonation}
                   />
-                </a>
+                </FLink>
               </Row>
             </CardFooter>
           </Card>
