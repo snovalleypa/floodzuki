@@ -100,6 +100,7 @@ export const GageSummaryCard = observer(
     
     const gageTitle = gage?.title
     const peaks = forecast?.peaks
+    const predictionTime = forecast?.predictions?.forecastCreated
 
     const $offsetLeft = (!firstItem && isWideScreen) ? Spacing.medium : 0
     const $offsetTop = (!isWideScreen && firstItem) ? 0 : Spacing.medium
@@ -146,7 +147,7 @@ export const GageSummaryCard = observer(
         <Cell top={Spacing.small}>
           <LabelText color={Colors.success}>
             {t("forecastScreen.forecastedCrests")}:
-            <SmallText muted> ({t("forecastScreen.published")} {formatDateTime(forecast?.noaaForecast?.created)})</SmallText>
+            <SmallText muted> ({t("forecastScreen.published")} {formatDateTime(predictionTime)})</SmallText>
           </LabelText>
           {peaks?.map(peak => (
             <ReadingRow key={peak.timestamp} reading={peak} />

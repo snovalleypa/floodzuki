@@ -118,7 +118,7 @@ export const GageModel = types
     actualReadings: types.array(GageReadingModel),
     noaaForecast: types.maybe(NOAAForecastModel),
     predictions: types.array(GageReadingModel),
-    locationInfo: types.safeReference(LocationInfoModel),
+    locationInfo: types.maybeNull(types.late(() => types.safeReference(LocationInfoModel))),
   })
   .actions(withSetPropAction)
   .views(store => ({

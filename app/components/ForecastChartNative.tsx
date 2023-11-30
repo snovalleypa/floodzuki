@@ -396,18 +396,18 @@ export const ForecastChartNative = (props: ChartsProps) => {
   }))
 
   const screenWidth = Dimensions.get('window').width
-  const legendOffset = screenWidth/2;
+  const legendOffset = screenWidth/2 - 10;
 
   const nowLabel = options.xAxis.plotLines[0]
   const floodStage = options.yAxis.plotLines[0]
 
   return (
     <VictoryChart
+      padding={{ top: 10, bottom: 40, left: 50, right: 50 }}
+      domainPadding={{ x: 0, y: [1, 5] }}
       domain={{
         x: [options.xAxis.min, options.xAxis.max],
-        y: [0, options.yAxis.softMax],
       }}
-      maxDomain={options.yAxis.softMax}
       height={CHART_HEIGHT}
       scale={{
         x: "time",
@@ -438,18 +438,6 @@ export const ForecastChartNative = (props: ChartsProps) => {
         />
       }
     >
-      <VictoryLegend
-        x={legendOffset}
-        y={100}
-        rowGutter={-10}
-        data={labelData}
-        style={{
-          data: { strokeWidth: 1 },
-          labels: {            
-            fontSize: 10,
-          },
-        }}
-      />
       {/* Vertical Axis */}
       <VictoryAxis
         dependentAxis
@@ -457,7 +445,7 @@ export const ForecastChartNative = (props: ChartsProps) => {
           axis: {
             stroke: "#969BAB",
             strokeWidth: 0,
-            padding: 40
+            paddingLeft: 40
           },
           axisLabel: {
             ...$labelStyle,
@@ -472,7 +460,7 @@ export const ForecastChartNative = (props: ChartsProps) => {
             strokeWidth: 0.5,
           },
         }}
-        tickCount={3}
+        tickCount={5}
         tickFormat={(t) => `${Math.round(t/1000)}k`}
         label={options.yAxis.title.text}
       />
@@ -487,7 +475,7 @@ export const ForecastChartNative = (props: ChartsProps) => {
           },
           ticks: { stroke: "#969BAB", size: 5 },
         }}
-        tickCount={2}
+        tickCount={4}
       />
       {/* Lines on the chart */}
       {lines.map(line => (
@@ -517,9 +505,29 @@ export const ForecastChartNative = (props: ChartsProps) => {
           }}
         />
       ))}
+      <VictoryLegend
+        x={legendOffset}
+        y={100}
+        rowGutter={-10}
+        data={labelData}
+        borderPadding={{ top: 5, bottom: 10, left: 5, right: 5 }}
+        style={{
+          data: {
+            strokeWidth: 1,
+            fill: "#fff",
+          },
+          labels: {            
+            fontSize: 10,
+          },
+          border: {
+            stroke: "#969BAB",
+            fill: '#fff',
+            fillOpacity: 0.8,
+          }
+        }}
+      />
       {/* Flooding label */}
       <VictoryAxis
-        domain={[options.xAxis.min, options.xAxis.max]}
         axisValue={floodStage?.value + 1200}
         label={floodStage?.label?.text}
         style={{

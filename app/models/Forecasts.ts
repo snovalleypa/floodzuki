@@ -167,7 +167,7 @@ const ForecastModel = types
   .props({
     id: types.string,
     color: types.maybe(types.string),
-    locationInfo: types.safeReference(LocationInfoModel),
+    locationInfo: types.maybeNull(types.late(() => types.safeReference(LocationInfoModel))),
     recentReadings: types.maybeNull(ReadingModel), // API V2 Model
     predictions: types.maybeNull(PredictionModel), // API V2 Model
   })
@@ -340,20 +340,33 @@ export const ForecastStoreModel = types
 
         const existingValue = store.forecasts.get(gageId)
 
-        const extendedValue = {
-          ...existingValue,
-          id: gageId,
-          locationInfo: gageId,
-          color: ChartColorsHex[index],
+        if (!existingValue) {
+          store.forecasts.set(gageId, {
+            id: gageId,
+            locationInfo: gageId,
+            color: ChartColorsHex[index],
+            predictions: 'forecastId' in value ? value : null,
+            recentReadings: 'forecastId' in value ? null : value,
+          })
+
+          return;
         }
+
+        existingValue.id = gageId
+        existingValue['locationInfo'] = gageId
+        existingValue.color = ChartColorsHex[index]
 
         if ('forecastId' in value) {
-          extendedValue.predictions = value
-        } else {
-          extendedValue.recentReadings = value
+          existingValue.predictions = {...existingValue?.predictions, ...value}
         }
-
-        store.forecasts.set(gageId, extendedValue)
+        else {
+          value.discharges && existingValue.recentReadings?.discharges.push(...value.discharges)
+          value.readingIds && existingValue.recentReadings?.readingIds?.push(...value.readingIds)
+          value.timestamps && existingValue.recentReadings?.timestamps.push(...value.timestamps)
+          value.waterHeights && existingValue.recentReadings?.waterHeights?.push(...value.waterHeights)
+          existingValue.recentReadings.trendCfsPerHour = value.trendCfsPerHour
+          existingValue.recentReadings.trendFeetPerHour = value.trendFeetPerHour
+        }
       })
     }
 
@@ -404,8 +417,8 @@ export const ForecastStoreModel = types
     })
 
     const fetchData = flow(function*() {
-      fetchRecentReadings()
-      fetchForecast()
+      yield fetchRecentReadings()
+      yield fetchForecast()
     })
 
     return {
