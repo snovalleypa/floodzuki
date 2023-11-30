@@ -13,7 +13,6 @@ import { Input } from "@common-ui/components/Input"
 import { SolidButton } from "@common-ui/components/Button"
 import { observer } from "mobx-react-lite"
 import { useStores } from "@models/helpers/useStores"
-import GoogleRecaptcha from "@components/GoogleRecaptcha"
 import { If } from "@common-ui/components/Conditional"
 import ErrorMessage from "@common-ui/components/ErrorMessage"
 import { useValidations } from "@utils/useValidations"
@@ -46,10 +45,10 @@ const PasswordForgotScreen = observer(
       authSessionStore.clearDataFetching()
     }, [])
 
-    const forgotPassword = async (captchaToken: string) => {
+    const forgotPassword = async () => {
       await authSessionStore.forgotPassword({
         email,
-        captchaToken
+        captchaToken: "mobile login"
       })
 
       setEmailSent(true)
@@ -60,17 +59,7 @@ const PasswordForgotScreen = observer(
     const submit = () => {
       if (!isValid) return
       
-      recaptcha.current?.reset();
-      recaptcha.current?.open();
-    }
-
-    const onVerify = (captchaToken: string) => {
-      forgotPassword(captchaToken)
-    }
-    
-    // This is called when the recaptcha expires
-    const onExpire = () => {
-      recaptcha.current?.open();
+      forgotPassword()
     }
 
     const goBack = () => {
@@ -92,11 +81,6 @@ const PasswordForgotScreen = observer(
         />
         <Content maxWidth={Spacing.tabletWidth} scrollable>
           <Card bottom={Spacing.large}>
-            <GoogleRecaptcha
-              ref={recaptcha}
-              onVerify={onVerify}
-              onExpire={onExpire}
-            />
             <CardContent>
               <RegularText lineHeight={Spacing.large}>
                 {text}

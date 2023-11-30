@@ -17,7 +17,6 @@ import { useStores } from "@models/helpers/useStores"
 import { If } from "@common-ui/components/Conditional"
 import ErrorMessage from "@common-ui/components/ErrorMessage"
 import Config from "@config/config"
-import GoogleRecaptcha from "@components/GoogleRecaptcha"
 import GoogleSigninButton from "@components/GoogleSigninButton"
 import { useLocale } from "@common-ui/contexts/LocaleContext"
 import { AppleSigninButton } from "@components/AppleSigninButton"
@@ -84,7 +83,7 @@ const NewScreen = observer(
       router.push({ pathname: ROUTES.UserLogin })
     }
 
-    const createAccount = async (captchaToken: string) => {
+    const createAccount = async () => {
       await authSessionStore.createAccount({
         firstName,
         lastName,
@@ -92,7 +91,7 @@ const NewScreen = observer(
         phone: "",
         password,
         rememberMe,
-        captchaToken,
+        captchaToken: "mobile login",
       })
 
       recaptcha.current?.reset();
@@ -103,17 +102,7 @@ const NewScreen = observer(
 
       if (!isValid) return
 
-      recaptcha.current?.reset();
-      recaptcha.current?.open();
-    }
-
-    const onVerify = (captchaToken: string) => {
-      createAccount(captchaToken)
-    }
-    
-    // This is called when the recaptcha expires
-    const onExpire = () => {
-      recaptcha.current?.open();
+      createAccount()
     }
 
     const goBack = () => {
@@ -133,11 +122,6 @@ const NewScreen = observer(
         />
         <Content maxWidth={Spacing.tabletWidth} scrollable>
           <Card bottom={Spacing.large}>
-            <GoogleRecaptcha
-              ref={recaptcha}
-              onVerify={onVerify}
-              onExpire={onExpire}
-            />
             <CardContent>
               <RowOrCell bottom={Spacing.small}>
                 <Cell flex={1}>

@@ -13,7 +13,6 @@ import { Cell, Row, RowOrCell } from "@common-ui/components/Common"
 import { Input } from "@common-ui/components/Input"
 import CheckBoxItem from "@common-ui/components/CheckBoxItem"
 import { LinkButton, OutlinedButton, SolidButton } from "@common-ui/components/Button"
-import GoogleRecaptcha from "@components/GoogleRecaptcha"
 import { useStores } from "@models/helpers/useStores"
 import { If } from "@common-ui/components/Conditional"
 import ErrorMessage from "@common-ui/components/ErrorMessage"
@@ -56,12 +55,12 @@ const LoginScreen = observer(
       return <Redirect href={ROUTES.UserAlerts} />
     }
 
-    const loginUser = async (captchaToken: string) => {
+    const loginUser = async () => {
       await authSessionStore.logIn({
         username: email,
         password,
         rememberMe,
-        captchaToken
+        captchaToken: "mobile login"
       })
 
       recaptcha.current?.reset();
@@ -78,17 +77,7 @@ const LoginScreen = observer(
     const submit = () => {
       if (!isValid) return
 
-      recaptcha.current?.reset();
-      recaptcha.current?.open();
-    }
-
-    const onVerify = (captchaToken: string) => {
-      loginUser(captchaToken)
-    }
-    
-    // This is called when the recaptcha expires
-    const onExpire = () => {
-      recaptcha.current?.open();
+      loginUser()
     }
 
     const goBack = () => {
@@ -106,11 +95,6 @@ const LoginScreen = observer(
         />
         <Content maxWidth={Spacing.tabletWidth} scrollable>
           <Card bottom={Spacing.large}>
-            <GoogleRecaptcha
-              ref={recaptcha}
-              onVerify={onVerify}
-              onExpire={onExpire}
-            />
             <CardContent>
               <CardHeader>
                 <RegularText align="center">
