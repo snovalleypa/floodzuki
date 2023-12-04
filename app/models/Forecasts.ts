@@ -417,6 +417,9 @@ export const ForecastStoreModel = types
     })
 
     const fetchData = flow(function*() {
+      store.forecasts.clear()
+      store.maxReadingId = null
+
       yield fetchRecentReadings()
       yield fetchForecast()
     })
