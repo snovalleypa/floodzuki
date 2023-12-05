@@ -104,7 +104,7 @@ const DateRangePicker = (props: DateRangePickerProps) => {
         <RegularText>-</RegularText>
       </Cell>
       <DatePicker
-        title={t("datePicker.startDate")}
+        title={t("datePicker.endDate")}
         ref={endRef}
         selectedDate={end.current}
         minYear={minYear}

@@ -35,12 +35,16 @@ export default function AppLayout() {
 
   // Fetch data on app start
   useEffect(() => {
-    store.fetchMainData()
+    const getAllData = async () => {
+      await store.fetchMainData()
 
-    if (store.authSessionStore.isLoggedIn) {
-      store.authSessionStore.reauthenticate()
+      if (store.authSessionStore.isLoggedIn) {
+        await store.authSessionStore.reauthenticate()
+      }  
     }
-  }, [])
+
+    getAllData()
+  }, [store.authSessionStore.isLoggedIn])
 
   // Check for updates
   useCheckForUpdates()

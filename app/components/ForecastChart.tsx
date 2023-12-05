@@ -75,17 +75,15 @@ const Charts = (props: ChartsProps) => {
 
 export const ForecastChart = observer(
   function ForecastChart(props: ForecastChartProps) {
-    const { forecastsStore } = useStores()
     const { t } = useLocale();
-    const { gages, hideChart } = props
+    const { gages } = props
 
     const [range, setRange] = useState('DF')
     
     const selectedRange = RANGES(t).find(r => r.key === range)
 
     const chartOptions = useForecastOptions(gages, selectedRange.before, selectedRange.after)
-
-    const isLoading = (forecastsStore.isFetching && !Object.keys(forecastsStore.forecasts).length) || !chartOptions?.series?.length
+    const isLoading = !chartOptions?.series?.length
 
     return (
       <>
@@ -100,7 +98,7 @@ export const ForecastChart = observer(
           innerHorizontal={Spacing.extraSmall}
           innerVertical={Spacing.extraSmall}
           height={CHART_HEIGHT}>
-          <Ternary condition={isLoading || hideChart}>
+          <Ternary condition={isLoading}>
             <Cell flex>
               <ActivityIndicator />
             </Cell>

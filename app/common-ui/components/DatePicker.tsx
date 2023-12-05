@@ -163,7 +163,7 @@ const DatePicker = (props: DatePickerProps) => {
 
   const { minYear = 1990, maxYear = localDayJs().year(), selectedDate, title, onChange } = props
   
-  const [currentMode, setCurrentMode] = useState<Mode>("day")
+  const [currentMode, setCurrentMode] = useState<Mode>("year")
 
   const date = useRef<Dayjs | undefined>(selectedDate.clone())
 
@@ -175,25 +175,25 @@ const DatePicker = (props: DatePickerProps) => {
 
   const onDaySelect = (day: number) => {
     date.current = date.current.date(day)
-    setCurrentMode("month")
+    setCurrentMode("year")
+    onConfirm()
   }
 
   const onMonthSelect = (month: number) => {
     date.current = date.current.month(month)
-    setCurrentMode("year")
+    setCurrentMode("day")
   }
 
   const onYearSelect = (year: number) => {
     date.current = date.current.year(year)
-    setCurrentMode("day")
-    onConfirm()
+    setCurrentMode("month")
   }
 
   const modes = useMemo(
     () => [
-      { key: "day", title: t("datePicker.day") },
-      { key: "month", title: t("datePicker.month") },
       { key: "year", title: t("datePicker.year") },
+      { key: "month", title: t("datePicker.month") },
+      { key: "day", title: t("datePicker.day") },
     ],
     [t]
   )
@@ -317,7 +317,7 @@ const DatePickerComponent = React.forwardRef((props: DatePickerProps, ref) => {
     isPickerOpen,
   }))
 
-  const formattedDate = selectedDate?.isValid() ? selectedDate?.format("DD/MM/YYYY") : "Select Date"
+  const formattedDate = selectedDate?.isValid() ? selectedDate?.format("MM/DD/YYYY") : "Select Date"
 
   return (
     <>

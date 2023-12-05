@@ -333,7 +333,7 @@ export const ForecastStoreModel = types
   .actions(withDataFetchingActions)
   .actions(store => {
     const buildData = (response: Record<string, Predictions | Readings>) => {
-      Object.keys(response).map((gageId, index) => {
+      Object.keys(response).forEach((gageId, index) => {
         const value = response[gageId]
 
         if (!value) return
@@ -352,21 +352,15 @@ export const ForecastStoreModel = types
           return;
         }
 
-        existingValue.id = gageId
-        existingValue['locationInfo'] = gageId
-        existingValue.color = ChartColorsHex[index]
+        // @ts-ignore
+        existingValue.locationInfo = gageId
 
         if ('forecastId' in value) {
-          existingValue.predictions = {...existingValue?.predictions, ...value}
+          existingValue.predictions = value
+          return;
         }
-        else {
-          value.discharges && existingValue.recentReadings?.discharges.push(...value.discharges)
-          value.readingIds && existingValue.recentReadings?.readingIds?.push(...value.readingIds)
-          value.timestamps && existingValue.recentReadings?.timestamps.push(...value.timestamps)
-          value.waterHeights && existingValue.recentReadings?.waterHeights?.push(...value.waterHeights)
-          existingValue.recentReadings.trendCfsPerHour = value.trendCfsPerHour
-          existingValue.recentReadings.trendFeetPerHour = value.trendFeetPerHour
-        }
+
+        existingValue.recentReadings = value
       })
     }
 
@@ -375,10 +369,6 @@ export const ForecastStoreModel = types
 
       const params = {
         gageIds: Config.FORECAST_GAGE_IDS.join(','),
-      }
-
-      if (store.maxReadingId) {
-        params['prevMaxReadingId'] = store.maxReadingId
       }
 
       const response = yield api.getReadings(params)
@@ -417,7 +407,6 @@ export const ForecastStoreModel = types
     })
 
     const fetchData = flow(function*() {
-      store.forecasts.clear()
       store.maxReadingId = null
 
       yield fetchRecentReadings()

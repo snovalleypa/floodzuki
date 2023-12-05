@@ -31,8 +31,9 @@ const ForecastScreen = observer(
 
     const [hidden, setHidden] = React.useState(isMobile ? true : false)
 
-    const fetchData = () => {
-      store.forecastsStore.fetchData()
+    const fetchData = async () => {
+      await store.locationInfoStore.fetchData()
+      await store.forecastsStore.fetchData()
     }
 
     useTimeout(() => {

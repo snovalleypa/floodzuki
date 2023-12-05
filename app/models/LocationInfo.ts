@@ -106,7 +106,7 @@ export const LocationInfoModelStore = types
       const response = yield api.getLocationInfo<LocationInfo[]>()
 
       if (response.kind === 'ok') {
-        store.locationInfos = response.data
+        store.locationInfos = response.data.filter(l => !!l.id)
       } else {
         store.setError(response.kind)
       }

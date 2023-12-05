@@ -5,13 +5,13 @@ import * as Application from 'expo-application';
 import { Screen, Content } from "@common-ui/components/Screen"
 import { LabelText, LargeTitle, RegularText } from "@common-ui/components/Text"
 import { ErrorDetails } from "@components/ErrorDetails"
-import { Cell, Row } from "@common-ui/components/Common"
+import { Cell, Row, Spacer } from "@common-ui/components/Common"
 import { Spacing } from "@common-ui/constants/spacing"
 import { Card, CardListLinkItem } from "@common-ui/components/Card"
 import { openLinkInBrowser } from "@utils/navigation"
 import Config from "@config/config"
 import { ROUTES } from "app/_layout"
-import { SimpleLinkButton } from "@common-ui/components/Button"
+import { OutlinedButton, SimpleLinkButton } from "@common-ui/components/Button"
 import { Colors } from "@common-ui/constants/colors"
 
 import { isWeb } from "@common-ui/utils/responsive";
@@ -78,6 +78,10 @@ const AboutScreen = observer(
       openLinkInBrowser(`mailto:${Config.SVPA_EMAIL}`)
     }
 
+    const openSVPASupportPage = () => {
+      openLinkInBrowser(Config.DONATION_URL)
+    }
+
     return (
       <Screen>
         <Head>
@@ -139,8 +143,16 @@ const AboutScreen = observer(
               </Card>
             </>
           </Ternary>
+          <Cell top={Spacing.large} align="center" justify="center">
+            <OutlinedButton
+              selfAlign="center"
+              onPress={openSVPASupportPage}
+              type="primary"
+              title={`${t('donation.title')} ❤️`}
+            />
+          </Cell>
           {/*  */}
-          <Cell top={Spacing.extraLarge} bottom={Spacing.small}>
+          <Cell top={Spacing.large} bottom={Spacing.small}>
             <LabelText>
               {t("aboutScreen.details")}
             </LabelText>
