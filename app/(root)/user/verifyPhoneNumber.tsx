@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react"
-import { ErrorBoundaryProps, Redirect, Stack, useNavigation, useRouter } from "expo-router"
+import { ErrorBoundaryProps, Redirect, useNavigation, useRouter } from "expo-router"
+import { KeyboardAvoidingView, Platform } from "react-native"
 
 import { Screen, Content } from "@common-ui/components/Screen"
 import { MediumText, RegularText } from "@common-ui/components/Text"
@@ -134,33 +135,36 @@ const VerifyPhoneNumberScreen = observer(
               </Row>
               {/* Code Verification */}
               <If condition={codeSent}>
-                <Spacer />
-                <RegularText>
-                  {t("verifyphonenumberScreen.confirmationText", { phoneNumber: phone })}
-                </RegularText>
-                <RowOrCell vertical={Spacing.small}>
-                  <Cell flex={1}>
-                    <MediumText>{t("verifyphonenumberScreen.verificationCode")}</MediumText>
-                  </Cell>
-                  <Cell flex={5}>
-                    <Input
-                      value=""
-                      placeholder={t("verifyphonenumberScreen.verificationCodePlaceholder")}
-                      onChangeText={setCode}
+                <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+                  <Spacer />
+                  <RegularText>
+                    {t("verifyphonenumberScreen.confirmationText", { phoneNumber: phone })}
+                  </RegularText>
+                  <RowOrCell vertical={Spacing.small}>
+                    <Cell flex={1}>
+                      <MediumText>{t("verifyphonenumberScreen.verificationCode")}</MediumText>
+                    </Cell>
+                    <Cell flex={5}>
+                      <Input
+                        value=""
+                        placeholder={t("verifyphonenumberScreen.verificationCodePlaceholder")}
+                        onChangeText={setCode}
+                        keyboardType="number-pad"
+                      />
+                    </Cell>
+                  </RowOrCell>
+                  <Row align="space-evenly" top={Spacing.small} bottom={Spacing.large}>
+                    <SolidButton
+                      disabled={!isCodeValid}
+                      isLoading={authSessionStore.isFetching}
+                      minWidth={Spacing.extraExtraHuge}
+                      selfAlign="center"
+                      title={t("verifyphonenumberScreen.submit")}
+                      onPress={submitCodeVerification}
+                      type="blue"
                     />
-                  </Cell>
-                </RowOrCell>
-                <Row align="space-evenly" top={Spacing.small} bottom={Spacing.large}>
-                  <SolidButton
-                    disabled={!isCodeValid}
-                    isLoading={authSessionStore.isFetching}
-                    minWidth={Spacing.extraExtraHuge}
-                    selfAlign="center"
-                    title={t("verifyphonenumberScreen.submit")}
-                    onPress={submitCodeVerification}
-                    type="blue"
-                  />
-                </Row>
+                  </Row>
+                </KeyboardAvoidingView>
               </If>
             </CardContent>
           </Card>

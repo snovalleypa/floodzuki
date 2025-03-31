@@ -114,6 +114,7 @@ export default {
   },
   plugins: [
     "expo-localization",
+    "expo-router",
     "expo-apple-authentication",
     "sentry-expo",
     [

@@ -46,8 +46,8 @@ const ForecastDetailsScreen = observer(
     const [hidden, setHidden] = React.useState(isMobile ? true : false)
     
     const fetchData = async () => {
-      await store.locationInfoStore.fetchData()
-      await store.forecastsStore.fetchData()
+      store.locationInfoStore.fetchData()
+      store.forecastsStore.fetchData()
     }
 
     // Fetch data on mount

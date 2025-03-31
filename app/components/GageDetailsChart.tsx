@@ -1,9 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { ActivityIndicator, LayoutChangeEvent, TextStyle, TouchableOpacity, View, ViewStyle } from "react-native";
+import { ActivityIndicator, TextStyle, TouchableOpacity, View, ViewStyle } from "react-native";
 import { observer } from "mobx-react-lite";
 import { useLocalSearchParams, useRouter } from "expo-router"
 
-import HighchartsReactNative from "@services/highcharts/HighchartsReactNative";
 import LocalHighchartsReact from "@services/highcharts/LocalHighchartsReact";
 
 import { Gage, GageChartDataType } from "@models/Gage";
@@ -226,7 +225,7 @@ const RateOfChange = observer(
 
       if (!gage?.roadSaddleHeight) return null;
       
-      for (var i = 0; i < gage.predictions.length - 1; i++) {
+      for (var i = 0; i < gage.predictions?.length - 1; i++) {
         let p = gage.predictions[i];
         let pNext = gage.predictions[i + 1];
         
@@ -245,7 +244,7 @@ const RateOfChange = observer(
       }
 
       return crossingTime;
-    }, [gage?.roadSaddleHeight]);
+    }, [gage?.locationId, gage?.roadSaddleHeight]);
 
     if (!gage?.locationId) return null;
 

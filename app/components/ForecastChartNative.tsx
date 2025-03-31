@@ -8,9 +8,11 @@ import {
   VictoryLegend,
   VictoryVoronoiContainer,
   VictoryTooltip,
+  VictoryContainer,
 } from "victory-native";
-import { Dimensions } from "react-native";
+import { Dimensions, View } from "react-native";
 import { CHART_HEIGHT } from "./ForecastChart";
+import { Cell } from "@common-ui/components/Common";
 
 interface ChartsProps {
   options: ForecastChartOptions
@@ -80,7 +82,8 @@ type ForecastChartOptions = {
       }
     ],
     plotLines: PlotLine[],
-    softMax: number, // max value
+    softMax: number, // soft max value
+    max: number, // hard max value
     title: {
       text: string,
     }
@@ -395,177 +398,172 @@ export const ForecastChartNative = (props: ChartsProps) => {
       },
   }))
 
-  const screenWidth = Dimensions.get('window').width
-  const legendOffset = screenWidth/2 - 10;
-
   const nowLabel = options.xAxis.plotLines[0]
   const floodStage = options.yAxis.plotLines[0]
 
   return (
-    <VictoryChart
-      padding={{ top: 10, bottom: 40, left: 50, right: 50 }}
-      domainPadding={{ x: 0, y: [1, 5] }}
-      domain={{
-        x: [options.xAxis.min, options.xAxis.max],
-      }}
-      height={CHART_HEIGHT}
-      scale={{
-        x: "time",
-        y: "sqrt",
-      }}
-      containerComponent={
-        <VictoryVoronoiContainer
-          voronoiBlacklist={["dots"]}
-          voronoiDimension="x"
-          labels={({ datum }) => {
-            let stageDisplay = ""
+    <View>
+      <VictoryChart
+        padding={{ top: 10, bottom: 100, left: 50, right: 50 }}
+        domainPadding={{ x: 0, y: [1, 5] }}
+        domain={{
+          x: [options.xAxis.min, options.xAxis.max],
+        }}
+        maxDomain={options.yAxis.max}
+        height={CHART_HEIGHT}
+        scale={{
+          x: "time",
+          y: "sqrt",
+        }}
+        containerComponent={
+          <VictoryVoronoiContainer
+            voronoiBlacklist={["dots"]}
+            voronoiDimension="x"
+            labels={({ datum }) => {
+              let stageDisplay = ""
 
-            if (datum?.stage) {
-              stageDisplay = `/ ${datum?.stage} ft`
+              if (datum?.stage) {
+                stageDisplay = `/ ${datum?.stage} ft`
+              }
+
+              return `${datum?.shortName}: ${datum?.xLabelShort} - ${datum?.y} cfs ${stageDisplay}`
+            }}
+            labelComponent={<VictoryTooltip
+              constrainToVisibleArea
+              cornerRadius={4}
+              centerOffset={{ y: -65 }}
+              flyoutStyle={{
+                fill: "white",
+                stroke: "#969BAB",
+              }}/>
             }
-
-            return `${datum?.name}: ${datum?.xLabelShort} - ${datum?.y} cfs ${stageDisplay}`
-          }}
-          labelComponent={<VictoryTooltip
-            constrainToVisibleArea
-            cornerRadius={4}
-            centerOffset={{ y: -65 }} 
-            flyoutStyle={{
-              fill: "white",
+          />
+        }
+      >
+        {/* Vertical Axis */}
+        <VictoryAxis
+          dependentAxis
+          style={{
+            axis: {
               stroke: "#969BAB",
-            }}/>
-          }
+              strokeWidth: 0,
+              paddingLeft: 40
+            },
+            axisLabel: {
+              ...$labelStyle,
+              padding: 38,
+              fontSize: 12,
+            },
+            tickLabels: {
+              ...$labelStyle
+            },
+            grid: {
+              stroke: "rgba(150,155,171, 0.2)",
+              strokeWidth: 0.5,
+            },
+          }}
+          tickCount={5}
+          tickFormat={(t) => `${Math.round(t/1000)}k`}
+          label={options.yAxis.title.text}
         />
-      }
-    >
-      {/* Vertical Axis */}
-      <VictoryAxis
-        dependentAxis
-        style={{
-          axis: {
-            stroke: "#969BAB",
-            strokeWidth: 0,
-            paddingLeft: 40
-          },
-          axisLabel: {
-            ...$labelStyle,
-            padding: 38,
-            fontSize: 12,
-          },
-          tickLabels: {
-            ...$labelStyle
-          },
-          grid: {
-            stroke: "rgba(150,155,171, 0.2)",
-            strokeWidth: 0.5,
-          },
-        }}
-        tickCount={5}
-        tickFormat={(t) => `${Math.round(t/1000)}k`}
-        label={options.yAxis.title.text}
-      />
-      {/* Horizontal Axis */}
-      <VictoryAxis
-        style={{
-          axis: {
-            stroke: "#969BAB",
-          },
-          tickLabels: {
-            ...$labelStyle
-          },
-          ticks: { stroke: "#969BAB", size: 5 },
-        }}
-        tickCount={4}
-      />
-      {/* Lines on the chart */}
-      {lines.map(line => (
-        <VictoryLine
-          key={line.name}
-          data={line.data}
-          interpolation="natural"
+        {/* Horizontal Axis */}
+        <VictoryAxis
+          style={{
+            axis: {
+              stroke: "#969BAB",
+            },
+            tickLabels: {
+              ...$labelStyle
+            },
+            ticks: { stroke: "#969BAB", size: 5 },
+          }}
+          tickCount={4}
+        />
+        {/* Lines on the chart */}
+        {lines.map(line => (
+          <VictoryLine
+            key={line.name}
+            data={line.data}
+            interpolation="natural"
+            style={{
+              data: {
+                stroke: line.color,
+                strokeWidth: 2,
+              },
+            }}
+          />
+        ))}
+        {/* Dots on the chart */}
+        {dots.map(dot => (
+          <VictoryScatter
+            name="dots"
+            key={dot.name}
+            data={dot.data}
+            size={2}
+            style={{
+              data: {
+                fill: dot.color,
+              },
+            }}
+          />
+        ))}
+        {/* Flooding label */}
+        {floodStage?.value ? <VictoryAxis
+          axisValue={floodStage?.value + 1200}
+          label={floodStage?.label?.text}
+          style={{
+            axis: {
+              stroke: options.yAxis.plotBands[0].color,
+              strokeWidth: 20,
+              strokeLinecap: "square",
+            },
+            axisLabel: {
+              fill: "#999",
+              padding: -5,
+              fontSize: 10,
+              textAnchor: "end",
+            },
+            ticks: { stroke: "#969BAB", size: 0 },
+            tickLabels: { fill: 'none' }
+          }}
+        /> : null}
+        {/* Now label */}
+        <VictoryAxis
+          dependentAxis
+          scale="sqrt"
+          axisValue={nowLabel?.value}
+          label={nowLabel?.label?.text}
+          style={{
+            axis: {
+              stroke: "#969BAB",
+              strokeWidth: 1,
+              strokeDasharray: "1, 5",
+            },
+            axisLabel: {
+              fill: "#969BAB",
+              padding: 5,
+            },
+            ticks: { stroke: "#969BAB", size: 0 },
+            tickLabels: { fill: 'none' }
+          }}
+        />
+        <VictoryLegend
+          x={50}
+          y={CHART_HEIGHT - 60}
+          rowGutter={-10}
+          data={labelData}
+          orientation="horizontal"
+          itemsPerRow={2}
           style={{
             data: {
-              stroke: line.color,
-              strokeWidth: 2,
+              fill: "#fff",
+            },
+            labels: {            
+              fontSize: 10,
             },
           }}
         />
-      ))}
-      {/* Dots on the chart */}
-      {dots.map(dot => (
-        <VictoryScatter
-          name="dots"
-          key={dot.name}
-          data={dot.data}
-          size={2}
-          style={{
-            data: {
-              fill: dot.color,
-            },
-          }}
-        />
-      ))}
-      <VictoryLegend
-        x={legendOffset}
-        y={100}
-        rowGutter={-10}
-        data={labelData}
-        borderPadding={{ top: 5, bottom: 10, left: 5, right: 5 }}
-        style={{
-          data: {
-            strokeWidth: 1,
-            fill: "#fff",
-          },
-          labels: {            
-            fontSize: 10,
-          },
-          border: {
-            stroke: "#969BAB",
-            fill: '#fff',
-            fillOpacity: 0.8,
-          }
-        }}
-      />
-      {/* Flooding label */}
-      <VictoryAxis
-        axisValue={floodStage?.value + 1200}
-        label={floodStage?.label?.text}
-        style={{
-          axis: {
-            stroke: options.yAxis.plotBands[0].color,
-            strokeWidth: 20,
-            strokeLinecap: "square",
-          },
-          axisLabel: {
-            fill: "#999",
-            padding: -5,
-            fontSize: 10,
-            textAnchor: "end",
-          },
-          ticks: { stroke: "#969BAB", size: 0 },
-          tickLabels: { fill: 'none' }
-        }}
-      />
-      {/* Now label */}
-      <VictoryAxis
-        dependentAxis
-        scale="sqrt"
-        axisValue={nowLabel?.value}
-        label={nowLabel?.label?.text}
-        style={{
-          axis: {
-            stroke: "#969BAB",
-            strokeWidth: 1,
-            strokeDasharray: "1, 5",
-          },
-          axisLabel: {
-            fill: "#969BAB",
-            padding: 5,
-          },
-          ticks: { stroke: "#969BAB", size: 0 },
-          tickLabels: { fill: 'none' }
-        }}
-      />
-    </VictoryChart>
+      </VictoryChart>
+    </View>
   )
 }

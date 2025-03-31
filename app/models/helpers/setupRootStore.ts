@@ -34,7 +34,7 @@ export async function setupRootStore(rootStore: RootStore) {
 
   try {
     // load the last known state from AsyncStorage
-    const loadedState: RootStore = (await storage.load(ROOT_STATE_STORAGE_KEY)) || ROOT_STORE_DEFAULT
+    const loadedState: RootStore = ROOT_STORE_DEFAULT as RootStore
 
     restoredState = {
       ...loadedState,

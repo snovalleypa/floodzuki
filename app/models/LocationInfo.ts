@@ -106,7 +106,8 @@ export const LocationInfoModelStore = types
       const response = yield api.getLocationInfo<LocationInfo[]>()
 
       if (response.kind === 'ok') {
-        store.locationInfos = response.data.filter(l => !!l.id)
+        const metagageLocation = store.locationInfos.find(l => l.isMetagage)
+        store.locationInfos = [...response.data?.filter(l => !!l.id), ...(metagageLocation ? [metagageLocation] : [])]
       } else {
         store.setError(response.kind)
       }
@@ -120,8 +121,13 @@ export const LocationInfoModelStore = types
       const response = yield api.getMetagages<LocationInfo[]>()
 
       if (response.kind === "ok") {
+        if (store.locationInfos.find(l => l.isMetagage)) {
+          store.locationInfos = store.locationInfos.filter(l => !l.isMetagage)
+        }
+
         const metagages = (response.data || []).map(m => ({
           id: m.ids,
+          shortName: m.name,
           dischargeStageTwo: m.stageTwo,
           dischargeStageOne: m.stageOne,
           ...m,

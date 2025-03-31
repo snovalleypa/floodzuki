@@ -286,7 +286,7 @@ const ForecastModel = types
           return {
             x: dp.timestampMs,
             xLabel: dp.timestamp.format("ddd, MMM D, h:mm A"),
-            xLabelShort: dp.timestamp.format("h:mm A"),
+            xLabelShort: dp.timestamp.format("MMM D, h:mm A"),
             y: dp.waterDischarge,
             stage: dp.reading,
             isForecast: false,
@@ -299,7 +299,7 @@ const ForecastModel = types
           return {
             x: dp.timestampMs,
             xLabel: dp.timestamp.format("ddd, MMM D, h:mm A"),
-            xLabelShort: dp.timestamp.format("h:mm A"),
+            xLabelShort: dp.timestamp.format("MMM D, h:mm A"),
             y: dp.waterDischarge,
             stage: dp.reading,
             isForecast: true,
@@ -336,9 +336,13 @@ export const ForecastStoreModel = types
       Object.keys(response).forEach((gageId, index) => {
         const value = response[gageId]
 
+        console.log("GAGE ID", gageId)
+
         if (!value) return
 
         const existingValue = store.forecasts.get(gageId)
+
+        console.log("VALUE", Object.keys(value))
 
         if (!existingValue) {
           store.forecasts.set(gageId, {
@@ -352,8 +356,10 @@ export const ForecastStoreModel = types
           return;
         }
 
+        console.log("Existing", Object.keys(existingValue))
+
         // @ts-ignore
-        existingValue.locationInfo = gageId
+        // existingValue.locationInfo = gageId
 
         if ('forecastId' in value) {
           existingValue.predictions = value

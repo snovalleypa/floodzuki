@@ -43,7 +43,7 @@ const ForecastScreen = observer(
     // Check for new readings every 1 minute
     useInterval(() => {
       store.forecastsStore.fetchRecentReadings()
-    }, Timing.oneMinute)
+    }, Timing.fiveMinutes)
 
     // Check for forecast data every 5 mins
     useInterval(() => {

@@ -42,8 +42,10 @@ const getFloodStageLabel = (forecast: Forecast, isCombinedForecast: boolean) => 
     }
 }
 
-const buildSeries = (forecasts: Forecast[], gages: GageSummary[], t) => {
+const buildSeries = (forecasts: Forecast[], gages: GageSummary[], softMax: number, t) => {
   const series = []
+  let maxValue = softMax
+
 
   forecasts.forEach((forecast) => {
     const gage = gages.find(g => g.id === forecast.id)
@@ -53,9 +55,14 @@ const buildSeries = (forecasts: Forecast[], gages: GageSummary[], t) => {
     const seriesName = `${t("forecastChart.observed")}: ${gage?.title}`
 
     const normalizedDataPoints = dataPoints.map((p) => {
+      if (p.y > maxValue) {
+        maxValue = p.y
+      }
+
       return {
         ...p,
-        name: seriesName
+        name: seriesName,
+        shortName: gage?.title
       }
     })
     
@@ -91,9 +98,14 @@ const buildSeries = (forecasts: Forecast[], gages: GageSummary[], t) => {
     const forecastName = `${t("forecastChart.forecast")}: ${gage?.title}`
 
     const noramlizedForecastDataPoints = forecastDataPoints.map((p) => {
+      if (p.y > maxValue) {
+        maxValue = p.y
+      }
+
       return {
         ...p,
-        name: forecastName
+        name: forecastName,
+        shortName: gage?.title
       }
     })
 
@@ -117,7 +129,7 @@ const buildSeries = (forecasts: Forecast[], gages: GageSummary[], t) => {
     });
   })
 
-  return series
+  return [series, maxValue] as const
 }
 
 const buildOptions = (props: BuildOptionsProps, t) => {
@@ -172,6 +184,8 @@ const buildOptions = (props: BuildOptionsProps, t) => {
     to:  10000000,
     color: 'rgba(68, 170, 213, 0.1)'
   }];
+
+  const [series, chartMax] = buildSeries(forecasts, gages, stageTwo, t)
 
   const options: Highcharts.Options = {
     chart: {
@@ -239,11 +253,12 @@ const buildOptions = (props: BuildOptionsProps, t) => {
       plotBands: floodBands,
       plotLines: floodLines,
       softMax: stageTwo + STAGE_TWO_YAXIS_MARGIN,
+      max: chartMax + STAGE_TWO_YAXIS_MARGIN,
       title: {
         text: `${t("forecastChart.discharge")} (${t("measure.cfs")})`,
       },
     },
-    series: buildSeries(forecasts, gages, t)
+    series: series,
   }
 
   return options

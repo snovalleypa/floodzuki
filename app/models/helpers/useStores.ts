@@ -56,7 +56,7 @@ export const useInitialRootStore = (callback?: () => void | Promise<void>) => {
     let _unsubscribe
     ;(async () => {
       // set up the RootStore (returns the state restored from AsyncStorage)
-      const { restoredState, unsubscribe } = await setupRootStore(rootStore)
+      const { unsubscribe } = await setupRootStore(rootStore)
       _unsubscribe = unsubscribe
       
       // let the app know we've finished rehydrating
