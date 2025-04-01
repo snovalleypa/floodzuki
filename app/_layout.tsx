@@ -17,6 +17,7 @@ import { GoogleAuthProvider } from "@common-ui/contexts/GoogleAuthContext";
 import { LocaleProvider, useLocale } from "@common-ui/contexts/LocaleContext";
 import { initSentry } from "@utils/sentry";
 import { If } from "@common-ui/components/Conditional";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 initSentry()
 
@@ -92,20 +93,22 @@ export default function AppLayout() {
   }
 
   return (
-    <SafeAreaProvider>
-      <LocaleProvider>
-        <BottomSheetModalProvider>
-          <DatePickerProvider>
-            <AssetsProvider>
-              <GoogleAuthProvider>
-                <App />
-                <StatusBar style="dark" />
-              </GoogleAuthProvider>
-            </AssetsProvider>
-          </DatePickerProvider>
-        </BottomSheetModalProvider>
-      </LocaleProvider>
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <LocaleProvider>
+          <BottomSheetModalProvider>
+            <DatePickerProvider>
+              <AssetsProvider>
+                <GoogleAuthProvider>
+                  <App />
+                  <StatusBar style="dark" />
+                </GoogleAuthProvider>
+              </AssetsProvider>
+            </DatePickerProvider>
+          </BottomSheetModalProvider>
+        </LocaleProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   )
 }
 

@@ -329,19 +329,10 @@ export const GageStoreModel = types
         Config.FRONT_PAGE_CHART_DURATION_UNIT
       ).toDate().toUTCString()
 
-      console.log("fetchData", {
-        fromDateTime,
-        toDateTime,
-      })
-
       const response = yield api.getStatusAndRecentReadings<{gages: Gage[]}>(
         fromDateTime,
         toDateTime,
       )
-
-      console.log("response", {
-        response,
-      })
 
       if (response.kind === 'ok') {
         const gages = response.data.gages?.map(gage => ({

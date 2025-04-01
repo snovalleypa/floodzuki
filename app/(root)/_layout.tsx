@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { Pressable } from "react-native";
 import { usePathname, Slot, Link, Tabs } from "expo-router";
 import { Image } from "expo-image";
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import '@expo/match-media';
 
@@ -47,23 +48,22 @@ export default function AppLayout() {
   }, [store.authSessionStore.isLoggedIn])
 
   // Check for updates
+  // Disable updates check due to bug in Expo
   useCheckForUpdates()
 
   // Register for Push Notifications
   useRegisterPushNotificationsListener(store.authSessionStore.isPushNotificationsEnabled)
 
   return (
-    <>
-      <Ternary condition={isWeb}>
-        <>
-          <AndroidPlayMarketBanner />
-          <Header />
-          <TasteOfTheValleyBanner />
-          <Slot />
-        </>
-        <TabView />
-      </Ternary>
-    </>
+    <Ternary condition={isWeb}>
+      <>
+        <AndroidPlayMarketBanner />
+        <Header />
+        <TasteOfTheValleyBanner />
+        <Slot />
+      </>
+      <TabView />
+    </Ternary>
   )
 }
 

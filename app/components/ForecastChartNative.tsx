@@ -9,6 +9,7 @@ import {
   VictoryVoronoiContainer,
   VictoryTooltip,
   VictoryContainer,
+  VictoryLabel,
 } from "victory-native";
 import { Dimensions, View } from "react-native";
 import { CHART_HEIGHT } from "./ForecastChart";
@@ -562,6 +563,13 @@ export const ForecastChartNative = (props: ChartsProps) => {
               fontSize: 10,
             },
           }}
+          titleComponent={
+            <VictoryLabel
+              style={[
+                { fontSize: 10 },
+              ]}
+            />
+          }
         />
       </VictoryChart>
     </View>
