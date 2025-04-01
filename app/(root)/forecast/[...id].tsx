@@ -1,5 +1,5 @@
 import React, { useEffect } from "react"
-import { ErrorBoundaryProps, useSearchParams, Stack, useRouter, useNavigation } from "expo-router";
+import { ErrorBoundaryProps, Stack, useRouter, useNavigation, useGlobalSearchParams } from "expo-router";
 import Head from "expo-router/head";
 
 import { observer } from "mobx-react-lite";
@@ -30,7 +30,7 @@ export function ErrorBoundary(props: ErrorBoundaryProps) {
 
 const ForecastDetailsScreen = observer(
   function ForecastDetailsScreen() {
-    const { id } = useSearchParams()
+    const { id } = useGlobalSearchParams()
     const { t } = useLocale();
     const router = useRouter()
     const navigation = useNavigation()

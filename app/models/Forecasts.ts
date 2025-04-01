@@ -336,13 +336,9 @@ export const ForecastStoreModel = types
       Object.keys(response).forEach((gageId, index) => {
         const value = response[gageId]
 
-        console.log("GAGE ID", gageId)
-
         if (!value) return
 
         const existingValue = store.forecasts.get(gageId)
-
-        console.log("VALUE", Object.keys(value))
 
         if (!existingValue) {
           store.forecasts.set(gageId, {
@@ -355,8 +351,6 @@ export const ForecastStoreModel = types
 
           return;
         }
-
-        console.log("Existing", Object.keys(existingValue))
 
         // @ts-ignore
         // existingValue.locationInfo = gageId

@@ -4,14 +4,14 @@
 
 import dayjs from "dayjs"
 
-require('dayjs/locale/en')
-require('dayjs/locale/es')
+import 'dayjs/locale/en';
+import 'dayjs/locale/es';
 
-var utc = require('dayjs/plugin/utc')
-var timezone = require('dayjs/plugin/timezone') // dependent on utc plugin
-var duration = require('dayjs/plugin/duration')
-var relativeTime = require('dayjs/plugin/relativeTime')
-var updateLocale = require('dayjs/plugin/updateLocale')
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone'; // dependent on utc plugin
+import duration from 'dayjs/plugin/duration';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import updateLocale from 'dayjs/plugin/updateLocale';
 
 dayjs.extend(utc)
 dayjs.extend(timezone)

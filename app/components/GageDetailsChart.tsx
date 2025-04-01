@@ -295,8 +295,20 @@ export const GageDetailsChart = observer(
     const { gagesStore, isDataFetched } = useStores();
 
     const { isMobile } = useResponsive()
+
+    const [dateRange, setDateRange] = useState({
+      from: normalizeSearchParams(from),
+      to: normalizeSearchParams(to)
+    });
+
+    useEffect(() => {
+      setDateRange({
+        from: normalizeSearchParams(from),
+        to: normalizeSearchParams(to)
+      })
+    }, [from, to])
     
-    const chartRange = useChartRange(normalizeSearchParams(from), normalizeSearchParams(to))
+    const chartRange = useChartRange(dateRange.from, dateRange.to)
 
     const [rangeOption, setRangeOption] = useState("2")
     const [chartDataType, setChartDataType] = useState<GageChartDataType>(GageChartDataType.LEVEL)
@@ -331,6 +343,29 @@ export const GageDetailsChart = observer(
       }
     }, [gage?.locationId, isDataFetched])
 
+    useEffect(() => {
+      if (dateRange.from && dateRange.to) {
+        // Convert to Dayjs objects
+        // @ts-ignore
+        const fromDayjs = localDayJs.tz(dateRange.from).startOf("day")
+        // @ts-ignore
+        const toDayjs = localDayJs.tz(dateRange.to).endOf("day")
+
+        // Update chart range
+        chartRange.changeDates(fromDayjs, toDayjs)
+
+        setRange({
+          chartStartDate: chartRange.chartStartDate,
+          chartEndDate: chartRange.chartEndDate
+        })
+
+        refreshData(
+          chartRange.chartStartDate.utc().format(),
+          chartRange.chartEndDate.utc().format()
+        )
+      }
+    }, [dateRange.from, dateRange.to]);
+
     const refetchData = () => {
       refreshData()
     }
@@ -352,6 +387,12 @@ export const GageDetailsChart = observer(
         chartStartDate: chartRange.chartStartDate,
         chartEndDate: chartRange.chartEndDate
       })
+
+      router.setParams({
+        historicEventId: undefined,
+        from: chartRange.chartStartDate.utc().format(),
+        to: chartRange.chartEndDate.utc().format()
+      })
       
       setRangeOption(key)
       refreshData(
@@ -361,11 +402,23 @@ export const GageDetailsChart = observer(
     }
 
     const onDateRangeChange = (from: Dayjs, to: Dayjs) => {
+      chartRange.changeDates(from, to)
+   
+      setRange({
+        chartStartDate: chartRange.chartStartDate,
+        chartEndDate: chartRange.chartEndDate
+      })
+
       router.setParams({
         historicEventId: undefined,
         from: from.format("YYYY-MM-DD"),
         to: to.format("YYYY-MM-DD")
       })
+
+      refreshData(
+        chartRange.chartStartDate.utc().format(),
+        chartRange.chartEndDate.utc().format()
+      )
     }
 
     const onChartDataTypeChange = (key: GageChartDataType) => {

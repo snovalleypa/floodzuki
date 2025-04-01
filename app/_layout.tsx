@@ -1,6 +1,7 @@
-import React from "react";
-import { Slot, SplashScreen } from "expo-router";
+import React, { useEffect } from "react";
+import { Slot } from "expo-router";
 import { useFonts } from "expo-font";
+import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from 'expo-status-bar';
 import Head from "expo-router/head";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -71,14 +72,23 @@ export const routes = {
 
 export type MainRoute = typeof routes[keyof typeof routes];
 
+SplashScreen.preventAutoHideAsync();
+
 export default function AppLayout() {
   const [areFontsLoaded] = useFonts(customFontsToLoad)
   const { rehydrated } = useInitialRootStore()
 
   const delayForAssets = isWeb ? false : !areFontsLoaded
 
+  useEffect(() => {
+    if (!delayForAssets && rehydrated) {
+      SplashScreen.hideAsync();
+    }
+  }, [delayForAssets, rehydrated])
+
+
   if (delayForAssets || !rehydrated) {
-    return <SplashScreen />
+    return null;
   }
 
   return (

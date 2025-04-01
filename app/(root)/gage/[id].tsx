@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { TouchableOpacity } from "react-native";
-import { ErrorBoundaryProps, Link, Stack, useLocalSearchParams, useNavigation, useRouter } from "expo-router";
+import { ErrorBoundaryProps, Link, Stack, useGlobalSearchParams, useNavigation, useRouter } from "expo-router";
 import Head from "expo-router/head";
 
 import { observer } from "mobx-react-lite";
@@ -123,7 +123,7 @@ const GageDetailsScreen = observer(
     const { gagesStore } = useStores();
     const { t } = useLocale();
     
-    const { id } = useLocalSearchParams();
+    const { id } = useGlobalSearchParams();
     
     const gageId = Array.isArray(id) ? id.join("/") : id
 
@@ -238,7 +238,7 @@ const GageDetailsScreen = observer(
 
 const GageScreen = observer(
   function GageScreen() {
-    const { id } = useLocalSearchParams();
+    const { id } = useGlobalSearchParams();
     const { gagesStore } = useStores();
     const { t } = useLocale();
 

@@ -402,8 +402,6 @@ export const AuthSessionStoreModel = types
     const deleteAccount = flow(function*() {
       const response = yield api.deleteAccount()
 
-      console.log("deleteAccount response", response)
-
       if (response.kind === 'ok') {
         logOut()
       } else {

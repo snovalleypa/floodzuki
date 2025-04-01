@@ -8,7 +8,7 @@ export function openLinkInBrowser(url: string) {
 }
 
 /**
- * useLocalSearchParams() and useSearchParams() are hooks that return the
+ * useLocalSearchParams() and useGloablSearchParams() are hooks that return the
  * search params from the current URL. The result returned can be either
  * a string or a string[]
  * 

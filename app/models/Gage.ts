@@ -329,10 +329,19 @@ export const GageStoreModel = types
         Config.FRONT_PAGE_CHART_DURATION_UNIT
       ).toDate().toUTCString()
 
+      console.log("fetchData", {
+        fromDateTime,
+        toDateTime,
+      })
+
       const response = yield api.getStatusAndRecentReadings<{gages: Gage[]}>(
         fromDateTime,
         toDateTime,
       )
+
+      console.log("response", {
+        response,
+      })
 
       if (response.kind === 'ok') {
         const gages = response.data.gages?.map(gage => ({
@@ -418,16 +427,16 @@ export const GageStoreModel = types
       store.setIsFetching(false)
     })
 
-    const getGageByLocationId = (id: string) => {
-      return store.gages.find(gage => gage.locationId === id)
-    }
-
     return {
       fetchData,
       fetchDataForGage,
-      getGageByLocationId
     }
   })
+  .views(store => ({
+    getGageByLocationId(id: string) {
+      return store.gages.find(gage => gage.locationId === id)
+    }
+  }))
 
 
 export interface GageStore extends Instance<typeof GageStoreModel> {}
