@@ -117,6 +117,7 @@ export default {
     "expo-router",
     "expo-apple-authentication",
     "sentry-expo",
+    "expo-asset",
     [
       "expo-notifications",
       {

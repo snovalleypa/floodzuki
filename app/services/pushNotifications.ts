@@ -5,7 +5,6 @@ import * as Notifications from 'expo-notifications';
 import { Colors } from '@common-ui/constants/colors';
 import { useRouter } from 'expo-router';
 import { isAndroid, isWeb } from '@common-ui/utils/responsive';
-import { Timing } from '@common-ui/constants/timing';
 import { openAppSettings } from '@utils/navigation';
 import { useLocale } from '@common-ui/contexts/LocaleContext';
 
@@ -78,8 +77,6 @@ export function useRegisterPushNotificationsListener(requestPermissions: boolean
   const router = useRouter();
   const { t } = useLocale();
 
-  const lastNotificationResponse = Notifications.useLastNotificationResponse();
-
   useEffect(() => {
     registerForPushNotificationsAsync(requestPermissions, t);
     // Clear badge count on app open
@@ -87,16 +84,34 @@ export function useRegisterPushNotificationsListener(requestPermissions: boolean
   }, [])
 
   useEffect(() => {
-    if (
-      lastNotificationResponse &&
-      lastNotificationResponse.notification?.request?.content?.data?.path &&
-      lastNotificationResponse.actionIdentifier === Notifications.DEFAULT_ACTION_IDENTIFIER
-    ) {
-      const path = lastNotificationResponse.notification?.request?.content?.data?.path;
+    let isMounted = true;
 
-      if (path) {
-        router.push(path);
+    if (isWeb) {
+      return () => {};
+    }
+
+    function redirect(notification: Notifications.Notification) {
+      const url = notification.request.content.data?.url || notification.request.content.data?.path;
+      if (url) {
+        router.push(url);
       }
     }
-  }, [lastNotificationResponse])
+
+    Notifications.getLastNotificationResponseAsync()
+      .then(response => {
+        if (!isMounted || !response?.notification) {
+          return;
+        }
+        redirect(response?.notification);
+      });
+
+    const subscription = Notifications.addNotificationResponseReceivedListener(response => {
+      redirect(response.notification);
+    });
+
+    return () => {
+      isMounted = false;
+      subscription.remove();
+    };
+  }, []);
 }
