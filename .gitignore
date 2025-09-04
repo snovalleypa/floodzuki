@@ -13,6 +13,7 @@ npm-debug.*
 .envrc
 web-build/
 google-services.json
+.env
 
 # macOS
 .DS_Store
