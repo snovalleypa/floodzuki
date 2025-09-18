@@ -496,8 +496,7 @@ export const ForecastChartNative = (props: ChartsProps) => {
         ))}
         {/* Dots on the chart */}
         {dots.map(dot => (
-          <VictoryScatter
-            name="dots"
+        <VictoryScatter
             key={dot.name}
             data={dot.data}
             size={2}

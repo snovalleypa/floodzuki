@@ -13,23 +13,52 @@
     "noUnusedLocals": false,
     "sourceMap": true,
     "target": "esnext",
-    "lib": ["esnext", "dom"],
+    "lib": [
+      "esnext",
+      "dom"
+    ],
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": {
-      "@assets/*": ["assets/*"],
-      "@components/*": ["app/components/*"],
-      "@common-ui/*": ["app/common-ui/*"],
-      "@config/*": ["app/config/*"],
-      "@i18n/*": ["app/i18n/*"],
-      "@models/*": ["app/models/*"],
-      "@screens/*": ["app/screens/*"],
-      "@services/*": ["app/services/*"],
-      "@theme": ["app/theme/*"],
-      "@utils/*": ["app/utils/*"],
+      "@assets/*": [
+        "assets/*"
+      ],
+      "@components/*": [
+        "src/components/*"
+      ],
+      "@common-ui/*": [
+        "src/common-ui/*"
+      ],
+      "@config/*": [
+        "src/config/*"
+      ],
+      "@i18n/*": [
+        "src/i18n/*"
+      ],
+      "@models/*": [
+        "src/models/*"
+      ],
+      "@screens/*": [
+        "src/screens/*"
+      ],
+      "@services/*": [
+        "src/services/*"
+      ],
+      "@theme": [
+        "src/theme/*"
+      ],
+      "@utils/*": [
+        "src/utils/*"
+      ]
     }
   },
-  "include": ["index.js", "app", "test"],
+  "include": [
+    "index.js",
+    "app",
+    "test",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts"
+  ],
   "extends": "expo/tsconfig.base"
 }

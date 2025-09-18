@@ -1,7 +1,7 @@
 import React, { useEffect } from "react"
 import { ErrorBoundaryProps } from "expo-router"
 
-import * as Sentry from "sentry-expo"
+import * as Sentry from "@sentry/react-native";
 
 import { Screen, Content } from "@common-ui/components/Screen"
 import { HugeTitle, LargeTitle, MediumText } from "@common-ui/components/Text"

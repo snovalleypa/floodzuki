@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Pressable } from "react-native";
+import { Pressable, useColorScheme } from "react-native";
 import { usePathname, Slot, Link, Tabs } from "expo-router";
 import { Image } from "expo-image";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
