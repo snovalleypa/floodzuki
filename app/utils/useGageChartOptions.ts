@@ -424,6 +424,13 @@ const buildBasicOptions = (props: BuildOptionsProps, t) => {
         week: "%e. %b",
         month: "%b '%y",
       },
+      labels: {
+        formatter: function () {
+          return localDayJs
+            .tz(this.value, gage?.timeZoneName)
+            .format("MMM D, h:mm A");  // Match tooltip
+        },
+      },
     },
     yAxis: {
       type: (chartDataType === GageChartDataType.DISCHARGE) ? "logarithmic" : "linear",
