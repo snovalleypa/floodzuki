@@ -110,6 +110,7 @@ export default {
   plugins: [
     "expo-localization",
     "expo-router",
+    "expo-system-ui",
     "expo-apple-authentication",
     [
       "@sentry/react-native/expo",

@@ -87,6 +87,6 @@
   },
   "main": "expo-router/entry",
   "name": "floodzuki",
-  "version": "1.0.5",
+  "version": "1.0.10",
   "private": true
 }

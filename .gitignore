@@ -15,6 +15,7 @@ web-build/
 google-services.json
 .env
 build-web.sh
+scripts/
 
 # macOS
 .DS_Store
