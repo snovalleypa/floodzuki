@@ -8,15 +8,27 @@ import { useStores } from "@models/helpers/useStores";
 import React from "react"
 import { TouchableOpacity } from "react-native";
 
+const supportedLanguages = [
+  ["en", "English"],
+  ["es", "Español"],
+  ["hmn", "Hmong"],
+]
+
 const LocaleChange = () => {
   const { authSessionStore } = useStores();
   const { changeLocale } = useLocale();
 
   const language = authSessionStore.userLocale
-  const languageTitle = language.match("en") ? "Español" : "English"
+  let curLanguageIndex = supportedLanguages.findIndex((sl) => sl[0] === language);
+  if (curLanguageIndex === -1) {
+    curLanguageIndex = 0;
+  }
+  const nextLanguage = supportedLanguages[(curLanguageIndex + 1) % supportedLanguages.length];
+console.log(nextLanguage);
+  const languageTitle = nextLanguage[1];
 
   const toggleLanguage = () => {
-    const nextLocale = language.match("en") ? "es" : "en"
+    const nextLocale = nextLanguage[0];
 
     changeLocale(nextLocale)
   }
