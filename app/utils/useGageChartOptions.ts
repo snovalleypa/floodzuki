@@ -398,6 +398,9 @@ const buildBasicOptions = (props: BuildOptionsProps, t) => {
     title: {
       text: null,
     },
+    time: {
+      timezone: props.timezone,
+    },
     legend: { enabled: false },
     plotOptions: {
       series: {
@@ -423,13 +426,6 @@ const buildBasicOptions = (props: BuildOptionsProps, t) => {
         day: "%a, %b %e",
         week: "%e. %b",
         month: "%b '%y",
-      },
-      labels: {
-        formatter: function () {
-          return localDayJs
-            .tz(this.value, gage?.timeZoneName)
-            .format("MMM D, h:mm A");  // Match tooltip
-        },
       },
     },
     yAxis: {
