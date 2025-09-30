@@ -398,6 +398,9 @@ const buildBasicOptions = (props: BuildOptionsProps, t) => {
     title: {
       text: null,
     },
+    time: {
+      timezone: props.timezone,
+    },
     legend: { enabled: false },
     plotOptions: {
       series: {

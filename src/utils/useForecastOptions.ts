@@ -8,6 +8,7 @@ import { Colors, lightenHexColor } from "@common-ui/constants/colors";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import { isMobile } from "@common-ui/utils/responsive";
 import dayjs from "dayjs";
+import localDayJs from "../services/localDayJs";
 
 const STAGE_TWO_YAXIS_MARGIN = 500;
 
@@ -23,14 +24,14 @@ const shouldShowFloodLine = (forecast: Forecast, isCombinedForecast: boolean) =>
   if (!isCombinedForecast) {
     return true;
   }
-  
+
   // For the combined forecast, only show Falls.
   return (forecast?.noaaSiteId === "SQUW1");
 }
 
 const getFloodStageLabel = (forecast: Forecast, isCombinedForecast: boolean) => {
   switch (forecast?.noaaSiteId) {
-    default: 
+    default:
       return "";
     case "SQUW1":
       return isCombinedForecast ? "Falls/Carnation" : "Falls";
@@ -39,7 +40,7 @@ const getFloodStageLabel = (forecast: Forecast, isCombinedForecast: boolean) => 
 
     case "":
       return "Forks";
-    }
+  }
 }
 
 const buildSeries = (forecasts: Forecast[], gages: GageSummary[], softMax: number, t) => {
@@ -65,10 +66,10 @@ const buildSeries = (forecasts: Forecast[], gages: GageSummary[], softMax: numbe
         shortName: gage?.title
       }
     })
-    
+
     // Data Points
     series.push({
-      animation:false,
+      animation: false,
       name: seriesName,
       data: normalizedDataPoints,
       color: gage?.color,
@@ -111,7 +112,7 @@ const buildSeries = (forecasts: Forecast[], gages: GageSummary[], softMax: numbe
 
     // Forecast Data Points
     series.push({
-      animation:false,
+      animation: false,
       name: `${t("forecastChart.forecast")}: ${gage?.title}`,
       data: noramlizedForecastDataPoints,
       fillOpacity: 0,
@@ -144,7 +145,7 @@ const buildOptions = (props: BuildOptionsProps, t) => {
   let stageTwo = 0
   const isCombinedForecast = forecasts.length > 1;
   const floodLines = []
-  
+
   const now = dayjs()
 
   const min = now.clone().subtract(daysBefore, "days")
@@ -158,9 +159,9 @@ const buildOptions = (props: BuildOptionsProps, t) => {
       if (f.dischargeStageTwo > stageTwo) {
         stageTwo = f.dischargeStageTwo;
       }
-      
+
       const showFloodLine = shouldShowFloodLine(f, isCombinedForecast);
-      
+
       if (showFloodLine) {
         floodLines.push({
           color: "#999",
@@ -170,7 +171,7 @@ const buildOptions = (props: BuildOptionsProps, t) => {
           label: {
             text: `${t("forecastChart.floodStage")}: ${getFloodStageLabel(f, isCombinedForecast)}`,
             style: {
-              color:  '#606060'
+              color: '#606060'
             }
           }
         })
@@ -181,7 +182,7 @@ const buildOptions = (props: BuildOptionsProps, t) => {
   // Display flooding level
   const floodBands = [{
     from: stageTwo,
-    to:  10000000,
+    to: 10000000,
     color: 'rgba(68, 170, 213, 0.1)'
   }];
 
@@ -195,8 +196,7 @@ const buildOptions = (props: BuildOptionsProps, t) => {
       animation: false,
     },
     time: {
-      useUTC: true,
-      timezone: timezone
+      timezone: timezone,
     },
     title: {
       text: null,
@@ -217,8 +217,9 @@ const buildOptions = (props: BuildOptionsProps, t) => {
         if (this.point?.options?.stage) {
           stageDisplay = `/ ${this.point?.options?.stage} ft`
         }
+        const timeLabel = localDayJs.tz(this.x, timezone).format("MMM D, h:mm A");
 
-        return `<b>${this.series.name}</b><br/>${this.point?.options?.xLabel}: ${this.y} cfs ${stageDisplay}`
+        return `<b>${this.series.name}</b><br/>${timeLabel}: ${this.y} cfs ${stageDisplay}`
       }
     },
     xAxis: {
@@ -239,9 +240,9 @@ const buildOptions = (props: BuildOptionsProps, t) => {
         width: 1,
         value: now.valueOf(),
         label: {
-          text : t("forecastChart.now"),
+          text: t("forecastChart.now"),
           style: {
-            color:  Colors.darkGrey
+            color: Colors.darkGrey
           },
           rotation: 90,
         }
