@@ -3,6 +3,7 @@ node_modules/
 dist/
 android/
 ios/
+.vscode/
 npm-debug.*
 *.jks
 *.p8
@@ -13,6 +14,9 @@ npm-debug.*
 .envrc
 web-build/
 google-services.json
+build-beta.bat
+copybuild.bat
+package-lock.json
 .env
 
 # macOS
