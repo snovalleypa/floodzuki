@@ -30,7 +30,7 @@ import GageListItemChart from "@components/GageListItemChart";
 import WebFooter from "@components/WebFooter"
 import { useLocale } from "@common-ui/contexts/LocaleContext"
 import { Timing } from "@common-ui/constants/timing"
-import { RefreshControl } from "react-native-gesture-handler"
+import { RefreshControl, ScrollView } from "react-native-gesture-handler"
 
 const ITEM_HEIGHT = 200
 const MAP_WIDTH = 400
@@ -163,7 +163,7 @@ const HomeScreen = observer(
 
     // Fetch data on mount
     useEffect(() => {
-      if (isFetched)  {
+      if (isFetched) {
         gagesStore.fetchData()
       }
     }, [isFetched])
@@ -179,19 +179,19 @@ const HomeScreen = observer(
 
     const handleOnRefresh = React.useCallback(() => {
       setRefreshing(true);
-      
+
       gagesStore.fetchData()
-      
+
       setTimeout(() => {
         setRefreshing(false);
       }, 2000);
     }, [gagesStore.fetchData]);
-    
+
     const locations = hidden ? [] : getLocationsWithGages()
-    
+
     const mapCardHeight = height - HEADER_HEIGHT - Spacing.button
 
-    return (
+    const baseControls = (
       <Screen>
         <Head>
           <title>{t("common.title")} - {t("homeScreen.title")}</title>
@@ -227,6 +227,12 @@ const HomeScreen = observer(
         <WebFooter />
       </Screen>
     )
+    if (isWeb) {
+      return <ScrollView>
+        {baseControls}
+      </ScrollView>
+    }
+    return baseControls;
   }
 )
 

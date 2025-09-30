@@ -1,4 +1,4 @@
-import React from "react"
+import React, { forwardRef } from "react"
 import {
   ColorValue,
   TouchableOpacityProps,
@@ -314,7 +314,7 @@ export function LinkButton(props: ButtonProps) {
 
 export function SimpleLinkButton(props: SimpleLinkProps) {
   const { text, color, lineHeight, onPress } = props
-  
+
   const $basicStyle = [$simpleLinkButton]
 
   if (color) {
@@ -351,9 +351,11 @@ export function SimpleLinkButton(props: SimpleLinkProps) {
  * @example
  * <IconButton icon="plus" onPress={pressHandler} />
  */
-export function IconButton(props: ButtonProps) {
+export interface IconButtonProps extends BaseButtonProps {
+  iconSize: number;
+}
+export const IconButton = forwardRef((props: IconButtonProps, ref) => {
   const { iconSize, ...rest } = props
-
   const height = iconSize ? iconSize + Spacing.small : Spacing.larger
 
   return <BaseButton
@@ -365,7 +367,7 @@ export function IconButton(props: ButtonProps) {
     borderColor={Colors.dark}
     {...rest}
   />
-}
+});
 
 const $button: ViewStyle = {
   alignItems: "center",
