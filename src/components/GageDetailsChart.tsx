@@ -26,7 +26,7 @@ import { LabelText, MediumText, RegularText, SmallerText } from "@common-ui/comp
 import { FloodEvent } from "@models/LocationInfo";
 import { DataPoint } from "@models/Forecasts";
 import { formatReadingTime } from "@utils/useTimeFormat";
-import { BottomSheetModal } from "@gorhom/bottom-sheet";
+import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
 import Icon from "@common-ui/components/Icon";
 import DateRangePicker from "@common-ui/components/DateRangePicker";
 import { Dayjs } from "dayjs";
@@ -79,7 +79,7 @@ const SELECT_EVENT = "gageDetailsChart._selectEvent"
 
 const Charts = (props: ChartsProps) => {
   const { options } = props
-  
+
   return (
     <Cell height={320}>
       <Ternary condition={isMobile}>
@@ -132,7 +132,7 @@ const HistoricEvents = observer(
     // Update chart when historic event selected
     const onHistoricEventSelected = (historicEventId: string) => {
       // Clear params when no event selected
-      if (!historicEventId)  return
+      if (!historicEventId) return
 
       if (historicEventId === SELECT_EVENT) {
         router.setParams({
@@ -183,18 +183,20 @@ const HistoricEvents = observer(
                 snapPoints={["40%"]}
                 style={$bottomSheetStyle}
               >
-                <PickerSelector
-                  historicEventId={selectedEvent ?? historicEventId}
-                  floodEvents={floodEvents}
-                  onHistoricEventSelected={setSelectedEvent}
-                />
-                <Cell horizontal={Spacing.large}>
-                  <SolidButton
-                    fullWidth
-                    title={t("common.confirm")}
-                    onPress={() => onHistoricEventSelected(selectedEvent)}
+                <BottomSheetView>
+                  <PickerSelector
+                    historicEventId={selectedEvent ?? historicEventId}
+                    floodEvents={floodEvents}
+                    onHistoricEventSelected={setSelectedEvent}
                   />
-                </Cell>
+                  <Cell horizontal={Spacing.large}>
+                    <SolidButton
+                      fullWidth
+                      title={t("common.confirm")}
+                      onPress={() => onHistoricEventSelected(selectedEvent)}
+                    />
+                  </Cell>
+                </BottomSheetView>
               </BottomSheetModal>
             </>
             <PickerSelector
@@ -224,18 +226,18 @@ const RateOfChange = observer(
       let crossingTime = null;
 
       if (!gage?.roadSaddleHeight) return null;
-      
+
       for (var i = 0; i < gage.predictions?.length - 1; i++) {
         let p = gage.predictions[i];
         let pNext = gage.predictions[i + 1];
-        
+
         if (pNext.waterHeight === gage.roadSaddleHeight) {
           crossingTime = localDayJs.tz(pNext.timestamp);
           break;
         }
-        
+
         if ((pNext.waterHeight > gage.roadSaddleHeight && gage.roadSaddleHeight > p.waterHeight) ||
-            (pNext.waterHeight < gage.roadSaddleHeight && gage.roadSaddleHeight < p.waterHeight)) {
+          (pNext.waterHeight < gage.roadSaddleHeight && gage.roadSaddleHeight < p.waterHeight)) {
           let waterDelta = (gage.roadSaddleHeight - p.waterHeight) / (pNext.waterHeight - p.waterHeight);
           let msec = localDayJs.tz(pNext.timestamp).diff(localDayJs.tz(p.timestamp)) * waterDelta;
           crossingTime = localDayJs.tz(p.timestamp).add(msec, 'milliseconds');
@@ -273,7 +275,7 @@ const CrestInfo = observer(
     const { t } = useLocale()
 
     if (!crest) return null
-    
+
     return (
       <Row align="center" bottom={Spacing.extraSmall}>
         <MediumText muted>{t("measure.max")}: </MediumText>
@@ -288,7 +290,7 @@ const CrestInfo = observer(
 export const GageDetailsChart = observer(
   function GageDetailsChart(props: GageDetailsChartProps) {
     const { gage, hideChart } = props
-    
+
     const router = useRouter()
     const { t } = useLocale()
     const { from, to } = useLocalSearchParams()
@@ -307,7 +309,7 @@ export const GageDetailsChart = observer(
         to: normalizeSearchParams(to)
       })
     }, [from, to])
-    
+
     const chartRange = useChartRange(dateRange.from, dateRange.to)
 
     const [rangeOption, setRangeOption] = useState("2")
@@ -382,7 +384,7 @@ export const GageDetailsChart = observer(
 
     const onRangeChange = (key: string) => {
       chartRange.changeDays(parseInt(key))
-      
+
       setRange({
         chartStartDate: chartRange.chartStartDate,
         chartEndDate: chartRange.chartEndDate
@@ -393,7 +395,7 @@ export const GageDetailsChart = observer(
         from: chartRange.chartStartDate.utc().format(),
         to: chartRange.chartEndDate.utc().format()
       })
-      
+
       setRangeOption(key)
       refreshData(
         chartRange.chartStartDate.utc().format(),
@@ -403,7 +405,7 @@ export const GageDetailsChart = observer(
 
     const onDateRangeChange = (from: Dayjs, to: Dayjs) => {
       chartRange.changeDates(from, to)
-   
+
       setRange({
         chartStartDate: chartRange.chartStartDate,
         chartEndDate: chartRange.chartEndDate
@@ -424,7 +426,7 @@ export const GageDetailsChart = observer(
     const onChartDataTypeChange = (key: GageChartDataType) => {
       setChartDataType(key)
     }
-    
+
     const [chartOptions, crest] = useGageChartOptions(
       gage,
       "gageDetailsOptions",
@@ -456,7 +458,7 @@ export const GageDetailsChart = observer(
                 segments={RANGES(t)}
                 selectedSegment={rangeOption}
                 onChange={onRangeChange}
-                />
+              />
               <If condition={isMobile}>
                 <Cell flex align="center" top={Spacing.tiny}>
                   <DateRangePicker
