@@ -134,6 +134,10 @@ export default {
         username: "floodzilla-svpa",
       },
     ],
+    [
+      "./plugins/withForceLightModeThemeAndroid.js",
+      {}
+    ]
   ],
   experiments: {
     typedRoutes: true,
