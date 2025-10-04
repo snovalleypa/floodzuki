@@ -352,9 +352,6 @@ export const ForecastStoreModel = types
           return;
         }
 
-        // @ts-ignore
-        // existingValue.locationInfo = gageId
-
         if ('forecastId' in value) {
           existingValue.predictions = value
           return;

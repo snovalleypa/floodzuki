@@ -89,7 +89,7 @@ export const LocationInfoModel = types
     yMin: types.maybe(types.number),
     yellowStage: types.maybe(types.number),
   })
-  
+
 
 export const LocationInfoModelStore = types
   .model("LocationInfoStore")
@@ -100,9 +100,9 @@ export const LocationInfoModelStore = types
   .actions(withDataFetchingActions)
   .actions(withSetPropAction)
   .actions(store => {
-    const fetchLocations = flow(function*() {
+    const fetchLocations = flow(function* () {
       store.setIsFetching(true)
-      
+
       const response = yield api.getLocationInfo<LocationInfo[]>()
 
       if (response.kind === 'ok') {
@@ -111,20 +111,16 @@ export const LocationInfoModelStore = types
       } else {
         store.setError(response.kind)
       }
-      
+
       store.setIsFetching(false)
     })
 
-    const fetchMetagages = flow(function*() {
+    const fetchMetagages = flow(function* () {
       store.setIsFetching(true)
-      
+
       const response = yield api.getMetagages<LocationInfo[]>()
 
       if (response.kind === "ok") {
-        if (store.locationInfos.find(l => l.isMetagage)) {
-          store.locationInfos = store.locationInfos.filter(l => !l.isMetagage)
-        }
-
         const metagages = (response.data || []).map(m => ({
           id: m.ids,
           shortName: m.name,
@@ -134,15 +130,35 @@ export const LocationInfoModelStore = types
           isMetagage: true,
         }))
 
-        store.locationInfos.push(...metagages)
+        // Do a little dance to update the metagages in place; otherwise the objects
+        // get invalidated, and safeReferences to them get cleared out, which causes some
+        // flickering on the forecasts page.
+        const updatedLocations = store.locationInfos;
+        metagages.forEach((mg) => {
+          let found = false;
+          for (let i = 0; i < updatedLocations.length; i++) {
+            if (updatedLocations[i].id === mg.id) {
+              updatedLocations[i].shortName = mg.shortName;
+              updatedLocations[i].dischargeStageOne = mg.dischargeStageOne;
+              updatedLocations[i].dischargeStageTwo = mg.dischargeStageTwo;
+              found = true;
+              break;
+            }
+          }
+          if (!found) {
+            updatedLocations.push(mg);
+          }
+        });
+
+        store.locationInfos = updatedLocations;
       } else {
         store.setError(response.kind)
       }
-      
+
       store.setIsFetching(false)
     })
 
-    const fetchData = flow(function*() {
+    const fetchData = flow(function* () {
       yield fetchLocations()
       yield fetchMetagages()
     })
@@ -152,9 +168,9 @@ export const LocationInfoModelStore = types
     }
   })
 
-export interface LocationInfoStore extends Instance<typeof LocationInfoModelStore> {}
-export interface LocationInfo extends Instance<typeof LocationInfoModel> {}
-export interface FloodEvent extends Instance<typeof FloodEventModel> {}
+export interface LocationInfoStore extends Instance<typeof LocationInfoModelStore> { }
+export interface LocationInfo extends Instance<typeof LocationInfoModel> { }
+export interface FloodEvent extends Instance<typeof FloodEventModel> { }
 
-export interface LocationInfoSnapshotIn extends SnapshotIn<typeof LocationInfoModel> {}
-export interface LocationInfoSnapshotOut extends SnapshotOut<typeof LocationInfoModel> {}
+export interface LocationInfoSnapshotIn extends SnapshotIn<typeof LocationInfoModel> { }
+export interface LocationInfoSnapshotOut extends SnapshotOut<typeof LocationInfoModel> { }
