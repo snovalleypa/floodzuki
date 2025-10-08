@@ -1,5 +1,5 @@
 import { isWeb } from '@common-ui/utils/responsive';
-import * as Sentry from 'sentry-expo';
+import * as Sentry from "@sentry/react-native";
 
 export const initSentry = () => {
   Sentry.init({

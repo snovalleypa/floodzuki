@@ -75,7 +75,7 @@ Now, when you're ready to run, verify that "adb devices" in WSL shows whatever d
 Then:
 
 ```
-yarn install
+npm install
 npx expo install expo-dev-client
 npx expo start
 ```
