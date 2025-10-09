@@ -106,7 +106,6 @@ const PickerSelector = ({
 
   return (
     <Picker
-      prompt={t("gageDetailsChart.selectEvent")}
       selectedValue={eventId}
       onValueChange={onHistoricEventSelected}
       style={[$pickerStyle, width]}
