@@ -12,7 +12,7 @@ export const useUtils = () => {
   }
   
   function formatFlow(flow) {
-    return flow?.toLocaleString(undefined, { maximumFractionDigits: 0 }) + ` ${t("measure.cfs")}`;
+    return flow ? (flow.toLocaleString(undefined, { maximumFractionDigits: 0 }) + ` ${t("measure.cfs")}`) : "";
   }
   
   function formatTrend(trend) {

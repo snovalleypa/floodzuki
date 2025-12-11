@@ -132,7 +132,7 @@ export const NOAAForecastModel = types
 const ReadingModel = types
   .model("Reading")
   .props({
-    discharges: types.array(types.number),
+    discharges: types.array(types.maybeNull(types.number)),
     readingIds: types.array(types.number),
     timestamps: types.array(types.string),
     trendCfsPerHour: types.maybe(types.number),
