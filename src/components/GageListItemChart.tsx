@@ -184,14 +184,7 @@ const GageListItemChart = observer(
                   fillOpacity={0.5}
                 />
               </If>
-              {/* Line */}
-              <If condition={isPathSafe(lineData)}>
-                <Path
-                  d={lineData}
-                  strokeWidth="0.5"
-                  stroke={Colors.gageChartColor}
-                />
-              </If>
+
               {/* Circles */}
               {circleData.map((d, i) => (
                 <Circle
