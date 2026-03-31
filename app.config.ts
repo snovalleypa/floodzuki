@@ -108,8 +108,12 @@ export default {
     },
   },
   plugins: [
+    "@maplibre/maplibre-react-native",
     "expo-localization",
     "expo-router",
+    "expo-font",
+    "expo-image",
+    "expo-web-browser",
     "expo-system-ui",
     "expo-apple-authentication",
     [

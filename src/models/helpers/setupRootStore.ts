@@ -19,7 +19,7 @@ import localDayJs from "@services/localDayJs"
 /**
  * The key we'll be saving our state as within async storage.
  */
-const ROOT_STATE_STORAGE_KEY = "root-v1"
+const ROOT_STATE_STORAGE_KEY = "root-v2"
 
 export const ROOT_STORE_DEFAULT = {
   isFetched: false,

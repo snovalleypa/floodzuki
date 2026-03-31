@@ -1,6 +1,6 @@
 import { createContext, useContext } from "react";
 import { Asset, useAssets } from "expo-asset";
-import { MAP_IMAGE_ICONS } from "@components/TrendIcon";
+import { MAP_IMAGE_ICONS, TREND_IMAGE_ICONS } from "@components/TrendIcon";
 
 // All assets used by the app
 const ASSETS = {
@@ -15,8 +15,8 @@ const ASSETS = {
   app_store_badge: require("@assets/images/app_store_badge.png"),
 }
 
-const ASSET_KEYS = [...Object.keys(ASSETS), ...Object.keys(MAP_IMAGE_ICONS)]
-const ASSET_VALUES = [...Object.values(ASSETS), ...Object.values(MAP_IMAGE_ICONS)]
+const ASSET_KEYS = [...Object.keys(ASSETS), ...Object.keys(MAP_IMAGE_ICONS), ...Object.keys(TREND_IMAGE_ICONS)]
+const ASSET_VALUES = [...Object.values(ASSETS), ...Object.values(MAP_IMAGE_ICONS), ...Object.values(TREND_IMAGE_ICONS)]
 
 type AppAsset = keyof typeof ASSETS
 
@@ -54,5 +54,3 @@ export const AssetsProvider = ({ children }: { children: React.ReactNode }) => {
     </AssetsContext.Provider>
   )
 }
-  
-
