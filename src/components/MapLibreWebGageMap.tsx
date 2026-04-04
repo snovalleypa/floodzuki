@@ -1,13 +1,13 @@
 import { Map, Marker, useMap } from "@vis.gl/react-maplibre";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { InternalGageMapProps } from "@models/MapModels";
 import { StyleSheet } from "react-native";
-
 import "maplibre-gl/dist/maplibre-gl.css";
 import TrendIcon, { TREND_ICON_TYPES } from "./TrendIcon";
+import Config from "../config/config";
+import Constants from "expo-constants";
 
-//$ TODO: env var for url
-const mapStyle = "https://floodzilla.com/maps/1/webstyles";
+const mapStyleBaseUrl = Constants.expoConfig.extra.mapTileUrlBase || Config.DEFAULT_MAP_TILE_BASE_URL;
 
 const styles = StyleSheet.create({
   map: {
@@ -43,6 +43,14 @@ const MapLibreWebGageWebMap = ({
   if (!gages || !region) {
     return null;
   }
+
+  const mapStyleUrl = useMemo(() => {
+    let url = mapStyleBaseUrl;
+    if (!url.endsWith("/")) {
+      url += "/";
+    }
+    return url + region.id + "/webstyles";
+  }, [region]);
 
   const { current: map } = useMap();
 
@@ -100,7 +108,7 @@ const MapLibreWebGageWebMap = ({
         bounds: startBounds,
       }}
       maxBounds={regionBounds}
-      mapStyle={mapStyle}
+      mapStyle={mapStyleUrl}
       style={styles.map}>
       {markers}
     </Map>

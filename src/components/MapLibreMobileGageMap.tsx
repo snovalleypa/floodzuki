@@ -2,19 +2,21 @@ import { InternalGageMapProps } from "@models/MapModels";
 import { useRouter } from "expo-router";
 import { useMemo, useRef } from "react";
 import { Camera, Map, Marker } from "@maplibre/maplibre-react-native";
-import { Pressable, StyleSheet, Text } from "react-native";
+import { StyleSheet } from "react-native";
 import { ViewStyle } from "react-native";
 import { Spacing } from "../common-ui/constants/spacing";
 import TrendIcon, { TREND_ICON_TYPES } from "./TrendIcon";
+import Config from "../config/config";
+import Constants from "expo-constants";
 
-//$ TODO: env var for url
-const mapStyle = "https://floodzilla.com/maps/1/mobilestyles";
+const mapStyleBaseUrl = Constants.expoConfig.extra.mapTileUrlBase || Config.DEFAULT_MAP_TILE_BASE_URL;
 
 const styles = StyleSheet.create({
   map: {
     width: "100%",
     height: "100%",
     borderRadius: Spacing.tiny,
+    overflow: "hidden",
   },
   marker: {
     width: 50,
@@ -36,23 +38,36 @@ const defaultMapBounds = [-122.3328, 46.9564, -121.2959, 48.3127];
 const singleGageLatDelta = 0.00421;
 const singleGageLngDelta = 0.00421;
 
-const MapLibreMobileGageMap = ({ gages, region, onGagePress, singleGage }: InternalGageMapProps) => {
+const MapLibreMobileGageMap = ({
+  gages,
+  region,
+  onGagePress,
+  singleGage,
+}: InternalGageMapProps) => {
   const router = useRouter();
   const mapRef = useRef(null);
+
+  const mapStyleUrl = useMemo(() => {
+    let url = mapStyleBaseUrl;
+    if (!url.endsWith("/")) {
+      url += "/";
+    }
+    return url + region.id + "/webstyles";
+  }, [region]);
 
   const markers = useMemo(() => {
     if (!gages) {
       return null;
     }
     return gages.map((g, index) => (
-      <Marker lngLat={[g.longitude, g.latitude]} anchor="bottom" key={"marker" + index}>
-        <Pressable
-          onPress={() => {
-            onGagePress(g);
-          }}
-          style={styles.marker}>
-          <TrendIcon gage={g} iconType={TREND_ICON_TYPES.Map} />
-        </Pressable>
+      <Marker
+        lngLat={[g.longitude, g.latitude]}
+        anchor="bottom"
+        key={"marker" + index}
+        onPress={() => {
+          onGagePress(g);
+        }}>
+        <TrendIcon gage={g} iconType={TREND_ICON_TYPES.Map} />
       </Marker>
     ));
   }, [mapRef, gages]);
@@ -90,7 +105,7 @@ const MapLibreMobileGageMap = ({ gages, region, onGagePress, singleGage }: Inter
   }, [region, singleGage]);
 
   return (
-    <Map ref={mapRef} style={styles.map} mapStyle={mapStyle}>
+    <Map ref={mapRef} style={styles.map} mapStyle={mapStyleUrl} touchRotate={false}>
       <Camera maxBounds={regionBounds} bounds={startBounds} />
       {markers}
     </Map>
