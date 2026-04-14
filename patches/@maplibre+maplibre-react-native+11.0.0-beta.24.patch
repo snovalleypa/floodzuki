@@ -1,0 +1,20 @@
+diff --git a/node_modules/@maplibre/maplibre-react-native/android/src/main/java/org/maplibre/reactnative/components/mapview/MLRNMapView.kt b/node_modules/@maplibre/maplibre-react-native/android/src/main/java/org/maplibre/reactnative/components/mapview/MLRNMapView.kt
+index 46d4dce..8c0537a 100644
+--- a/node_modules/@maplibre/maplibre-react-native/android/src/main/java/org/maplibre/reactnative/components/mapview/MLRNMapView.kt
++++ b/node_modules/@maplibre/maplibre-react-native/android/src/main/java/org/maplibre/reactnative/components/mapview/MLRNMapView.kt
+@@ -564,6 +564,15 @@ open class MLRNMapView(
+ 
+     @SuppressLint("ClickableViewAccessibility")
+     override fun onTouchEvent(ev: MotionEvent?): Boolean {
++        if (ev != null) {
++            val action = ev?.getActionMasked();
++            if (action == MotionEvent.ACTION_DOWN) {
++                requestDisallowInterceptTouchEvent(true);
++            } else if (action == MotionEvent.ACTION_UP) {
++                requestDisallowInterceptTouchEvent(false);
++            }
++        }
++
+         val result = super.onTouchEvent(ev)
+ 
+         if (result && scrollEnabled == true) {

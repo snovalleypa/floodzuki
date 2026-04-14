@@ -41,7 +41,7 @@ export default function AppLayout() {
 
       if (store.authSessionStore.isLoggedIn) {
         await store.authSessionStore.reauthenticate()
-      }  
+      }
     }
 
     getAllData()
@@ -101,7 +101,7 @@ function FooterLink({ route, children }: { route: MainRoute, children: string })
   const isActive = useIsLinkActive(route.path);
 
   const imageSize = 32
-  
+
   const $color = isActive ? Colors.primary : Colors.darkGrey
   const $imageStyle = { width: imageSize, height: imageSize, marginBottom: -2, marginTop: -6 }
 
@@ -184,7 +184,7 @@ function TabBar() {
   const { t } = useLocale();
 
   const $bottomOffset = bottom || Spacing.medium
-  
+
   return (
     <Cell>
       <Separator size={Spacing.micro} />

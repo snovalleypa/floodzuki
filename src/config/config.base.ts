@@ -42,12 +42,12 @@ const API = {
     SENDPHONEVERIFICATION_URL: "/Account/SendPhoneVerificationSms",
     VERIFYPHONE_URL: "/Account/VerifyPhone",
     DELETE_ACCOUNT_URL: "/Account/FullyDeleteUser",
-  
+
     FACEBOOK_LOGIN_PROVIDER_NAME: "Facebook",
     GOOGLE_LOGIN_PROVIDER_NAME: "Google",
 
     SET_PUSH_TOKEN_URL: "/Account/SetDevicePushToken",
-  
+
     ID_TOKEN_HEADER: "X-fz-idToken",
   }
 }
@@ -59,12 +59,13 @@ const BaseConfig: {
   READING_BASE_URL: string
   GAGE_IMAGE_BASE_URL: string
   DONATION_URL: string
+  DEFAULT_MAP_TILE_BASE_URL: string
 
   SVPA_URL: string
   SVPA_PHONE: string
   SVPA_EMAIL: string
   NOAA_URL: string
-  
+
   GAGE_DATA_REFRESH_RATE: number
   GAGE_CLIENT_CACHE_TIME: number
   DASHBOARD_DATA_REFRESH_RATE: number
@@ -86,12 +87,13 @@ const BaseConfig: {
   READING_BASE_URL: "https://prodplanreadingsvc.azurewebsites.net",
   GAGE_IMAGE_BASE_URL: "https://svpastorage.blob.core.windows.net/uploads/",
   DONATION_URL: "https://www.paypal.com/donate/?hosted_button_id=HT6T3U5F2C4NG",
+  DEFAULT_MAP_TILE_BASE_URL: "https://floodzilla.com/maps",
 
   SVPA_URL: "https://svpa.us",
   SVPA_PHONE: "425-549-0316",
   SVPA_EMAIL: "info@svpa.us",
   NOAA_URL: "http://www.nwrfc.noaa.gov/",
-  
+
   GAGE_DATA_REFRESH_RATE: 10000, // ms
   GAGE_CLIENT_CACHE_TIME: 9000, // ms
   DASHBOARD_DATA_REFRESH_RATE: 30 * 1000, // ms

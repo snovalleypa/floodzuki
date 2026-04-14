@@ -24,6 +24,9 @@ const RegionModel = types
     name: types.maybe(types.string),
     timezone: types.maybe(types.string),
     baseUrl: types.maybe(types.string),
+    regionBounds: types.maybe(types.array(types.number)),
+    defaultWebMapBounds: types.maybe(types.array(types.number)),
+    defaultMobileMapBounds: types.maybe(types.array(types.number)),
     defaultForecastGageList: types.array(types.string),
   })
   .actions(store => ({

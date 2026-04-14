@@ -48,7 +48,6 @@ export default {
       backgroundColor: "#ffffff",
     },
     config: {
-      googleMapsApiKey: process.env.GOOGLE_MAPS_IOS_API_KEY,
       usesNonExemptEncryption: false,
     },
     userInterfaceStyle: "light",
@@ -94,11 +93,6 @@ export default {
       resizeMode: "contain",
       backgroundColor: "#ffffff",
     },
-    config: {
-      googleMaps: {
-        apiKey: process.env.GOOGLE_MAPS_ANDROID_API_KEY,
-      },
-    },
     userInterfaceStyle: "light",
   },
   updates: {
@@ -108,8 +102,12 @@ export default {
     },
   },
   plugins: [
+    "@maplibre/maplibre-react-native",
     "expo-localization",
     "expo-router",
+    "expo-font",
+    "expo-image",
+    "expo-web-browser",
     "expo-system-ui",
     "expo-apple-authentication",
     [
@@ -149,6 +147,7 @@ export default {
     eas: {
       projectId: "0f52b777-109a-423d-a18b-1ccfb5dea8e0",
     },
+    mapTileUrlBase: process.env.MAP_TILE_URL_BASE,
     recaptchaKey: process.env.GOOGLE_RECAPTCH_SITE_KEY,
     googleMapsWebApiKey: process.env.GOOGLE_MAPS_WEB_API_KEY,
     googleOAuthWebClientId: process.env.GOOGLE_AUTH_WEB_ID,
