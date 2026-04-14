@@ -9,7 +9,7 @@ import TrendIcon, { TREND_ICON_TYPES } from "./TrendIcon";
 import Config from "../config/config";
 import Constants from "expo-constants";
 
-const mapStyleBaseUrl = Constants.expoConfig.extra.mapTileUrlBase || Config.DEFAULT_MAP_TILE_BASE_URL;
+const mapStyleBaseUrl = Constants.expoConfig!.extra!.mapTileUrlBase || Config.DEFAULT_MAP_TILE_BASE_URL;
 
 const styles = StyleSheet.create({
   map: {
@@ -48,6 +48,9 @@ const MapLibreMobileGageMap = ({
   const mapRef = useRef(null);
 
   const mapStyleUrl = useMemo(() => {
+    if (!region) {
+      return "";
+    }
     let url = mapStyleBaseUrl;
     if (!url.endsWith("/")) {
       url += "/";
@@ -61,7 +64,7 @@ const MapLibreMobileGageMap = ({
     }
     return gages.map((g, index) => (
       <Marker
-        lngLat={[g.longitude, g.latitude]}
+        lngLat={[g.longitude!, g.latitude!]}
         anchor="bottom"
         key={"marker" + index}
         onPress={() => {
@@ -87,10 +90,10 @@ const MapLibreMobileGageMap = ({
   const startBounds: [number, number, number, number] = useMemo(() => {
     if (singleGage) {
       return [
-        singleGage.longitude - singleGageLngDelta,
-        singleGage.latitude - singleGageLatDelta,
-        singleGage.longitude + singleGageLngDelta,
-        singleGage.latitude + singleGageLatDelta,
+        singleGage.longitude! - singleGageLngDelta,
+        singleGage.latitude! - singleGageLatDelta,
+        singleGage.longitude! + singleGageLngDelta,
+        singleGage.latitude! + singleGageLatDelta,
       ];
     }
     if (region && region.defaultMobileMapBounds) {
