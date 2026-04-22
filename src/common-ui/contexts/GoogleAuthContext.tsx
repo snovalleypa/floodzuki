@@ -39,7 +39,7 @@ const GoogleAuthContext = createContext<GoogleAuthContextType>(initialState)
 
 export const useGoogleAuth = () => useContext(GoogleAuthContext)
 
-export const GoogleAuthProvider = ({ children }) => {
+const GoogleAuthProviderImpl = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false)
   const [isError, setIsError] = useState(false)
   const [idToken, setIdToken] = useState("")
@@ -105,4 +105,20 @@ export const GoogleAuthProvider = ({ children }) => {
       {children}
     </GoogleAuthContext.Provider>
   )
+}
+
+export const GoogleAuthProvider = ({ children }) => {
+  // webClientId is required on web — if missing (e.g. local dev without env vars),
+  // skip the auth setup and render children with isDisabled: true
+  const webClientId = Constants.expoConfig?.extra?.googleOAuthWebClientId
+
+  if (isWeb && !webClientId) {
+    return (
+      <GoogleAuthContext.Provider value={initialState}>
+        {children}
+      </GoogleAuthContext.Provider>
+    )
+  }
+
+  return <GoogleAuthProviderImpl>{children}</GoogleAuthProviderImpl>
 }
