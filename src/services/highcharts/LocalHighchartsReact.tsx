@@ -10,8 +10,5 @@ export default function LocalHighchartsReact(props: HighchartsReact.Props) {
     BrokenAxis(Highcharts);
   }
 
-  return <HighchartsReact
-    highcharts={Highcharts}
-    {...props}
-  />;
+  return <HighchartsReact highcharts={Highcharts} {...props} />;
 }

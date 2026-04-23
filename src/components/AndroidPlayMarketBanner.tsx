@@ -1,42 +1,42 @@
-import React, { useState } from 'react';
-import { Image } from 'expo-image';
+import React, { useState } from "react";
+import { Image } from "expo-image";
 
-import { Cell, Row, Separator } from '@common-ui/components/Common';
-import { useResponsive } from '@common-ui/utils/responsive';
-import { Spacing } from '@common-ui/constants/spacing';
-import { MediumText, SmallText } from '@common-ui/components/Text';
-import { useAppAssets } from '@common-ui/contexts/AssetsContext';
-import { IconButton, SolidButton } from '@common-ui/components/Button';
-import { openLinkInBrowser } from '@utils/navigation';
-import { Colors } from '@common-ui/constants/colors';
-import { useLocale } from '@common-ui/contexts/LocaleContext';
+import { Cell, Row, Separator } from "@common-ui/components/Common";
+import { useResponsive } from "@common-ui/utils/responsive";
+import { Spacing } from "@common-ui/constants/spacing";
+import { MediumText, SmallText } from "@common-ui/components/Text";
+import { useAppAssets } from "@common-ui/contexts/AssetsContext";
+import { IconButton, SolidButton } from "@common-ui/components/Button";
+import { openLinkInBrowser } from "@utils/navigation";
+import { Colors } from "@common-ui/constants/colors";
+import { useLocale } from "@common-ui/contexts/LocaleContext";
 
 const TasteOfTheValleyBanner = () => {
   const { isMobile } = useResponsive();
   const { getAsset } = useAppAssets();
   const { t } = useLocale();
 
-  const [isBannerVisible, setIsBannerVisible] = useState(true)
+  const [isBannerVisible, setIsBannerVisible] = useState(true);
 
   const openPlayMarket = () => {
-    openLinkInBrowser('https://play.google.com/store/apps/details?id=com.floodzilla.floodzuki')
-  }
+    openLinkInBrowser("https://play.google.com/store/apps/details?id=com.floodzilla.floodzuki");
+  };
 
   const openAppStore = () => {
-    openLinkInBrowser('https://apps.apple.com/us/app/floodzilla/id6448645748')
-  }
+    openLinkInBrowser("https://apps.apple.com/us/app/floodzilla/id6448645748");
+  };
 
   const openBannerLink = () => {
     if (/Android/i.test(navigator?.userAgent)) {
-      openPlayMarket()
+      openPlayMarket();
     } else {
-      openAppStore()
+      openAppStore();
     }
-  }
+  };
 
   const closeBanner = () => {
-    setIsBannerVisible(false)
-  }
+    setIsBannerVisible(false);
+  };
 
   if (!isMobile || !isBannerVisible) {
     return null;
@@ -48,7 +48,7 @@ const TasteOfTheValleyBanner = () => {
         <Cell right={Spacing.small}>
           <IconButton
             small
-            icon='x'
+            icon="x"
             iconSize={Spacing.small}
             textColor={Colors.darkerGrey}
             backgroundColor={Colors.softBlue}
@@ -56,10 +56,7 @@ const TasteOfTheValleyBanner = () => {
           />
         </Cell>
         <Cell right={Spacing.small}>
-          <Image
-            source={getAsset('logo')}
-            style={{ width: 50, height: 50, borderRadius: 5 }}
-          />
+          <Image source={getAsset("logo")} style={{ width: 50, height: 50, borderRadius: 5 }} />
         </Cell>
         <Cell flex right={Spacing.small}>
           <MediumText>{t("common.appTitle")}</MediumText>
@@ -70,13 +67,13 @@ const TasteOfTheValleyBanner = () => {
             small
             title={t("common.install")}
             onPress={openBannerLink}
-            type='lightBlue'
+            type="lightBlue"
           />
         </Cell>
       </Row>
       <Separator />
     </Cell>
-  )
-}
+  );
+};
 
-export default TasteOfTheValleyBanner
+export default TasteOfTheValleyBanner;

@@ -9,9 +9,7 @@ config.watcher.additionalExts.push("mjs", "cjs");
 
 // Prevent the bundler from trying to automatically load any mobile-only controls; otherwise,
 // hot reload on the web version will throw errors.
-const nativeOnlyModules = [
-  "./MapLibreMobileGageMap",
-];
+const nativeOnlyModules = ["./MapLibreMobileGageMap"];
 
 config.resolver.resolveRequest = (context, moduleName, platform) => {
   if (platform === "web" && nativeOnlyModules.includes(moduleName)) {
@@ -19,7 +17,7 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
       type: "empty",
     };
   }
-  // Default behavior for other module resolutions
+  // Default behavior for other module resolutionsF
   return context.resolveRequest(context, moduleName, platform);
 };
 

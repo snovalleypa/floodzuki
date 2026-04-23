@@ -1,18 +1,18 @@
-import React from "react"
-import { Text, TextProps, TextStyle } from "react-native"
-import { Typography } from "@common-ui/constants/typography"
-import { Ternary } from "./Conditional"
+import React from "react";
+import { Text, TextProps, TextStyle } from "react-native";
+import { Typography } from "@common-ui/constants/typography";
+import { Ternary } from "./Conditional";
 
 type BaseTextProps = {
-  text?: string
-  color?: string
-  align?: 'auto' | 'left' | 'right' | 'center' | 'justify'
-  lineHeight?: number
-  muted?: boolean
-  disabled?: boolean
-  baseStyle?: TextStyle
-  textStyle?: TextStyle[]
-} & TextProps
+  text?: string;
+  color?: string;
+  align?: "auto" | "left" | "right" | "center" | "justify";
+  lineHeight?: number;
+  muted?: boolean;
+  disabled?: boolean;
+  baseStyle?: TextStyle;
+  textStyle?: TextStyle[];
+} & TextProps;
 
 /**
  * @param BaseTextProps
@@ -22,45 +22,47 @@ type BaseTextProps = {
  */
 
 export function BaseText(props: BaseTextProps) {
-  const { color, align, muted, disabled, baseStyle, textStyle, text, lineHeight, ...rest } = props
+  const { color, align, muted, disabled, baseStyle, textStyle, text, lineHeight, ...rest } = props;
 
-  let styles: TextStyle[] = []
+  let styles: TextStyle[] = [];
 
   if (baseStyle) {
-    styles.push(baseStyle)
+    styles.push(baseStyle);
   }
 
   if (color) {
-    styles.push({ color })
+    styles.push({ color });
   }
 
   if (align) {
-    styles.push({ textAlign: align })
+    styles.push({ textAlign: align });
   }
 
   if (muted) {
-    styles.push(Typography.mutedText)
+    styles.push(Typography.mutedText);
   }
 
   if (disabled) {
-    styles.push(Typography.mutedText)
-    styles.push(Typography.disabledText)
+    styles.push(Typography.mutedText);
+    styles.push(Typography.disabledText);
   }
 
   if (textStyle) {
-    styles = [...styles, ...textStyle]
+    styles = [...styles, ...textStyle];
   }
 
   if (lineHeight) {
-    styles.push({ lineHeight })
+    styles.push({ lineHeight });
   }
 
   return (
     <Ternary condition={!!text}>
-      <Text style={styles} {...rest}>{text}</Text>
+      <Text style={styles} {...rest}>
+        {text}
+      </Text>
       <Text style={styles} {...rest} />
     </Ternary>
-  )
+  );
 }
 
 /**
@@ -76,7 +78,7 @@ export function BaseText(props: BaseTextProps) {
  * <HugeTitle color={Color.primary} align="center">Huge Title</HugeTitle>
  */
 export function HugeTitle(props: BaseTextProps) {
-  return <BaseText baseStyle={Typography.hugeTitle} {...props} />
+  return <BaseText baseStyle={Typography.hugeTitle} {...props} />;
 }
 
 /**
@@ -92,7 +94,7 @@ export function HugeTitle(props: BaseTextProps) {
  * <ExtraLargeTitle color={Color.primary} align="center">Huge Title</ExtraLargeTitle>
  */
 export function ExtraLargeTitle(props: BaseTextProps) {
-  return <BaseText baseStyle={Typography.extraLargeTitle} {...props} />
+  return <BaseText baseStyle={Typography.extraLargeTitle} {...props} />;
 }
 
 /**
@@ -108,7 +110,7 @@ export function ExtraLargeTitle(props: BaseTextProps) {
  * <LargeTitle color={Color.primary} align="center">Large Title</LargeTitle>
  */
 export function LargerTitle(props: BaseTextProps) {
-  return <BaseText baseStyle={Typography.largerTitle} {...props} />
+  return <BaseText baseStyle={Typography.largerTitle} {...props} />;
 }
 
 /**
@@ -124,7 +126,7 @@ export function LargerTitle(props: BaseTextProps) {
  * <LargeTitle color={Color.primary} align="center">Large Title</LargeTitle>
  */
 export function LargeTitle(props: BaseTextProps) {
-  return <BaseText baseStyle={Typography.largeTitle} {...props} />
+  return <BaseText baseStyle={Typography.largeTitle} {...props} />;
 }
 
 /**
@@ -140,7 +142,7 @@ export function LargeTitle(props: BaseTextProps) {
  * <MediumTitle color={Color.primary} align="center">Medium Title</MediumTitle>
  */
 export function MediumTitle(props: BaseTextProps) {
-  return <BaseText baseStyle={Typography.mediumTitle} {...props} />
+  return <BaseText baseStyle={Typography.mediumTitle} {...props} />;
 }
 
 /**
@@ -156,7 +158,7 @@ export function MediumTitle(props: BaseTextProps) {
  * <SmallTitle color={Color.primary} align="center">Small Title</SmallTitle>
  */
 export function SmallTitle(props: BaseTextProps) {
-  return <BaseText baseStyle={Typography.smallTitle} {...props} />
+  return <BaseText baseStyle={Typography.smallTitle} {...props} />;
 }
 
 /**
@@ -172,7 +174,7 @@ export function SmallTitle(props: BaseTextProps) {
  * <RegularLargeText color={Color.primary} align="left">Regular Large Text</RegularLargeText>
  */
 export function RegularLargeText(props: BaseTextProps) {
-  return <BaseText baseStyle={Typography.regularLargeText} {...props} />
+  return <BaseText baseStyle={Typography.regularLargeText} {...props} />;
 }
 
 /**
@@ -188,7 +190,7 @@ export function RegularLargeText(props: BaseTextProps) {
  * <MediumText color={Color.primary} align="center">Medium Text</MediumText>
  */
 export function MediumText(props: BaseTextProps) {
-  return <BaseText baseStyle={Typography.mediumText} {...props} />
+  return <BaseText baseStyle={Typography.mediumText} {...props} />;
 }
 
 /**
@@ -204,7 +206,7 @@ export function MediumText(props: BaseTextProps) {
  * <RegularText color={Color.primary} align="center">Regular Text</RegularText>
  */
 export function RegularText(props: BaseTextProps) {
-  return <BaseText baseStyle={Typography.regularText} {...props} />
+  return <BaseText baseStyle={Typography.regularText} {...props} />;
 }
 
 /**
@@ -220,7 +222,7 @@ export function RegularText(props: BaseTextProps) {
  * <SmallerText color={Color.primary} align="center">Smaller Text</SmallerText>
  */
 export function SmallerText(props: BaseTextProps) {
-  return <BaseText baseStyle={Typography.smallerText} {...props} />
+  return <BaseText baseStyle={Typography.smallerText} {...props} />;
 }
 
 /**
@@ -236,7 +238,7 @@ export function SmallerText(props: BaseTextProps) {
  * <SmallText color={Color.primary} align="center">Small Text</SmallText>
  */
 export function SmallText(props: BaseTextProps) {
-  return <BaseText baseStyle={Typography.smallText} {...props} />
+  return <BaseText baseStyle={Typography.smallText} {...props} />;
 }
 
 /**
@@ -252,7 +254,7 @@ export function SmallText(props: BaseTextProps) {
  * <TinyText color={Color.primary} align="center">Tiny Text</TinyText>
  */
 export function TinyText(props: BaseTextProps) {
-  return <BaseText baseStyle={Typography.tinyText} {...props} />
+  return <BaseText baseStyle={Typography.tinyText} {...props} />;
 }
 
 /**
@@ -268,5 +270,5 @@ export function TinyText(props: BaseTextProps) {
  * <LabelText color={Color.primary} align="center">Label Text</LabelText>
  */
 export function LabelText(props: BaseTextProps) {
-  return <BaseText baseStyle={Typography.labelText} {...props} />
+  return <BaseText baseStyle={Typography.labelText} {...props} />;
 }

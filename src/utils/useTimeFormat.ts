@@ -4,16 +4,17 @@
  * Times represent physical readings at a gauge location, not the client's timezone.
  */
 
-import localDayJs from "@services/localDayJs"
+import localDayJs from "@services/localDayJs";
 import dayjs from "dayjs";
 
 export const formatDateTime = (time: string | dayjs.Dayjs, tz: string) => {
-  const result = typeof time === "string" ?
-    localDayJs(time).tz(tz).format("ddd M/D h:mm a") :
-    time?.tz(tz).format("ddd M/D h:mm a");
+  const result =
+    typeof time === "string"
+      ? localDayJs(time).tz(tz).format("ddd M/D h:mm a")
+      : time?.tz(tz).format("ddd M/D h:mm a");
 
   return result;
-}
+};
 
 export const formatReadingTime = (timestamp: string) => {
   if (!timestamp) return "";
@@ -33,4 +34,4 @@ export const formatReadingTime = (timestamp: string) => {
   }
 
   return time.format(formatString);
-}
+};

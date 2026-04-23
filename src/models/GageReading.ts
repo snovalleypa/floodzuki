@@ -1,6 +1,6 @@
-import { Instance, SnapshotIn, SnapshotOut, types } from "mobx-state-tree"
+import { Instance, SnapshotIn, SnapshotOut, types } from "mobx-state-tree";
 
-// GageReading 
+// GageReading
 // timestamp: "2019-12-20T23:45:03",
 // waterHeight: 71.42,
 // waterDischarge: 2400,
@@ -10,27 +10,21 @@ import { Instance, SnapshotIn, SnapshotOut, types } from "mobx-state-tree"
 // isDeleted: false,
 // isMissing: false
 
+export const GageReadingModel = types.model("GageReading").props({
+  id: types.maybe(types.number),
+  timestamp: types.maybe(types.string),
+  waterHeight: types.maybe(types.number),
+  waterDischarge: types.maybe(types.number),
+  groundHeight: types.maybe(types.number),
+  batteryMillivolt: types.maybe(types.number),
+  roadSaddleHeight: types.maybe(types.number),
+  isDeleted: types.maybe(types.boolean),
+  isMissing: types.maybe(types.boolean),
+});
 
-export const GageReadingModel = types
-  .model("GageReading")
-  .props({
-    id: types.maybe(types.number),
-    timestamp: types.maybe(types.string),
-    waterHeight: types.maybe(types.number),
-    waterDischarge: types.maybe(types.number),
-    groundHeight: types.maybe(types.number),
-    batteryMillivolt: types.maybe(types.number),
-    roadSaddleHeight: types.maybe(types.number),
-    isDeleted: types.maybe(types.boolean),
-    isMissing: types.maybe(types.boolean),
-  })
-
-
-export const GageReadingStoreModel = types
-  .model("GageReadingStore")
-  .props({
-    readings: types.array(GageReadingModel),
-  })
+export const GageReadingStoreModel = types.model("GageReadingStore").props({
+  readings: types.array(GageReadingModel),
+});
 
 export interface GageReadingStore extends Instance<typeof GageReadingStoreModel> {}
 export interface GageReadingStoreSnapshot extends SnapshotOut<typeof GageReadingStoreModel> {}

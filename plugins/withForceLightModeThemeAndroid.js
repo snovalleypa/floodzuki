@@ -1,7 +1,4 @@
-const {
-  createRunOncePlugin,
-  withAndroidStyles,
-} = require("expo/config-plugins");
+const { createRunOncePlugin, withAndroidStyles } = require("expo/config-plugins");
 
 // Force the parent of the theme to be Theme.AppCompat.Light.NoActionBar instead of
 // Theme.AppCompat.DayNight.NoActionBar

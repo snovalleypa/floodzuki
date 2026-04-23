@@ -6,10 +6,11 @@ const en = {
     confirm: "Confirm",
     save: "Save",
     back: "Back",
-    appTitle: 'Floodzilla',
+    appTitle: "Floodzilla",
     title: "Floodzilla Gauge Network",
-    metaDescription: "A network of river gauges on the Snoqualmie River deployed and managed by The Snoqualmie Valley Preservation Alliance",
-    description: 'Floodzilla provides real-time flood information for the Snoqualmie Valley',
+    metaDescription:
+      "A network of river gauges on the Snoqualmie River deployed and managed by The Snoqualmie Valley Preservation Alliance",
+    description: "Floodzilla provides real-time flood information for the Snoqualmie Valley",
     subtitle: "An SVPA Project",
     loading: "Loading...",
     tel: "tel:",
@@ -63,7 +64,7 @@ const en = {
     privacyPolicyScreen: "Privacy Policy",
     termsOfServiceScreen: "Terms of Service",
     logout: "Logout",
-    back: "Go Back"
+    back: "Go Back",
   },
   homeScreen: {
     title: "Snoqualmie River / SVPA",
@@ -93,14 +94,16 @@ const en = {
   },
   alertsScreen: {
     title: "Floodzilla Alerts",
-    welcomeText: "Welcome to the Floodzilla Alerts! We will send you alerts via email or SMS Text message when we detect flood conditions.\n",
+    welcomeText:
+      "Welcome to the Floodzilla Alerts! We will send you alerts via email or SMS Text message when we detect flood conditions.\n",
     weNeedFeedback: "We need your feedback!",
     letUsKnow: "Let us know",
     howWeAreDoing: " how we're doing",
     editProfile: "Edit Profile",
     logOut: "Log Out",
     pnsDisabledTitle: "Push Notifications Disabled",
-    pnsDisabledMessage: "You must enable push notifications in your device settings to receive alerts.",
+    pnsDisabledMessage:
+      "You must enable push notifications in your device settings to receive alerts.",
     pnsDisabledButton: "Open Settings",
     alertSettings: "Alert Settings",
     enablePushNotifications: "Enable Push Notifications",
@@ -110,24 +113,28 @@ const en = {
     toReceiveAlerts: "to receive SMS alerts",
     sendSmsAlerts: "Send alerts via SMS to",
     changePhone: "(Change Phone Number)",
-    emailSent: "An email has been sent to {email}. Please click on the link in that email to verify your email address.",
+    emailSent:
+      "An email has been sent to {email}. Please click on the link in that email to verify your email address.",
     verifyEmailTitle: "Verify Email Address",
     forecasts: "Forecasts",
     forecastsTitle: "Floodzilla can send you river forecasts.",
-    genericForecast: "Send me flood forecast alerts (typically once or twice a day during flood events).",
+    genericForecast:
+      "Send me flood forecast alerts (typically once or twice a day during flood events).",
     dailyForecast: "Send me daily river status and crest forecasts.",
     gageAlerts: "Gauge Alerts",
     gageAlertsTitle: "Alert me about status changes for these gauges:",
-    gageAlertsSubtitle: "Please enable one of the notifications channels (Email, SMS, Push Notifications) to manage this settings.",
+    gageAlertsSubtitle:
+      "Please enable one of the notifications channels (Email, SMS, Push Notifications) to manage this settings.",
   },
   changeemailScreen: {
     newEmailAddress: "New Email Address",
     enterEmail: "Enter your email",
-    button: "Update"
+    button: "Update",
   },
   createpasswordScreen: {
-    title: "In order to change your email address, you must first create a password for your Floodzilla account.",
-    submit: "Update"
+    title:
+      "In order to change your email address, you must first create a password for your Floodzilla account.",
+    submit: "Update",
   },
   newScreen: {
     firstName: "First Name",
@@ -145,22 +152,25 @@ const en = {
     createAccount: "Create Account",
   },
   passwordforgotScreen: {
-    description: "Enter your email address. We will send you a link to allow you to reset your password.",
-    emailSent: "An email has been sent to {{email}} with a link to reset your password.\nIf there is no matching account no email will be sent.",
+    description:
+      "Enter your email address. We will send you a link to allow you to reset your password.",
+    emailSent:
+      "An email has been sent to {{email}} with a link to reset your password.\nIf there is no matching account no email will be sent.",
     email: "Email",
     emailPlaceholder: "Enter your email",
-    submit: "Send Email"
+    submit: "Send Email",
   },
   resetpasswordScreen: {
     successMessage: "Done! You can now log in with your new password.",
-    submit: "Update"
+    submit: "Update",
   },
   setpasswordScreen: {
     successMessage: "Done! You can now log in with your new password.",
-    submit: "Update"
+    submit: "Update",
   },
   unsubscribeScreen: {
-    errorMessage: "We're sorry, but an error has occurred while processing your unsubscribe request.",
+    errorMessage:
+      "We're sorry, but an error has occurred while processing your unsubscribe request.",
     please: "Please",
     contactUs: "contact us",
     soWeCanRemove: "so we can remove your subscription.",
@@ -172,7 +182,8 @@ const en = {
     unsubscribeAll: "Unsubscribe from all Floodzilla Alerts",
   },
   verifyemailScreen: {
-    errorMessage: "We're sorry, but an error has occurred while processing your email verification request.",
+    errorMessage:
+      "We're sorry, but an error has occurred while processing your email verification request.",
     tryAgain: "Try Again",
     successMessage: "Your email address has been verified.",
     continue: "Continue to Floodzilla",
@@ -180,9 +191,11 @@ const en = {
   verifyphonenumberScreen: {
     sendVerification: "Send Verification Code",
     resendVerification: "Resend Verification Code",
-    description: "Please enter a phone number where Floodzilla can send SMS Alerts.  Floodzilla will send you an SMS with a verification code.",
+    description:
+      "Please enter a phone number where Floodzilla can send SMS Alerts.  Floodzilla will send you an SMS with a verification code.",
     phoneNumber: "Phone Number",
-    confirmationText: "We sent a verification code to {{phoneNumber}}. Please enter the code below.",
+    confirmationText:
+      "We sent a verification code to {{phoneNumber}}. Please enter the code below.",
     verificationCode: "Verification Code:",
     verificationCodePlaceholder: "Enter the verification code",
     submit: "Verify Phone Number",
@@ -282,10 +295,11 @@ const en = {
   footer: {
     svpaTitle: "The Snoqualmie Valley Preservation Alliance",
     description1: "The Floodzilla Gauge Network is maintained by ",
-    description2: ". The Snoqualmie Valley Preservation Alliance is a 501(c)(3) nonprofit organization committed to protecting the viability of farms, residents, and businesses of the beautiful Snoqualmie River Valley. This site is made possible by the countless volunteer hours of the local technology team, SVPA donors, and a generous grant from King County Flood Control District.",
+    description2:
+      ". The Snoqualmie Valley Preservation Alliance is a 501(c)(3) nonprofit organization committed to protecting the viability of farms, residents, and businesses of the beautiful Snoqualmie River Valley. This site is made possible by the countless volunteer hours of the local technology team, SVPA donors, and a generous grant from King County Flood Control District.",
     addressLine1: "Physical Address",
     addressLine2: "U.S. Mail",
-    copyright: "© Snoqualmie Valley Preservation Alliance"
+    copyright: "© Snoqualmie Valley Preservation Alliance",
   },
   datePicker: {
     startDate: "Start Date",
@@ -294,16 +308,15 @@ const en = {
     month: "Month",
     year: "Year",
   },
-  privacyPolicyScreen: {
-  },
-  termsOfServiceScreen: {
-  },
+  privacyPolicyScreen: {},
+  termsOfServiceScreen: {},
   donation: {
     title: "Support SVPA",
-    description: "This app was built by the Snoqualmie Valley Preservation Alliance (SVPA).\nYour donation today will help us continue our advocacy work for local farmers and the beautiful Snoqualmie Valley.",
+    description:
+      "This app was built by the Snoqualmie Valley Preservation Alliance (SVPA).\nYour donation today will help us continue our advocacy work for local farmers and the beautiful Snoqualmie Valley.",
     donate: "Donate",
-  }
-}
+  },
+};
 
-export default en
-export type Translations = typeof en
+export default en;
+export type Translations = typeof en;

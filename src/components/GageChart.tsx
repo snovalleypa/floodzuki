@@ -17,17 +17,17 @@ import useGageChartOptions from "@utils/useGageChartOptions";
  */
 
 interface GageChartProps {
-  gage: Gage
-  optionType: 'dashboardOptions' | 'gageDetailsOptions'
+  gage: Gage;
+  optionType: "dashboardOptions" | "gageDetailsOptions";
 }
 
 interface ChartsProps {
-  options: Highcharts.Options
+  options: Highcharts.Options;
 }
 
 const Charts = (props: ChartsProps) => {
-  const { options } = props
-  
+  const { options } = props;
+
   return (
     <Ternary condition={isMobile}>
       <HighchartsReactNative
@@ -35,26 +35,24 @@ const Charts = (props: ChartsProps) => {
         styles={{ flex: 1 }}
         webviewStyles={{ height: 200 - Spacing.tiny * 2 }}
         options={options}
-        modules={['broken-axis']}
+        modules={["broken-axis"]}
       />
       <LocalHighchartsReact options={options} />
     </Ternary>
-  )
-}
+  );
+};
 
-export const GageChart = observer(
-  function GageChart(props: GageChartProps) {
-    const { gage, optionType } = props
+export const GageChart = observer(function GageChart(props: GageChartProps) {
+  const { gage, optionType } = props;
 
-    const [chartOptions] = useGageChartOptions(gage, optionType, GageChartDataType.LEVEL)
+  const [chartOptions] = useGageChartOptions(gage, optionType, GageChartDataType.LEVEL);
 
-    return (
-      <Cell flex innerHorizontal={Spacing.tiny} innerVertical={Spacing.tiny}>
-        <Ternary condition={!!Object.keys(chartOptions).length}>
-          <Charts options={chartOptions}/>
-          <></>
-        </Ternary>
-      </Cell>
-    )
-  }
-)
+  return (
+    <Cell flex innerHorizontal={Spacing.tiny} innerVertical={Spacing.tiny}>
+      <Ternary condition={!!Object.keys(chartOptions).length}>
+        <Charts options={chartOptions} />
+        <></>
+      </Ternary>
+    </Cell>
+  );
+});

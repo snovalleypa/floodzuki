@@ -1,16 +1,16 @@
-import { Instance, SnapshotIn, SnapshotOut, types } from "mobx-state-tree"
-import { api } from "@services/api"
-import { flow } from "mobx-state-tree"
-import dayjs from "dayjs"
+import { Instance, SnapshotIn, SnapshotOut, types } from "mobx-state-tree";
+import { api } from "@services/api";
+import { flow } from "mobx-state-tree";
+import dayjs from "dayjs";
 
-import { GageReadingModel } from "./GageReading"
-import { dataFetchingProps, withDataFetchingActions } from "./helpers/withDataFetchingProps"
-import { withSetPropAction } from "./helpers/withSetPropsAction"
-import Config from "@config/config"
-import { LocationInfoModel } from "./LocationInfo"
-import localDayJs from "@services/localDayJs"
-import { DataPoint, NOAAForecastModel } from "./Forecasts"
-import USGS_INFO from "@utils/usgsInfo"
+import { GageReadingModel } from "./GageReading";
+import { dataFetchingProps, withDataFetchingActions } from "./helpers/withDataFetchingProps";
+import { withSetPropAction } from "./helpers/withSetPropsAction";
+import Config from "@config/config";
+import { LocationInfoModel } from "./LocationInfo";
+import localDayJs from "@services/localDayJs";
+import { DataPoint, NOAAForecastModel } from "./Forecasts";
+import USGS_INFO from "@utils/usgsInfo";
 
 // Gage data from https://waterservices.usgs.gov/rest/IV-Service.html
 // id: "USGS-38",
@@ -46,57 +46,53 @@ import USGS_INFO from "@utils/usgsInfo"
 // },
 
 export enum GageChartDataType {
-  LEVEL = 'level',
-  DISCHARGE = 'discharge',
-  FORECAST = 'forecast',
-};
-
-export const STATUSES = {
-  "Offline": "offline",
-  "Online": "success",
-  "Dry": "success",
-  "Normal": "success",
-  "NearFlooding": "warning",
-  "Flooding": "danger",
+  LEVEL = "level",
+  DISCHARGE = "discharge",
+  FORECAST = "forecast",
 }
 
+export const STATUSES = {
+  Offline: "offline",
+  Online: "success",
+  Dry: "success",
+  Normal: "success",
+  NearFlooding: "warning",
+  Flooding: "danger",
+};
+
 const mapAndAdjustForecastTimestampsForDisplay = (forecastData) => {
-  return forecastData.map(point => {
+  return forecastData.map((point) => {
     return {
       reading: point.stage,
       waterDischarge: point.waterDischarge,
       timestamp: localDayJs.tz(point.timestamp),
-      isDeleted: false
+      isDeleted: false,
     } as DataPoint;
   });
-}
-  
+};
+
 const mapAndAdjustTimestampsForDisplay = (dataPoints) => {
-    return dataPoints.map(point => {
-      return {
-        reading: point.waterHeight,
-        waterDischarge: point.waterDischarge,
-        timestamp: localDayJs.tz(point.timestamp),
-        isDeleted: point.isDeleted
-      } as DataPoint;
-    });
-  }
+  return dataPoints.map((point) => {
+    return {
+      reading: point.waterHeight,
+      waterDischarge: point.waterDischarge,
+      timestamp: localDayJs.tz(point.timestamp),
+      isDeleted: point.isDeleted,
+    } as DataPoint;
+  });
+};
 
-const WaterTrendModel = types
-  .model("WaterTrend")
-  .props({
-    trendValues: types.array(types.maybeNull(types.number)),
-    trendValue: types.maybe(types.number),
-  })
+const WaterTrendModel = types.model("WaterTrend").props({
+  trendValues: types.array(types.maybeNull(types.number)),
+  trendValue: types.maybe(types.number),
+});
 
-const GageStatusModel = types
-  .model("GageStatus")
-  .props({
-    lastReading: types.maybe(GageReadingModel),
-    floodLevel: types.maybe(types.string),
-    levelTrend: types.maybe(types.string),
-    waterTrend: types.maybe(WaterTrendModel),
-  })
+const GageStatusModel = types.model("GageStatus").props({
+  lastReading: types.maybe(GageReadingModel),
+  floodLevel: types.maybe(types.string),
+  levelTrend: types.maybe(types.string),
+  waterTrend: types.maybe(WaterTrendModel),
+});
 
 export const GageModel = types
   .model("Gage")
@@ -121,68 +117,72 @@ export const GageModel = types
     locationInfo: types.maybeNull(types.late(() => types.safeReference(LocationInfoModel))),
   })
   .actions(withSetPropAction)
-  .views(store => ({
+  .views((store) => ({
     get isUSGS() {
-      return store.locationId?.match("USGS")
+      return store.locationId?.match("USGS");
     },
 
     get riverMile() {
-      return store.locationId?.match(/[0-9]+/g)[0]
+      return store.locationId?.match(/[0-9]+/g)[0];
     },
 
     get gageStatus() {
-      return store.status || GageStatusModel.create({
-        floodLevel: "Offline",
-        levelTrend: "Offline",
-      })
+      return (
+        store.status ||
+        GageStatusModel.create({
+          floodLevel: "Offline",
+          levelTrend: "Offline",
+        })
+      );
     },
 
     get lastReading() {
-      return store.status?.lastReading
+      return store.status?.lastReading;
     },
 
     get waterLevel() {
-      return store.status?.lastReading?.waterHeight || 0
+      return store.status?.lastReading?.waterHeight || 0;
     },
 
     get groundHeight() {
-      return store.status?.lastReading?.groundHeight || 0
+      return store.status?.lastReading?.groundHeight || 0;
     },
 
     get waterDischarge() {
-      return store.status?.lastReading?.waterDischarge || 0
+      return store.status?.lastReading?.waterDischarge || 0;
     },
 
     get roadSaddleHeight() {
-      return store.locationInfo?.roadSaddleHeight
+      return store.locationInfo?.roadSaddleHeight;
     },
 
     get roadDisplayName() {
-      return store.locationInfo?.roadDisplayName
+      return store.locationInfo?.roadDisplayName;
     },
 
     get hasData() {
-      return !!store.readings.length
+      return !!store.readings.length;
     },
 
     get yellowStage() {
-      return store.locationInfo?.yellowStage
+      return store.locationInfo?.yellowStage;
     },
 
     get redStage() {
-      return store.locationInfo?.redStage
+      return store.locationInfo?.redStage;
     },
 
     get latitude() {
-      return store.locationInfo?.latitude
+      return store.locationInfo?.latitude;
     },
 
     get longitude() {
-      return store.locationInfo?.longitude
+      return store.locationInfo?.longitude;
     },
 
     getChartMinAndMax(chartDataType: GageChartDataType) {
-      let yMinimum = 0, yMaximum = 0;
+      let yMinimum = 0,
+        yMaximum = 0;
 
       if (chartDataType === GageChartDataType.DISCHARGE) {
         yMinimum = store.locationInfo?.dischargeMin;
@@ -195,19 +195,21 @@ export const GageModel = types
       return {
         yMinimum,
         yMaximum,
-      }
+      };
     },
   }))
-  .views(store => ({
+  .views((store) => ({
     get roads() {
-      return [{
-        elevation: store.roadSaddleHeight,
-        name: store.roadDisplayName
-      }]
+      return [
+        {
+          elevation: store.roadSaddleHeight,
+          name: store.roadDisplayName,
+        },
+      ];
     },
 
     get hasRoads() {
-      return !!store.roadSaddleHeight && !!store.roadDisplayName
+      return !!store.roadSaddleHeight && !!store.roadDisplayName;
     },
 
     get dataPoints() {
@@ -219,8 +221,9 @@ export const GageModel = types
     get chartReadings() {
       if (!store.hasData) return [];
 
-      return store.readings.filter(reading => !reading.isDeleted)
-        .map(reading => ({
+      return store.readings
+        .filter((reading) => !reading.isDeleted)
+        .map((reading) => ({
           date: new Date(reading.timestamp),
           value: reading.waterHeight,
         }));
@@ -234,19 +237,19 @@ export const GageModel = types
       if (predictions && predictions.length) {
         let predWithNoGap = [...predictions];
         predWithNoGap.unshift(store.readings[0]);
-        
+
         points = mapAndAdjustTimestampsForDisplay(predWithNoGap);
       }
-      
+
       return points;
     },
 
     get opearatorName() {
-      return store.isUSGS ? "USGS" : "SVPA"
+      return store.isUSGS ? "USGS" : "SVPA";
     },
 
     get usgsInfo() {
-      return store.isUSGS ? USGS_INFO[store.locationId] : null
+      return store.isUSGS ? USGS_INFO[store.locationId] : null;
     },
 
     get actualPoints() {
@@ -270,7 +273,7 @@ export const GageModel = types
         return store.roadSaddleHeight - store.yellowStage;
       }
 
-      return null
+      return null;
     },
 
     get roadToRedStage() {
@@ -286,88 +289,90 @@ export const GageModel = types
         return store.roadSaddleHeight - store.redStage;
       }
 
-      return null
+      return null;
     },
 
     getCalculatedRoadStatus(waterLevel: number) {
       if (!store.roadSaddleHeight || !store.roadDisplayName) return null;
-      
+
       const baseLevel = waterLevel || store.waterLevel;
       const level = baseLevel - store.roadSaddleHeight;
       const preposition = store.roadSaddleHeight - baseLevel > 0 ? "below" : "over";
       const deltaFormatted = Math.abs(level).toFixed(1) + " ft.";
-      
+
       return {
         name: store.roadDisplayName,
         level,
         preposition,
-        deltaFormatted
+        deltaFormatted,
       };
     },
 
     clearLastReading() {
       store.lastReadingId = undefined;
-    }
-  }))
-
+    },
+  }));
 
 export const GageStoreModel = types
   .model("GageStore")
   .props({
     gages: types.array(GageModel),
-    ...dataFetchingProps
+    ...dataFetchingProps,
   })
   .actions(withDataFetchingActions)
   .actions(withSetPropAction)
-  .actions(store => {
-    const fetchData = flow(function*() {
-      store.setIsFetching(true)
-      
-      const toDateTime = new Date().toUTCString()
-      const fromDateTime = dayjs().subtract(
-        Config.FRONT_PAGE_CHART_DURATION_NUMBER,
-        Config.FRONT_PAGE_CHART_DURATION_UNIT
-      ).toDate().toUTCString()
+  .actions((store) => {
+    const fetchData = flow(function* () {
+      store.setIsFetching(true);
 
-      const response = yield api.getStatusAndRecentReadings<{gages: Gage[]}>(
+      const toDateTime = new Date().toUTCString();
+      const fromDateTime = dayjs()
+        .subtract(Config.FRONT_PAGE_CHART_DURATION_NUMBER, Config.FRONT_PAGE_CHART_DURATION_UNIT)
+        .toDate()
+        .toUTCString();
+
+      const response = yield api.getStatusAndRecentReadings<{ gages: Gage[] }>(
         fromDateTime,
-        toDateTime,
-      )
+        toDateTime
+      );
 
-      if (response.kind === 'ok') {
-        const gages = response.data.gages?.map(gage => ({
-          ...gage,
-          lastReadingId: undefined,
-          locationInfo: gage.locationId,
-        })) || []
+      if (response.kind === "ok") {
+        const gages =
+          response.data.gages?.map((gage) => ({
+            ...gage,
+            lastReadingId: undefined,
+            locationInfo: gage.locationId,
+          })) || [];
 
-        store.gages = gages
+        store.gages = gages;
       } else {
-        store.setError(response.kind)
+        store.setError(response.kind);
       }
-      
-      store.setIsFetching(false)
-    })
 
-    const fetchDataForGage = flow(function*(
+      store.setIsFetching(false);
+    });
+
+    const fetchDataForGage = flow(function* (
       locationId: string,
       fromTime?: string,
       toTime?: string,
       includePredictions: boolean = true,
-      includeLastReading: boolean = true,
+      includeLastReading: boolean = true
     ) {
-      store.setIsFetching(true)
+      store.setIsFetching(true);
 
-      const toDateTime = toTime || localDayJs().utc().format()
-      const fromDateTime = fromTime || localDayJs().subtract(
-        Config.FRONT_PAGE_CHART_DURATION_NUMBER,
-        Config.FRONT_PAGE_CHART_DURATION_UNIT
-      ).utc().format()
+      const toDateTime = toTime || localDayJs().utc().format();
+      const fromDateTime =
+        fromTime ||
+        localDayJs()
+          .subtract(Config.FRONT_PAGE_CHART_DURATION_NUMBER, Config.FRONT_PAGE_CHART_DURATION_UNIT)
+          .utc()
+          .format();
 
-      const gage = store.gages.find(gage => gage?.locationId === locationId)
+      const gage = store.gages.find((gage) => gage?.locationId === locationId);
 
       if (!gage) {
-        store.setIsFetching(false)
+        store.setIsFetching(false);
         return;
       }
 
@@ -377,58 +382,55 @@ export const GageStoreModel = types
         toDateTime,
         includeLastReading && includePredictions ? gage.lastReadingId : undefined,
         true,
-        includePredictions,
-      )
+        includePredictions
+      );
 
-      if (response.kind === 'ok') {
-        const data = response.data
-        
+      if (response.kind === "ok") {
+        const data = response.data;
+
         if (data.noData) {
-          store.setIsFetching(false)
-          return
+          store.setIsFetching(false);
+          return;
         }
 
         // We tend to ignore predictions only for historic events or events
         // that are in the past. In those cases, we don't want to update the lastReadingId
         if (includePredictions) {
-          gage?.setProp("lastReadingId", data.lastReadingId)
+          gage?.setProp("lastReadingId", data.lastReadingId);
+        } else {
+          gage?.setProp("lastReadingId", undefined);
         }
-        else {
-          gage?.setProp("lastReadingId", undefined)
-        }
-        
+
         // If last reading id is included - add it to the readings array
         if (includeLastReading) {
-          gage?.setProp("readings", [...gage.readings, ...data.readings])
-        }
-        else {
+          gage?.setProp("readings", [...gage.readings, ...data.readings]);
+        } else {
           // Otherwise, just replace the readings array
-          gage?.setProp("readings", data.readings)
+          gage?.setProp("readings", data.readings);
         }
-        
-        gage?.setProp("predictedCfsPerHour", data.predictedCfsPerHour)
-        gage?.setProp("predictedFeetPerHour", data.predictedFeetPerHour)
-        gage?.setProp("status", data.status)
-        gage?.setProp("peakStatus", data.peakStatus)
-        gage?.setProp("predictions", data.predictions || [])
+
+        gage?.setProp("predictedCfsPerHour", data.predictedCfsPerHour);
+        gage?.setProp("predictedFeetPerHour", data.predictedFeetPerHour);
+        gage?.setProp("status", data.status);
+        gage?.setProp("peakStatus", data.peakStatus);
+        gage?.setProp("predictions", data.predictions || []);
       } else {
-        store.setError(response.kind)
+        store.setError(response.kind);
       }
-      
-      store.setIsFetching(false)
-    })
+
+      store.setIsFetching(false);
+    });
 
     return {
       fetchData,
       fetchDataForGage,
-    }
+    };
   })
-  .views(store => ({
+  .views((store) => ({
     getGageByLocationId(id: string) {
-      return store.gages.find(gage => gage.locationId === id)
-    }
-  }))
-
+      return store.gages.find((gage) => gage.locationId === id);
+    },
+  }));
 
 export interface GageStore extends Instance<typeof GageStoreModel> {}
 export interface GageStoreSnapshot extends SnapshotOut<typeof GageStoreModel> {}

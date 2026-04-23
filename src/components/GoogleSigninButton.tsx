@@ -1,4 +1,4 @@
-import React, { useEffect } from "react"
+import React, { useEffect } from "react";
 import { observer } from "mobx-react-lite";
 import { useRouter } from "expo-router";
 
@@ -15,60 +15,60 @@ import { Colors } from "@common-ui/constants/colors";
 import { Spacing } from "@common-ui/constants/spacing";
 import { Image } from "expo-image";
 
-const GoogleSigninButton = observer(
-  function GoogleSigninButton() {
-    const { authSessionStore } = useStores()
-    const { t } = useLocale()
-    const router = useRouter()
-    const googleAuth = useGoogleAuth()
+const GoogleSigninButton = observer(function GoogleSigninButton() {
+  const { authSessionStore } = useStores();
+  const { t } = useLocale();
+  const router = useRouter();
+  const googleAuth = useGoogleAuth();
 
-    useEffect(() => {
-      if (!!googleAuth.idToken) {
-        authorizeUser(googleAuth.idToken)
-      }
-    }, [googleAuth.idToken])
-
-    const authorizeUser = async (idToken: string) => {
-      await authSessionStore.processGoogleToken({ idToken })
-
-      if (!authSessionStore.isError) {
-        router.push({ pathname: ROUTES.UserAlerts })
-      }
+  useEffect(() => {
+    if (!!googleAuth.idToken) {
+      authorizeUser(googleAuth.idToken);
     }
+  }, [googleAuth.idToken]);
 
-    const loadingText = "Loading..."
-    const buttonText = googleAuth.isLoading ? loadingText : t("googlesigninButton.title")
-    const isButtonDisabled = googleAuth.isDisabled || googleAuth.isLoading
+  const authorizeUser = async (idToken: string) => {
+    await authSessionStore.processGoogleToken({ idToken });
 
-    return (
-      <Cell>
-        <If condition={googleAuth.isError}>
-          <ErrorMessage errorText={t("googlesigninButton.error")} />
+    if (!authSessionStore.isError) {
+      router.push({ pathname: ROUTES.UserAlerts });
+    }
+  };
+
+  const loadingText = "Loading...";
+  const buttonText = googleAuth.isLoading ? loadingText : t("googlesigninButton.title");
+  const isButtonDisabled = googleAuth.isDisabled || googleAuth.isLoading;
+
+  return (
+    <Cell>
+      <If condition={googleAuth.isError}>
+        <ErrorMessage errorText={t("googlesigninButton.error")} />
+      </If>
+      <Pressable
+        accessible
+        accessibilityRole="button"
+        accessibilityLabel={buttonText}
+        disabled={isButtonDisabled}
+        onPress={googleAuth.authorize}
+        style={(state) => [
+          $button,
+          !isButtonDisabled && state.pressed && $buttonHovered,
+          !isButtonDisabled && state.hovered && $buttonHovered,
+          !isButtonDisabled && state.focused && $buttonHovered,
+          isButtonDisabled && $buttonDisabled,
+        ]}>
+        <Image
+          source={require("@assets/images/btn_google.png")}
+          style={{ width: 48, height: 48, marginRight: 10 }}
+        />
+        <If condition={googleAuth.isLoading}>
+          <ActivityIndicator size="small" color={Colors.white} style={$activityIndicator} />
         </If>
-        <Pressable
-          accessible
-          accessibilityRole="button"
-          accessibilityLabel={buttonText}
-          disabled={isButtonDisabled}
-          onPress={googleAuth.authorize}
-          style={state => [
-            $button,
-            !isButtonDisabled && state.pressed && $buttonHovered,
-            !isButtonDisabled && state.hovered && $buttonHovered,
-            !isButtonDisabled && state.focused && $buttonHovered,
-            isButtonDisabled && $buttonDisabled,
-          ]}
-        >
-          <Image source={require("@assets/images/btn_google.png")} style={{ width: 48, height: 48, marginRight: 10 }} />
-          <If condition={googleAuth.isLoading}>
-            <ActivityIndicator size="small" color={Colors.white} style={$activityIndicator} />
-          </If>
-          <MediumText color={Colors.white}>{buttonText}</MediumText>
-        </Pressable>
-      </Cell>
-    )
-  }
-)
+        <MediumText color={Colors.white}>{buttonText}</MediumText>
+      </Pressable>
+    </Cell>
+  );
+});
 
 const $button: ViewStyle = {
   alignItems: "center",
@@ -90,18 +90,18 @@ const $button: ViewStyle = {
   shadowOpacity: 0.22,
   shadowRadius: 2.22,
   elevation: 3,
-}
+};
 
 const $activityIndicator: ViewStyle = {
   marginRight: Spacing.small,
-}
+};
 
 const $buttonHovered: ViewStyle = {
   opacity: 0.8,
-}
+};
 
 const $buttonDisabled: ViewStyle = {
   opacity: 0.5,
-}
+};
 
-export default GoogleSigninButton
+export default GoogleSigninButton;

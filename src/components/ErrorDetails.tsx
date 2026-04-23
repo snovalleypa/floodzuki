@@ -1,15 +1,15 @@
-import React, { useEffect } from "react"
-import { ErrorBoundaryProps } from "expo-router"
+import React, { useEffect } from "react";
+import { ErrorBoundaryProps } from "expo-router";
 
 import * as Sentry from "@sentry/react-native";
 
-import { Screen, Content } from "@common-ui/components/Screen"
-import { HugeTitle, LargeTitle, MediumText } from "@common-ui/components/Text"
-import { SolidButton } from "@common-ui/components/Button"
-import { Cell } from "@common-ui/components/Common"
-import { Spacing } from "@common-ui/constants/spacing"
-import { useLocale } from "@common-ui/contexts/LocaleContext"
-import { isWeb } from "@common-ui/utils/responsive"
+import { Screen, Content } from "@common-ui/components/Screen";
+import { HugeTitle, LargeTitle, MediumText } from "@common-ui/components/Text";
+import { SolidButton } from "@common-ui/components/Button";
+import { Cell } from "@common-ui/components/Common";
+import { Spacing } from "@common-ui/constants/spacing";
+import { useLocale } from "@common-ui/contexts/LocaleContext";
+import { isWeb } from "@common-ui/utils/responsive";
 
 export function ErrorDetails(props: ErrorBoundaryProps) {
   const { t } = useLocale();
@@ -20,10 +20,10 @@ export function ErrorDetails(props: ErrorBoundaryProps) {
       Sentry.Browser?.captureException(props.error);
       return;
     }
-    
+
     Sentry.Native?.captureException(props.error);
-  }, [])
-  
+  }, []);
+
   return (
     <Screen>
       <Cell left={Spacing.medium}>
@@ -42,5 +42,5 @@ export function ErrorDetails(props: ErrorBoundaryProps) {
         </Cell>
       </Content>
     </Screen>
-  )
+  );
 }

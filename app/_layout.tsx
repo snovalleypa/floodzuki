@@ -2,10 +2,10 @@ import React, { useEffect } from "react";
 import { Slot } from "expo-router";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
-import { StatusBar } from 'expo-status-bar';
+import { StatusBar } from "expo-status-bar";
 import Head from "expo-router/head";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 
 import { customFontsToLoad } from "@common-ui/constants/typography";
 import { useInitialRootStore } from "@models/helpers/useStores";
@@ -19,11 +19,11 @@ import { initSentry } from "@utils/sentry";
 import { If } from "@common-ui/components/Conditional";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
-initSentry()
+initSentry();
 
 /**
  * Root layout for Expo router (entry file for the app)
- * 
+ *
  */
 
 // All routes available in the app
@@ -55,38 +55,37 @@ export const routes = {
     path: ROUTES.Gages,
     icon: "activity",
     tabName: "gage",
-    title: "navigation.homeScreen"
+    title: "navigation.homeScreen",
   },
   [ROUTES.Forecast]: {
     path: ROUTES.Forecast,
     icon: "trending-up",
     tabName: "forecast",
-    title: "navigation.forecastScreen"
+    title: "navigation.forecastScreen",
   },
   [ROUTES.UserAlerts]: {
     path: ROUTES.About,
     icon: "bell",
     tabName: "user",
-    title: "navigation.alertsScreen"
+    title: "navigation.alertsScreen",
   },
 } as const;
 
-export type MainRoute = typeof routes[keyof typeof routes];
+export type MainRoute = (typeof routes)[keyof typeof routes];
 
 SplashScreen.preventAutoHideAsync();
 
 export default function AppLayout() {
-  const [areFontsLoaded] = useFonts(customFontsToLoad)
-  const { rehydrated } = useInitialRootStore()
+  const [areFontsLoaded] = useFonts(customFontsToLoad);
+  const { rehydrated } = useInitialRootStore();
 
-  const delayForAssets = isWeb ? false : !areFontsLoaded
+  const delayForAssets = isWeb ? false : !areFontsLoaded;
 
   useEffect(() => {
     if (!delayForAssets && rehydrated) {
       SplashScreen.hideAsync();
     }
-  }, [delayForAssets, rehydrated])
-
+  }, [delayForAssets, rehydrated]);
 
   if (delayForAssets || !rehydrated) {
     return null;
@@ -109,7 +108,7 @@ export default function AppLayout() {
         </LocaleProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
-  )
+  );
 }
 
 function App() {
@@ -123,32 +122,37 @@ function App() {
         <Head>
           <link rel="icon" href={getAsset("favicon").uri} />
           {/* Load custom fonts */}
-          <link type="text/css" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600,700|Open+Sans:300,400,500,600,700;lang=en" />
-          <title>{t("common.title")} - {t("homeScreen.title")}</title>
+          <link
+            type="text/css"
+            rel="stylesheet"
+            href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600,700|Open+Sans:300,400,500,600,700;lang=en"
+          />
+          <title>
+            {t("common.title")} - {t("homeScreen.title")}
+          </title>
           <meta name="description" content={t("common.metaDescription")} />
           <meta property="expo:handoff" content="true" />
           <meta name="apple-itunes-app" content="app-id=6448645748" />
           <meta name="google-play-app" content="app-id=com.floodzilla.floodzuki" />
           <link rel="apple-touch-icon" href={getAsset("favicon").uri} />
-          <script
-            async
-            src="https://www.googletagmanager.com/gtag/js?id=UA-302444-12"
-          ></script>
+          <script async src="https://www.googletagmanager.com/gtag/js?id=UA-302444-12"></script>
           <script src="//apis.google.com/js/client:platform.js?onload=start"></script>
           <script src="//www.google.com/recaptcha/api.js" async defer></script>
-          <script>{`
+          <script>
+            {`
             window.dataLayer = window.dataLayer || [];
-            
+
             function gtag() {
               dataLayer.push(arguments)
             }
-            
+
             gtag("js", new Date())
 
             gtag("config", "UA-302444-12")
           `}
           </script>
-          <style>{`
+          <style>
+            {`
             a {
               text-decoration: none;
               color: inherit;
@@ -159,5 +163,5 @@ function App() {
       </If>
       <Slot />
     </>
-  )
+  );
 }

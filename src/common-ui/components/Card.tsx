@@ -1,71 +1,79 @@
-import React from "react"
-import { View, ViewStyle, ColorValue, TouchableOpacity } from "react-native"
-import { Colors, ColorTypes } from "@common-ui/constants/colors"
-import { OffsetProps, useOffsetStyles } from "@common-ui/utils/useOffset"
-import { Spacing } from "@common-ui/constants/spacing"
-import { Cell, Row, Separator } from "./Common"
-import { If } from "./Conditional"
-import { MediumText } from "./Text"
-import Icon from "./Icon"
+import React from "react";
+import { View, ViewStyle, ColorValue, TouchableOpacity } from "react-native";
+import { Colors, ColorTypes } from "@common-ui/constants/colors";
+import { OffsetProps, useOffsetStyles } from "@common-ui/utils/useOffset";
+import { Spacing } from "@common-ui/constants/spacing";
+import { Cell, Row, Separator } from "./Common";
+import { If } from "./Conditional";
+import { MediumText } from "./Text";
+import Icon from "./Icon";
 
 type CardProps = {
-  children: React.ReactNode
-  noBackground?: boolean
-  type?: keyof typeof ColorTypes | "default"
-  outline?: boolean
-  backgroundColor?: ColorValue
-  noPadding?: boolean
-  flex?: boolean | number | string
-} & OffsetProps
+  children: React.ReactNode;
+  noBackground?: boolean;
+  type?: keyof typeof ColorTypes | "default";
+  outline?: boolean;
+  backgroundColor?: ColorValue;
+  noPadding?: boolean;
+  flex?: boolean | number | string;
+} & OffsetProps;
 
 type CardItemProps = {
-  children: [JSX.Element, JSX.Element]
-  noBorder?: boolean
-}
+  children: [JSX.Element, JSX.Element];
+  noBorder?: boolean;
+};
 
 type CardListLinkItemProps = {
-  text?: string
-  onPress?: () => void
-  noBorder?: boolean
-}
+  text?: string;
+  onPress?: () => void;
+  noBorder?: boolean;
+};
 
 type BaseProps = {
-  baseStyle: ViewStyle
-} & CardProps
+  baseStyle: ViewStyle;
+} & CardProps;
 
 const Base = (props: BaseProps): React.ReactElement => {
-  const { children, baseStyle, noBackground, type, outline, backgroundColor, noPadding, flex, ...offsetProps } =
-    props
-  let style: ViewStyle[] = [baseStyle]
+  const {
+    children,
+    baseStyle,
+    noBackground,
+    type,
+    outline,
+    backgroundColor,
+    noPadding,
+    flex,
+    ...offsetProps
+  } = props;
+  let style: ViewStyle[] = [baseStyle];
 
-  style = useOffsetStyles(style, offsetProps)
+  style = useOffsetStyles(style, offsetProps);
 
   if (noBackground) {
-    style.push($noBackground)
+    style.push($noBackground);
   }
 
   if (noPadding) {
-    style.push($noPadding)
+    style.push($noPadding);
   }
 
   if (flex) {
-    const flexValue = typeof flex === "boolean" ? 1 : flex
-    style.push({ flex: flexValue })
+    const flexValue = typeof flex === "boolean" ? 1 : flex;
+    style.push({ flex: flexValue });
   }
 
   if ((type && type !== "default") || backgroundColor) {
-    const color: ColorValue | undefined = type ? Colors[type] : backgroundColor
+    const color: ColorValue | undefined = type ? Colors[type] : backgroundColor;
 
     if (!outline) {
-      style.push({ backgroundColor: color })
-    }
-    else {
-      style.push({ borderColor: color })
+      style.push({ backgroundColor: color });
+    } else {
+      style.push({ borderColor: color });
     }
   }
 
-  return <View style={style}>{children}</View>
-}
+  return <View style={style}>{children}</View>;
+};
 
 /**
  * A Card component useful to display content in a card like structure
@@ -87,9 +95,8 @@ export function Card({ children, ...props }: CardProps) {
     <Base baseStyle={$card} {...props}>
       {children}
     </Base>
-  )
+  );
 }
-
 
 /**
  * A Card Header component useful to display content in a card like structure
@@ -112,7 +119,7 @@ export function CardHeader({ children, ...props }: CardProps) {
     <Base baseStyle={$cardHeader} {...props}>
       {children}
     </Base>
-  )
+  );
 }
 
 /**
@@ -136,7 +143,7 @@ export function CardFooter({ children, ...props }: CardProps) {
     <Base baseStyle={$cardFooter} {...props}>
       {children}
     </Base>
-  )
+  );
 }
 
 /**
@@ -148,7 +155,7 @@ export function CardContent({ children, ...props }: CardProps) {
     <Base baseStyle={$cardContent} {...props}>
       {children}
     </Base>
-  )
+  );
 }
 
 /**
@@ -157,14 +164,8 @@ export function CardContent({ children, ...props }: CardProps) {
  */
 export function CardItem({ children, noBorder = false }: CardItemProps) {
   return (
-    <Cell
-      horizontal={-Spacing.small}
-    >
-      <Row
-        align="space-between"
-        horizontal={Spacing.small}
-        vertical={Spacing.small}
-      >
+    <Cell horizontal={-Spacing.small}>
+      <Row align="space-between" horizontal={Spacing.small} vertical={Spacing.small}>
         {children[0]}
         {children[1]}
       </Row>
@@ -172,7 +173,7 @@ export function CardItem({ children, noBorder = false }: CardItemProps) {
         <Separator />
       </If>
     </Cell>
-  )
+  );
 }
 
 /**
@@ -187,7 +188,7 @@ export function CardListLinkItem({ text, onPress, noBorder = false }: CardListLi
         <Icon name="chevron-right" color={Colors.lightDark} />
       </CardItem>
     </TouchableOpacity>
-  )
+  );
 }
 
 const $card: ViewStyle = {
@@ -204,7 +205,7 @@ const $card: ViewStyle = {
     width: 0,
     height: 1,
   },
-}
+};
 
 const $cardHeader: ViewStyle = {
   backgroundColor: Colors.white,
@@ -215,7 +216,7 @@ const $cardHeader: ViewStyle = {
   paddingBottom: Spacing.small,
   marginHorizontal: -Spacing.small,
   paddingHorizontal: Spacing.small,
-}
+};
 
 const $cardFooter: ViewStyle = {
   backgroundColor: Colors.white,
@@ -226,21 +227,21 @@ const $cardFooter: ViewStyle = {
   paddingTop: Spacing.small,
   marginHorizontal: -Spacing.small,
   paddingHorizontal: Spacing.small,
-}
+};
 
 const $cardContent: ViewStyle = {
   paddingVertical: Spacing.small,
   paddingHorizontal: Spacing.small,
   marginHorizontal: -Spacing.small,
-}
+};
 
 const $noBackground: ViewStyle = {
   backgroundColor: "transparent",
-}
+};
 
 const $noPadding: ViewStyle = {
   paddingLeft: 0,
   paddingRight: 0,
   paddingTop: 0,
   paddingBottom: 0,
-}
+};

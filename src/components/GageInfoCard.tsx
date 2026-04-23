@@ -1,4 +1,4 @@
-import React from "react"
+import React from "react";
 import { observer } from "mobx-react-lite";
 
 import { LinkButton } from "@common-ui/components/Button";
@@ -10,62 +10,64 @@ import { Gage } from "@models/Gage";
 import { openLinkInBrowser } from "@utils/navigation";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 
-const GageInfoCard = observer(
-  function GageInfoCard({ gage }: { gage: Gage }) {
-    const { t } = useLocale()
+const GageInfoCard = observer(function GageInfoCard({ gage }: { gage: Gage }) {
+  const { t } = useLocale();
 
-    const goToUSGSWebsite = () => {
-      if (!gage?.usgsInfo) return
-      
-      const url = `https://waterdata.usgs.gov/monitoring-location/${gage?.usgsInfo?.id}`
-      openLinkInBrowser(url)
-    }
+  const goToUSGSWebsite = () => {
+    if (!gage?.usgsInfo) return;
 
-    const openLocationInMaps = () => {
-      const url = `https://www.google.com/maps/search/?api=1&query=${gage?.locationInfo?.latitude},${gage?.locationInfo?.longitude}`
-      openLinkInBrowser(url)
-    }
+    const url = `https://waterdata.usgs.gov/monitoring-location/${gage?.usgsInfo?.id}`;
+    openLinkInBrowser(url);
+  };
 
-    return (
-      <Card flex>  
-        <CardHeader>
-          <SmallTitle>{t("gageInfoCard.gageInfo")}</SmallTitle>
-        </CardHeader>
-        <Cell flex>
+  const openLocationInMaps = () => {
+    const url = `https://www.google.com/maps/search/?api=1&query=${gage?.locationInfo?.latitude},${gage?.locationInfo?.longitude}`;
+    openLinkInBrowser(url);
+  };
+
+  return (
+    <Card flex>
+      <CardHeader>
+        <SmallTitle>{t("gageInfoCard.gageInfo")}</SmallTitle>
+      </CardHeader>
+      <Cell flex>
+        <CardItem>
+          <RegularText>{t("gageInfoCard.gageID")}</RegularText>
+          <MediumText>{gage?.locationId}</MediumText>
+        </CardItem>
+        <CardItem>
+          <RegularText>{t("gageInfoCard.operatedBy")}</RegularText>
+          <MediumText>{gage?.opearatorName}</MediumText>
+        </CardItem>
+        <CardItem>
+          <RegularText>{t("gageInfoCard.riverMile")}</RegularText>
+          <MediumText>{gage?.riverMile}</MediumText>
+        </CardItem>
+        <If condition={!!gage?.usgsInfo}>
           <CardItem>
-            <RegularText>{t("gageInfoCard.gageID")}</RegularText>
-            <MediumText>{gage?.locationId}</MediumText>
-          </CardItem>
-          <CardItem>
-            <RegularText>{t("gageInfoCard.operatedBy")}</RegularText>
-            <MediumText>{gage?.opearatorName}</MediumText>
-          </CardItem>
-          <CardItem>
-            <RegularText>{t("gageInfoCard.riverMile")}</RegularText>
-            <MediumText>{gage?.riverMile}</MediumText>
-          </CardItem>
-          <If condition={!!gage?.usgsInfo}>
-            <CardItem>
-              <RegularText>{t("gageInfoCard.usgsWebsite")}</RegularText>
-              <LinkButton
-                align="right"
-                title={`${t("gageInfoCard.gage")} ${gage?.usgsInfo?.id}`}
-                onPress={goToUSGSWebsite}
-              />
-            </CardItem>
-          </If>
-          <CardItem noBorder>
-            <RegularText>{`${t("gageInfoCard.latitude")},\n${t("gageInfoCard.longitude")}`}</RegularText>
+            <RegularText>{t("gageInfoCard.usgsWebsite")}</RegularText>
             <LinkButton
               align="right"
-              title={`${gage?.locationInfo?.latitude?.toFixed(6)}, ${gage?.locationInfo?.longitude?.toFixed(6)}`}
-              onPress={openLocationInMaps}
+              title={`${t("gageInfoCard.gage")} ${gage?.usgsInfo?.id}`}
+              onPress={goToUSGSWebsite}
             />
           </CardItem>
-        </Cell>
-      </Card>
-    )
-  }
-)
+        </If>
+        <CardItem noBorder>
+          <RegularText>{`${t("gageInfoCard.latitude")},\n${t(
+            "gageInfoCard.longitude"
+          )}`}</RegularText>
+          <LinkButton
+            align="right"
+            title={`${gage?.locationInfo?.latitude?.toFixed(
+              6
+            )}, ${gage?.locationInfo?.longitude?.toFixed(6)}`}
+            onPress={openLocationInMaps}
+          />
+        </CardItem>
+      </Cell>
+    </Card>
+  );
+});
 
-export default GageInfoCard
+export default GageInfoCard;

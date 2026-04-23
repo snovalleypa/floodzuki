@@ -24,23 +24,28 @@ import { openLinkInBrowser } from "@utils/navigation";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 
 interface GageSummaryProps {
-  gage: GageSummary
-  firstItem?: boolean
-  noDetails?: boolean
+  gage: GageSummary;
+  firstItem?: boolean;
+  noDetails?: boolean;
 }
 
-function ReadingRow(props: { reading?: DataPoint, delta?: number }) {
-  const { reading, delta } = props
+function ReadingRow(props: { reading?: DataPoint; delta?: number }) {
+  const { reading, delta } = props;
 
-  const { formatFlow, formatFlowTrend, formatHeight } = useUtils()
-  const { getTimezone } = useStores()
+  const { formatFlow, formatFlowTrend, formatHeight } = useUtils();
+  const { getTimezone } = useStores();
 
   if (!reading) {
-    return null
+    return null;
   }
 
   return (
-    <Row flex align="space-between" innerHorizontal={Spacing.tiny} innerVertical={Spacing.micro} top={Spacing.tiny}>
+    <Row
+      flex
+      align="space-between"
+      innerHorizontal={Spacing.tiny}
+      innerVertical={Spacing.micro}
+      top={Spacing.tiny}>
       <Cell flex={2}>
         <SmallerText>{formatDateTime(reading.timestamp, getTimezone())}</SmallerText>
       </Cell>
@@ -58,152 +63,143 @@ function ReadingRow(props: { reading?: DataPoint, delta?: number }) {
         </SmallerText>
       </Cell>
     </Row>
-  )
+  );
 }
 
-const MaxReading = observer(
-  function MaxReading(props: { forecast: Forecast }) {
-    const { t } = useLocale()
-    const { forecast } = props
+const MaxReading = observer(function MaxReading(props: { forecast: Forecast }) {
+  const { t } = useLocale();
+  const { forecast } = props;
 
-    return (
-      <Cell top={Spacing.small}>
-        <LabelText color={Colors.success}>
-          {t("forecastScreen.pastMax")}:
-        </LabelText>
-        <ReadingRow reading={forecast?.maxReading} />
-      </Cell>
-    )
-  }
-)
+  return (
+    <Cell top={Spacing.small}>
+      <LabelText color={Colors.success}>{t("forecastScreen.pastMax")}:</LabelText>
+      <ReadingRow reading={forecast?.maxReading} />
+    </Cell>
+  );
+});
 
-export const GageSummaryCard = observer(
-  function GageSummaryCard(props: GageSummaryProps) {
-    const { gage, firstItem, noDetails } = props
+export const GageSummaryCard = observer(function GageSummaryCard(props: GageSummaryProps) {
+  const { gage, firstItem, noDetails } = props;
 
-    const { t } = useLocale()
-    const { forecastsStore, getTimezone } = useStores()
-    const { isWideScreen } = useResponsive()
+  const { t } = useLocale();
+  const { forecastsStore, getTimezone } = useStores();
+  const { isWideScreen } = useResponsive();
 
-    const [showMaxReading, setShowMaxReading] = React.useState<boolean>(true)
+  const [showMaxReading, setShowMaxReading] = React.useState<boolean>(true);
 
-    // Max reading computation is a bit expensive on mobile
-    // So we're trying to delay that a bit to improve UX
-    useTimeout(() => {
-      setShowMaxReading(true)
-    }, Timing.zero)
+  // Max reading computation is a bit expensive on mobile
+  // So we're trying to delay that a bit to improve UX
+  useTimeout(() => {
+    setShowMaxReading(true);
+  }, Timing.zero);
 
-    const openNoaaPage = () => {
-      openLinkInBrowser(`http://www.nwrfc.noaa.gov/river/station/flowplot/flowplot.cgi?${gage?.nwrfcId}`)
-    }
+  const openNoaaPage = () => {
+    openLinkInBrowser(
+      `http://www.nwrfc.noaa.gov/river/station/flowplot/flowplot.cgi?${gage?.nwrfcId}`
+    );
+  };
 
-    const forecast = forecastsStore.getForecast(gage?.id)
-    
-    const gageTitle = gage?.title
-    const peaks = forecast?.peaks
-    const predictionTime = forecast?.predictions?.forecastCreated
+  const forecast = forecastsStore.getForecast(gage?.id);
 
-    const $offsetLeft = (!firstItem && isWideScreen) ? Spacing.medium : 0
-    const $offsetTop = (!isWideScreen && firstItem) ? 0 : Spacing.medium
+  const gageTitle = gage?.title;
+  const peaks = forecast?.peaks;
+  const predictionTime = forecast?.predictions?.forecastCreated;
 
-    return (
-      <Card flex left={$offsetLeft} top={$offsetTop}>
-        <Row align="space-between">
-          <SmallTitle color={Colors.primary}>{gageTitle}</SmallTitle>
-          <Ternary condition={!noDetails}>
-            <Link href={{ pathname: ROUTES.ForecastDetails, params: { id: gage?.id } }} asChild>
+  const $offsetLeft = !firstItem && isWideScreen ? Spacing.medium : 0;
+  const $offsetTop = !isWideScreen && firstItem ? 0 : Spacing.medium;
+
+  return (
+    <Card flex left={$offsetLeft} top={$offsetTop}>
+      <Row align="space-between">
+        <SmallTitle color={Colors.primary}>{gageTitle}</SmallTitle>
+        <Ternary condition={!noDetails}>
+          <Link href={{ pathname: ROUTES.ForecastDetails, params: { id: gage?.id } }} asChild>
+            <IconButton
+              title={t("forecastScreen.details")}
+              rightIcon="chevron-right"
+              textColor={Colors.blue}
+            />
+          </Link>
+          <If condition={!gage?.isMetagage}>
+            <Link href={{ pathname: ROUTES.GageDetails, params: { id: gage?.id } }} asChild>
               <IconButton
-                title={t("forecastScreen.details")}
+                title={t("forecastScreen.viewGage")}
                 rightIcon="chevron-right"
                 textColor={Colors.blue}
               />
             </Link>
-            <If condition={!gage?.isMetagage}>
-              <Link href={{ pathname: ROUTES.GageDetails, params: { id: gage?.id } }} asChild>
-                <IconButton
-                  title={t("forecastScreen.viewGage")}
-                  rightIcon="chevron-right"
-                  textColor={Colors.blue}
-                />
-              </Link>
-            </If>
-          </Ternary>
-        </Row>
-        <Cell top={Spacing.small}>
-          <LabelText color={Colors.success}>
-            {t("forecastScreen.latestReading")}:
-          </LabelText>
-          <ReadingRow reading={forecast?.latestReading} delta={forecast?.predictedCfsPerHour} />
-        </Cell>
-        {/* This is done for performance reason. Defer reading the expensive computation */}
-        <Ternary condition={showMaxReading}>
-          <MaxReading forecast={forecast} />
-          <Cell top={Spacing.small}>
-            <LabelText color={Colors.success}>
-              {t("forecastScreen.pastMax")}:
-            </LabelText>
-            <Cell height={18} />
-          </Cell>
+          </If>
         </Ternary>
+      </Row>
+      <Cell top={Spacing.small}>
+        <LabelText color={Colors.success}>{t("forecastScreen.latestReading")}:</LabelText>
+        <ReadingRow reading={forecast?.latestReading} delta={forecast?.predictedCfsPerHour} />
+      </Cell>
+      {/* This is done for performance reason. Defer reading the expensive computation */}
+      <Ternary condition={showMaxReading}>
+        <MaxReading forecast={forecast} />
         <Cell top={Spacing.small}>
-          <LabelText color={Colors.success}>
-            {t("forecastScreen.forecastedCrests")}:
-            <SmallText muted> ({t("forecastScreen.published")} {formatDateTime(predictionTime, getTimezone())})</SmallText>
-          </LabelText>
-          {peaks?.map(peak => (
-            <ReadingRow key={peak.timestamp} reading={peak} />
+          <LabelText color={Colors.success}>{t("forecastScreen.pastMax")}:</LabelText>
+          <Cell height={18} />
+        </Cell>
+      </Ternary>
+      <Cell top={Spacing.small}>
+        <LabelText color={Colors.success}>
+          {t("forecastScreen.forecastedCrests")}:
+          <SmallText muted>
+            {" "}
+            ({t("forecastScreen.published")} {formatDateTime(predictionTime, getTimezone())})
+          </SmallText>
+        </LabelText>
+        {peaks?.map((peak) => (
+          <ReadingRow key={peak.timestamp} reading={peak} />
+        ))}
+      </Cell>
+      <If condition={!gage?.isMetagage && noDetails}>
+        <CardFooter>
+          <Cell flex align="center">
+            <LinkButton
+              selfAlign="center"
+              title={`${t("forecastScreen.noaaGage")} ${gage?.nwrfcId}`}
+              onPress={openNoaaPage}
+            />
+          </Cell>
+        </CardFooter>
+      </If>
+    </Card>
+  );
+});
+
+export const ExtendedGageSummaryCard = observer(function ExtendedGageSummaryCard(
+  props: GageSummaryProps
+) {
+  const { gage } = props;
+
+  const { t } = useLocale();
+  const { isMobile } = useResponsive();
+  const { forecastsStore } = useStores();
+
+  const forecast = forecastsStore.getForecast(gage?.id);
+
+  return (
+    <Card>
+      <Row align="space-between">
+        <SmallTitle color={Colors.primary}>{t("forecastScreen.details")}</SmallTitle>
+      </Row>
+      <RowOrCell flex justify="flex-start" align="space-between">
+        <Cell flex top={Spacing.small}>
+          <LabelText color={Colors.success}>{t("forecastScreen.lastReadings")}:</LabelText>
+          {forecast?.last100Readings?.map((reading) => (
+            <ReadingRow key={reading.timestamp} reading={reading} />
           ))}
         </Cell>
-        <If condition={!gage?.isMetagage && noDetails}>
-          <CardFooter>
-            <Cell flex align="center">
-              <LinkButton
-                selfAlign="center"
-                title={`${t("forecastScreen.noaaGage")} ${gage?.nwrfcId}`}
-                onPress={openNoaaPage}
-              />
-            </Cell>
-          </CardFooter>
-        </If>
-      </Card>
-    )
-  }
-)
-
-export const ExtendedGageSummaryCard = observer(
-  function ExtendedGageSummaryCard(props: GageSummaryProps) {
-    const { gage } = props
-
-    const { t } = useLocale()
-    const { isMobile } = useResponsive()
-    const { forecastsStore } = useStores()
-
-    const forecast = forecastsStore.getForecast(gage?.id)
-    
-    return (
-      <Card>
-        <Row align="space-between">
-          <SmallTitle color={Colors.primary}>{t("forecastScreen.details")}</SmallTitle>
-        </Row>
-        <RowOrCell flex justify="flex-start" align="space-between">
-          <Cell flex top={Spacing.small}>
-            <LabelText color={Colors.success}>
-              {t("forecastScreen.lastReadings")}:
-            </LabelText>
-            {forecast?.last100Readings?.map(reading => (
-              <ReadingRow key={reading.timestamp} reading={reading} />
-            ))}
-          </Cell>
-          <Cell flex={isMobile ? 0 : 1} top={Spacing.small}>
-            <LabelText color={Colors.success}>
-              {t("forecastScreen.currentlyForecasted")}:
-            </LabelText>
-            {forecast?.last100ForecastReadings?.map(reading => (
-              <ReadingRow key={reading.timestamp} reading={reading} />
-            ))}
-          </Cell>
-        </RowOrCell>
-      </Card>
-    )
-  }
-)
+        <Cell flex={isMobile ? 0 : 1} top={Spacing.small}>
+          <LabelText color={Colors.success}>{t("forecastScreen.currentlyForecasted")}:</LabelText>
+          {forecast?.last100ForecastReadings?.map((reading) => (
+            <ReadingRow key={reading.timestamp} reading={reading} />
+          ))}
+        </Cell>
+      </RowOrCell>
+    </Card>
+  );
+});

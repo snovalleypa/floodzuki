@@ -6,10 +6,12 @@ const es = {
     confirm: "Confirmar",
     save: "Guardar",
     back: "Atrás",
-    appTitle: 'Floodzilla',
+    appTitle: "Floodzilla",
     title: "Red de Medidores Floodzilla",
-    description: "Floodzilla ofrece información en tiempo real sobre inundaciones para el Valle de Snoqualmie.",
-    metaDescription: "Una red de medidores de río en el Río Snoqualmie, desplegada y gestionada por la Alianza para la Preservación del Valle de Snoqualmie.",
+    description:
+      "Floodzilla ofrece información en tiempo real sobre inundaciones para el Valle de Snoqualmie.",
+    metaDescription:
+      "Una red de medidores de río en el Río Snoqualmie, desplegada y gestionada por la Alianza para la Preservación del Valle de Snoqualmie.",
     subtitle: "Un proyecto de SVPA",
     loading: "Cargando...",
     tel: "tel:",
@@ -22,12 +24,12 @@ const es = {
     hr: "hora",
     feet: "pies",
     hour: "hora",
-    max: "Máx"
+    max: "Máx",
   },
   status: {
     normal: "Normal",
     nearFlooding: "casi inundando",
-    flooding: "Inundación"
+    flooding: "Inundación",
   },
   statuses: {
     Offline: "Desconectado",
@@ -35,13 +37,14 @@ const es = {
     Normal: "Normal",
     NearFlooding: "casi inundando",
     Flooding: "Inundación",
-    Dry: "Seco"
+    Dry: "Seco",
   },
   errorScreen: {
     header: "Ups...",
     title: "¡Algo salió mal!",
-    friendlySubtitle: "Estamos trabajando en el problema.\nMientras tanto, siéntete libre de intentarlo otra vez.",
-    reset: "Intentar otra vez"
+    friendlySubtitle:
+      "Estamos trabajando en el problema.\nMientras tanto, siéntete libre de intentarlo otra vez.",
+    reset: "Intentar otra vez",
   },
   navigation: {
     homeScreen: "Medidores",
@@ -63,10 +66,10 @@ const es = {
     privacyPolicyScreen: "Política de privacidad",
     termsOfServiceScreen: "Términos de servicio",
     logout: "Cerrar sesión",
-    back: "Volver"
+    back: "Volver",
   },
   homeScreen: {
-    title: "Río Snoqualmie / SVPA"
+    title: "Río Snoqualmie / SVPA",
   },
   forecastScreen: {
     title: "Pronóstico",
@@ -80,54 +83,61 @@ const es = {
     published: "publicado",
     noaaGage: "Medidor NOAA",
     dataSuppliedBy: "Datos de medidores de inundaciones proporcionados por",
-    noaaTitle: "El centro de pronóstico de ríos del noroeste del Servicio Meteorológico Nacional"
+    noaaTitle: "El centro de pronóstico de ríos del noroeste del Servicio Meteorológico Nacional",
   },
   profileScreen: {
-    title: "Perfil"
+    title: "Perfil",
   },
   aboutScreen: {
     manageNotitifications: "Administrar notificaciones de inundaciones",
     logIn: "Iniciar sesión para recibir notificaciones de inundaciones",
     details: "Detalles",
-    appVersion: "Versión de la aplicación"
+    appVersion: "Versión de la aplicación",
   },
   alertsScreen: {
     title: "Alertas de Floodzilla",
-    welcomeText: "¡Bienvenido a las Alertas de Floodzilla! Le enviaremos alertas por correo electrónico o mensaje de texto SMS cuando detectemos condiciones de inundación.",
+    welcomeText:
+      "¡Bienvenido a las Alertas de Floodzilla! Le enviaremos alertas por correo electrónico o mensaje de texto SMS cuando detectemos condiciones de inundación.",
     weNeedFeedback: "Necesitamos tus comentarios",
     letUsKnow: "Háganos saber",
     howWeAreDoing: " cómo lo estamos haciendo",
     editProfile: "Editar perfil",
     logOut: "Cerrar sesión",
     pnsDisabledTitle: "Notificaciones push deshabilitadas",
-    pnsDisabledMessage: "Tiene que habilitar las notificaciones push en la configuración de su dispositivo para recibir alertas.",
+    pnsDisabledMessage:
+      "Tiene que habilitar las notificaciones push en la configuración de su dispositivo para recibir alertas.",
     pnsDisabledButton: "Abrir configuración",
     alertSettings: "Configuración de alertas",
     enablePushNotifications: "Habilitar notificaciones push",
-    verifyEmail: "Verifica su dirección de correo electrónico para recibir alertas por correo electrónico",
+    verifyEmail:
+      "Verifica su dirección de correo electrónico para recibir alertas por correo electrónico",
     sendEmailAlertsTo: "Enviar alertas por correo electrónico a",
     enterPhoneNumber: "Ingrese un número de teléfono",
     toReceiveAlerts: "para recibir alertas SMS",
     sendSmsAlerts: "Enviar alertas por SMS a",
     changePhone: "(Cambiar número de teléfono)",
-    emailSent: "Se ha enviado un correo electrónico a {email}. Haga clic en el enlace de ese correo electrónico para verificar su dirección de correo electrónico.",
+    emailSent:
+      "Se ha enviado un correo electrónico a {email}. Haga clic en el enlace de ese correo electrónico para verificar su dirección de correo electrónico.",
     verifyEmailTitle: "Verificar dirección de correo electrónico",
     forecasts: "Pronósticos",
     forecastsTitle: "Floodzilla puede enviarse pronósticos de ríos.",
-    genericForecast: "Envíame alertas de pronóstico de inundaciones (generalmente una o dos veces al día durante eventos de inundación).",
+    genericForecast:
+      "Envíame alertas de pronóstico de inundaciones (generalmente una o dos veces al día durante eventos de inundación).",
     dailyForecast: "Envíame pronósticos diarios de estado y cresta de ríos.",
     gageAlerts: "Alertas de medidor",
     gageAlertsTitle: "Avísame sobre cambios de estado para estos medidores:",
-    gageAlertsSubtitle: "Por favor, habilite uno de los canales de notificaciones (correo electrónico, SMS, notificaciones push) para administrar esta configuración."
+    gageAlertsSubtitle:
+      "Por favor, habilite uno de los canales de notificaciones (correo electrónico, SMS, notificaciones push) para administrar esta configuración.",
   },
   changeemailScreen: {
     newEmailAddress: "Nueva dirección de correo electrónico",
     enterEmail: "Ingrese su correo electrónico",
-    button: "Actualizar"
+    button: "Actualizar",
   },
   createpasswordScreen: {
-    title: "Para cambiar su dirección de correo electrónico, primero debe crear una contraseña para su cuenta de Floodzilla.",
-    submit: "Actualizar"
+    title:
+      "Para cambiar su dirección de correo electrónico, primero debe crear una contraseña para su cuenta de Floodzilla.",
+    submit: "Actualizar",
   },
   newScreen: {
     firstName: "El Nombre Primero",
@@ -145,22 +155,25 @@ const es = {
     createAccount: "Crear cuenta",
   },
   passwordforgotScreen: {
-    description: "Ingresa su dirección de correo electrónico. Le enviaremos un enlace para que puedas restablecer tu contraseña.",
-    emailSent: "Se ha enviado un correo electrónico a {{email}} con un enlace para restablecer su contraseña. Si no hay una cuenta que coincida, no se enviará ningún correo electrónico.",
+    description:
+      "Ingresa su dirección de correo electrónico. Le enviaremos un enlace para que puedas restablecer tu contraseña.",
+    emailSent:
+      "Se ha enviado un correo electrónico a {{email}} con un enlace para restablecer su contraseña. Si no hay una cuenta que coincida, no se enviará ningún correo electrónico.",
     email: "Correo electrónico",
     emailPlaceholder: "Ingresa tu correo electrónico",
-    submit: "Enviar correo electrónico"
+    submit: "Enviar correo electrónico",
   },
   resetpasswordScreen: {
     successMessage: "¡Completo! Ahora puedes iniciar sesión con su nueva contraseña.",
-    submit: "Actualizar"
+    submit: "Actualizar",
   },
   setpasswordScreen: {
     successMessage: "¡Completo! Ahora puedes iniciar sesión con su nueva contraseña.",
-    submit: "Actualizar"
+    submit: "Actualizar",
   },
   unsubscribeScreen: {
-    errorMessage: "Lo sentimos, pero ha ocurrido un error al procesar su solicitud de cancelación de suscripción.",
+    errorMessage:
+      "Lo sentimos, pero ha ocurrido un error al procesar su solicitud de cancelación de suscripción.",
     please: "Por favor",
     contactUs: "contacta con nosotros",
     soWeCanRemove: "para que podamos eliminar tu suscripción.",
@@ -169,41 +182,45 @@ const es = {
     manageAlerts: "Administra sus alertas",
     continue: "Continuar a Floodzilla",
     description: "Si quita su suscripción, ya no recibirás alertas de Floodzilla en ",
-    unsubscribeAll: "Cancelar suscripción a todas las alertas de Floodzilla"
+    unsubscribeAll: "Cancelar suscripción a todas las alertas de Floodzilla",
   },
   verifyemailScreen: {
-    errorMessage: "Lo sentimos, pero ha ocurrido un error al procesar su solicitud de verificación de correo electrónico.",
+    errorMessage:
+      "Lo sentimos, pero ha ocurrido un error al procesar su solicitud de verificación de correo electrónico.",
     tryAgain: "Intentar otra vez",
     successMessage: "Tu dirección de correo electrónico ha sido verificada.",
-    continue: "Continuar a Floodzilla"
+    continue: "Continuar a Floodzilla",
   },
   verifyphonenumberScreen: {
     sendVerification: "Enviar código de verificación",
     resendVerification: "Reenviar código de verificación",
-    description: "Por favor, ingresa un número de teléfono donde Floodzilla pueda enviar alertas por SMS. Floodzilla te enviará un SMS con un código de verificación.",
+    description:
+      "Por favor, ingresa un número de teléfono donde Floodzilla pueda enviar alertas por SMS. Floodzilla te enviará un SMS con un código de verificación.",
     phoneNumber: "Número de teléfono",
-    confirmationText: "Enviamos un código de verificación a {{phoneNumber}}. Por favor, ingresa el código a continuación.",
+    confirmationText:
+      "Enviamos un código de verificación a {{phoneNumber}}. Por favor, ingresa el código a continuación.",
     verificationCode: "Código de verificación:",
     verificationCodePlaceholder: "Ingresa el código de verificación",
-    submit: "Verificar número de teléfono"
+    submit: "Verificar número de teléfono",
   },
   googlesigninButton: {
     error: "Algo salió mal. Por favor, inténtalo otra vez",
-    title: "Iniciar sesión con Google"
+    title: "Iniciar sesión con Google",
   },
   changePasswordForm: {
     currentPassword: "Contraseña actual",
     newPassword: "Nueva contraseña",
     confirmPassword: "Confirmar contraseña",
-    proceed: "Haz clic aquí para continuar a Floodzilla"
+    proceed: "Haz clic aquí para continuar a Floodzilla",
   },
   validations: {
     passwordsDontMatch: "Las contraseñas no coinciden",
     passwordLength: "La contraseña debe tener al menos {{length}} caracteres",
-    presence: "{{fieldName}} no puede estar blanco"
+    presence: "{{fieldName}} no puede estar blanco",
   },
   loginScreen: {
-    title: "Inicia sesión o crea una cuenta para recibir notificaciones de inundaciones y otras actualizaciones.",
+    title:
+      "Inicia sesión o crea una cuenta para recibir notificaciones de inundaciones y otras actualizaciones.",
     email: "Correo electrónico",
     emailPlaceholder: "Ingresa tu correo electrónico",
     password: "Contraseña",
@@ -282,10 +299,11 @@ const es = {
   footer: {
     svpaTitle: "La Alianza para la Preservación del Valle de Snoqualmie",
     description1: "La red de medidores Floodzilla está mantenida por ",
-    description2: ". La Alianza para la Preservación del Valle de Snoqualmie es una organización sin fines de lucro 501(c)(3) comprometida en proteger la viabilidad de las granjas, residentes y negocios del hermoso valle del río Snoqualmie. Este sitio es posible gracias a las innumerables horas de trabajo voluntario del equipo local de tecnología, los donantes de SVPA y una generosa subvención del Distrito de Control de Inundaciones del Condado de King.",
+    description2:
+      ". La Alianza para la Preservación del Valle de Snoqualmie es una organización sin fines de lucro 501(c)(3) comprometida en proteger la viabilidad de las granjas, residentes y negocios del hermoso valle del río Snoqualmie. Este sitio es posible gracias a las innumerables horas de trabajo voluntario del equipo local de tecnología, los donantes de SVPA y una generosa subvención del Distrito de Control de Inundaciones del Condado de King.",
     addressLine1: "Dirección física",
     addressLine2: "Correo de EE. UU.",
-    copyright: "© Alianza para la Preservación del Valle de Snoqualmie"
+    copyright: "© Alianza para la Preservación del Valle de Snoqualmie",
   },
   datePicker: {
     startDate: "Fecha de inicio",
@@ -294,15 +312,14 @@ const es = {
     month: "Mes",
     year: "Año",
   },
-  privacyPolicyScreen: {
-  },
-  termsOfServiceScreen: {
-  },
+  privacyPolicyScreen: {},
+  termsOfServiceScreen: {},
   donation: {
     title: "Apoya a SVPA",
-    description: "Esta aplicación fue creada por la Alianza para la Preservación del Valle de Snoqualmie (SVPA).\nTu donación hoy nos ayudará a continuar con nuestra labor de defensa para los agricultores locales y el hermoso Valle de Snoqualmie.",
+    description:
+      "Esta aplicación fue creada por la Alianza para la Preservación del Valle de Snoqualmie (SVPA).\nTu donación hoy nos ayudará a continuar con nuestra labor de defensa para los agricultores locales y el hermoso Valle de Snoqualmie.",
     donate: "Donar",
-  }
-}
-    
-export default es
+  },
+};
+
+export default es;

@@ -1,18 +1,18 @@
-import { Colors } from "@common-ui/constants/colors"
-import { Spacing } from "@common-ui/constants/spacing"
-import React from "react"
-import { TextInput } from "react-native"
+import { Colors } from "@common-ui/constants/colors";
+import { Spacing } from "@common-ui/constants/spacing";
+import React from "react";
+import { TextInput } from "react-native";
 
 type InputProps = {
-  value: string
-  onChangeText: (text: string) => void
-  placeholder?: string
-  secureTextEntry?: boolean
-  keyboardType?: "default" | "email-address" | "numeric" | "phone-pad" | "number-pad"
-}
+  value: string;
+  onChangeText: (text: string) => void;
+  placeholder?: string;
+  secureTextEntry?: boolean;
+  keyboardType?: "default" | "email-address" | "numeric" | "phone-pad" | "number-pad";
+};
 
 export const Input = (props: InputProps): React.ReactElement => {
-  const { value, onChangeText, placeholder, secureTextEntry, keyboardType } = props
+  const { value, onChangeText, placeholder, secureTextEntry, keyboardType } = props;
 
   return (
     <TextInput
@@ -25,8 +25,8 @@ export const Input = (props: InputProps): React.ReactElement => {
       keyboardType={keyboardType}
       placeholderTextColor={Colors.darkGrey}
     />
-  )
-}
+  );
+};
 
 const $inputStyle = {
   height: Spacing.button,
@@ -36,4 +36,4 @@ const $inputStyle = {
   borderRadius: Spacing.tiny,
   paddingHorizontal: Spacing.small,
   paddingVertical: Spacing.tiny,
-}
+};
