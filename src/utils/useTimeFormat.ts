@@ -1,15 +1,16 @@
 /**
- * Time Format function
- * relies on the default timezone set in the Region.ts model
+ * Time format functions.
+ * formatDateTime requires an explicit tz string — pass rootStore.getTimezone().
+ * Times represent physical readings at a gauge location, not the client's timezone.
  */
 
 import localDayJs from "@services/localDayJs"
 import dayjs from "dayjs";
 
-export const formatDateTime = (time: string | dayjs.Dayjs) => {
+export const formatDateTime = (time: string | dayjs.Dayjs, tz: string) => {
   const result = typeof time === "string" ?
-    localDayJs.tz(time).format("ddd M/D hh:mm a") :
-    time?.format("ddd M/D hh:mm a");
+    localDayJs(time).tz(tz).format("ddd M/D h:mm a") :
+    time?.tz(tz).format("ddd M/D h:mm a");
 
   return result;
 }
@@ -17,13 +18,12 @@ export const formatDateTime = (time: string | dayjs.Dayjs) => {
 export const formatReadingTime = (timestamp: string) => {
   if (!timestamp) return "";
 
-  const time = typeof timestamp === "string" ?
-    localDayJs.tz(timestamp) : timestamp;
+  const time = localDayJs(timestamp);
 
-  const timeAgo = localDayJs() - time;
-  
+  const timeAgo = localDayJs().valueOf() - time.valueOf();
+
   let formatString;
-  
+
   if (timeAgo < localDayJs.duration(12, "h").asMilliseconds()) {
     formatString = "h:mm a";
   } else if (timeAgo < localDayJs.duration(2, "months").asMilliseconds()) {

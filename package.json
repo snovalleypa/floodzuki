@@ -4,7 +4,8 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "postinstall": "patch-package"
+    "postinstall": "patch-package",
+    "test": "jest"
   },
   "dependencies": {
     "@expo-google-fonts/montserrat": "^0.4.2",
@@ -76,10 +77,13 @@
     "@babel/core": "^7.19.3",
     "@babel/plugin-proposal-export-namespace-from": "^7.18.9",
     "@types/i18n-js": "^3.8.4",
+    "@types/jest": "^29.5.14",
     "@types/react": "19.2.14",
     "babel-plugin-module-resolver": "^5.0.2",
     "babel-plugin-react-native-web": "^0.18.12",
     "babel-plugin-transform-inline-environment-variables": "^0.4.4",
+    "jest": "^29.7.0",
+    "jest-expo": "^55.0.16",
     "postcss-loader": "^4.2.0",
     "prettier": "^2.8.6",
     "prettier-plugin-tailwindcss": "^0.2.5",
@@ -90,5 +94,21 @@
   "main": "expo-router/entry",
   "name": "floodzuki",
   "version": "1.0.25",
-  "private": true
+  "private": true,
+  "jest": {
+    "preset": "jest-expo",
+    "modulePaths": [
+      "<rootDir>/node_modules/expo/node_modules"
+    ],
+    "moduleNameMapper": {
+      "^@assets/(.*)$": "<rootDir>/assets/$1",
+      "^@utils/(.*)$": "<rootDir>/src/utils/$1",
+      "^@services/(.*)$": "<rootDir>/src/services/$1",
+      "^@models/(.*)$": "<rootDir>/src/models/$1",
+      "^@components/(.*)$": "<rootDir>/src/components/$1",
+      "^@common-ui/(.*)$": "<rootDir>/src/common-ui/$1",
+      "^@config/(.*)$": "<rootDir>/src/config/$1",
+      "^@i18n/(.*)$": "<rootDir>/src/i18n/$1"
+    }
+  }
 }

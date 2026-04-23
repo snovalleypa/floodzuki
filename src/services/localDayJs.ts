@@ -9,11 +9,13 @@ import 'dayjs/locale/es';
 
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone'; // dependent on utc plugin
+import customParseFormat from 'dayjs/plugin/customParseFormat'; // required for timezone Hermes fix
 import duration from 'dayjs/plugin/duration';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import updateLocale from 'dayjs/plugin/updateLocale';
 
 dayjs.extend(utc)
+dayjs.extend(customParseFormat)
 dayjs.extend(timezone)
 dayjs.extend(duration)
 dayjs.extend(relativeTime)
