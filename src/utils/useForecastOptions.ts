@@ -26,8 +26,8 @@ const shouldShowFloodLine = (forecast: Forecast, isCombinedForecast: boolean) =>
   }
 
   // For the combined forecast, only show Falls.
-  return (forecast?.noaaSiteId === "SQUW1");
-}
+  return forecast?.noaaSiteId === "SQUW1";
+};
 
 const getFloodStageLabel = (forecast: Forecast, isCombinedForecast: boolean) => {
   switch (forecast?.noaaSiteId) {
@@ -41,31 +41,30 @@ const getFloodStageLabel = (forecast: Forecast, isCombinedForecast: boolean) => 
     case "":
       return "Forks";
   }
-}
+};
 
 const buildSeries = (forecasts: Forecast[], gages: GageSummary[], softMax: number, t) => {
-  const series = []
-  let maxValue = softMax
-
+  const series = [];
+  let maxValue = softMax;
 
   forecasts.forEach((forecast) => {
-    const gage = gages.find(g => g.id === forecast.id)
+    const gage = gages.find((g) => g.id === forecast.id);
 
-    const dataPoints = forecast.chartReadings
+    const dataPoints = forecast.chartReadings;
 
-    const seriesName = `${t("forecastChart.observed")}: ${gage?.title}`
+    const seriesName = `${t("forecastChart.observed")}: ${gage?.title}`;
 
     const normalizedDataPoints = dataPoints.map((p) => {
       if (p.y > maxValue) {
-        maxValue = p.y
+        maxValue = p.y;
       }
 
       return {
         ...p,
         name: seriesName,
-        shortName: gage?.title
-      }
-    })
+        shortName: gage?.title,
+      };
+    });
 
     // Data Points
     series.push({
@@ -92,23 +91,23 @@ const buildSeries = (forecasts: Forecast[], gages: GageSummary[], softMax: numbe
           },
         },
       },
-    })
+    });
 
-    const forecastDataPoints = forecast.chartForecastReadings
+    const forecastDataPoints = forecast.chartForecastReadings;
 
-    const forecastName = `${t("forecastChart.forecast")}: ${gage?.title}`
+    const forecastName = `${t("forecastChart.forecast")}: ${gage?.title}`;
 
     const noramlizedForecastDataPoints = forecastDataPoints.map((p) => {
       if (p.y > maxValue) {
-        maxValue = p.y
+        maxValue = p.y;
       }
 
       return {
         ...p,
         name: forecastName,
-        shortName: gage?.title
-      }
-    })
+        shortName: gage?.title,
+      };
+    });
 
     // Forecast Data Points
     series.push({
@@ -125,31 +124,25 @@ const buildSeries = (forecasts: Forecast[], gages: GageSummary[], softMax: numbe
         },
       },
       marker: {
-        symbol: 'circle'
-      }
+        symbol: "circle",
+      },
     });
-  })
+  });
 
-  return [series, maxValue] as const
-}
+  return [series, maxValue] as const;
+};
 
 const buildOptions = (props: BuildOptionsProps, t) => {
-  const {
-    daysBefore,
-    daysAfter,
-    forecasts,
-    gages,
-    timezone
-  } = props
+  const { daysBefore, daysAfter, forecasts, gages, timezone } = props;
 
-  let stageTwo = 0
+  let stageTwo = 0;
   const isCombinedForecast = forecasts.length > 1;
-  const floodLines = []
+  const floodLines = [];
 
-  const now = dayjs()
+  const now = dayjs();
 
-  const min = now.clone().subtract(daysBefore, "days")
-  const max = now.clone().add(daysAfter, "days")
+  const min = now.clone().subtract(daysBefore, "days");
+  const max = now.clone().add(daysAfter, "days");
 
   // Find appropriate flood/warning levels for this chart.  For the combined chart we want to
   // find the highest available levels for the warning bands; we will go ahead and show a flood-stage line
@@ -171,22 +164,24 @@ const buildOptions = (props: BuildOptionsProps, t) => {
           label: {
             text: `${t("forecastChart.floodStage")}: ${getFloodStageLabel(f, isCombinedForecast)}`,
             style: {
-              color: '#606060'
-            }
-          }
-        })
+              color: "#606060",
+            },
+          },
+        });
       }
     }
-  })
+  });
 
   // Display flooding level
-  const floodBands = [{
-    from: stageTwo,
-    to: 10000000,
-    color: 'rgba(68, 170, 213, 0.1)'
-  }];
+  const floodBands = [
+    {
+      from: stageTwo,
+      to: 10000000,
+      color: "rgba(68, 170, 213, 0.1)",
+    },
+  ];
 
-  const [series, chartMax] = buildSeries(forecasts, gages, stageTwo, t)
+  const [series, chartMax] = buildSeries(forecasts, gages, stageTwo, t);
 
   const options: Highcharts.Options = {
     chart: {
@@ -208,19 +203,19 @@ const buildOptions = (props: BuildOptionsProps, t) => {
           inactive: { opacity: 1 },
         },
         turboThreshold: 2000,
-      }
+      },
     },
     tooltip: {
       formatter: function () {
-        let stageDisplay = ""
+        let stageDisplay = "";
 
         if (this.point?.options?.stage) {
-          stageDisplay = `/ ${this.point?.options?.stage} ft`
+          stageDisplay = `/ ${this.point?.options?.stage} ft`;
         }
         const timeLabel = localDayJs.tz(this.x, timezone).format("MMM D, h:mm A");
 
-        return `<b>${this.series.name}</b><br/>${timeLabel}: ${this.y} cfs ${stageDisplay}`
-      }
+        return `<b>${this.series.name}</b><br/>${timeLabel}: ${this.y} cfs ${stageDisplay}`;
+      },
     },
     xAxis: {
       type: "datetime",
@@ -234,19 +229,21 @@ const buildOptions = (props: BuildOptionsProps, t) => {
         week: "%e. %b",
         month: "%b '%y",
       },
-      plotLines: [{
-        color: '#999',
-        dashStyle: "dot",
-        width: 1,
-        value: now.valueOf(),
-        label: {
-          text: t("forecastChart.now"),
-          style: {
-            color: Colors.darkGrey
+      plotLines: [
+        {
+          color: "#999",
+          dashStyle: "dot",
+          width: 1,
+          value: now.valueOf(),
+          label: {
+            text: t("forecastChart.now"),
+            style: {
+              color: Colors.darkGrey,
+            },
+            rotation: 90,
           },
-          rotation: 90,
-        }
-      }],
+        },
+      ],
     },
     yAxis: {
       startOnTick: false,
@@ -260,31 +257,36 @@ const buildOptions = (props: BuildOptionsProps, t) => {
       },
     },
     series: series,
-  }
+  };
 
-  return options
-}
+  return options;
+};
 
 const useForecastOptions = (gages: GageSummary[], daysBefore: number, daysAfter: number) => {
-  const { t } = useLocale()
-  const rootStore = useStores()
+  const { t } = useLocale();
+  const rootStore = useStores();
 
-  const gageIds = gages.map(gage => gage?.id)
-  const forecasts = rootStore.getForecasts(gageIds)
+  const gageIds = gages.map((gage) => gage?.id);
+  const forecasts = rootStore.getForecasts(gageIds);
 
-  const [options, setOptions] = useState<Highcharts.Options>({})
+  const [options, setOptions] = useState<Highcharts.Options>({});
 
   useEffect(() => {
-    setOptions(buildOptions({
-      daysBefore,
-      daysAfter,
-      forecasts,
-      gages,
-      timezone: rootStore.getTimezone()
-    }, t))
-  }, [gages, daysBefore, daysAfter])
+    setOptions(
+      buildOptions(
+        {
+          daysBefore,
+          daysAfter,
+          forecasts,
+          gages,
+          timezone: rootStore.getTimezone(),
+        },
+        t
+      )
+    );
+  }, [gages, daysBefore, daysAfter]);
 
-  return options
-}
+  return options;
+};
 
-export default useForecastOptions
+export default useForecastOptions;

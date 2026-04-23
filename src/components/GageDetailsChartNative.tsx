@@ -11,80 +11,79 @@ import {
 } from "victory-native";
 
 interface ChartsProps {
-  options: GageDetailsChartOptions
+  options: GageDetailsChartOptions;
 }
 
 type DataPoint = {
-  x: number, // "timestamp"
-  y: number, // value
-  isPrediction: boolean
-}
+  x: number; // "timestamp"
+  y: number; // value
+  isPrediction: boolean;
+};
 
 type SeriesItem = {
-  animation: boolean,
-  name: string,
-  data: DataPoint[],
-  fillOpacity: number,
-  color: string,
-  threshold: number,
-  lineWidth: number,
+  animation: boolean;
+  name: string;
+  data: DataPoint[];
+  fillOpacity: number;
+  color: string;
+  threshold: number;
+  lineWidth: number;
   states: {
     hover: {
-      lineWidth: number
-    }
-  }
-}
+      lineWidth: number;
+    };
+  };
+};
 
 type PlotLine = {
-  value: number, // "timestamp"
-  dashStyle: string, // only "dot" is supported
-  color: string,
+  value: number; // "timestamp"
+  dashStyle: string; // only "dot" is supported
+  color: string;
   label: {
-    text: string,
+    text: string;
     style: {
-      color: string
-    },
-    rotation: number, // rotation degrees
-    align: string, // "right"
-    color: string,
-    x: number // offset
-    dashStyle: string // only "dot" is supported
-  }
-}
+      color: string;
+    };
+    rotation: number; // rotation degrees
+    align: string; // "right"
+    color: string;
+    x: number; // offset
+    dashStyle: string; // only "dot" is supported
+  };
+};
 
 type GageDetailsChartOptions = {
   chart: {
-    height: number,
-    type: string, // only "area" type is supported
-    spacingLeft: number,
-    spacingRight: number,
-    animation: boolean
-  },
+    height: number;
+    type: string; // only "area" type is supported
+    spacingLeft: number;
+    spacingRight: number;
+    animation: boolean;
+  };
   xAxis: {
-    type: string, // only "datetime" is supported
-    plotLines: PlotLine[],
-    max: number, // end of range
-    min: number // start of range
-  },
+    type: string; // only "datetime" is supported
+    plotLines: PlotLine[];
+    max: number; // end of range
+    min: number; // start of range
+  };
   yAxis: {
-    type: "linear",
-    startOnTick: false,
-    endOnTick: false,
+    type: "linear";
+    startOnTick: false;
+    endOnTick: false;
     title: {
-      text: "Water Level (ft.)"
-    },
-    min: number, // min value
-    max: number, // max value
-    plotLines: PlotLine[]
-  },
-  series: SeriesItem[],
-  _now: string
-}
-
+      text: "Water Level (ft.)";
+    };
+    min: number; // min value
+    max: number; // max value
+    plotLines: PlotLine[];
+  };
+  series: SeriesItem[];
+  _now: string;
+};
 
 /**
  * Expected options that we know how to work with
- * 
+ *
  * {
   chart: {
     height: 300,
@@ -234,27 +233,27 @@ type GageDetailsChartOptions = {
 }
  */
 
-const CHART_HEIGHT = 320
-const AXIS_COLOR = "#666666"
+const CHART_HEIGHT = 320;
+const AXIS_COLOR = "#666666";
 
 const $labelStyle = {
   fill: AXIS_COLOR,
   color: AXIS_COLOR,
   fontFamily: "OpenSans_400Regular",
   fontSize: 11,
-}
+};
 
-const DOT_SIZE = 2
+const DOT_SIZE = 2;
 
 export const GageDetailsChartNative = (props: ChartsProps) => {
-  const { t } = useLocale()
-  const { options } = props
+  const { t } = useLocale();
+  const { options } = props;
 
-  const lines = options?.series ?? []
-  const waterLines = lines.filter(line => !!line.fillOpacity)
+  const lines = options?.series ?? [];
+  const waterLines = lines.filter((line) => !!line.fillOpacity);
 
-  const nowLabel = options.xAxis.plotLines[0]
-  const roadLabel = options.yAxis.plotLines[0]
+  const nowLabel = options.xAxis.plotLines[0];
+  const roadLabel = options.yAxis.plotLines[0];
 
   return (
     <VictoryChart
@@ -274,23 +273,22 @@ export const GageDetailsChartNative = (props: ChartsProps) => {
           voronoiBlacklist={["bars"]}
           voronoiDimension="x"
           labels={({ datum }) => {
-
             return `${datum?.name}: ${datum?.y?.toFixed(2)} ${t("measure.ft")}.`;
           }}
-          labelComponent={<VictoryTooltip
-            constrainToVisibleArea
-            cornerRadius={4}
-            centerOffset={{ y: -65 }} 
-            pointerLength={0}
-            flyoutStyle={{
-              fill: "white",
-              stroke: "#969BAB",
-            }}/>
+          labelComponent={
+            <VictoryTooltip
+              constrainToVisibleArea
+              cornerRadius={4}
+              centerOffset={{ y: -65 }}
+              pointerLength={0}
+              flyoutStyle={{
+                fill: "white",
+                stroke: "#969BAB",
+              }}
+            />
           }
         />
-      }
-
-    >
+      }>
       {/* Vertical Axis */}
       <VictoryAxis
         dependentAxis
@@ -298,7 +296,7 @@ export const GageDetailsChartNative = (props: ChartsProps) => {
           axis: {
             stroke: "#969BAB",
             strokeWidth: 0,
-            padding: 40
+            padding: 40,
           },
           axisLabel: {
             ...$labelStyle,
@@ -306,7 +304,7 @@ export const GageDetailsChartNative = (props: ChartsProps) => {
             fontSize: 12,
           },
           tickLabels: {
-            ...$labelStyle
+            ...$labelStyle,
           },
           grid: {
             stroke: "rgba(150,155,171, 0.2)",
@@ -314,7 +312,7 @@ export const GageDetailsChartNative = (props: ChartsProps) => {
           },
         }}
         tickCount={3}
-        tickFormat={(t) => t > 1000 ? `${Math.round(t/1000)}k` : t}
+        tickFormat={(t) => (t > 1000 ? `${Math.round(t / 1000)}k` : t)}
         label={options.yAxis.title.text}
       />
       {/* Horizontal Axis */}
@@ -324,10 +322,10 @@ export const GageDetailsChartNative = (props: ChartsProps) => {
             stroke: "#969BAB",
           },
           axisLabel: {
-            ...$labelStyle
+            ...$labelStyle,
           },
           tickLabels: {
-            ...$labelStyle
+            ...$labelStyle,
           },
           ticks: { stroke: "#969BAB", size: 5 },
         }}
@@ -350,11 +348,11 @@ export const GageDetailsChartNative = (props: ChartsProps) => {
             padding: -15,
           },
           ticks: { stroke: "#969BAB", size: 0 },
-          tickLabels: { fill: 'none' }
+          tickLabels: { fill: "none" },
         }}
       />
       {/* Dots on the chart */}
-      {lines.map(dot => (
+      {lines.map((dot) => (
         <VictoryScatter
           key={dot.name}
           data={dot.data}
@@ -367,15 +365,15 @@ export const GageDetailsChartNative = (props: ChartsProps) => {
         />
       ))}
       {/* Area container */}
-      {waterLines.map(area => (
+      {waterLines.map((area) => (
         <VictoryBar
           name="bars"
           key={area.name}
           style={{
             data: {
               fill: area.color,
-              fillOpacity: area.fillOpacity
-            }
+              fillOpacity: area.fillOpacity,
+            },
           }}
           barWidth={DOT_SIZE}
           barRatio={1}
@@ -400,9 +398,9 @@ export const GageDetailsChartNative = (props: ChartsProps) => {
             fontSize: 12,
           },
           ticks: { stroke: "#969BAB", size: 0 },
-          tickLabels: { fill: 'none' }
+          tickLabels: { fill: "none" },
         }}
       />
     </VictoryChart>
-  )
-}
+  );
+};

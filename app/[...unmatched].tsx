@@ -9,4 +9,4 @@ import { ROUTES } from "./_layout";
 
 export default function Unmatched() {
   return <Redirect href={ROUTES.Home} />;
-};
+}

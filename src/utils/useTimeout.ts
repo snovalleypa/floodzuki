@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react"
+import { useEffect, useRef } from "react";
 
 /**
  * useInterval - the hook that will call the passed in function every interval (in milliseconds)
@@ -8,24 +8,24 @@ import { useEffect, useRef } from "react"
  */
 
 export function useInterval(callback: () => void, delay: number | null) {
-  const savedCallback = useRef<() => void>()
+  const savedCallback = useRef<() => void>();
 
   // Remember the latest callback.
   useEffect(() => {
-    savedCallback.current = callback
-  }, [callback])
+    savedCallback.current = callback;
+  }, [callback]);
 
   // Set up the interval.
   useEffect(() => {
     function tick() {
-      savedCallback.current?.()
+      savedCallback.current?.();
     }
 
     if (delay !== null) {
-      const id = setInterval(tick, delay)
-      return () => clearInterval(id)
+      const id = setInterval(tick, delay);
+      return () => clearInterval(id);
     }
-  }, [delay])
+  }, [delay]);
 }
 
 /**
@@ -35,22 +35,22 @@ export function useInterval(callback: () => void, delay: number | null) {
  * @param delay - the interval in milliseconds
  */
 export function useTimeout(callback: () => void, delay: number | null) {
-  const savedCallback = useRef<() => void>()
+  const savedCallback = useRef<() => void>();
 
   // Remember the latest callback.
   useEffect(() => {
-    savedCallback.current = callback
-  }, [callback])
+    savedCallback.current = callback;
+  }, [callback]);
 
   // Set up the interval.
   useEffect(() => {
     function tick() {
-      savedCallback.current?.()
+      savedCallback.current?.();
     }
 
     if (delay !== null) {
-      const id = setTimeout(tick, delay)
-      return () => clearTimeout(id)
+      const id = setTimeout(tick, delay);
+      return () => clearTimeout(id);
     }
-  }, [delay])
+  }, [delay]);
 }

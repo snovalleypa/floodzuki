@@ -1,4 +1,4 @@
-import { isWeb } from '@common-ui/utils/responsive';
+import { isWeb } from "@common-ui/utils/responsive";
 import * as Sentry from "@sentry/react-native";
 
 export const initSentry = () => {
@@ -7,17 +7,16 @@ export const initSentry = () => {
     enableInExpoDevelopment: false,
     debug: false, // If `true`, Sentry will try to print out useful debugging information if something goes wrong with sending the event. Set it to `false` in production
   });
-}
+};
 
 export const logError = (error, errorInfo = null) => {
   if (isWeb) {
     Sentry.Browser.captureException(error, {
       extra: errorInfo,
     });
-  }
-  else {
+  } else {
     Sentry.Native.captureException(error, {
       extra: errorInfo,
     });
   }
-}
+};

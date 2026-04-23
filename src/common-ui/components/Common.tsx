@@ -1,45 +1,51 @@
-import React from "react"
-import { ColorValue, View, ViewStyle } from "react-native"
+import React from "react";
+import { ColorValue, View, ViewStyle } from "react-native";
 
-import { Colors } from "@common-ui/constants/colors"
-import { Spacing } from "@common-ui/constants/spacing"
-import { OffsetProps, useOffsetStyles } from "@common-ui/utils/useOffset"
-import { If } from "./Conditional"
-import { useResponsive } from "@common-ui/utils/responsive"
+import { Colors } from "@common-ui/constants/colors";
+import { Spacing } from "@common-ui/constants/spacing";
+import { OffsetProps, useOffsetStyles } from "@common-ui/utils/useOffset";
+import { If } from "./Conditional";
+import { useResponsive } from "@common-ui/utils/responsive";
 
 type RowProps = {
-  children?: React.ReactNode
-  wrap?: boolean
-  reverseColumns?: boolean
-  flex?: boolean | number | string
-  gap?: number
-  align?: "center" | "space-between" | "space-around" | "space-evenly" | "flex-start" | "flex-end"
-  justify?: "center" | "flex-start" | "flex-end" | "stretch" | "baseline"
-  ref?: React.RefObject<View>
-} & OffsetProps
+  children?: React.ReactNode;
+  wrap?: boolean;
+  reverseColumns?: boolean;
+  flex?: boolean | number | string;
+  gap?: number;
+  align?: "center" | "space-between" | "space-around" | "space-evenly" | "flex-start" | "flex-end";
+  justify?: "center" | "flex-start" | "flex-end" | "stretch" | "baseline";
+  ref?: React.RefObject<View>;
+} & OffsetProps;
 
 type CellProps = {
-  children?: React.ReactNode
-  flex?: boolean | number | string
-  gap?: number
-  wrap?: boolean
-  align?: "center" | "flex-start" | "flex-end" | "stretch" | "baseline"
-  justify?: "center" | "space-between" | "space-around" | "space-evenly" | "flex-start" | "flex-end"
-  bgColor?: ColorValue
-  ref?: React.RefObject<View>
-  borderRadius?: number
-} & OffsetProps
+  children?: React.ReactNode;
+  flex?: boolean | number | string;
+  gap?: number;
+  wrap?: boolean;
+  align?: "center" | "flex-start" | "flex-end" | "stretch" | "baseline";
+  justify?:
+    | "center"
+    | "space-between"
+    | "space-around"
+    | "space-evenly"
+    | "flex-start"
+    | "flex-end";
+  bgColor?: ColorValue;
+  ref?: React.RefObject<View>;
+  borderRadius?: number;
+} & OffsetProps;
 
 type BottomContainerProps = {
-  children?: React.ReactNode
-  withGradient?: boolean
-} & OffsetProps
+  children?: React.ReactNode;
+  withGradient?: boolean;
+} & OffsetProps;
 
 type AbsoluteContainerProps = {
-  children?: React.ReactNode
-  zIndex?: number
-  sticks?: Array<"top" | "bottom" | "left" | "right">
-} & OffsetProps
+  children?: React.ReactNode;
+  zIndex?: number;
+  sticks?: Array<"top" | "bottom" | "left" | "right">;
+} & OffsetProps;
 
 /**
  * Row is a flexbox container that lays out its children in a row.
@@ -55,42 +61,57 @@ type AbsoluteContainerProps = {
  *   <Text>Text</Text>
  * </Row>
  */
-export const Row = ({ children, align, justify, flex, gap, wrap, ref, ...offsetProps }: RowProps) => {
-  let styles: ViewStyle[] = [{ flexDirection: "row", alignItems: "center" }]
+export const Row = ({
+  children,
+  align,
+  justify,
+  flex,
+  gap,
+  wrap,
+  ref,
+  ...offsetProps
+}: RowProps) => {
+  let styles: ViewStyle[] = [{ flexDirection: "row", alignItems: "center" }];
 
-  styles = useOffsetStyles(styles, offsetProps)
+  styles = useOffsetStyles(styles, offsetProps);
 
   if (align) {
-    styles.push({ justifyContent: align })
+    styles.push({ justifyContent: align });
   }
 
   if (justify) {
-    styles.push({ alignItems: justify })
+    styles.push({ alignItems: justify });
   }
 
   if (flex) {
-    const flexValue = typeof flex === "boolean" ? 1 : flex
-    styles.push({ flex: flexValue })
+    const flexValue = typeof flex === "boolean" ? 1 : flex;
+    styles.push({ flex: flexValue });
   }
 
   if (gap) {
-    styles.push({ gap })
+    styles.push({ gap });
   }
 
   if (wrap) {
-    styles.push({ flexWrap: "wrap" })
+    styles.push({ flexWrap: "wrap" });
   }
 
-  return <View ref={ref} style={styles}>{children}</View>
-}
+  return (
+    <View ref={ref} style={styles}>
+      {children}
+    </View>
+  );
+};
 
 /**
  * Separator is a thin horizontal line that can be used to separate content.
  * @example
  * <Separator />
  */
-const $seprator = { width: "100%", backgroundColor: Colors.lightGrey }
-export const Separator = ({ size }: { size?: number }) => <View style={[$seprator, { height: size || 1 }]} />
+const $seprator = { width: "100%", backgroundColor: Colors.lightGrey };
+export const Separator = ({ size }: { size?: number }) => (
+  <View style={[$seprator, { height: size || 1 }]} />
+);
 
 /**
  * Spacer is an empty block that can be used to add space between content.
@@ -98,7 +119,9 @@ export const Separator = ({ size }: { size?: number }) => <View style={[$seprato
  * @example
  * <Spacer size={Spacing.medium} />
  */
-export const Spacer = ({ size }: { size?: number }) => <View style={{ height: size || Spacing.medium }} />
+export const Spacer = ({ size }: { size?: number }) => (
+  <View style={{ height: size || Spacing.medium }} />
+);
 
 /**
  * Cell is a flexbox container lays out children in a stack
@@ -116,42 +139,57 @@ export const Spacer = ({ size }: { size?: number }) => <View style={{ height: si
  *   <Text>Text</Text>
  * </Cell>
  */
-export const Cell = ({ children, align, wrap, justify, flex, gap, bgColor, borderRadius, ref, ...offsetProps }: CellProps) => {
-  let styles: ViewStyle[] = [{ flexDirection: "column", justifyContent: "center" }]
+export const Cell = ({
+  children,
+  align,
+  wrap,
+  justify,
+  flex,
+  gap,
+  bgColor,
+  borderRadius,
+  ref,
+  ...offsetProps
+}: CellProps) => {
+  let styles: ViewStyle[] = [{ flexDirection: "column", justifyContent: "center" }];
 
-  styles = useOffsetStyles(styles, offsetProps)
+  styles = useOffsetStyles(styles, offsetProps);
 
   if (align) {
-    styles.push({ alignItems: align })
+    styles.push({ alignItems: align });
   }
 
   if (justify) {
-    styles.push({ justifyContent: justify })
+    styles.push({ justifyContent: justify });
   }
 
   if (flex) {
-    const flexValue = typeof flex === "boolean" ? 1 : flex
-    styles.push({ flex: flexValue })
+    const flexValue = typeof flex === "boolean" ? 1 : flex;
+    styles.push({ flex: flexValue });
   }
 
   if (gap) {
-    styles.push({ gap })
+    styles.push({ gap });
   }
 
   if (wrap) {
-    styles.push({ flexWrap: "wrap" })
+    styles.push({ flexWrap: "wrap" });
   }
 
   if (bgColor) {
-    styles.push({ backgroundColor: bgColor })
+    styles.push({ backgroundColor: bgColor });
   }
 
   if (borderRadius) {
-    styles.push({ borderRadius })
+    styles.push({ borderRadius });
   }
 
-  return <View ref={ref} style={styles}>{children}</View>
-}
+  return (
+    <View ref={ref} style={styles}>
+      {children}
+    </View>
+  );
+};
 
 /**
  * RowOrCell is a flexbox container that lays out its children in a row or a column depending on the screen size.
@@ -168,37 +206,32 @@ export const Cell = ({ children, align, wrap, justify, flex, gap, bgColor, borde
  * </RowOrCell>
  */
 export const RowOrCell = (props: RowProps) => {
-  const { isWideScreen } = useResponsive()
+  const { isWideScreen } = useResponsive();
 
-  const { children, align, justify, reverseColumns, ...rest } = props
+  const { children, align, justify, reverseColumns, ...rest } = props;
 
   if (isWideScreen) {
     return (
       <Row align={align} justify={justify} {...rest}>
         {children}
       </Row>
-    )
+    );
   }
 
   let columnChildren = [];
 
   if (Array.isArray(children)) {
-    columnChildren = [...children]
+    columnChildren = [...children];
 
     if (reverseColumns) {
-      columnChildren.reverse()
+      columnChildren.reverse();
     }
-  }
-  else {
-    columnChildren = [children]
+  } else {
+    columnChildren = [children];
   }
 
-  return (
-    <Cell {...rest}>
-      {columnChildren}
-    </Cell>
-  )
-}
+  return <Cell {...rest}>{columnChildren}</Cell>;
+};
 
 /**
  * BottomContainer is a flexbox container that sticks content to the bottom.
@@ -210,24 +243,24 @@ export const RowOrCell = (props: RowProps) => {
  *  <Text>Text</Text>
  * </BottomContainer>
  */
-export const BottomContainer = ({ children, withGradient, ...offsetProps }: BottomContainerProps) => {
-  let styles: ViewStyle[] = [$bottomContainer]
+export const BottomContainer = ({
+  children,
+  withGradient,
+  ...offsetProps
+}: BottomContainerProps) => {
+  let styles: ViewStyle[] = [$bottomContainer];
 
-  styles = useOffsetStyles(styles, offsetProps)
+  styles = useOffsetStyles(styles, offsetProps);
 
-  return (
-    <View style={styles}>
-      {children}
-    </View>
-  )
-}
+  return <View style={styles}>{children}</View>;
+};
 
 const $bottomContainer: ViewStyle = {
   position: "absolute",
   left: 0,
   right: 0,
   bottom: 0,
-}
+};
 
 /**
  * AbsoluteContainer is a flexbox container that sticks content to some direction ("left", "right", "top", "bottom").
@@ -240,34 +273,35 @@ const $bottomContainer: ViewStyle = {
  *  <Text>Text</Text>
  * </AbsoluteContainer>
  */
-export const AbsoluteContainer = ({ children, sticks, zIndex, ...offsetProps }: AbsoluteContainerProps) => {
-  let styles: ViewStyle[] = [{ position: "absolute" }]
+export const AbsoluteContainer = ({
+  children,
+  sticks,
+  zIndex,
+  ...offsetProps
+}: AbsoluteContainerProps) => {
+  let styles: ViewStyle[] = [{ position: "absolute" }];
 
-  styles = useOffsetStyles(styles, offsetProps)
+  styles = useOffsetStyles(styles, offsetProps);
 
   if (sticks.includes("left")) {
-    styles.push({ left: 0 })
+    styles.push({ left: 0 });
   }
 
   if (sticks.includes("right")) {
-    styles.push({ right: 0 })
+    styles.push({ right: 0 });
   }
 
   if (sticks.includes("top")) {
-    styles.push({ top: 0 })
+    styles.push({ top: 0 });
   }
 
   if (sticks.includes("bottom")) {
-    styles.push({ bottom: 0 })
+    styles.push({ bottom: 0 });
   }
 
   if (zIndex) {
-    styles.push({ zIndex })
+    styles.push({ zIndex });
   }
 
-  return (
-    <View style={styles}>
-      {children}
-    </View>
-  )
-}
+  return <View style={styles}>{children}</View>;
+};

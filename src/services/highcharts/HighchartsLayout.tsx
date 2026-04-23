@@ -75,4 +75,4 @@ export const LAYOUT_HTML = `
   	<div id="container">Loading...</div>
   </body>
 </html>
-`
+`;

@@ -1,17 +1,14 @@
 // Copied from https://github.com/highcharts/highcharts-react-native/blob/master/dist/src/HighchartsReactNative.js
 
-import React, { useEffect, useRef, useState } from 'react';
-import {
-    View,
-    ViewStyle,
-} from 'react-native';
-import { WebView, WebViewMessageEvent, WebViewProps } from 'react-native-webview';
-import { LAYOUT_HTML } from './HighchartsLayout';
+import React, { useEffect, useRef, useState } from "react";
+import { View, ViewStyle } from "react-native";
+import { WebView, WebViewMessageEvent, WebViewProps } from "react-native-webview";
+import { LAYOUT_HTML } from "./HighchartsLayout";
 
 const stringifiedScripts = {};
 
-let cdnPath = 'code.highcharts.com/';
-let httpProto = 'http://';
+let cdnPath = "code.highcharts.com/";
+let httpProto = "http://";
 
 interface HighchartsReactNativeProps {
   data?: any; // Data to be stored as global variable in Webview.
@@ -25,18 +22,18 @@ interface HighchartsReactNativeProps {
   webviewStyles?: ViewStyle; // Styles to be applied to the WebView.
 }
 
-type ScriptsProps = Pick<HighchartsReactNativeProps, 'data' | 'modules' | 'options' | 'setOptions'>
+type ScriptsProps = Pick<HighchartsReactNativeProps, "data" | "modules" | "options" | "setOptions">;
 
 const serialize = (chartOptions: Highcharts.Options, isUpdate?: boolean) => {
   let hcFunctions = {},
-  serializedOptions,
-  i = 0;
+    serializedOptions,
+    i = 0;
 
   serializedOptions = JSON.stringify(chartOptions, function (_val, key) {
-    const fcId = '###HighchartsFunction' + i + '###';
+    const fcId = "###HighchartsFunction" + i + "###";
 
     // set reference to function for the later replacement
-    if (typeof key === 'function') {
+    if (typeof key === "function") {
       hcFunctions[fcId] = key.toString();
       i++;
       return isUpdate ? key.toString() : fcId;
@@ -48,21 +45,17 @@ const serialize = (chartOptions: Highcharts.Options, isUpdate?: boolean) => {
   // replace ids with functions.
   if (!isUpdate) {
     Object.keys(hcFunctions).forEach(function (key) {
-      serializedOptions = serializedOptions.replace(
-        '"' + key + '"',
-        hcFunctions[key]
-      );
+      serializedOptions = serializedOptions.replace('"' + key + '"', hcFunctions[key]);
     });
   }
 
   return serializedOptions;
-}
+};
 
 const buildScripts = (props: ScriptsProps) => {
   const { data, modules, options, setOptions } = props;
 
-  return (
-    `(function() {
+  return `(function() {
         window.data = \"${data ? data : null}\";
         var modulesList = ${JSON.stringify(modules)};
         var readable = ${JSON.stringify(stringifiedScripts)}
@@ -100,18 +93,17 @@ const buildScripts = (props: ScriptsProps) => {
 
         return true;
       })();
-    `
-  )
-}
+    `;
+};
 
 const addScript = async (name: string, isModule: boolean) => {
-  const moduleUrl = httpProto + cdnPath + (isModule ? 'modules/' : '') + name + '.js'
+  const moduleUrl = httpProto + cdnPath + (isModule ? "modules/" : "") + name + ".js";
 
   const response = await fetch(moduleUrl).catch((error) => {
-    throw error
-  })
-  stringifiedScripts[name] = await response.text()
-}
+    throw error;
+  });
+  stringifiedScripts[name] = await response.text();
+};
 
 const HighchartsReactNative = React.memo((props: HighchartsReactNativeProps) => {
   const {
@@ -126,46 +118,46 @@ const HighchartsReactNative = React.memo((props: HighchartsReactNativeProps) => 
     setOptions = {},
   } = props;
 
-  const webviewRef = useRef<WebView>(null)
+  const webviewRef = useRef<WebView>(null);
 
-  const [modulesReady, setModulesReady] = useState(false)
+  const [modulesReady, setModulesReady] = useState(false);
 
   const handleMessage = (event: WebViewMessageEvent) => {
-    onMessage && onMessage(event.nativeEvent.data)
-  }
+    onMessage && onMessage(event.nativeEvent.data);
+  };
 
   useEffect(() => {
     if (!modulesReady) {
-      return
+      return;
     }
-    
-    webviewRef.current?.postMessage(serialize(options, true))
-  }, [options, modulesReady])
+
+    webviewRef.current?.postMessage(serialize(options, true));
+  }, [options, modulesReady]);
 
   useEffect(() => {
     const getModules = async () => {
-      await addScript('highcharts', false)
+      await addScript("highcharts", false);
 
       if (modules.length > 0) {
-        await addScript('highcharts-more', false)
+        await addScript("highcharts-more", false);
 
         for (let i = 0; i < modules.length; i++) {
-          await addScript(modules[i], true)
+          await addScript(modules[i], true);
         }
       }
 
-      setModulesReady(true)
-    }
+      setModulesReady(true);
+    };
 
-    getModules()
-  }, [])
+    getModules();
+  }, []);
 
   // Do not render anything until modules are ready.
   if (!modulesReady) {
-      return null
+    return null;
   }
 
-  const runFirst = buildScripts({ data, modules, options, setOptions })
+  const runFirst = buildScripts({ data, modules, options, setOptions });
 
   return (
     <View style={styles}>
@@ -180,7 +172,7 @@ const HighchartsReactNative = React.memo((props: HighchartsReactNativeProps) => 
         javaScriptEnabled={true}
         domStorageEnabled={true}
         scrollEnabled={false}
-        mixedContentMode='always'
+        mixedContentMode="always"
         allowFileAccessFromFileURLs={true}
         startInLoadingState={startInLoadingState}
         style={webviewStyles}
@@ -188,7 +180,7 @@ const HighchartsReactNative = React.memo((props: HighchartsReactNativeProps) => 
         {...webviewProps}
       />
     </View>
-  )
-})
+  );
+});
 
-export default HighchartsReactNative
+export default HighchartsReactNative;

@@ -1,4 +1,4 @@
-import React from "react"
+import React from "react";
 
 import { IconButton, LinkButton } from "@common-ui/components/Button";
 import { Row } from "@common-ui/components/Common";
@@ -10,29 +10,26 @@ import { useResponsive } from "@common-ui/utils/responsive";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 
 type TitleWithBackButtonProps = {
-  title: string
-  onPress: () => void
-  webEnabled?: boolean
-  mobileEnabled?: boolean
-}
+  title: string;
+  onPress: () => void;
+  webEnabled?: boolean;
+  mobileEnabled?: boolean;
+};
 
 const TitleWithBackButton = ({
   title,
   webEnabled = true,
   mobileEnabled = true,
-  onPress
+  onPress,
 }: TitleWithBackButtonProps) => {
-  const { t } = useLocale()
-  const { isMobile } = useResponsive()
-  
+  const { t } = useLocale();
+  const { isMobile } = useResponsive();
+
   return (
     <Row left={Spacing.medium} bottom={Spacing.extraSmall} top={Spacing.medium}>
       <Ternary condition={isMobile}>
         <If condition={mobileEnabled}>
-          <IconButton
-            left={-Spacing.medium}
-            icon="chevron-left"
-            onPress={onPress} />
+          <IconButton left={-Spacing.medium} icon="chevron-left" onPress={onPress} />
         </If>
         <If condition={webEnabled}>
           <LinkButton
@@ -44,11 +41,9 @@ const TitleWithBackButton = ({
           />
         </If>
       </Ternary>
-      <LargeTitle>
-        {title}
-      </LargeTitle>
+      <LargeTitle>{title}</LargeTitle>
     </Row>
-  )
-}
+  );
+};
 
-export default TitleWithBackButton
+export default TitleWithBackButton;

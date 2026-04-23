@@ -1,4 +1,4 @@
-import React from "react"
+import React from "react";
 import { observer } from "mobx-react-lite";
 import { useRouter } from "expo-router";
 
@@ -15,86 +15,85 @@ import { ROUTES } from "app/_layout";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 
 const formatToRoadText = (diff: number, t) => {
-  if (Math.abs(diff) <.1) {
+  if (Math.abs(diff) < 0.1) {
     return `(${t("statusLevelsCard.roadSaddle")} ${t("statusLevelsCard.level")})`;
   }
-  return `(${Math.abs(diff).toFixed(1)} ${t("measure.ft")} ${(diff > 0 ? t("statusLevelsCard.below") : t("statusLevelsCard.above"))} ${t("statusLevelsCard.roadSaddle")})`
-}
+  return `(${Math.abs(diff).toFixed(1)} ${t("measure.ft")} ${
+    diff > 0 ? t("statusLevelsCard.below") : t("statusLevelsCard.above")
+  } ${t("statusLevelsCard.roadSaddle")})`;
+};
 
-const StatusLevelsCard = observer(
-  function StatusLevelsCard({ gage }: { gage: Gage }) {
-    const router = useRouter()
-    const { authSessionStore } = useStores()
-    const { formatHeight } = useUtils()
-    const { t } = useLocale()
+const StatusLevelsCard = observer(function StatusLevelsCard({ gage }: { gage: Gage }) {
+  const router = useRouter();
+  const { authSessionStore } = useStores();
+  const { formatHeight } = useUtils();
+  const { t } = useLocale();
 
-    const isLoggedIn = authSessionStore.isLoggedIn
-    const isSubscribed = isLoggedIn && authSessionStore.gageSubscriptions.includes(gage?.locationId)
+  const isLoggedIn = authSessionStore.isLoggedIn;
+  const isSubscribed = isLoggedIn && authSessionStore.gageSubscriptions.includes(gage?.locationId);
 
-    const handleManageLinkPress = () => {
-      if (isSubscribed) {
-        router.push({ pathname: ROUTES.UserAlerts })
-        return; 
-      }
-      else if (isLoggedIn) {
-        router.push({ pathname: ROUTES.UserAlerts, params: { add: gage?.locationId } })
-        return; 
-      }
-
-      router.push({ pathname: ROUTES.UserLogin })
-    }
-
-    let manageText = t("statusLevelsCard.logInToGetAlerts")
-    
+  const handleManageLinkPress = () => {
     if (isSubscribed) {
-      // If subscribed, show "Manage Alerts" instead
-      manageText = t("statusLevelsCard.manageAlerts")
+      router.push({ pathname: ROUTES.UserAlerts });
+      return;
     } else if (isLoggedIn) {
-      // If logged in, show "Get Alerts when status changes" instead
-      manageText = t("statusLevelsCard.getAlerts")
+      router.push({ pathname: ROUTES.UserAlerts, params: { add: gage?.locationId } });
+      return;
     }
 
-    return (
-      <Card flex>  
-        <CardHeader>
-          <SmallTitle>{t("statusLevelsCard.statusLevels")}</SmallTitle>
-        </CardHeader>
-        <Cell flex>
-          <CardItem>
-            <LargeLabel type="success" text={t("status.normal")} />
-            <RegularText>{t("statusLevelsCard.Below")} {formatHeight(gage?.yellowStage ?? gage?.redStage)}</RegularText>
-          </CardItem>
-          <CardItem>
-            <LargeLabel type="warning" text={t("status.nearFlooding")} />
-            <RegularText>
-              {t("statusLevelsCard.atAndAbove")} {formatHeight(gage?.yellowStage)}{"\n"}
-              <If condition={!!gage?.roadSaddleHeight}>
-                <SmallText>{formatToRoadText(gage?.roadToYellowStage, t)}</SmallText>
-              </If>
-            </RegularText>
-          </CardItem>
-          <CardItem noBorder>
-            <LargeLabel type="danger" text={t("status.flooding")} />
-            <RegularText>
-              {t("statusLevelsCard.atAndAbove")} {formatHeight(gage?.redStage)}{"\n"}
-              <If condition={!!gage?.roadSaddleHeight}>
-                <SmallText>{formatToRoadText(gage?.roadToRedStage, t)}</SmallText>
-              </If>
-            </RegularText>
-          </CardItem>
-          <CardFooter>
-            <Cell flex align="center">
-              <LinkButton
-                selfAlign="center"
-                title={manageText}
-                onPress={handleManageLinkPress}
-              />
-            </Cell>
-          </CardFooter>
-        </Cell>
-      </Card>
-    )
-  }
-)
+    router.push({ pathname: ROUTES.UserLogin });
+  };
 
-export default StatusLevelsCard
+  let manageText = t("statusLevelsCard.logInToGetAlerts");
+
+  if (isSubscribed) {
+    // If subscribed, show "Manage Alerts" instead
+    manageText = t("statusLevelsCard.manageAlerts");
+  } else if (isLoggedIn) {
+    // If logged in, show "Get Alerts when status changes" instead
+    manageText = t("statusLevelsCard.getAlerts");
+  }
+
+  return (
+    <Card flex>
+      <CardHeader>
+        <SmallTitle>{t("statusLevelsCard.statusLevels")}</SmallTitle>
+      </CardHeader>
+      <Cell flex>
+        <CardItem>
+          <LargeLabel type="success" text={t("status.normal")} />
+          <RegularText>
+            {t("statusLevelsCard.Below")} {formatHeight(gage?.yellowStage ?? gage?.redStage)}
+          </RegularText>
+        </CardItem>
+        <CardItem>
+          <LargeLabel type="warning" text={t("status.nearFlooding")} />
+          <RegularText>
+            {t("statusLevelsCard.atAndAbove")} {formatHeight(gage?.yellowStage)}
+            {"\n"}
+            <If condition={!!gage?.roadSaddleHeight}>
+              <SmallText>{formatToRoadText(gage?.roadToYellowStage, t)}</SmallText>
+            </If>
+          </RegularText>
+        </CardItem>
+        <CardItem noBorder>
+          <LargeLabel type="danger" text={t("status.flooding")} />
+          <RegularText>
+            {t("statusLevelsCard.atAndAbove")} {formatHeight(gage?.redStage)}
+            {"\n"}
+            <If condition={!!gage?.roadSaddleHeight}>
+              <SmallText>{formatToRoadText(gage?.roadToRedStage, t)}</SmallText>
+            </If>
+          </RegularText>
+        </CardItem>
+        <CardFooter>
+          <Cell flex align="center">
+            <LinkButton selfAlign="center" title={manageText} onPress={handleManageLinkPress} />
+          </Cell>
+        </CardFooter>
+      </Cell>
+    </Card>
+  );
+});
+
+export default StatusLevelsCard;

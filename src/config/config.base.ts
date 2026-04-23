@@ -1,4 +1,4 @@
-import dayjs from "dayjs"
+import dayjs from "dayjs";
 
 const API = {
   SVPA_REGION_ID: 1,
@@ -49,37 +49,37 @@ const API = {
     SET_PUSH_TOKEN_URL: "/Account/SetDevicePushToken",
 
     ID_TOKEN_HEADER: "X-fz-idToken",
-  }
-}
+  },
+};
 
 const BaseConfig: {
-  BASE_URL: string
-  AUTH_BASE_URL: string
-  RESOURCE_BASE_URL: string
-  READING_BASE_URL: string
-  GAGE_IMAGE_BASE_URL: string
-  DONATION_URL: string
-  DEFAULT_MAP_TILE_BASE_URL: string
+  BASE_URL: string;
+  AUTH_BASE_URL: string;
+  RESOURCE_BASE_URL: string;
+  READING_BASE_URL: string;
+  GAGE_IMAGE_BASE_URL: string;
+  DONATION_URL: string;
+  DEFAULT_MAP_TILE_BASE_URL: string;
 
-  SVPA_URL: string
-  SVPA_PHONE: string
-  SVPA_EMAIL: string
-  NOAA_URL: string
+  SVPA_URL: string;
+  SVPA_PHONE: string;
+  SVPA_EMAIL: string;
+  NOAA_URL: string;
 
-  GAGE_DATA_REFRESH_RATE: number
-  GAGE_CLIENT_CACHE_TIME: number
-  DASHBOARD_DATA_REFRESH_RATE: number
-  LIVE_CHART_DATA_REFRESH_INTERVAL: number
+  GAGE_DATA_REFRESH_RATE: number;
+  GAGE_CLIENT_CACHE_TIME: number;
+  DASHBOARD_DATA_REFRESH_RATE: number;
+  LIVE_CHART_DATA_REFRESH_INTERVAL: number;
 
-  FRONT_PAGE_CHART_DURATION_NUMBER: number
-  FRONT_PAGE_CHART_DURATION_UNIT: dayjs.ManipulateType
+  FRONT_PAGE_CHART_DURATION_NUMBER: number;
+  FRONT_PAGE_CHART_DURATION_UNIT: dayjs.ManipulateType;
 
-  PASSWORD_MIN_LENGTH: number
+  PASSWORD_MIN_LENGTH: number;
 
-  API: typeof API
+  API: typeof API;
 
-  FORECAST_GAGE_IDS: string[]
-  GAGES_WITHOUT_DISHCARGE: string[]
+  FORECAST_GAGE_IDS: string[];
+  GAGES_WITHOUT_DISHCARGE: string[];
 } = {
   BASE_URL: "https://floodzilla.com",
   AUTH_BASE_URL: "https://floodzilla.com",
@@ -100,14 +100,14 @@ const BaseConfig: {
   LIVE_CHART_DATA_REFRESH_INTERVAL: 60 * 1000, // ms
 
   FRONT_PAGE_CHART_DURATION_NUMBER: 2,
-  FRONT_PAGE_CHART_DURATION_UNIT: 'day',
+  FRONT_PAGE_CHART_DURATION_UNIT: "day",
 
   PASSWORD_MIN_LENGTH: 8,
 
   API: API,
 
-  FORECAST_GAGE_IDS: ['USGS-SF17/USGS-NF10/USGS-MF11', 'USGS-38', 'USGS-22'],
-  GAGES_WITHOUT_DISHCARGE: ['USGS-9'],
-}
+  FORECAST_GAGE_IDS: ["USGS-SF17/USGS-NF10/USGS-MF11", "USGS-38", "USGS-22"],
+  GAGES_WITHOUT_DISHCARGE: ["USGS-9"],
+};
 
-export default BaseConfig
+export default BaseConfig;

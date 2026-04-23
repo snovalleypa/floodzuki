@@ -63,7 +63,7 @@ export const Colors = {
   warning: Palette.yellow, // yellow
   success: Palette.green, // green
   info: Palette.pink, // light blue
-  
+
   darkerGrey: Palette.black750,
   darkGrey: Palette.black700, // dark grey
   midGrey: Palette.black300, // mid grey
@@ -85,7 +85,7 @@ export const Colors = {
 
   sliderBackground: Palette.black400, // slider background color
   sliderFill: Palette.yellow800, // slider fill color
-  
+
   // colors
   transparent: Palette.transparent,
   white: Palette.white,
@@ -94,7 +94,7 @@ export const Colors = {
   blue: Palette.blue,
   lightBlue: Palette.blue800,
   softBlue: Palette.blue100,
-  
+
   yellow: Palette.yellow,
   lightYellow: Palette.yellow800,
   softYellow: Palette.yellow100,
@@ -123,7 +123,7 @@ export const Colors = {
   gageChartPredictionsLineColor: Palette.chartOrange,
   gageChartActualDataLineColor: Palette.chartGreen,
   gageChartForecastDataLineColor: Palette.chartPink,
-}
+};
 
 /**
  * Primary ColorTypes that can be used in some components like Button or Label.
@@ -138,26 +138,25 @@ export enum ColorTypes {
   blue = "blue",
   lightBlue = "lightBlue",
   softBlue = "softBlue",
-  
+
   yellow = "yellow",
   lightYellow = "lightYellow",
   softYellow = "softYellow",
-  
+
   green = "green",
   lightGreen = "lightGreen",
   softGreen = "softGreen",
-  
+
   red = "red",
   lightRed = "lightRed",
   softRed = "softRed",
-  
+
   pink = "pink",
   lightPink = "lightPink",
   softPink = "softPink",
 }
 
-export const ChartColorsHex = ['#0000FF', '#008000', '#800000', '#800080', '#FF4500', '#00FF00'];
-
+export const ChartColorsHex = ["#0000FF", "#008000", "#800000", "#800080", "#FF4500", "#00FF00"];
 
 export function lightenHexColor(hexColor: string): string {
   // Convert the hex color to an RGB color
@@ -174,9 +173,9 @@ export function lightenHexColor(hexColor: string): string {
   return newHexColor;
 }
 
-function hexToRgb(hexColor: string): { r: number, g: number, b: number } {
+function hexToRgb(hexColor: string): { r: number; g: number; b: number } {
   // Remove the # symbol from the hex color
-  const hex = hexColor.replace('#', '');
+  const hex = hexColor.replace("#", "");
 
   // Convert the hex color to an RGB color
   const r = parseInt(hex.substring(0, 2), 16);
@@ -188,9 +187,9 @@ function hexToRgb(hexColor: string): { r: number, g: number, b: number } {
 
 function rgbToHex(red: number, green: number, blue: number): string {
   // Convert the RGB values to a hex color
-  const rHex = red.toString(16).padStart(2, '0');
-  const gHex = green.toString(16).padStart(2, '0');
-  const bHex = blue.toString(16).padStart(2, '0');
+  const rHex = red.toString(16).padStart(2, "0");
+  const gHex = green.toString(16).padStart(2, "0");
+  const bHex = blue.toString(16).padStart(2, "0");
 
   return `#${rHex}${gHex}${bHex}`;
 }

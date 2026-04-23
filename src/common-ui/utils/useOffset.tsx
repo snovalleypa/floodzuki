@@ -1,25 +1,25 @@
-import { FlexStyle } from "react-native"
+import { FlexStyle } from "react-native";
 
 export type OffsetProps = {
-  top?: number
-  left?: number
-  bottom?: number
-  right?: number
-  vertical?: number
-  horizontal?: number
-  innerVertical?: number
-  innerHorizontal?: number
-  innerTop?: number
-  innerLeft?: number
-  innerBottom?: number
-  innerRight?: number
-  height?: number | string
-  width?: number
-  minHeight?: number | string
-  maxHeight?: number | string
-  minWidth?: number | string
-  maxWidth?: number | string
-}
+  top?: number;
+  left?: number;
+  bottom?: number;
+  right?: number;
+  vertical?: number;
+  horizontal?: number;
+  innerVertical?: number;
+  innerHorizontal?: number;
+  innerTop?: number;
+  innerLeft?: number;
+  innerBottom?: number;
+  innerRight?: number;
+  height?: number | string;
+  width?: number;
+  minHeight?: number | string;
+  maxHeight?: number | string;
+  minWidth?: number | string;
+  maxWidth?: number | string;
+};
 
 /**
  * A hook to extend any component with offset styles.
@@ -62,79 +62,79 @@ export function useOffsetStyles(styles: FlexStyle[], props: OffsetProps): Array<
     minWidth,
     maxWidth,
     maxHeight,
-  } = props
+  } = props;
 
   if (props.hasOwnProperty("top")) {
-    styles.push({ marginTop: top })
+    styles.push({ marginTop: top });
   }
 
   if (props.hasOwnProperty("left")) {
-    styles.push({ marginLeft: left })
+    styles.push({ marginLeft: left });
   }
 
   if (props.hasOwnProperty("bottom")) {
-    styles.push({ marginBottom: bottom })
+    styles.push({ marginBottom: bottom });
   }
 
   if (props.hasOwnProperty("right")) {
-    styles.push({ marginRight: right })
+    styles.push({ marginRight: right });
   }
 
   if (props.hasOwnProperty("vertical")) {
-    styles.push({ marginTop: vertical, marginBottom: vertical })
+    styles.push({ marginTop: vertical, marginBottom: vertical });
   }
 
   if (props.hasOwnProperty("horizontal")) {
-    styles.push({ marginLeft: horizontal, marginRight: horizontal })
+    styles.push({ marginLeft: horizontal, marginRight: horizontal });
   }
 
   if (props.hasOwnProperty("innerVertical")) {
-    styles.push({ paddingTop: innerVertical, paddingBottom: innerVertical })
+    styles.push({ paddingTop: innerVertical, paddingBottom: innerVertical });
   }
 
   if (props.hasOwnProperty("innerHorizontal")) {
-    styles.push({ paddingLeft: innerHorizontal, paddingRight: innerHorizontal })
+    styles.push({ paddingLeft: innerHorizontal, paddingRight: innerHorizontal });
   }
 
   if (props.hasOwnProperty("innerTop")) {
-    styles.push({ paddingTop: innerTop })
+    styles.push({ paddingTop: innerTop });
   }
 
   if (props.hasOwnProperty("innerLeft")) {
-    styles.push({ paddingLeft: innerLeft })
+    styles.push({ paddingLeft: innerLeft });
   }
 
   if (props.hasOwnProperty("innerBottom")) {
-    styles.push({ paddingBottom: innerBottom })
+    styles.push({ paddingBottom: innerBottom });
   }
 
   if (props.hasOwnProperty("innerRight")) {
-    styles.push({ paddingRight: innerRight })
+    styles.push({ paddingRight: innerRight });
   }
 
   if (props.hasOwnProperty("height")) {
-    styles.push({ height })
+    styles.push({ height });
   }
 
   if (props.hasOwnProperty("width")) {
-    styles.push({ width })
+    styles.push({ width });
   }
 
   if (props.hasOwnProperty("minHeight")) {
-    styles.push({ minHeight })
+    styles.push({ minHeight });
   }
 
   if (props.hasOwnProperty("minWidth")) {
-    styles.push({ minWidth })
+    styles.push({ minWidth });
   }
 
   if (props.hasOwnProperty("maxHeight")) {
-    styles.push({ maxHeight })
+    styles.push({ maxHeight });
   }
 
   if (props.hasOwnProperty("maxWidth")) {
-    styles.push({ maxWidth })
+    styles.push({ maxWidth });
   }
 
-  return styles
+  return styles;
 }

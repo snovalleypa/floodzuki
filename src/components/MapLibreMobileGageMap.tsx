@@ -9,7 +9,8 @@ import TrendIcon, { TREND_ICON_TYPES } from "./TrendIcon";
 import Config from "../config/config";
 import Constants from "expo-constants";
 
-const mapStyleBaseUrl = Constants.expoConfig!.extra!.mapTileUrlBase || Config.DEFAULT_MAP_TILE_BASE_URL;
+const mapStyleBaseUrl =
+  Constants.expoConfig!.extra!.mapTileUrlBase || Config.DEFAULT_MAP_TILE_BASE_URL;
 
 const styles = StyleSheet.create({
   map: {

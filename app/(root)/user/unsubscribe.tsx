@@ -1,135 +1,132 @@
-import React, { useEffect, useState } from "react"
-import { ErrorBoundaryProps, Stack, useLocalSearchParams, useRouter } from "expo-router"
+import React, { useEffect, useState } from "react";
+import { ErrorBoundaryProps, Stack, useLocalSearchParams, useRouter } from "expo-router";
 
-import { Screen, Content } from "@common-ui/components/Screen"
-import { MediumText, RegularText } from "@common-ui/components/Text"
-import { ErrorDetails } from "@components/ErrorDetails"
-import TitleWithBackButton from "@components/TitleWithBackButton"
-import { ROUTES } from "app/_layout"
-import { Spacing } from "@common-ui/constants/spacing"
-import { Card, CardContent } from "@common-ui/components/Card"
-import { Cell, Row } from "@common-ui/components/Common"
-import { OutlinedButton, SimpleLinkButton, SolidButton } from "@common-ui/components/Button"
-import { observer } from "mobx-react-lite"
-import { useStores } from "@models/helpers/useStores"
-import { If, Ternary } from "@common-ui/components/Conditional"
-import ErrorMessage from "@common-ui/components/ErrorMessage"
-import { normalizeSearchParams, openLinkInBrowser } from "@utils/navigation"
-import SuccessMessage from "@common-ui/components/SuccessMessage"
-import { useLocale } from "@common-ui/contexts/LocaleContext"
-import Head from "expo-router/head"
+import { Screen, Content } from "@common-ui/components/Screen";
+import { MediumText, RegularText } from "@common-ui/components/Text";
+import { ErrorDetails } from "@components/ErrorDetails";
+import TitleWithBackButton from "@components/TitleWithBackButton";
+import { ROUTES } from "app/_layout";
+import { Spacing } from "@common-ui/constants/spacing";
+import { Card, CardContent } from "@common-ui/components/Card";
+import { Cell, Row } from "@common-ui/components/Common";
+import { OutlinedButton, SimpleLinkButton, SolidButton } from "@common-ui/components/Button";
+import { observer } from "mobx-react-lite";
+import { useStores } from "@models/helpers/useStores";
+import { If, Ternary } from "@common-ui/components/Conditional";
+import ErrorMessage from "@common-ui/components/ErrorMessage";
+import { normalizeSearchParams, openLinkInBrowser } from "@utils/navigation";
+import SuccessMessage from "@common-ui/components/SuccessMessage";
+import { useLocale } from "@common-ui/contexts/LocaleContext";
+import Head from "expo-router/head";
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
   return <ErrorDetails {...props} />;
 }
 
-const UnsubscribeScreen = observer(
-  function UnsubscribeScreen() {
-    const router = useRouter()
-    const { t } = useLocale();
-    const { authSessionStore } = useStores()
+const UnsubscribeScreen = observer(function UnsubscribeScreen() {
+  const router = useRouter();
+  const { t } = useLocale();
+  const { authSessionStore } = useStores();
 
-    const { userId, email } = useLocalSearchParams()
+  const { userId, email } = useLocalSearchParams();
 
-    const [isUnsubscribed, setIsUnsubscribed] = useState(false)
+  const [isUnsubscribed, setIsUnsubscribed] = useState(false);
 
-    const unsubscribe = async () => {
-      await authSessionStore.unsubscribeFromNotifications(normalizeSearchParams(userId))
+  const unsubscribe = async () => {
+    await authSessionStore.unsubscribeFromNotifications(normalizeSearchParams(userId));
 
-      if (!authSessionStore.isError) {
-        setIsUnsubscribed(true)
-      }
+    if (!authSessionStore.isError) {
+      setIsUnsubscribed(true);
     }
+  };
 
-    // Clear any errors when the screen is loaded
-    useEffect(() => {
-      authSessionStore.clearDataFetching()
+  // Clear any errors when the screen is loaded
+  useEffect(() => {
+    authSessionStore.clearDataFetching();
 
-      if (!userId || !email) {
-        router.replace({ pathname: ROUTES.Home })
-      }
-    }, [router])
-
-    const goBack = () => {
-      router.push({ pathname: ROUTES.UserAlerts })
+    if (!userId || !email) {
+      router.replace({ pathname: ROUTES.Home });
     }
+  }, [router]);
 
-    const goHome = () => {
-      router.push({ pathname: ROUTES.Home })
-    }
+  const goBack = () => {
+    router.push({ pathname: ROUTES.UserAlerts });
+  };
 
-    const contactUs = () => {
-      openLinkInBrowser("mailto:floodzilla.support@svpa.us")
-    }
+  const goHome = () => {
+    router.push({ pathname: ROUTES.Home });
+  };
 
-    return (
-      <Screen>
-        <Head>
-          <title>{t("common.title")} - {t("homeScreen.title")}</title>
-        </Head>
-        <TitleWithBackButton
-          title={t("navigation.unsubscribeScreen")}
-          onPress={goBack}
-        />
-        <Content maxWidth={Spacing.tabletWidth} scrollable>
-          <Card bottom={Spacing.large}>
-            <CardContent>
-              <If condition={!authSessionStore.isFetching}>
-                <Ternary condition={authSessionStore.isError}>
+  const contactUs = () => {
+    openLinkInBrowser("mailto:floodzilla.support@svpa.us");
+  };
+
+  return (
+    <Screen>
+      <Head>
+        <title>
+          {t("common.title")} - {t("homeScreen.title")}
+        </title>
+      </Head>
+      <TitleWithBackButton title={t("navigation.unsubscribeScreen")} onPress={goBack} />
+      <Content maxWidth={Spacing.tabletWidth} scrollable>
+        <Card bottom={Spacing.large}>
+          <CardContent>
+            <If condition={!authSessionStore.isFetching}>
+              <Ternary condition={authSessionStore.isError}>
+                <Cell>
+                  <ErrorMessage
+                    errorText={authSessionStore.errorMessage ?? t("unsubscribeScreen.errorMessage")}
+                  />
+                  <RegularText>
+                    {t("unsubscribeScreen.please")}{" "}
+                    <SimpleLinkButton text={t("unsubscribeScreen.contactUs")} onPress={contactUs} />{" "}
+                    {t("unsubscribeScreen.soWeCanRemove")}.
+                  </RegularText>
+                  <SolidButton
+                    selfAlign="center"
+                    title={t("unsubscribeScreen.tryAgain")}
+                    onPress={unsubscribe}
+                  />
+                </Cell>
+                <Ternary condition={isUnsubscribed}>
                   <Cell>
-                    <ErrorMessage
-                      errorText={authSessionStore.errorMessage ?? t("unsubscribeScreen.errorMessage")}
-                    />
-                    <RegularText>
-                      {t("unsubscribeScreen.please")} <SimpleLinkButton text={t("unsubscribeScreen.contactUs")} onPress={contactUs} /> {t("unsubscribeScreen.soWeCanRemove")}.
+                    <SuccessMessage successText={t("unsubscribeScreen.successMessage")} />
+                    <Row align="space-evenly" top={Spacing.small} bottom={Spacing.large}>
+                      <OutlinedButton
+                        minWidth={Spacing.extraExtraHuge}
+                        selfAlign="center"
+                        title={t("unsubscribeScreen.manageAlerts")}
+                        onPress={goBack}
+                      />
+                      <SolidButton
+                        minWidth={Spacing.extraExtraHuge}
+                        selfAlign="center"
+                        title={t("unsubscribeScreen.continue")}
+                        onPress={goHome}
+                      />
+                    </Row>
+                  </Cell>
+                  <Cell>
+                    <RegularText align="center">
+                      {t("unsubscribeScreen.description")} <MediumText>{email}</MediumText>.
                     </RegularText>
                     <SolidButton
+                      top={Spacing.medium}
                       selfAlign="center"
-                      title={t("unsubscribeScreen.tryAgain")}
+                      title={t("unsubscribeScreen.unsubscribeAll")}
                       onPress={unsubscribe}
                     />
                   </Cell>
-                  <Ternary condition={isUnsubscribed}>
-                    <Cell>
-                      <SuccessMessage
-                        successText={t("unsubscribeScreen.successMessage")}
-                      />
-                      <Row align="space-evenly" top={Spacing.small} bottom={Spacing.large}>
-                        <OutlinedButton
-                          minWidth={Spacing.extraExtraHuge}
-                          selfAlign="center"
-                          title={t("unsubscribeScreen.manageAlerts")}
-                          onPress={goBack}
-                        />
-                        <SolidButton
-                          minWidth={Spacing.extraExtraHuge}
-                          selfAlign="center"
-                          title={t("unsubscribeScreen.continue")}
-                          onPress={goHome}
-                        />
-                      </Row>
-                    </Cell>
-                    <Cell>
-                      <RegularText align="center">
-                        {t("unsubscribeScreen.description")} <MediumText>{email}</MediumText>.
-                      </RegularText>
-                      <SolidButton
-                        top={Spacing.medium}
-                        selfAlign="center"
-                        title={t("unsubscribeScreen.unsubscribeAll")}
-                        onPress={unsubscribe}
-                      />
-                    </Cell>
-                  </Ternary>
                 </Ternary>
-              </If>
-            </CardContent>
-          </Card>
-        </Content>
-      </Screen>
-    )
-  }
-)
+              </Ternary>
+            </If>
+          </CardContent>
+        </Card>
+      </Content>
+    </Screen>
+  );
+});
 
-export default UnsubscribeScreen
+export default UnsubscribeScreen;

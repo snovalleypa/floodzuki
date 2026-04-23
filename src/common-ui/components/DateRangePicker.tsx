@@ -1,23 +1,23 @@
-import React, { useEffect, useRef, useState } from "react"
-import { Dayjs } from "dayjs"
-import DatePicker from "./DatePicker"
-import Icon from "./Icon"
-import { Colors } from "@common-ui/constants/colors"
-import { RegularText } from "./Text"
-import { Pressable, View, ViewStyle } from "react-native"
-import { Spacing } from "@common-ui/constants/spacing"
-import { Cell } from "./Common"
-import localDayJs from "@services/localDayJs"
-import { useLocale } from "@common-ui/contexts/LocaleContext"
+import React, { useEffect, useRef, useState } from "react";
+import { Dayjs } from "dayjs";
+import DatePicker from "./DatePicker";
+import Icon from "./Icon";
+import { Colors } from "@common-ui/constants/colors";
+import { RegularText } from "./Text";
+import { Pressable, View, ViewStyle } from "react-native";
+import { Spacing } from "@common-ui/constants/spacing";
+import { Cell } from "./Common";
+import localDayJs from "@services/localDayJs";
+import { useLocale } from "@common-ui/contexts/LocaleContext";
 
 type DateRangePickerProps = {
-  startDate: Dayjs
-  endDate: Dayjs
-  maxRange?: number // in days
-  minYear?: number
-  maxYear?: number
-  onChange: (startDate: Dayjs, endDate: Dayjs) => void
-}
+  startDate: Dayjs;
+  endDate: Dayjs;
+  maxRange?: number; // in days
+  minYear?: number;
+  maxYear?: number;
+  onChange: (startDate: Dayjs, endDate: Dayjs) => void;
+};
 
 const DateRangePicker = (props: DateRangePickerProps) => {
   const {
@@ -27,71 +27,72 @@ const DateRangePicker = (props: DateRangePickerProps) => {
     minYear = 2001,
     maxYear = new Date().getFullYear(),
     onChange,
-  } = props
+  } = props;
 
-  const { t } = useLocale()
+  const { t } = useLocale();
 
-  const startRef = useRef(null)
-  const endRef = useRef(null)
+  const startRef = useRef(null);
+  const endRef = useRef(null);
 
-  const start = useRef(startDate)
-  const end = useRef(endDate)
-  const mode = useRef<"start" | "end">("start")
+  const start = useRef(startDate);
+  const end = useRef(endDate);
+  const mode = useRef<"start" | "end">("start");
 
-  const [pickedStart, setPickedStart] = useState<boolean>(false)
+  const [pickedStart, setPickedStart] = useState<boolean>(false);
 
   const openDateSelector = () => {
     if (mode.current === "start") {
-      startRef.current?.isPickerOpen() ?
-        startRef.current?.close() :
-        startRef.current?.open()
+      startRef.current?.isPickerOpen() ? startRef.current?.close() : startRef.current?.open();
     } else {
-      endRef.current?.isPickerOpen() ?
-        endRef.current?.close() :
-        endRef.current?.open()
+      endRef.current?.isPickerOpen() ? endRef.current?.close() : endRef.current?.open();
     }
-  }
+  };
 
   const handleStartDateChange = (date: Dayjs) => {
-    const today = localDayJs().endOf("day")
-    let dateStart = date
+    const today = localDayJs().endOf("day");
+    let dateStart = date;
 
-    mode.current = "end"
-    setPickedStart(true)
+    mode.current = "end";
+    setPickedStart(true);
 
     if (date.isAfter(today)) {
-      dateStart = today.subtract(1, "day")
+      dateStart = today.subtract(1, "day");
     }
 
-    start.current = dateStart
-    openDateSelector()
-  }
+    start.current = dateStart;
+    openDateSelector();
+  };
 
   const handleEndDateChange = (date: Dayjs) => {
-    const today = localDayJs().endOf("day")
+    const today = localDayJs().endOf("day");
 
-    let dateEnd = date
+    let dateEnd = date;
 
     if (date.isAfter(today)) {
-      dateEnd = today
+      dateEnd = today;
     }
 
-    const daysDiff = Math.abs(dateEnd.clone().diff(start.current, "day"))
+    const daysDiff = Math.abs(dateEnd.clone().diff(start.current, "day"));
 
-    mode.current = "start"
+    mode.current = "start";
 
     if (daysDiff > maxRange) {
-      dateEnd = start.current.clone().add(maxRange, "day")
+      dateEnd = start.current.clone().add(maxRange, "day");
     }
 
-    end.current = dateEnd
+    end.current = dateEnd;
 
-    onChange(start.current, dateEnd)
-  }
+    onChange(start.current, dateEnd);
+  };
 
   return (
     <Pressable style={$viewStyle} onPress={openDateSelector}>
-      <Icon name="calendar" color={Colors.darkGrey} size={Spacing.medium} right={Spacing.extraSmall} />
+      <Icon
+        name="calendar"
+        color={Colors.darkGrey}
+        size={Spacing.medium}
+        right={Spacing.extraSmall}
+      />
       <DatePicker
         title={t("datePicker.startDate")}
         ref={startRef}
@@ -112,8 +113,8 @@ const DateRangePicker = (props: DateRangePickerProps) => {
         onChange={handleEndDateChange}
       />
     </Pressable>
-  )
-}
+  );
+};
 
 const $viewStyle: ViewStyle = {
   flexDirection: "row",
@@ -122,6 +123,6 @@ const $viewStyle: ViewStyle = {
   borderColor: Colors.lightGrey,
   paddingVertical: Spacing.extraSmall,
   paddingHorizontal: Spacing.small,
-}
+};
 
-export default DateRangePicker
+export default DateRangePicker;

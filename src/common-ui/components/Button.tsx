@@ -1,61 +1,60 @@
-import React, { forwardRef } from "react"
+import React, { forwardRef } from "react";
 import {
   ColorValue,
   TouchableOpacityProps,
   ViewStyle,
   TextStyle,
   ActivityIndicator,
-  Pressable
-} from "react-native"
+  Pressable,
+} from "react-native";
 
-import { Feather } from "@expo/vector-icons"
-import { MediumText, RegularText } from "./Text"
+import { Feather } from "@expo/vector-icons";
+import { MediumText, RegularText } from "./Text";
 
-import { Colors, ColorTypes } from "@common-ui/constants/colors"
-import { Spacing } from "@common-ui/constants/spacing"
-import { If } from "@common-ui/components/Conditional"
-import { OffsetProps, useOffsetStyles } from "@common-ui/utils/useOffset"
+import { Colors, ColorTypes } from "@common-ui/constants/colors";
+import { Spacing } from "@common-ui/constants/spacing";
+import { If } from "@common-ui/components/Conditional";
+import { OffsetProps, useOffsetStyles } from "@common-ui/utils/useOffset";
 
 type SimpleLinkProps = {
-  text: string
-  color?: ColorValue
-  lineHeight?: number
-  onPress?: () => void
-}
-
+  text: string;
+  color?: ColorValue;
+  lineHeight?: number;
+  onPress?: () => void;
+};
 
 type BaseButtonProps = {
-  title?: string
-  icon?: keyof typeof Feather.glyphMap
-  iconSize?: number
-  onPress?: () => void
-  loadingTitle?: string
-  disabled?: boolean
-  isLoading?: boolean
-  fullWidth?: boolean
-  width?: number
-  large?: boolean
-  small?: boolean
-  leftIcon?: keyof typeof Feather.glyphMap
-  leftIconSize?: number
-  rightIcon?: keyof typeof Feather.glyphMap
-  rightIconSize?: number
-  textColor?: ColorValue
-  backgroundColor?: ColorValue
-  borderColor?: ColorValue
-  borderRadius?: number
-  paddingHorizontal?: number
-  align?: "left" | "right"
-  selfAlign?: "stretch" | "flex-start" | "flex-end" | "center" | "baseline"
-  shadowOffsetRight?: number
-  shadowOffsetBottom?: number
-  mode?: "rect" | "borderless"
+  title?: string;
+  icon?: keyof typeof Feather.glyphMap;
+  iconSize?: number;
+  onPress?: () => void;
+  loadingTitle?: string;
+  disabled?: boolean;
+  isLoading?: boolean;
+  fullWidth?: boolean;
+  width?: number;
+  large?: boolean;
+  small?: boolean;
+  leftIcon?: keyof typeof Feather.glyphMap;
+  leftIconSize?: number;
+  rightIcon?: keyof typeof Feather.glyphMap;
+  rightIconSize?: number;
+  textColor?: ColorValue;
+  backgroundColor?: ColorValue;
+  borderColor?: ColorValue;
+  borderRadius?: number;
+  paddingHorizontal?: number;
+  align?: "left" | "right";
+  selfAlign?: "stretch" | "flex-start" | "flex-end" | "center" | "baseline";
+  shadowOffsetRight?: number;
+  shadowOffsetBottom?: number;
+  mode?: "rect" | "borderless";
 } & TouchableOpacityProps &
-  OffsetProps
+  OffsetProps;
 
 type ButtonProps = BaseButtonProps & {
-  type?: keyof typeof ColorTypes
-}
+  type?: keyof typeof ColorTypes;
+};
 
 function BaseButton(props: BaseButtonProps) {
   const {
@@ -85,74 +84,74 @@ function BaseButton(props: BaseButtonProps) {
     mode,
     width,
     ...offsetProps
-  } = props
+  } = props;
 
-  const loadingText = loadingTitle || "Loading..."
-  const buttonText = isLoading ? loadingText : title
+  const loadingText = loadingTitle || "Loading...";
+  const buttonText = isLoading ? loadingText : title;
 
-  const isButtonDisabled = disabled || isLoading
+  const isButtonDisabled = disabled || isLoading;
 
-  let buttonStyle: ViewStyle[] = [$button]
-  const textStyle: TextStyle[] = [$buttonText]
+  let buttonStyle: ViewStyle[] = [$button];
+  const textStyle: TextStyle[] = [$buttonText];
 
-  buttonStyle = useOffsetStyles(buttonStyle, offsetProps)
+  buttonStyle = useOffsetStyles(buttonStyle, offsetProps);
 
   if (backgroundColor) {
-    buttonStyle.push({ backgroundColor })
+    buttonStyle.push({ backgroundColor });
   }
 
   if (textColor) {
-    textStyle.push({ color: textColor })
+    textStyle.push({ color: textColor });
   }
 
   if (borderColor) {
-    buttonStyle.push({ borderColor })
+    buttonStyle.push({ borderColor });
   }
 
   if (fullWidth) {
-    buttonStyle.push($fullWidth)
+    buttonStyle.push($fullWidth);
   }
 
   if (width) {
-    buttonStyle.push({ width })
+    buttonStyle.push({ width });
   }
 
   if (large) {
-    buttonStyle.push($largeButton)
-    textStyle.push($largeButtonText)
+    buttonStyle.push($largeButton);
+    textStyle.push($largeButtonText);
   }
 
   if (small) {
-    buttonStyle.push($smallButton)
-    textStyle.push($smallButtonText)
+    buttonStyle.push($smallButton);
+    textStyle.push($smallButtonText);
   }
 
   if (leftIcon) {
-    buttonStyle.push($noLeftPadding)
+    buttonStyle.push($noLeftPadding);
   }
 
   if (rightIcon) {
-    buttonStyle.push($noRightPadding)
+    buttonStyle.push($noRightPadding);
   }
 
   if (disabled) {
-    buttonStyle.push($buttonDisabled)
+    buttonStyle.push($buttonDisabled);
   }
 
   if (align) {
-    buttonStyle.push(align === "left" ? $alignLeft : $alignRight)
+    buttonStyle.push(align === "left" ? $alignLeft : $alignRight);
   }
 
   if (selfAlign) {
-    buttonStyle.push({ alignSelf: selfAlign })
+    buttonStyle.push({ alignSelf: selfAlign });
   }
 
   if (borderRadius) {
-    buttonStyle.push({ borderRadius })
+    buttonStyle.push({ borderRadius });
   }
 
   if (paddingHorizontal) {
-    buttonStyle.push({ paddingHorizontal })
+    buttonStyle.push({ paddingHorizontal });
   }
 
   return (
@@ -162,14 +161,13 @@ function BaseButton(props: BaseButtonProps) {
       accessibilityLabel={buttonText}
       disabled={isButtonDisabled}
       onPress={onPress}
-      style={state => [
+      style={(state) => [
         buttonStyle,
         !isButtonDisabled && state.pressed && $buttonHovered,
         !isButtonDisabled && state.hovered && $buttonHovered,
         !isButtonDisabled && state.focused && $buttonHovered,
         isButtonDisabled && $buttonDisabled,
-      ]}
-    >
+      ]}>
       <If condition={!!leftIcon}>
         <Feather size={leftIconSize} name={leftIcon} color={textColor} style={$leftIcon} />
       </If>
@@ -186,7 +184,7 @@ function BaseButton(props: BaseButtonProps) {
         <Feather size={rightIconSize} name={rightIcon} color={textColor} style={$rightIcon} />
       </If>
     </Pressable>
-  )
+  );
 }
 
 /**
@@ -214,17 +212,19 @@ function BaseButton(props: BaseButtonProps) {
  * <SolidButton title="Primary Button" onPress={pressHandler} />
  */
 export function SolidButton(props: ButtonProps) {
-  const { type, ...rest } = props
+  const { type, ...rest } = props;
 
-  const backgroundColor = type ? Colors[type] : Colors.primary
-  const borderColor = Colors.dark
+  const backgroundColor = type ? Colors[type] : Colors.primary;
+  const borderColor = Colors.dark;
 
-  return <BaseButton
-    backgroundColor={backgroundColor}
-    borderColor={borderColor}
-    textColor={Colors.white}
-    {...rest}
-  />
+  return (
+    <BaseButton
+      backgroundColor={backgroundColor}
+      borderColor={borderColor}
+      textColor={Colors.white}
+      {...rest}
+    />
+  );
 }
 
 /**
@@ -252,18 +252,20 @@ export function SolidButton(props: ButtonProps) {
  * <OutlinedButton title="Secondary Button" onPress={pressHandler} />
  */
 export function OutlinedButton(props: ButtonProps) {
-  const { disabled, type } = props
+  const { disabled, type } = props;
 
-  const backgroundColor = disabled && !type ? Colors.lightestGrey : Colors.lightestGrey
-  const borderColor = type ? Colors[type] : Colors.lightDark
-  const textColor = type ? Colors[type] : Colors.lightDark
+  const backgroundColor = disabled && !type ? Colors.lightestGrey : Colors.lightestGrey;
+  const borderColor = type ? Colors[type] : Colors.lightDark;
+  const textColor = type ? Colors[type] : Colors.lightDark;
 
-  return <BaseButton
-    backgroundColor={backgroundColor}
-    borderColor={borderColor}
-    textColor={textColor}
-    {...props}
-  />
+  return (
+    <BaseButton
+      backgroundColor={backgroundColor}
+      borderColor={borderColor}
+      textColor={textColor}
+      {...props}
+    />
+  );
 }
 
 /**
@@ -291,20 +293,21 @@ export function OutlinedButton(props: ButtonProps) {
  * <LinkButton title="Link Button" onPress={pressHandler} />
  */
 export function LinkButton(props: ButtonProps) {
-  const { type, ...rest } = props
+  const { type, ...rest } = props;
 
-  const textColor = type ? Colors[type] : Colors.lightBlue
+  const textColor = type ? Colors[type] : Colors.lightBlue;
 
-  return <BaseButton
-    borderColor="transparent"
-    backgroundColor="transparent"
-    mode="borderless"
-    height={Spacing.large}
-    textColor={textColor}
-    {...rest}
-  />
+  return (
+    <BaseButton
+      borderColor="transparent"
+      backgroundColor="transparent"
+      mode="borderless"
+      height={Spacing.large}
+      textColor={textColor}
+      {...rest}
+    />
+  );
 }
-
 
 /**
  * A simple link component similar to links that we've used to see on the web
@@ -313,12 +316,12 @@ export function LinkButton(props: ButtonProps) {
  */
 
 export function SimpleLinkButton(props: SimpleLinkProps) {
-  const { text, color, lineHeight, onPress } = props
+  const { text, color, lineHeight, onPress } = props;
 
-  const $basicStyle = [$simpleLinkButton]
+  const $basicStyle = [$simpleLinkButton];
 
   if (color) {
-    $basicStyle.push({ color })
+    $basicStyle.push({ color });
   }
 
   return (
@@ -327,13 +330,12 @@ export function SimpleLinkButton(props: SimpleLinkProps) {
         <RegularText
           text={text}
           lineHeight={lineHeight}
-          style={[(hovered || pressed) ? $simpleLinkButtonHovered : $basicStyle]}
+          style={[hovered || pressed ? $simpleLinkButtonHovered : $basicStyle]}
         />
       )}
     </Pressable>
-  )
+  );
 }
-
 
 /**
  * IconButton component - a button with no background color and no border, used as a clickable text
@@ -355,18 +357,20 @@ export interface IconButtonProps extends BaseButtonProps {
   iconSize: number;
 }
 export const IconButton = forwardRef((props: IconButtonProps, ref) => {
-  const { iconSize, ...rest } = props
-  const height = iconSize ? iconSize + Spacing.small : Spacing.larger
+  const { iconSize, ...rest } = props;
+  const height = iconSize ? iconSize + Spacing.small : Spacing.larger;
 
-  return <BaseButton
-    iconSize={iconSize ?? Spacing.larger}
-    height={height}
-    paddingHorizontal={Spacing.tiny}
-    shadowOffsetRight={1}
-    shadowOffsetBottom={2}
-    borderColor={Colors.dark}
-    {...rest}
-  />
+  return (
+    <BaseButton
+      iconSize={iconSize ?? Spacing.larger}
+      height={height}
+      paddingHorizontal={Spacing.tiny}
+      shadowOffsetRight={1}
+      shadowOffsetBottom={2}
+      borderColor={Colors.dark}
+      {...rest}
+    />
+  );
 });
 
 const $button: ViewStyle = {
@@ -380,83 +384,83 @@ const $button: ViewStyle = {
   justifyContent: "center",
   paddingHorizontal: Spacing.medium,
   alignSelf: "baseline",
-}
+};
 
 const $largeButton: ViewStyle = {
   height: Spacing.huge,
-}
+};
 
 const $smallButton: ViewStyle = {
   height: Spacing.larger,
   paddingHorizontal: Spacing.small,
-}
+};
 
 const $fullWidth: ViewStyle = {
   alignSelf: "stretch",
-}
+};
 
 const $buttonText: TextStyle = {
   color: Colors.dark,
-}
+};
 
 const $largeButtonText: TextStyle = {
   fontSize: Spacing.large,
   lineHeight: Spacing.larger,
-}
+};
 
 const $smallButtonText: TextStyle = {
   fontSize: Spacing.small,
-}
+};
 
 const $buttonDisabled: ViewStyle = {
   opacity: 0.5,
-}
+};
 
 const $buttonHovered: ViewStyle = {
   opacity: 0.8,
-}
+};
 
 const $icon: TextStyle = {
   color: Colors.white,
-}
+};
 
 const $leftIcon: ViewStyle = {
   marginLeft: Spacing.small,
   marginRight: Spacing.tiny,
-}
+};
 
 const $rightIcon: ViewStyle = {
   marginLeft: Spacing.tiny,
   marginRight: Spacing.small,
-}
+};
 
 const $noLeftPadding: ViewStyle = {
   paddingLeft: 0,
-}
+};
 
 const $noRightPadding: ViewStyle = {
   paddingRight: 0,
-}
+};
 
 const $activityIndicator: ViewStyle = {
   marginRight: Spacing.small,
-}
+};
 
 const $alignLeft: ViewStyle = {
   alignItems: "flex-start",
   paddingLeft: 0,
-}
+};
 
 const $alignRight: ViewStyle = {
   alignItems: "flex-end",
   paddingRight: 0,
-}
+};
 
 const $simpleLinkButtonHovered: TextStyle = {
-  textDecorationLine: 'underline',
-  color: Colors.lightBlue
-}
+  textDecorationLine: "underline",
+  color: Colors.lightBlue,
+};
 
 const $simpleLinkButton: TextStyle = {
-  color: Colors.svpaBrand
-}
+  color: Colors.svpaBrand,
+};

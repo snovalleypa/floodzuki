@@ -16,88 +16,88 @@ import { CHART_HEIGHT } from "./ForecastChart";
 import { Cell } from "@common-ui/components/Common";
 
 interface ChartsProps {
-  options: ForecastChartOptions
+  options: ForecastChartOptions;
 }
 
 type DataPoint = {
-  x: number, // timestamp
-  xLabel: string, // formatted date
-  y: number, // discharge
-  isForecast: boolean
-}
+  x: number; // timestamp
+  xLabel: string; // formatted date
+  y: number; // discharge
+  isForecast: boolean;
+};
 
 type SeriesItem = {
-  name: string,
-  data: DataPoint[],
-  color: string,
+  name: string;
+  data: DataPoint[];
+  color: string;
   marker: {
-    enabled: boolean,
-    radius: number,
+    enabled: boolean;
+    radius: number;
     states: {
       hover: {
-        enabled: boolean
-      }
-    }
-  }
-}
+        enabled: boolean;
+      };
+    };
+  };
+};
 
-type PlotLine =  {
-  color: string,
-  dashStyle: string, // only "dot" is supported
-  width: number,
-  value: number, // timestamp
-  label:{
-    text: string,
-    style:{
-      color: string
-    },
-    rotation: number
-  }
-}
+type PlotLine = {
+  color: string;
+  dashStyle: string; // only "dot" is supported
+  width: number;
+  value: number; // timestamp
+  label: {
+    text: string;
+    style: {
+      color: string;
+    };
+    rotation: number;
+  };
+};
 
 type ForecastChartOptions = {
   chart: {
-    type: string,
-    spacingLeft: number,
-    spacingRight: number,
-    animation: boolean
-  },
-  time:{
-    useUTC: boolean,
-    timezone: string // Timezone
-  },
-  xAxis:{
-    type: string, // Only "datetime" is supported
-    min: number, // start of range
-    max: number, // end of range
-    plotLines: PlotLine[]
-  },
-  yAxis:{
-    startOnTick:false,
-    endOnTick:false,
-    plotBands:[
+    type: string;
+    spacingLeft: number;
+    spacingRight: number;
+    animation: boolean;
+  };
+  time: {
+    useUTC: boolean;
+    timezone: string; // Timezone
+  };
+  xAxis: {
+    type: string; // Only "datetime" is supported
+    min: number; // start of range
+    max: number; // end of range
+    plotLines: PlotLine[];
+  };
+  yAxis: {
+    startOnTick: false;
+    endOnTick: false;
+    plotBands: [
       {
-        from: number,
-        to: number,
-        color: string
+        from: number;
+        to: number;
+        color: string;
       }
-    ],
-    plotLines: PlotLine[],
-    softMax: number, // soft max value
-    max: number, // hard max value
+    ];
+    plotLines: PlotLine[];
+    softMax: number; // soft max value
+    max: number; // hard max value
     title: {
-      text: string,
-    }
-  },
-  series: SeriesItem[],
+      text: string;
+    };
+  };
+  series: SeriesItem[];
   tooltip: {
-    formatter: () => string
-  }
-}
+    formatter: () => string;
+  };
+};
 
 /**
  * Expected options that we know how to work with
- * 
+ *
  *
 {
   chart:{
@@ -369,38 +369,40 @@ type ForecastChartOptions = {
     }
   ]
 }
- * 
+ *
  */
 
-const AXIS_COLOR = "#666666"
+const AXIS_COLOR = "#666666";
 
 const $labelStyle = {
   fill: AXIS_COLOR,
   color: AXIS_COLOR,
   fontFamily: "OpenSans_400Regular",
   fontSize: 11,
-}
+};
 
 export const ForecastChartNative = (props: ChartsProps) => {
-  const { options } = props
+  const { options } = props;
 
-  const lines = options?.series ?? []
-  const dots = options?.series.filter(s => s.marker?.enabled !== false) ?? []
+  const lines = options?.series ?? [];
+  const dots = options?.series.filter((s) => s.marker?.enabled !== false) ?? [];
 
-  const labelData = lines.map(line => ({
+  const labelData = lines.map((line) => ({
     name: line.name,
-    symbol: line.marker?.enabled !== false ?
-      {
-        fill: line.color,
-        type: "circle",
-      } : {
-        fill: line.color,
-        type: "minus",
-      },
-  }))
+    symbol:
+      line.marker?.enabled !== false
+        ? {
+            fill: line.color,
+            type: "circle",
+          }
+        : {
+            fill: line.color,
+            type: "minus",
+          },
+  }));
 
-  const nowLabel = options.xAxis.plotLines[0]
-  const floodStage = options.yAxis.plotLines[0]
+  const nowLabel = options.xAxis.plotLines[0];
+  const floodStage = options.yAxis.plotLines[0];
 
   return (
     <View>
@@ -421,26 +423,27 @@ export const ForecastChartNative = (props: ChartsProps) => {
             voronoiBlacklist={["dots"]}
             voronoiDimension="x"
             labels={({ datum }) => {
-              let stageDisplay = ""
+              let stageDisplay = "";
 
               if (datum?.stage) {
-                stageDisplay = `/ ${datum?.stage} ft`
+                stageDisplay = `/ ${datum?.stage} ft`;
               }
 
-              return `${datum?.shortName}: ${datum?.xLabelShort} - ${datum?.y} cfs ${stageDisplay}`
+              return `${datum?.shortName}: ${datum?.xLabelShort} - ${datum?.y} cfs ${stageDisplay}`;
             }}
-            labelComponent={<VictoryTooltip
-              constrainToVisibleArea
-              cornerRadius={4}
-              centerOffset={{ y: -65 }}
-              flyoutStyle={{
-                fill: "white",
-                stroke: "#969BAB",
-              }}/>
+            labelComponent={
+              <VictoryTooltip
+                constrainToVisibleArea
+                cornerRadius={4}
+                centerOffset={{ y: -65 }}
+                flyoutStyle={{
+                  fill: "white",
+                  stroke: "#969BAB",
+                }}
+              />
             }
           />
-        }
-      >
+        }>
         {/* Vertical Axis */}
         <VictoryAxis
           dependentAxis
@@ -448,7 +451,7 @@ export const ForecastChartNative = (props: ChartsProps) => {
             axis: {
               stroke: "#969BAB",
               strokeWidth: 0,
-              paddingLeft: 40
+              paddingLeft: 40,
             },
             axisLabel: {
               ...$labelStyle,
@@ -456,7 +459,7 @@ export const ForecastChartNative = (props: ChartsProps) => {
               fontSize: 12,
             },
             tickLabels: {
-              ...$labelStyle
+              ...$labelStyle,
             },
             grid: {
               stroke: "rgba(150,155,171, 0.2)",
@@ -464,7 +467,7 @@ export const ForecastChartNative = (props: ChartsProps) => {
             },
           }}
           tickCount={5}
-          tickFormat={(t) => `${Math.round(t/1000)}k`}
+          tickFormat={(t) => `${Math.round(t / 1000)}k`}
           label={options.yAxis.title.text}
         />
         {/* Horizontal Axis */}
@@ -474,14 +477,14 @@ export const ForecastChartNative = (props: ChartsProps) => {
               stroke: "#969BAB",
             },
             tickLabels: {
-              ...$labelStyle
+              ...$labelStyle,
             },
             ticks: { stroke: "#969BAB", size: 5 },
           }}
           tickCount={4}
         />
         {/* Lines on the chart */}
-        {lines.map(line => (
+        {lines.map((line) => (
           <VictoryLine
             key={line.name}
             data={line.data}
@@ -495,8 +498,8 @@ export const ForecastChartNative = (props: ChartsProps) => {
           />
         ))}
         {/* Dots on the chart */}
-        {dots.map(dot => (
-        <VictoryScatter
+        {dots.map((dot) => (
+          <VictoryScatter
             key={dot.name}
             data={dot.data}
             size={2}
@@ -508,25 +511,27 @@ export const ForecastChartNative = (props: ChartsProps) => {
           />
         ))}
         {/* Flooding label */}
-        {floodStage?.value ? <VictoryAxis
-          axisValue={floodStage?.value + 1200}
-          label={floodStage?.label?.text}
-          style={{
-            axis: {
-              stroke: options.yAxis.plotBands[0].color,
-              strokeWidth: 20,
-              strokeLinecap: "square",
-            },
-            axisLabel: {
-              fill: "#999",
-              padding: -5,
-              fontSize: 10,
-              textAnchor: "end",
-            },
-            ticks: { stroke: "#969BAB", size: 0 },
-            tickLabels: { fill: 'none' }
-          }}
-        /> : null}
+        {floodStage?.value ? (
+          <VictoryAxis
+            axisValue={floodStage?.value + 1200}
+            label={floodStage?.label?.text}
+            style={{
+              axis: {
+                stroke: options.yAxis.plotBands[0].color,
+                strokeWidth: 20,
+                strokeLinecap: "square",
+              },
+              axisLabel: {
+                fill: "#999",
+                padding: -5,
+                fontSize: 10,
+                textAnchor: "end",
+              },
+              ticks: { stroke: "#969BAB", size: 0 },
+              tickLabels: { fill: "none" },
+            }}
+          />
+        ) : null}
         {/* Now label */}
         <VictoryAxis
           dependentAxis
@@ -544,7 +549,7 @@ export const ForecastChartNative = (props: ChartsProps) => {
               padding: 5,
             },
             ticks: { stroke: "#969BAB", size: 0 },
-            tickLabels: { fill: 'none' }
+            tickLabels: { fill: "none" },
           }}
         />
         <VictoryLegend
@@ -558,19 +563,13 @@ export const ForecastChartNative = (props: ChartsProps) => {
             data: {
               fill: "#fff",
             },
-            labels: {            
+            labels: {
               fontSize: 10,
             },
           }}
-          titleComponent={
-            <VictoryLabel
-              style={[
-                { fontSize: 10 },
-              ]}
-            />
-          }
+          titleComponent={<VictoryLabel style={[{ fontSize: 10 }]} />}
         />
       </VictoryChart>
     </View>
-  )
-}
+  );
+};

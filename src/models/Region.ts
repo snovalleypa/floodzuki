@@ -1,10 +1,10 @@
-import { Instance, SnapshotIn, SnapshotOut, types } from "mobx-state-tree"
-import { flow } from "mobx-state-tree"
-import { api } from "@services/api"
+import { Instance, SnapshotIn, SnapshotOut, types } from "mobx-state-tree";
+import { flow } from "mobx-state-tree";
+import { api } from "@services/api";
 
-import { dataFetchingProps, withDataFetchingActions } from "./helpers/withDataFetchingProps"
-import { withSetPropAction } from "./helpers/withSetPropsAction"
-import localDayJs from "@services/localDayJs"
+import { dataFetchingProps, withDataFetchingActions } from "./helpers/withDataFetchingProps";
+import { withSetPropAction } from "./helpers/withSetPropsAction";
+import localDayJs from "@services/localDayJs";
 
 // "Region" Example data
 // "id": 1,
@@ -29,43 +29,41 @@ const RegionModel = types
     defaultMobileMapBounds: types.maybe(types.array(types.number)),
     defaultForecastGageList: types.array(types.string),
   })
-  .actions(store => ({
+  .actions((store) => ({
     afterCreate() {
       // Setting the defaul timezone for the app
-      localDayJs.tz.setDefault(store.timezone)
-    }
-  }))
-
+      localDayJs.tz.setDefault(store.timezone);
+    },
+  }));
 
 export const RegionModelStore = types
   .model("RegionStore")
   .props({
     region: types.maybe(RegionModel),
-    ...dataFetchingProps
+    ...dataFetchingProps,
   })
   .actions(withDataFetchingActions)
   .actions(withSetPropAction)
-  .actions(store => {
-    const fetchData = flow(function*() {
-      store.setIsFetching(true)
-      
-      const response = yield api.getRegion<Region>()
+  .actions((store) => {
+    const fetchData = flow(function* () {
+      store.setIsFetching(true);
+
+      const response = yield api.getRegion<Region>();
 
       if (response.kind === "ok") {
         // Looks like output provides "data" as a string so we'll parse it here
-        store.region = response.data
+        store.region = response.data;
       } else {
-        store.setError(response.kind)
+        store.setError(response.kind);
       }
-      
-      store.setIsFetching(false)
-    })
+
+      store.setIsFetching(false);
+    });
 
     return {
-      fetchData
-    }
-  })
-
+      fetchData,
+    };
+  });
 
 export interface RegionStore extends Instance<typeof RegionModelStore> {}
 export interface RegionStoreSnapshot extends SnapshotOut<typeof RegionModelStore> {}

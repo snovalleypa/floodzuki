@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
-import { TextStyle } from "react-native"
-import { isWeb } from "@common-ui/utils/responsive"
-import { Colors } from "./colors"
+import { TextStyle } from "react-native";
+import { isWeb } from "@common-ui/utils/responsive";
+import { Colors } from "./colors";
 
 import {
   OpenSans_300Light,
@@ -9,14 +9,14 @@ import {
   OpenSans_500Medium,
   OpenSans_600SemiBold,
   OpenSans_700Bold,
-} from "@expo-google-fonts/open-sans"
+} from "@expo-google-fonts/open-sans";
 
 import {
   Montserrat_400Regular,
   Montserrat_500Medium,
   Montserrat_600SemiBold,
   Montserrat_700Bold,
-} from "@expo-google-fonts/montserrat"
+} from "@expo-google-fonts/montserrat";
 
 export const customFontsToLoad = {
   OpenSans_300Light,
@@ -28,7 +28,7 @@ export const customFontsToLoad = {
   Montserrat_500Medium,
   Montserrat_600SemiBold,
   Montserrat_700Bold,
-}
+};
 
 export const Fonts = {
   openSans: {
@@ -46,15 +46,15 @@ export const Fonts = {
     semibold: isWeb ? "Montserrat" : "Montserrat_600SemiBold",
     bold: isWeb ? "Montserrat" : "Montserrat_700Bold",
   },
-}
+};
 
 /**
  * Collection of text styles used in Text components.
  */
 
 type TypographyType = {
-  [key: string]: TextStyle
-}
+  [key: string]: TextStyle;
+};
 
 export const Typography: TypographyType = {
   hugeTitle: {
@@ -185,4 +185,4 @@ export const Typography: TypographyType = {
     color: Colors.darkGrey,
     opacity: 0.5,
   },
-}
+};

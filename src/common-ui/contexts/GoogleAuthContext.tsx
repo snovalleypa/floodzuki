@@ -1,8 +1,8 @@
-import React, { useContext, createContext, useState, useEffect, useMemo, useCallback } from "react"
+import React, { useContext, createContext, useState, useEffect, useMemo, useCallback } from "react";
 
 import Constants from "expo-constants";
-import * as WebBrowser from 'expo-web-browser';
-import * as Google from 'expo-auth-session/providers/google';
+import * as WebBrowser from "expo-web-browser";
+import * as Google from "expo-auth-session/providers/google";
 import { makeRedirectUri } from "expo-auth-session";
 
 import { isAndroid, isWeb } from "@common-ui/utils/responsive";
@@ -17,108 +17,97 @@ const requestConfig: Partial<Google.GoogleAuthRequestConfig> = {
   androidClientId: Constants.expoConfig.extra.googleOAuthAndroidClientId,
   iosClientId: Constants.expoConfig.extra.googleOAuthIOSClientId,
   expoClientId: Constants.expoConfig.extra.googleOAuthExpoClientId,
-}
+};
 
 type GoogleAuthContextType = {
   isDisabled: boolean;
   isLoading: boolean;
   isError: boolean;
   idToken: string;
-  authorize: () => Promise<void>
-}
+  authorize: () => Promise<void>;
+};
 
 const initialState = {
   isDisabled: true,
   isLoading: false,
   isError: false,
   idToken: "",
-  authorize: async () => {}
-}
+  authorize: async () => {},
+};
 
-const GoogleAuthContext = createContext<GoogleAuthContextType>(initialState)
+const GoogleAuthContext = createContext<GoogleAuthContextType>(initialState);
 
-export const useGoogleAuth = () => useContext(GoogleAuthContext)
+export const useGoogleAuth = () => useContext(GoogleAuthContext);
 
 const GoogleAuthProviderImpl = ({ children }) => {
-  const [isLoading, setIsLoading] = useState(false)
-  const [isError, setIsError] = useState(false)
-  const [idToken, setIdToken] = useState("")
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+  const [idToken, setIdToken] = useState("");
 
   if (isWeb) {
-    requestConfig.clientSecret = Constants.expoConfig.extra.googleOauthClientSecret
+    requestConfig.clientSecret = Constants.expoConfig.extra.googleOauthClientSecret;
   }
 
   if (isAndroid) {
     requestConfig.redirectUri = makeRedirectUri({
-      scheme: 'com.floodzilla.floodzuki',
+      scheme: "com.floodzilla.floodzuki",
       path: "user/login",
       isTripleSlashed: true,
       useProxy: false,
-    })
+    });
   }
 
-  const [request, response, promptAsync] = Google.useAuthRequest(
-    requestConfig,
-    {
-      useProxy: false
-    }
-  );
+  const [request, response, promptAsync] = Google.useAuthRequest(requestConfig, {
+    useProxy: false,
+  });
 
   useEffect(() => {
-    if (response?.type === 'success') {
+    if (response?.type === "success") {
       const { idToken } = response?.authentication;
 
-      setIdToken(idToken)
+      setIdToken(idToken);
+    } else if (response?.type === "error") {
+      logError(response, "GoogleSigninButton.responseType");
+      setIsError(true);
     }
-    else if (response?.type === 'error') {
-      logError(response, "GoogleSigninButton.responseType")
-      setIsError(true)
-    }
-  }, [response])
+  }, [response]);
 
   const authorize = useCallback(async () => {
-    setIsLoading(true)
-    setIsError(false)
+    setIsLoading(true);
+    setIsError(false);
 
     try {
-      await promptAsync()
+      await promptAsync();
+    } catch (error) {
+      logError(error, "GoogleSigninButton.authorizeUser");
+      setIsError(true);
+    } finally {
+      setIsLoading(false);
     }
-    catch (error) {
-      logError(error, "GoogleSigninButton.authorizeUser")
-      setIsError(true)
-    }
-    finally {
-      setIsLoading(false)
-    }
-  }, [promptAsync])
+  }, [promptAsync]);
 
-  const values = useMemo(() => ({
-    isDisabled: !request,
-    isLoading,
-    isError,
-    idToken,
-    authorize
-  }), [request, isLoading, isError, idToken, authorize])
+  const values = useMemo(
+    () => ({
+      isDisabled: !request,
+      isLoading,
+      isError,
+      idToken,
+      authorize,
+    }),
+    [request, isLoading, isError, idToken, authorize]
+  );
 
-  return (
-    <GoogleAuthContext.Provider value={values}>
-      {children}
-    </GoogleAuthContext.Provider>
-  )
-}
+  return <GoogleAuthContext.Provider value={values}>{children}</GoogleAuthContext.Provider>;
+};
 
 export const GoogleAuthProvider = ({ children }) => {
   // webClientId is required on web — if missing (e.g. local dev without env vars),
   // skip the auth setup and render children with isDisabled: true
-  const webClientId = Constants.expoConfig?.extra?.googleOAuthWebClientId
+  const webClientId = Constants.expoConfig?.extra?.googleOAuthWebClientId;
 
   if (isWeb && !webClientId) {
-    return (
-      <GoogleAuthContext.Provider value={initialState}>
-        {children}
-      </GoogleAuthContext.Provider>
-    )
+    return <GoogleAuthContext.Provider value={initialState}>{children}</GoogleAuthContext.Provider>;
   }
 
-  return <GoogleAuthProviderImpl>{children}</GoogleAuthProviderImpl>
-}
+  return <GoogleAuthProviderImpl>{children}</GoogleAuthProviderImpl>;
+};

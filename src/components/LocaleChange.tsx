@@ -5,21 +5,21 @@ import { Colors } from "@common-ui/constants/colors";
 import { Spacing } from "@common-ui/constants/spacing";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import { useStores } from "@models/helpers/useStores";
-import React from "react"
+import React from "react";
 import { TouchableOpacity } from "react-native";
 
 const LocaleChange = () => {
   const { authSessionStore } = useStores();
   const { changeLocale } = useLocale();
 
-  const language = authSessionStore.userLocale
-  const languageTitle = language.match("en") ? "Español" : "English"
+  const language = authSessionStore.userLocale;
+  const languageTitle = language.match("en") ? "Español" : "English";
 
   const toggleLanguage = () => {
-    const nextLocale = language.match("en") ? "es" : "en"
+    const nextLocale = language.match("en") ? "es" : "en";
 
-    changeLocale(nextLocale)
-  }
+    changeLocale(nextLocale);
+  };
 
   return (
     <TouchableOpacity onPress={toggleLanguage}>
@@ -30,7 +30,7 @@ const LocaleChange = () => {
         </Cell>
       </Row>
     </TouchableOpacity>
-  )
-}
+  );
+};
 
-export default LocaleChange
+export default LocaleChange;

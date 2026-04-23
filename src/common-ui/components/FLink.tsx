@@ -1,4 +1,3 @@
-
 import React from "react";
 import { View } from "react-native";
 import { isMobile } from "@common-ui/utils/responsive";
@@ -10,7 +9,6 @@ import { isMobile } from "@common-ui/utils/responsive";
 interface FLinkProps {
   href: string;
   children: React.ReactNode;
-
 }
 
 export const FLink = (props: FLinkProps) => {

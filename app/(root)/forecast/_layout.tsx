@@ -1,4 +1,4 @@
-import { Stack } from 'expo-router';
+import { Stack } from "expo-router";
 
 export default function ForecastLayout() {
   return (
@@ -7,5 +7,5 @@ export default function ForecastLayout() {
         headerShown: false,
       }}
     />
-  )
+  );
 }

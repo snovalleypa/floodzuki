@@ -12,9 +12,7 @@ const useChartRange = (from?: string, to?: string) => {
   const _isNow = useRef<boolean>(!to || local.format("YYYY-MM-DD") === to);
 
   const _days = useRef<number>(
-    !!from ?
-      Math.abs(localDayJs.tz(from).diff(_end.current, "days")) + 1 :
-      CHART_DEFAULT_RANGE
+    !!from ? Math.abs(localDayJs.tz(from).diff(_end.current, "days")) + 1 : CHART_DEFAULT_RANGE
   );
 
   const _inputEndDate = useRef<Dayjs>(_end.current);
@@ -26,13 +24,16 @@ const useChartRange = (from?: string, to?: string) => {
     get days() {
       return _days.current;
     },
-    
+
     get inputStartDate() {
-      const start = _inputEndDate.current.clone().startOf("day").subtract(_days.current - 1, "d");
+      const start = _inputEndDate.current
+        .clone()
+        .startOf("day")
+        .subtract(_days.current - 1, "d");
       return start as Dayjs;
     },
     get inputEndDate() {
-      const end = (_isNow.current ? localDayJs() : _inputEndDate.current.clone());
+      const end = _isNow.current ? localDayJs() : _inputEndDate.current.clone();
       return end.startOf("day") as Dayjs;
     },
 
@@ -44,7 +45,7 @@ const useChartRange = (from?: string, to?: string) => {
       }
     },
     get chartEndDate() {
-      const endDate = _inputEndDate.current.clone()
+      const endDate = _inputEndDate.current.clone();
       if (_isNow.current) {
         return localDayJs();
       } else {
@@ -67,28 +68,27 @@ const useChartRange = (from?: string, to?: string) => {
 
       if (!inputEndDate) {
         _isNow.current = false;
-        _days.current = -(inputStartDate.clone().diff(_inputEndDate.current.clone(), "days"));
+        _days.current = -inputStartDate.clone().diff(_inputEndDate.current.clone(), "days");
         return;
       }
-      
+
       if (inputEndDate.clone().endOf("day") >= now) {
         _isNow.current = true;
         _inputEndDate.current = now;
-      }
-      else {
+      } else {
         _isNow.current = false;
         _inputEndDate.current = inputEndDate.clone().endOf("day");
       }
 
-      _days.current = 
+      _days.current =
         _inputEndDate.current
-        .clone()
-        .startOf("day")
-        .diff(inputStartDate.clone().startOf("day"), "days") + 1
+          .clone()
+          .startOf("day")
+          .diff(inputStartDate.clone().startOf("day"), "days") + 1;
 
       return;
-    }
-  }
-}
+    },
+  };
+};
 
 export default useChartRange;
