@@ -33,6 +33,7 @@ function ReadingRow(props: { reading?: DataPoint, delta?: number }) {
   const { reading, delta } = props
 
   const { formatFlow, formatFlowTrend, formatHeight } = useUtils()
+  const { getTimezone } = useStores()
 
   if (!reading) {
     return null
@@ -41,7 +42,7 @@ function ReadingRow(props: { reading?: DataPoint, delta?: number }) {
   return (
     <Row flex align="space-between" innerHorizontal={Spacing.tiny} innerVertical={Spacing.micro} top={Spacing.tiny}>
       <Cell flex={2}>
-        <SmallerText>{formatDateTime(reading.timestamp)}</SmallerText>
+        <SmallerText>{formatDateTime(reading.timestamp, getTimezone())}</SmallerText>
       </Cell>
       <If condition={!!reading?.reading}>
         <Cell flex align="center">
@@ -81,7 +82,7 @@ export const GageSummaryCard = observer(
     const { gage, firstItem, noDetails } = props
 
     const { t } = useLocale()
-    const { forecastsStore } = useStores()
+    const { forecastsStore, getTimezone } = useStores()
     const { isWideScreen } = useResponsive()
 
     const [showMaxReading, setShowMaxReading] = React.useState<boolean>(true)
@@ -147,7 +148,7 @@ export const GageSummaryCard = observer(
         <Cell top={Spacing.small}>
           <LabelText color={Colors.success}>
             {t("forecastScreen.forecastedCrests")}:
-            <SmallText muted> ({t("forecastScreen.published")} {formatDateTime(predictionTime)})</SmallText>
+            <SmallText muted> ({t("forecastScreen.published")} {formatDateTime(predictionTime, getTimezone())})</SmallText>
           </LabelText>
           {peaks?.map(peak => (
             <ReadingRow key={peak.timestamp} reading={peak} />

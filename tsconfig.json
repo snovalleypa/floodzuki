@@ -17,6 +17,9 @@
       "esnext",
       "dom"
     ],
+    "types": [
+      "jest"
+    ],
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "baseUrl": ".",
