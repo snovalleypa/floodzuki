@@ -7,13 +7,13 @@ import { useState } from "react";
  * It tests no app code — delete it once hook tests exist in other files.
  */
 describe("@testing-library/react-native smoke test", () => {
-  it("renderHook can mount a hook and read its state", () => {
+  test("renderHook can mount a hook and read its state", () => {
     const { result } = renderHook(() => useState(0));
 
     expect(result.current[0]).toBe(0);
   });
 
-  it("act correctly flushes state updates", () => {
+  test("act correctly flushes state updates", () => {
     const { result } = renderHook(() => useState(0));
 
     act(() => {
@@ -23,7 +23,7 @@ describe("@testing-library/react-native smoke test", () => {
     expect(result.current[0]).toBe(42);
   });
 
-  it("renderHook re-renders with new props", () => {
+  test("renderHook re-renders with new props", () => {
     const { result, rerender } = renderHook(
       ({ initial }: { initial: number }) => useState(initial),
       { initialProps: { initial: 10 } }
