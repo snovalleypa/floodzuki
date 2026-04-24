@@ -355,6 +355,7 @@ export function SimpleLinkButton(props: SimpleLinkProps) {
 export interface IconButtonProps extends BaseButtonProps {
   iconSize?: number;
 }
+// eslint-disable-next-line react/display-name
 export const IconButton = forwardRef((props: IconButtonProps, ref) => {
   const { iconSize, ...rest } = props;
   const height = iconSize ? iconSize + Spacing.small : Spacing.larger;

@@ -1,3 +1,12 @@
+import React, { useImperativeHandle, useRef } from "react";
+import Recaptcha from "react-native-recaptcha-that-works";
+
+import { Ternary } from "@common-ui/components/Conditional";
+import { isWeb } from "@common-ui/utils/responsive";
+import Constants from "expo-constants";
+import { useFocusEffect } from "expo-router";
+import { logError } from "@utils/sentry";
+
 declare global {
   interface Window {
     localRecaptchaCallback?: (token: string) => void;
@@ -8,20 +17,11 @@ declare global {
     };
   }
 }
-
-import React, { useImperativeHandle, useRef } from "react";
-import Recaptcha from "react-native-recaptcha-that-works";
 type RecaptchaHandles = {
   open: () => void;
   close?: () => void;
   reset?: () => void;
 };
-
-import { Ternary } from "@common-ui/components/Conditional";
-import { isWeb } from "@common-ui/utils/responsive";
-import Constants from "expo-constants";
-import { useFocusEffect } from "expo-router";
-import { logError } from "@utils/sentry";
 
 type GoogleRecaptchaProps = {
   onVerify: (token: string) => void;
@@ -32,6 +32,7 @@ type WebRecpatcha = Pick<GoogleRecaptchaProps, "onVerify" | "onExpire">;
 
 const RECAPTCHA_KEY = Constants.expoConfig.extra.recaptchaKey;
 
+// eslint-disable-next-line react/display-name
 const WebRecpatcha = React.forwardRef(({ onVerify, onExpire }: WebRecpatcha, ref) => {
   const isRendered = useRef(false);
 
@@ -73,6 +74,7 @@ const WebRecpatcha = React.forwardRef(({ onVerify, onExpire }: WebRecpatcha, ref
   );
 });
 
+// eslint-disable-next-line react/display-name
 const GoogleRecaptcha = React.forwardRef((props: GoogleRecaptchaProps, ref) => {
   const { onVerify, onExpire } = props;
 

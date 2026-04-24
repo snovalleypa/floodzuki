@@ -5,7 +5,9 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "postinstall": "patch-package",
-    "test": "jest"
+    "test": "jest",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "dependencies": {
     "@expo-google-fonts/montserrat": "^0.4.2",
@@ -83,6 +85,9 @@
     "babel-plugin-module-resolver": "^5.0.2",
     "babel-plugin-react-native-web": "^0.18.12",
     "babel-plugin-transform-inline-environment-variables": "^0.4.4",
+    "eslint": "^9.39.4",
+    "eslint-config-expo": "^55.0.0",
+    "eslint-config-prettier": "^10.1.8",
     "jest": "^29.7.0",
     "jest-expo": "^55.0.16",
     "postcss-loader": "^4.2.0",

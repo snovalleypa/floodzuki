@@ -83,7 +83,7 @@ const pressableStyle = (state) => [
 ];
 
 // organize the days into 5 rows
-const daysRows: Array<number[]> = DAYS.reduce((acc, day, index) => {
+const daysRows: number[][] = DAYS.reduce((acc, day, index) => {
   const rowIndex = Math.floor(index / 7);
   if (!acc[rowIndex]) {
     acc[rowIndex] = [];
@@ -116,7 +116,7 @@ const Days = ({ onSelect }: { onSelect: (day: number) => void }) => {
 };
 
 // organize the months into 4 rows
-const monthRows: Array<number[]> = MONTHS.reduce((acc, month, index) => {
+const monthRows: number[][] = MONTHS.reduce((acc, month, index) => {
   const rowIndex = Math.floor(index / 3);
   if (!acc[rowIndex]) {
     acc[rowIndex] = [];
@@ -169,7 +169,7 @@ const Years = ({
 
   const allYears = useMemo(() => [...years, ...offsetYears], [years, offsetYears]);
 
-  const rows: Array<number[]> = useMemo(
+  const rows: number[][] = useMemo(
     () =>
       allYears.reduce((acc, year, index) => {
         const rowIndex = Math.floor(index / 4);
@@ -268,6 +268,7 @@ const DatePicker = (props: DatePickerProps) => {
   );
 };
 
+// eslint-disable-next-line react/display-name
 const DatePickerComponent = React.forwardRef((props: DatePickerProps, ref) => {
   const { minYear = 1990, maxYear = localDayJs().year(), selectedDate, title, onChange } = props;
   const { isMobile } = useResponsive();

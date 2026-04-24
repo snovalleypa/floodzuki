@@ -45,6 +45,7 @@ const MapLibreWebGageWebMap = ({
     return null;
   }
 
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const mapStyleUrl = useMemo(() => {
     let url = mapStyleBaseUrl;
     if (!url.endsWith("/")) {
@@ -53,8 +54,10 @@ const MapLibreWebGageWebMap = ({
     return url + region.id + "/webstyles";
   }, [region]);
 
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const { current: map } = useMap();
 
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const markers = useMemo(() => {
     return gages.map((g, index) => (
       <Marker
@@ -71,6 +74,7 @@ const MapLibreWebGageWebMap = ({
     ));
   }, [map, gages]);
 
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const regionBounds: [number, number, number, number] = useMemo(() => {
     if (region && region.regionBounds) {
       return [
@@ -83,6 +87,7 @@ const MapLibreWebGageWebMap = ({
     return defaultRegionBounds as [number, number, number, number];
   }, [region]);
 
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const startBounds: [number, number, number, number] = useMemo(() => {
     if (singleGage) {
       return [

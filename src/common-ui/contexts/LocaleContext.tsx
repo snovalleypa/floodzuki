@@ -1,6 +1,5 @@
 import React, { useRef } from "react"
-import "@i18n/i18n";
-import { TxKeyPath, i18n } from "@i18n/i18n"
+import { TxKeyPath, i18n } from "@i18n/i18n";
 import { TranslateOptions } from "i18n-js";
 import { useStores } from "@models/helpers/useStores"
 import localDayJs from "@services/localDayJs";

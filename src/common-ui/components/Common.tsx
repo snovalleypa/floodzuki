@@ -44,7 +44,7 @@ type BottomContainerProps = {
 type AbsoluteContainerProps = {
   children?: React.ReactNode;
   zIndex?: number;
-  sticks?: Array<"top" | "bottom" | "left" | "right">;
+  sticks?: ("top" | "bottom" | "left" | "right")[];
 } & OffsetProps;
 
 /**
