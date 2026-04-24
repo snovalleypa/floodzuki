@@ -1,5 +1,11 @@
 import { useEffect, useState } from "react";
 
+declare module "highcharts" {
+  interface PointOptionsObject {
+    stage?: number;
+  }
+}
+
 import { GageSummary } from "@models/RootStore";
 import { useStores } from "@models/helpers/useStores";
 import { Forecast } from "@models/Forecasts";
@@ -206,7 +212,7 @@ const buildOptions = (props: BuildOptionsProps, t) => {
       },
     },
     tooltip: {
-      formatter: function () {
+      formatter: function (this: Highcharts.TooltipFormatterContextObject) {
         let stageDisplay = "";
 
         if (this.point?.options?.stage) {
@@ -232,7 +238,7 @@ const buildOptions = (props: BuildOptionsProps, t) => {
       plotLines: [
         {
           color: "#999",
-          dashStyle: "dot",
+          dashStyle: "Dot",
           width: 1,
           value: now.valueOf(),
           label: {

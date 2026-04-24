@@ -16,7 +16,7 @@ const requestConfig: Partial<Google.GoogleAuthRequestConfig> = {
   webClientId: Constants.expoConfig.extra.googleOAuthWebClientId,
   androidClientId: Constants.expoConfig.extra.googleOAuthAndroidClientId,
   iosClientId: Constants.expoConfig.extra.googleOAuthIOSClientId,
-  expoClientId: Constants.expoConfig.extra.googleOAuthExpoClientId,
+  clientId: Constants.expoConfig.extra.googleOAuthExpoClientId,
 };
 
 type GoogleAuthContextType = {
@@ -53,13 +53,10 @@ const GoogleAuthProviderImpl = ({ children }) => {
       scheme: "com.floodzilla.floodzuki",
       path: "user/login",
       isTripleSlashed: true,
-      useProxy: false,
     });
   }
 
-  const [request, response, promptAsync] = Google.useAuthRequest(requestConfig, {
-    useProxy: false,
-  });
+  const [request, response, promptAsync] = Google.useAuthRequest(requestConfig);
 
   useEffect(() => {
     if (response?.type === "success") {

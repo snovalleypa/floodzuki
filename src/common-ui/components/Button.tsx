@@ -165,11 +165,10 @@ function BaseButton(props: BaseButtonProps) {
         buttonStyle,
         !isButtonDisabled && state.pressed && $buttonHovered,
         !isButtonDisabled && state.hovered && $buttonHovered,
-        !isButtonDisabled && state.focused && $buttonHovered,
         isButtonDisabled && $buttonDisabled,
       ]}>
       <If condition={!!leftIcon}>
-        <Feather size={leftIconSize} name={leftIcon} color={textColor} style={$leftIcon} />
+        <Feather size={leftIconSize} name={leftIcon} color={textColor} style={$leftIcon as any} />
       </If>
       <If condition={!!isLoading}>
         <ActivityIndicator size="small" color={textColor} style={$activityIndicator} />
@@ -181,7 +180,7 @@ function BaseButton(props: BaseButtonProps) {
         <Feather size={iconSize} name={icon} color={textColor} textStyle={$icon} />
       </If>
       <If condition={!!rightIcon}>
-        <Feather size={rightIconSize} name={rightIcon} color={textColor} style={$rightIcon} />
+        <Feather size={rightIconSize} name={rightIcon} color={textColor} style={$rightIcon as any} />
       </If>
     </Pressable>
   );
@@ -354,7 +353,7 @@ export function SimpleLinkButton(props: SimpleLinkProps) {
  * <IconButton icon="plus" onPress={pressHandler} />
  */
 export interface IconButtonProps extends BaseButtonProps {
-  iconSize: number;
+  iconSize?: number;
 }
 export const IconButton = forwardRef((props: IconButtonProps, ref) => {
   const { iconSize, ...rest } = props;

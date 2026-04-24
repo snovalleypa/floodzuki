@@ -17,6 +17,7 @@ import { SegmentControl } from "@common-ui/components/SegmentControl";
 import { useStores } from "@models/helpers/useStores";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import { ForecastChartNative } from "./ForecastChartNative";
+import type { ForecastChartOptions } from "./ForecastChartNative";
 
 export const CHART_HEIGHT = 400;
 
@@ -67,7 +68,7 @@ const Charts = (props: ChartsProps) => {
 
   return (
     <Ternary condition={isMobile}>
-      <ForecastChartNative options={options} />
+      <ForecastChartNative options={options as unknown as ForecastChartOptions} />
       <LocalHighchartsReact options={options} />
     </Ternary>
   );

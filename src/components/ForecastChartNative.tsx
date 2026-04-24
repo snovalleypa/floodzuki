@@ -55,7 +55,7 @@ type PlotLine = {
   };
 };
 
-type ForecastChartOptions = {
+export type ForecastChartOptions = {
   chart: {
     type: string;
     spacingLeft: number;

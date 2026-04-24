@@ -105,7 +105,7 @@ export const LocationInfoModelStore = types
         store.locationInfos = [
           ...response.data?.filter((l) => !!l.id),
           ...(metagageLocation ? [metagageLocation] : []),
-        ];
+        ] as any;
       } else {
         store.setError(response.kind);
       }

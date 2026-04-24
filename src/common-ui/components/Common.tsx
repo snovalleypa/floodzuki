@@ -84,7 +84,7 @@ export const Row = ({
   }
 
   if (flex) {
-    const flexValue = typeof flex === "boolean" ? 1 : flex;
+    const flexValue = typeof flex === "boolean" ? 1 : typeof flex === "string" ? parseFloat(flex) : flex;
     styles.push({ flex: flexValue });
   }
 
@@ -108,7 +108,7 @@ export const Row = ({
  * @example
  * <Separator />
  */
-const $seprator = { width: "100%", backgroundColor: Colors.lightGrey };
+const $seprator: ViewStyle = { width: "100%", backgroundColor: Colors.lightGrey };
 export const Separator = ({ size }: { size?: number }) => (
   <View style={[$seprator, { height: size || 1 }]} />
 );
@@ -164,7 +164,7 @@ export const Cell = ({
   }
 
   if (flex) {
-    const flexValue = typeof flex === "boolean" ? 1 : flex;
+    const flexValue = typeof flex === "boolean" ? 1 : typeof flex === "string" ? parseFloat(flex) : flex;
     styles.push({ flex: flexValue });
   }
 

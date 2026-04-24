@@ -23,7 +23,7 @@ type IconProps = {
  * <Icon name="alien-outline" size={24} />
  */
 export default function Icon({ name, size, color, style, ...props }: IconProps) {
-  const styles = useOffsetStyles([style], props);
+  const styles = useOffsetStyles([style as any], props);
 
-  return <Feather name={name} size={size || Spacing.large} color={color} style={styles} />;
+  return <Feather name={name} size={size || Spacing.large} color={color} style={styles as any} />;
 }

@@ -54,7 +54,6 @@ const GoogleSigninButton = observer(function GoogleSigninButton() {
           $button,
           !isButtonDisabled && state.pressed && $buttonHovered,
           !isButtonDisabled && state.hovered && $buttonHovered,
-          !isButtonDisabled && state.focused && $buttonHovered,
           isButtonDisabled && $buttonDisabled,
         ]}>
         <Image

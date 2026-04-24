@@ -1,5 +1,14 @@
 import { useEffect, useState } from "react";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
+
+declare module "highcharts" {
+  interface Options {
+    _now?: Dayjs;
+  }
+  interface Point {
+    isPrediction?: boolean;
+  }
+}
 
 import { Gage, GageChartDataType } from "@models/Gage";
 import { useTimeout } from "./useTimeout";
@@ -28,30 +37,33 @@ const PREDICTION_WINDOW_MINUTES = 60 * 6; // 6 hours of predictions
 
 const CHART_OPTIONS = {
   dashboardOptions: (options: Highcharts.Options, gage: Gage, range: Range, t) => {
-    options.chart.height = 182;
-    options.xAxis.labels = { enabled: false };
-    options.xAxis.tickLength = 0;
-    options.yAxis.labels = { enabled: false };
-    options.yAxis.gridLineWidth = 0;
-    options.yAxis.title = null;
+    const xAxis = options.xAxis as Highcharts.XAxisOptions;
+    const yAxis = options.yAxis as Highcharts.YAxisOptions;
 
-    for (const line of options.yAxis.plotLines || []) {
+    options.chart.height = 182;
+    xAxis.labels = { enabled: false };
+    xAxis.tickLength = 0;
+    yAxis.labels = { enabled: false };
+    yAxis.gridLineWidth = 0;
+    yAxis.title = null;
+
+    for (const line of yAxis.plotLines || []) {
       line.label.style.fontSize = "11px";
       line.label.align = "center";
       line.label.x = 0;
     }
 
-    options.xAxis.max = options._now.valueOf();
+    xAxis.max = options._now.valueOf();
 
     const chartBeginTime = options._now
       .clone()
       .subtract(Config.FRONT_PAGE_CHART_DURATION_NUMBER, Config.FRONT_PAGE_CHART_DURATION_UNIT);
 
-    options.xAxis.min = chartBeginTime.clone().subtract(20, "m").valueOf();
+    xAxis.min = chartBeginTime.clone().subtract(20, "m").valueOf();
 
-    options.xAxis.plotLines.push({
+    xAxis.plotLines.push({
       value: chartBeginTime.valueOf(),
-      dashStyle: "dot",
+      dashStyle: "Dot",
       color: "#9a9a9a",
       label: {
         text: t("gageChart.dashboardDurationLabel"),
@@ -64,19 +76,21 @@ const CHART_OPTIONS = {
   },
 
   gageDetailsOptions: (options: Highcharts.Options, gage: Gage, range: Range, t) => {
+    const xAxis = options.xAxis as Highcharts.XAxisOptions;
+
     let predictionWindow = 0;
 
     if (gage?.predictedPoints) {
       predictionWindow = PREDICTION_WINDOW_MINUTES;
     }
 
-    options.xAxis.max = range.chartEndDate
+    xAxis.max = range.chartEndDate
       .clone()
       .add(predictionWindow, "m")
       .add(DEBUGGING_TIMESPAN_MARGIN, "m")
       .valueOf();
 
-    options.xAxis.min = range.chartStartDate
+    xAxis.min = range.chartStartDate
       .clone()
       .subtract(DEBUGGING_TIMESPAN_MARGIN, "m")
       .valueOf();
@@ -86,8 +100,8 @@ const CHART_OPTIONS = {
     });
 
     if (crest) {
-      options.xAxis.plotLines = options.xAxis.plotLines || [];
-      options.xAxis.plotLines.push(
+      xAxis.plotLines = xAxis.plotLines || [];
+      xAxis.plotLines.push(
         makePlotLine({
           value: crest.timestamp.valueOf(),
           label: `${t("measure.max")} ${crest.reading.toFixed(2)} ${t("measure.ft")}`,
@@ -144,7 +158,7 @@ function calculateCrest(
 }
 
 function dataPointPopup(gage: Gage, t) {
-  return function () {
+  return function (this: Highcharts.TooltipFormatterContextObject) {
     const roadStatus = gage?.getCalculatedRoadStatus(this.y);
 
     let roadDesc = "";
@@ -172,15 +186,14 @@ function dataPointPopup(gage: Gage, t) {
   };
 }
 
-function makePlotLine({ value, label, color = "#9a9a9a" }) {
+function makePlotLine({ value, label, color = "#9a9a9a" }): Highcharts.XAxisPlotLinesOptions {
   return {
     value,
-    dashStyle: "dot",
+    dashStyle: "Dot",
     color,
     label: {
       text: label,
       style: { color },
-      rotation: 270,
       align: "right",
       x: -5,
     },
@@ -475,11 +488,13 @@ const buildBasicOptions = (props: BuildOptionsProps, t) => {
   const { yMaximum, yMinimum } = gage?.getChartMinAndMax(chartDataType);
 
   options.series = series;
+  const yAxis = options.yAxis as Highcharts.YAxisOptions;
+  const xAxis = options.xAxis as Highcharts.XAxisOptions;
   const yAxisMin = Math.max(gage?.groundHeight || 0, yMinimum);
-  options.yAxis.min = Math.min(minVal, yAxisMin);
-  options.yAxis.max = yMaximum;
+  yAxis.min = Math.min(minVal, yAxisMin);
+  yAxis.max = yMaximum;
 
-  options.yAxis.plotLines = (gage?.roads).map((cat) => {
+  yAxis.plotLines = (gage?.roads).map((cat) => {
     return {
       value: cat.elevation,
       label: {
@@ -493,14 +508,14 @@ const buildBasicOptions = (props: BuildOptionsProps, t) => {
         x: -10,
       },
       color: Colors.primary,
-      dashStyle: "dot",
+      dashStyle: "Dot" as Highcharts.DashStyleValue,
     };
   });
 
   options._now = localDayJs();
 
-  options.xAxis.plotLines = [];
-  options.xAxis.plotLines.push(
+  xAxis.plotLines = [];
+  xAxis.plotLines.push(
     makePlotLine({
       value: options._now.valueOf(),
       label: t("gageChart.Now"),

@@ -52,7 +52,7 @@ type PlotLine = {
   };
 };
 
-type GageDetailsChartOptions = {
+export type GageDetailsChartOptions = {
   chart: {
     height: number;
     type: string; // only "area" type is supported

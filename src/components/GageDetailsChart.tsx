@@ -33,6 +33,7 @@ import { Dayjs } from "dayjs";
 import { normalizeSearchParams } from "@utils/navigation";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import { GageDetailsChartNative } from "./GageDetailsChartNative";
+import type { GageDetailsChartOptions } from "./GageDetailsChartNative";
 
 interface GageDetailsChartProps {
   gage: Gage;
@@ -83,7 +84,7 @@ const Charts = (props: ChartsProps) => {
   return (
     <Cell height={320}>
       <Ternary condition={isMobile}>
-        <GageDetailsChartNative options={options} />
+        <GageDetailsChartNative options={options as unknown as GageDetailsChartOptions} />
         <LocalHighchartsReact options={options} />
       </Ternary>
     </Cell>

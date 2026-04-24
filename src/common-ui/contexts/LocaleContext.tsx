@@ -1,6 +1,7 @@
 import React, { useRef } from "react"
 import "@i18n/i18n";
 import { TxKeyPath, i18n } from "@i18n/i18n"
+import { TranslateOptions } from "i18n-js";
 import { useStores } from "@models/helpers/useStores"
 import localDayJs from "@services/localDayJs";
 
@@ -8,13 +9,13 @@ import localDayJs from "@services/localDayJs";
 type LocaleContextType = {
   locale: string
   changeContextLocale: (locale: string) => void
-  t: (key: TxKeyPath, options?: I18n.TranslateOptions) => string
+  t: (key: TxKeyPath, options?: TranslateOptions) => string
 }
 
 const initialState: LocaleContextType = {
   locale: i18n.locale,
   changeContextLocale: () => {},
-  t: (key: TxKeyPath, options?: I18n.TranslateOptions) => key,
+  t: (key: TxKeyPath, options?: TranslateOptions) => key,
 }
 
 const LocaleContext = React.createContext<LocaleContextType>(initialState)
@@ -43,7 +44,7 @@ export const LocaleProvider = ({ children }: { children: React.ReactNode }) => {
     setLocale(locale)
   }
 
-  const t = (key: TxKeyPath, options?: I18n.TranslateOptions) => localI18n.current.t(key, options)
+  const t = (key: TxKeyPath, options?: TranslateOptions) => localI18n.current.t(key, options)
 
   return (
     <LocaleContext.Provider value={{ locale, changeContextLocale, t }}>
