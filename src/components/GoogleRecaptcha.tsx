@@ -1,5 +1,21 @@
+declare global {
+  interface Window {
+    localRecaptchaCallback?: (token: string) => void;
+    grecaptcha?: {
+      ready: (callback: () => void) => void;
+      execute: () => void;
+      reset: () => void;
+    };
+  }
+}
+
 import React, { useImperativeHandle, useRef } from "react";
-import Recaptcha, { RecaptchaHandles } from "react-native-recaptcha-that-works";
+import Recaptcha from "react-native-recaptcha-that-works";
+type RecaptchaHandles = {
+  open: () => void;
+  close?: () => void;
+  reset?: () => void;
+};
 
 import { Ternary } from "@common-ui/components/Conditional";
 import { isWeb } from "@common-ui/utils/responsive";
@@ -91,7 +107,7 @@ const GoogleRecaptcha = React.forwardRef((props: GoogleRecaptchaProps, ref) => {
     <Ternary condition={isWeb}>
       <WebRecpatcha ref={recaptchaWeb} onVerify={onVerify} onExpire={onExpire} />
       <Recaptcha
-        ref={recaptcha}
+        ref={recaptcha as any}
         siteKey={RECAPTCHA_KEY}
         baseUrl="http://floodzilla.com"
         size="invisible"

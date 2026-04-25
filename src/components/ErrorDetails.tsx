@@ -16,12 +16,7 @@ export function ErrorDetails(props: ErrorBoundaryProps) {
 
   // Track error with sentry when loaded
   useEffect(() => {
-    if (isWeb) {
-      Sentry.Browser?.captureException(props.error);
-      return;
-    }
-
-    Sentry.Native?.captureException(props.error);
+    Sentry.captureException(props.error);
   }, []);
 
   return (

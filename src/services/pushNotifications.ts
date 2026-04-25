@@ -12,14 +12,16 @@ import { useLocale } from "@common-ui/contexts/LocaleContext";
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
     shouldPlaySound: false,
     shouldSetBadge: false,
   }),
 });
 
 export async function isPushNotificationsEnabledAsync() {
-  const { status: existingStatus } = await Notifications.getPermissionsAsync();
-  return existingStatus === "granted";
+  const permissions = await Notifications.getPermissionsAsync();
+  return (permissions as any).granted ?? false;
 }
 
 export async function registerForPushNotificationsAsync(
@@ -43,17 +45,15 @@ export async function registerForPushNotificationsAsync(
   }
 
   if (Device.isDevice) {
-    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    const existingPermissions = await Notifications.getPermissionsAsync();
+    let isGranted: boolean = (existingPermissions as any).granted ?? false;
 
-    let finalStatus = existingStatus;
-    let permResponse;
-
-    if (requestPermissions && existingStatus !== "granted") {
-      permResponse = await Notifications.requestPermissionsAsync();
-      finalStatus = permResponse.status;
+    if (requestPermissions && !isGranted) {
+      const permResponse = await Notifications.requestPermissionsAsync();
+      isGranted = (permResponse as any).granted ?? false;
     }
 
-    if (requestPermissions && finalStatus !== "granted") {
+    if (requestPermissions && !isGranted) {
       Alert.alert(t("alertsScreen.pnsDisabledTitle"), t("alertsScreen.pnsDisabledMessage"), [
         {
           text: t("alertsScreen.pnsDisabledButton"),
@@ -92,7 +92,7 @@ export function useRegisterPushNotificationsListener(requestPermissions: boolean
     function redirect(notification: Notifications.Notification) {
       const url = notification.request.content.data?.url || notification.request.content.data?.path;
       if (url) {
-        router.push(url);
+        router.push(url as any);
       }
     }
 

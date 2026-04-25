@@ -1,4 +1,4 @@
-import { FlexStyle } from "react-native";
+import { ViewStyle, DimensionValue } from "react-native";
 
 export type OffsetProps = {
   top?: number;
@@ -14,7 +14,7 @@ export type OffsetProps = {
   innerBottom?: number;
   innerRight?: number;
   height?: number | string;
-  width?: number;
+  width?: number | string;
   minHeight?: number | string;
   maxHeight?: number | string;
   minWidth?: number | string;
@@ -42,7 +42,7 @@ export type OffsetProps = {
  * const style = useOffsetStyles([], { top: 2, left: 2, bottom: 2, right: 2 })
  */
 
-export function useOffsetStyles(styles: FlexStyle[], props: OffsetProps): Array<FlexStyle> {
+export function useOffsetStyles(styles: ViewStyle[], props: OffsetProps): ViewStyle[] {
   const {
     top,
     left,
@@ -113,27 +113,27 @@ export function useOffsetStyles(styles: FlexStyle[], props: OffsetProps): Array<
   }
 
   if (props.hasOwnProperty("height")) {
-    styles.push({ height });
+    styles.push({ height: height as DimensionValue });
   }
 
   if (props.hasOwnProperty("width")) {
-    styles.push({ width });
+    styles.push({ width: width as DimensionValue });
   }
 
   if (props.hasOwnProperty("minHeight")) {
-    styles.push({ minHeight });
+    styles.push({ minHeight: minHeight as DimensionValue });
   }
 
   if (props.hasOwnProperty("minWidth")) {
-    styles.push({ minWidth });
+    styles.push({ minWidth: minWidth as DimensionValue });
   }
 
   if (props.hasOwnProperty("maxHeight")) {
-    styles.push({ maxHeight });
+    styles.push({ maxHeight: maxHeight as DimensionValue });
   }
 
   if (props.hasOwnProperty("maxWidth")) {
-    styles.push({ maxWidth });
+    styles.push({ maxWidth: maxWidth as DimensionValue });
   }
 
   return styles;

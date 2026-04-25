@@ -19,7 +19,7 @@ type CardProps = {
 } & OffsetProps;
 
 type CardItemProps = {
-  children: [JSX.Element, JSX.Element];
+  children: [React.ReactElement, React.ReactElement];
   noBorder?: boolean;
 };
 
@@ -58,7 +58,7 @@ const Base = (props: BaseProps): React.ReactElement => {
   }
 
   if (flex) {
-    const flexValue = typeof flex === "boolean" ? 1 : flex;
+    const flexValue = typeof flex === "boolean" ? 1 : typeof flex === "string" ? parseFloat(flex) : flex;
     style.push({ flex: flexValue });
   }
 

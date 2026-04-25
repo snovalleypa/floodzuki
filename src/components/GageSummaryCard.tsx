@@ -113,7 +113,7 @@ export const GageSummaryCard = observer(function GageSummaryCard(props: GageSumm
       <Row align="space-between">
         <SmallTitle color={Colors.primary}>{gageTitle}</SmallTitle>
         <Ternary condition={!noDetails}>
-          <Link href={{ pathname: ROUTES.ForecastDetails, params: { id: gage?.id } }} asChild>
+          <Link href={{ pathname: ROUTES.ForecastDetails, params: { id: [gage?.id] } }} asChild>
             <IconButton
               title={t("forecastScreen.details")}
               rightIcon="chevron-right"
@@ -152,7 +152,7 @@ export const GageSummaryCard = observer(function GageSummaryCard(props: GageSumm
           </SmallText>
         </LabelText>
         {peaks?.map((peak) => (
-          <ReadingRow key={peak.timestamp} reading={peak} />
+          <ReadingRow key={peak.timestampMs} reading={peak as DataPoint} />
         ))}
       </Cell>
       <If condition={!gage?.isMetagage && noDetails}>

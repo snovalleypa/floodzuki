@@ -35,6 +35,7 @@ import GageMap from "@components/GageMap";
 import GageListItemChart from "@components/GageListItemChart";
 import WebFooter from "@components/WebFooter";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
+import { TxKeyPath } from "@i18n/i18n";
 import { Timing } from "@common-ui/constants/timing";
 import { RefreshControl, ScrollView } from "react-native-gesture-handler";
 import { Region } from "../../../src/models/Region";
@@ -58,7 +59,7 @@ const GageStatus = observer(({ gage }: { gage: Gage }) => {
   return (
     <LargeLabel
       type={STATUSES[gage?.gageStatus?.floodLevel]}
-      text={t(`statuses.${gage?.gageStatus?.floodLevel}`)}
+      text={t(`statuses.${gage?.gageStatus?.floodLevel}` as TxKeyPath)}
     />
   );
 });

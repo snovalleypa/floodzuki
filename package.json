@@ -102,6 +102,8 @@
       "<rootDir>/node_modules/expo/node_modules"
     ],
     "moduleNameMapper": {
+      "^@sentry/react-native$": "<rootDir>/__mocks__/@sentry/react-native.js",
+      "^@react-native-async-storage/async-storage$": "@react-native-async-storage/async-storage/jest/async-storage-mock",
       "^@assets/(.*)$": "<rootDir>/assets/$1",
       "^@utils/(.*)$": "<rootDir>/src/utils/$1",
       "^@services/(.*)$": "<rootDir>/src/services/$1",
