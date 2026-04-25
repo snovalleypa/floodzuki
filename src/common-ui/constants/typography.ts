@@ -33,18 +33,18 @@ export const customFontsToLoad = {
 export const Fonts = {
   openSans: {
     // Cross-platform Google font.
-    light: isWeb ? "Open Sans" : "OpenSans_300Light",
-    normal: isWeb ? "Open Sans" : "OpenSans_400Regular",
-    medium: isWeb ? "Open Sans" : "OpenSans_500Medium",
-    semiBold: isWeb ? "Open Sans" : "OpenSans_600SemiBold",
-    bold: isWeb ? "Open Sans" : "OpenSans_700Bold",
+    light: isWeb ? "'Open Sans', system-ui, sans-serif" : "OpenSans_300Light",
+    normal: isWeb ? "'Open Sans', system-ui, sans-serif" : "OpenSans_400Regular",
+    medium: isWeb ? "'Open Sans', system-ui, sans-serif" : "OpenSans_500Medium",
+    semiBold: isWeb ? "'Open Sans', system-ui, sans-serif" : "OpenSans_600SemiBold",
+    bold: isWeb ? "'Open Sans', system-ui, sans-serif" : "OpenSans_700Bold",
   },
   montserrat: {
     // Main Google font.
-    normal: isWeb ? "Montserrat" : "Montserrat_400Regular",
-    medium: isWeb ? "Montserrat" : "Montserrat_500Medium",
-    semibold: isWeb ? "Montserrat" : "Montserrat_600SemiBold",
-    bold: isWeb ? "Montserrat" : "Montserrat_700Bold",
+    normal: isWeb ? "Montserrat, system-ui, sans-serif" : "Montserrat_400Regular",
+    medium: isWeb ? "Montserrat, system-ui, sans-serif" : "Montserrat_500Medium",
+    semibold: isWeb ? "Montserrat, system-ui, sans-serif" : "Montserrat_600SemiBold",
+    bold: isWeb ? "Montserrat, system-ui, sans-serif" : "Montserrat_700Bold",
   },
 };
 
