@@ -11,7 +11,7 @@ import { openLinkInBrowser } from "@utils/navigation";
 import { Colors } from "@common-ui/constants/colors";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 
-const TasteOfTheValleyBanner = () => {
+const AppStoreBanner = () => {
   const { isMobile } = useResponsive();
   const { getAsset } = useAppAssets();
   const { t } = useLocale();
@@ -76,4 +76,4 @@ const TasteOfTheValleyBanner = () => {
   );
 };
 
-export default TasteOfTheValleyBanner;
+export default AppStoreBanner;

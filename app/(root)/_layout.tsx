@@ -30,7 +30,7 @@ import { useCheckForUpdates } from "@services/expoUpdates";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import LocaleChange from "@components/LocaleChange";
 import TasteOfTheValleyBanner from "@components/TasteOfTheValleyBanner";
-import AndroidPlayMarketBanner from "@components/AndroidPlayMarketBanner";
+import AppStoreBanner from "@components/AppStoreBanner";
 
 const GAGE_ICONS = {
   active: require("@assets/images/floodzuki.png"),
@@ -64,7 +64,7 @@ export default function AppLayout() {
   return (
     <Ternary condition={isWeb}>
       <>
-        <AndroidPlayMarketBanner />
+        <AppStoreBanner />
         <Header />
         <TasteOfTheValleyBanner />
         <Slot />
