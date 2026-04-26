@@ -1,15 +1,6 @@
 import { useEffect, useState } from "react";
 import dayjs, { Dayjs } from "dayjs";
 
-declare module "highcharts" {
-  interface Options {
-    _now?: Dayjs;
-  }
-  interface Point {
-    isPrediction?: boolean;
-  }
-}
-
 import { Gage, GageChartDataType } from "@models/Gage";
 import { useTimeout } from "./useTimeout";
 import { useStores } from "@models/helpers/useStores";
@@ -20,6 +11,15 @@ import { Colors } from "@common-ui/constants/colors";
 import { DataPoint } from "@models/Forecasts";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import { Timing } from "@common-ui/constants/timing";
+
+declare module "highcharts" {
+  interface Options {
+    _now?: Dayjs;
+  }
+  interface Point {
+    isPrediction?: boolean;
+  }
+}
 
 interface Range {
   chartStartDate: dayjs.Dayjs;

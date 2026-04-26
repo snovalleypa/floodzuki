@@ -21,6 +21,8 @@ import "@formatjs/intl-datetimeformat/polyfill";
 import "@formatjs/intl-datetimeformat/locale-data/en"; // locale-data for en
 import "@formatjs/intl-datetimeformat/add-all-tz"; // Add ALL tz data
 
+import "expo-router/entry";
+
 // @ts-ignore
 Date.prototype._toLocaleString = Date.prototype.toLocaleString;
 Date.prototype.toLocaleString = function (a, b) {
@@ -41,5 +43,3 @@ Date.prototype.toLocaleString = function (a, b) {
   // @ts-ignore
   return this._toLocaleString(a, b);
 };
-
-import "expo-router/entry";

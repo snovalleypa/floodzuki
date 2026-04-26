@@ -230,7 +230,7 @@ const RateOfChange = observer(function RateOfChange({ gage }: { gage: Gage }) {
 
     if (!gage?.roadSaddleHeight) return null;
 
-    for (var i = 0; i < gage.predictions?.length - 1; i++) {
+    for (let i = 0; i < gage.predictions?.length - 1; i++) {
       let p = gage.predictions[i];
       let pNext = gage.predictions[i + 1];
 

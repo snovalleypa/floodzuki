@@ -1,11 +1,5 @@
 import { useEffect, useState } from "react";
 
-declare module "highcharts" {
-  interface PointOptionsObject {
-    stage?: number;
-  }
-}
-
 import { GageSummary } from "@models/RootStore";
 import { useStores } from "@models/helpers/useStores";
 import { Forecast } from "@models/Forecasts";
@@ -15,6 +9,12 @@ import { useLocale } from "@common-ui/contexts/LocaleContext";
 import { isMobile } from "@common-ui/utils/responsive";
 import dayjs from "dayjs";
 import localDayJs from "../services/localDayJs";
+
+declare module "highcharts" {
+  interface PointOptionsObject {
+    stage?: number;
+  }
+}
 
 const STAGE_TWO_YAXIS_MARGIN = 500;
 

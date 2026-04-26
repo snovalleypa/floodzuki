@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 module.exports = {
   init: jest.fn(),
   captureException: jest.fn(),

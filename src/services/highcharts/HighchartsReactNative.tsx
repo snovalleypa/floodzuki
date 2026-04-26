@@ -183,4 +183,6 @@ const HighchartsReactNative = React.memo((props: HighchartsReactNativeProps) => 
   );
 });
 
+HighchartsReactNative.displayName = "HighchartsReactNative";
+
 export default HighchartsReactNative;
