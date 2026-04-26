@@ -121,6 +121,8 @@ function App() {
         {/** This is used to ensure that favicon is displayed on web */}
         <Head>
           <link rel="icon" href={getAsset("favicon").uri} />
+          {/* Sans-serif fallback while Google Fonts loads — prevents brief serif flash */}
+          <style>{`body { font-family: system-ui, -apple-system, 'Segoe UI', Arial, sans-serif; }`}</style>
           {/* Load custom fonts */}
           <link
             type="text/css"
