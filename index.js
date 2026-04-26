@@ -19,9 +19,9 @@ import "@formatjs/intl-relativetimeformat/locale-data/en"; // locale-data for en
 
 import "@formatjs/intl-datetimeformat/polyfill";
 import "@formatjs/intl-datetimeformat/locale-data/en"; // locale-data for en
-import "@formatjs/intl-datetimeformat/add-all-tz";
+import "@formatjs/intl-datetimeformat/add-all-tz"; // Add ALL tz data
 
-import "expo-router/entry"; // Add ALL tz data
+import "expo-router/entry";
 
 // @ts-ignore
 Date.prototype._toLocaleString = Date.prototype.toLocaleString;
