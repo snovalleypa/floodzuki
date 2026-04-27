@@ -11,12 +11,32 @@ import { openLinkInBrowser } from "@utils/navigation";
 import { Colors } from "@common-ui/constants/colors";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 
-const TasteOfTheValleyBanner = () => {
+const STORAGE_KEY = "install_banner_dismissed_at";
+const SUPPRESS_DAYS = 30;
+
+export function isBannerSuppressed(): boolean {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) {
+      return false;
+    }
+    const dismissedAt = new Date(raw).getTime();
+    if (isNaN(dismissedAt)) {
+      return false;
+    }
+    const cutoff = Date.now() - SUPPRESS_DAYS * 24 * 60 * 60 * 1000;
+    return dismissedAt > cutoff;
+  } catch {
+    return false;
+  }
+}
+
+const AppStoreBanner = () => {
   const { isMobile } = useResponsive();
   const { getAsset } = useAppAssets();
   const { t } = useLocale();
 
-  const [isBannerVisible, setIsBannerVisible] = useState(true);
+  const [isBannerVisible, setIsBannerVisible] = useState(() => !isBannerSuppressed());
 
   const openPlayMarket = () => {
     openLinkInBrowser("https://play.google.com/store/apps/details?id=com.floodzilla.floodzuki");
@@ -35,6 +55,7 @@ const TasteOfTheValleyBanner = () => {
   };
 
   const closeBanner = () => {
+    localStorage.setItem(STORAGE_KEY, new Date().toISOString());
     setIsBannerVisible(false);
   };
 
@@ -76,4 +97,4 @@ const TasteOfTheValleyBanner = () => {
   );
 };
 
-export default TasteOfTheValleyBanner;
+export default AppStoreBanner;
