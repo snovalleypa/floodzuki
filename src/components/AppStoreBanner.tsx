@@ -17,9 +17,13 @@ const SUPPRESS_DAYS = 30;
 export function isBannerSuppressed(): boolean {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return false;
+    if (!raw) {
+      return false;
+    }
     const dismissedAt = new Date(raw).getTime();
-    if (isNaN(dismissedAt)) return false;
+    if (isNaN(dismissedAt)) {
+      return false;
+    }
     const cutoff = Date.now() - SUPPRESS_DAYS * 24 * 60 * 60 * 1000;
     return dismissedAt > cutoff;
   } catch {
