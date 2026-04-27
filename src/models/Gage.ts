@@ -1,4 +1,4 @@
-import { Instance, SnapshotIn, SnapshotOut, types , flow } from "mobx-state-tree";
+import { Instance, SnapshotIn, SnapshotOut, types, flow } from "mobx-state-tree";
 import { api } from "@services/api";
 import dayjs from "dayjs";
 
@@ -212,13 +212,17 @@ export const GageModel = types
     },
 
     get dataPoints() {
-      if (!store.hasData) return [];
+      if (!store.hasData) {
+        return [];
+      }
 
       return mapAndAdjustTimestampsForDisplay(store.readings);
     },
 
     get chartReadings() {
-      if (!store.hasData) return [];
+      if (!store.hasData) {
+        return [];
+      }
 
       return store.readings
         .filter((reading) => !reading.isDeleted)
@@ -292,7 +296,9 @@ export const GageModel = types
     },
 
     getCalculatedRoadStatus(waterLevel: number) {
-      if (!store.roadSaddleHeight || !store.roadDisplayName) return null;
+      if (!store.roadSaddleHeight || !store.roadDisplayName) {
+        return null;
+      }
 
       const baseLevel = waterLevel || store.waterLevel;
       const level = baseLevel - store.roadSaddleHeight;

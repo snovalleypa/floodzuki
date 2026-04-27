@@ -99,7 +99,9 @@ const NewScreen = observer(function NewScreen() {
   const submit = () => {
     setValidationError("");
 
-    if (!isValid) return;
+    if (!isValid) {
+      return;
+    }
 
     createAccount();
   };

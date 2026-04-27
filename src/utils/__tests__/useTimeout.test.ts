@@ -9,7 +9,9 @@ describe("useInterval", () => {
     const callback = jest.fn();
     renderHook(() => useInterval(callback, 1000));
 
-    act(() => { jest.advanceTimersByTime(3000); });
+    act(() => {
+      jest.advanceTimersByTime(3000);
+    });
     expect(callback).toHaveBeenCalledTimes(3);
   });
 
@@ -17,7 +19,9 @@ describe("useInterval", () => {
     const callback = jest.fn();
     renderHook(() => useInterval(callback, null));
 
-    act(() => { jest.advanceTimersByTime(5000); });
+    act(() => {
+      jest.advanceTimersByTime(5000);
+    });
     expect(callback).not.toHaveBeenCalled();
   });
 
@@ -29,12 +33,16 @@ describe("useInterval", () => {
       initialProps: { cb: first },
     });
 
-    act(() => { jest.advanceTimersByTime(1000); });
+    act(() => {
+      jest.advanceTimersByTime(1000);
+    });
     expect(first).toHaveBeenCalledTimes(1);
 
     rerender({ cb: second });
 
-    act(() => { jest.advanceTimersByTime(1000); });
+    act(() => {
+      jest.advanceTimersByTime(1000);
+    });
     expect(second).toHaveBeenCalledTimes(1);
     expect(first).toHaveBeenCalledTimes(1);
   });
@@ -44,7 +52,9 @@ describe("useInterval", () => {
     const { unmount } = renderHook(() => useInterval(callback, 1000));
 
     unmount();
-    act(() => { jest.advanceTimersByTime(3000); });
+    act(() => {
+      jest.advanceTimersByTime(3000);
+    });
     expect(callback).not.toHaveBeenCalled();
   });
 });
@@ -57,10 +67,14 @@ describe("useTimeout", () => {
     const callback = jest.fn();
     renderHook(() => useTimeout(callback, 500));
 
-    act(() => { jest.advanceTimersByTime(500); });
+    act(() => {
+      jest.advanceTimersByTime(500);
+    });
     expect(callback).toHaveBeenCalledTimes(1);
 
-    act(() => { jest.advanceTimersByTime(1000); });
+    act(() => {
+      jest.advanceTimersByTime(1000);
+    });
     expect(callback).toHaveBeenCalledTimes(1);
   });
 
@@ -68,7 +82,9 @@ describe("useTimeout", () => {
     const callback = jest.fn();
     renderHook(() => useTimeout(callback, null));
 
-    act(() => { jest.advanceTimersByTime(5000); });
+    act(() => {
+      jest.advanceTimersByTime(5000);
+    });
     expect(callback).not.toHaveBeenCalled();
   });
 
@@ -77,7 +93,9 @@ describe("useTimeout", () => {
     const { unmount } = renderHook(() => useTimeout(callback, 1000));
 
     unmount();
-    act(() => { jest.advanceTimersByTime(2000); });
+    act(() => {
+      jest.advanceTimersByTime(2000);
+    });
     expect(callback).not.toHaveBeenCalled();
   });
 });

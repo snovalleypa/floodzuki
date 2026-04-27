@@ -40,7 +40,9 @@ const ChangeEmailScreen = observer(function ChangeEmailScreen() {
   }, []);
 
   const submit = () => {
-    if (!isValid) return;
+    if (!isValid) {
+      return;
+    }
   };
 
   const goBack = () => {

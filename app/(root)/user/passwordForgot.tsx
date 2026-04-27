@@ -54,7 +54,9 @@ const PasswordForgotScreen = observer(function PasswordForgotScreen() {
   };
 
   const submit = () => {
-    if (!isValid) return;
+    if (!isValid) {
+      return;
+    }
 
     forgotPassword();
   };

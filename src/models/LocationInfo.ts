@@ -1,4 +1,4 @@
-import { Instance, SnapshotIn, SnapshotOut, types , flow } from "mobx-state-tree";
+import { Instance, SnapshotIn, SnapshotOut, types, flow } from "mobx-state-tree";
 import { api } from "@services/api";
 
 import { withDataFetchingActions, dataFetchingProps } from "./helpers/withDataFetchingProps";

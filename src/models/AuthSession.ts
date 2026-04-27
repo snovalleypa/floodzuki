@@ -1,4 +1,4 @@
-import { Instance, SnapshotOut, types , flow } from "mobx-state-tree";
+import { Instance, SnapshotOut, types, flow } from "mobx-state-tree";
 import { dataFetchingProps, withDataFetchingActions } from "./helpers/withDataFetchingProps";
 import { withSetPropAction } from "./helpers/withSetPropsAction";
 import {
@@ -425,7 +425,9 @@ export const AuthSessionStoreModel = types
     });
 
     const getSettings = flow(function* () {
-      if (!store.authToken) return;
+      if (!store.authToken) {
+        return;
+      }
 
       store.setIsFetching(true);
 
@@ -455,7 +457,9 @@ export const AuthSessionStoreModel = types
     });
 
     const getSubscribedGages = flow(function* () {
-      if (!store.authToken) return;
+      if (!store.authToken) {
+        return;
+      }
 
       store.setIsFetching(true);
 
@@ -535,7 +539,9 @@ export const AuthSessionStoreModel = types
     const setPrefferedLocale = flow(function* (locale: string) {
       store.setProp("preferredLocale", locale);
 
-      if (!store.authToken || !store.pushToken) return;
+      if (!store.authToken || !store.pushToken) {
+        return;
+      }
 
       yield registerPushToken(store.pushToken, locale);
     });

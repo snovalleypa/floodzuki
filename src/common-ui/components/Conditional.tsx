@@ -10,7 +10,10 @@ interface TernaryProps {
   condition: boolean | undefined;
 }
 
-export const If: React.FC<IfProps> = ({ children, condition }: IfProps): React.ReactElement | null => {
+export const If: React.FC<IfProps> = ({
+  children,
+  condition,
+}: IfProps): React.ReactElement | null => {
   return condition ? <>{children}</> : null;
 };
 

@@ -31,7 +31,9 @@ const SetPasswordScreen = observer(function SetPasswordScreen() {
 
     await authSessionStore.setPassword(params);
 
-    if (authSessionStore.isError) return;
+    if (authSessionStore.isError) {
+      return;
+    }
 
     setSuccessMessage(t("setpasswordScreen.successMessage"));
   };

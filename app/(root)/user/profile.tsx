@@ -72,7 +72,9 @@ const ProfileScreen = observer(function ProfileScreen() {
   };
 
   const submit = async () => {
-    if (!isFormValid) return;
+    if (!isFormValid) {
+      return;
+    }
 
     await authSessionStore.updateProfile({
       email,

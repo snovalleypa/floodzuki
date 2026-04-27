@@ -29,7 +29,9 @@ const CreatePasswordScreen = observer(function CreatePasswordScreen() {
       newPassword: params.newPassword,
     });
 
-    if (authSessionStore.isError) return;
+    if (authSessionStore.isError) {
+      return;
+    }
 
     router.push({ pathname: ROUTES.UserChangeEmail });
   };

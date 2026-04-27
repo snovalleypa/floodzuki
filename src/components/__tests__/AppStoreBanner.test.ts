@@ -2,6 +2,8 @@
  * @jest-environment jsdom
  */
 
+import { isBannerSuppressed } from "../AppStoreBanner";
+
 // Mock modules that don't work in jsdom environment
 jest.mock("expo-notifications", () => ({
   getLastNotificationResponseAsync: jest.fn(),
@@ -37,8 +39,6 @@ jest.mock("@common-ui/utils/responsive", () => ({
 jest.mock("@utils/navigation", () => ({
   openLinkInBrowser: jest.fn(),
 }));
-
-import { isBannerSuppressed } from "../AppStoreBanner";
 
 const STORAGE_KEY = "install_banner_dismissed_at";
 

@@ -90,10 +90,7 @@ const CHART_OPTIONS = {
       .add(DEBUGGING_TIMESPAN_MARGIN, "m")
       .valueOf();
 
-    xAxis.min = range.chartStartDate
-      .clone()
-      .subtract(DEBUGGING_TIMESPAN_MARGIN, "m")
-      .valueOf();
+    xAxis.min = range.chartStartDate.clone().subtract(DEBUGGING_TIMESPAN_MARGIN, "m").valueOf();
 
     const crest = calculateCrest(gage?.dataPoints, {
       startDate: range.chartStartDate,
@@ -121,7 +118,9 @@ function calculateCrest(
     (point) => point.timestamp >= startDate && point.timestamp <= endDate
   );
 
-  if (points.length < 3) return null;
+  if (points.length < 3) {
+    return null;
+  }
 
   const [min, max] = points.reduce(
     (mm, d) => [Math.min(d.reading, mm[0]), Math.max(d.reading, mm[1])],
@@ -559,9 +558,13 @@ const useGageChartOptions = (
   };
 
   useEffect(() => {
-    if (!isVisible) return;
+    if (!isVisible) {
+      return;
+    }
 
-    if (!gage?.locationId) return;
+    if (!gage?.locationId) {
+      return;
+    }
 
     setOptions(getOptions());
   }, [

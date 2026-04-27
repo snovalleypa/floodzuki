@@ -13,7 +13,9 @@ const Map = Platform.select({
 const GageMap = observer(function GageMap(props: GageMapProps) {
   const { region, gages, onGagePress } = props;
 
-  if (!gages) return null;
+  if (!gages) {
+    return null;
+  }
 
   // Reverse the gauges to get the z-order to be a little friendlier...
   // eslint-disable-next-line react-hooks/rules-of-hooks

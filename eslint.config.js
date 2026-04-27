@@ -11,6 +11,7 @@ module.exports = defineConfig([
       "react-hooks/exhaustive-deps": "warn",
       // Warn instead of error on unescaped entities — legacy legal text files
       "react/no-unescaped-entities": "warn",
+      curly: "error",
     },
   },
   {

@@ -7,7 +7,10 @@ export const initSentry = () => {
   });
 };
 
-export const logError = (error: unknown, errorInfo: string | Record<string, unknown> | null = null) => {
+export const logError = (
+  error: unknown,
+  errorInfo: string | Record<string, unknown> | null = null
+) => {
   Sentry.captureException(error, {
     extra: errorInfo as Record<string, unknown>,
   });

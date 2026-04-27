@@ -1,4 +1,4 @@
-import { Instance, SnapshotIn, SnapshotOut, types , flow } from "mobx-state-tree";
+import { Instance, SnapshotIn, SnapshotOut, types, flow } from "mobx-state-tree";
 import { api } from "@services/api";
 import dayjs from "dayjs";
 
@@ -240,7 +240,9 @@ const ForecastModel = types
       get maxReading() {
         const dataPoints = store?.dataPoints;
 
-        if (!dataPoints) return null;
+        if (!dataPoints) {
+          return null;
+        }
 
         const cutoff = dayjs().subtract(24, "hours").valueOf();
         let maxReading = dataPoints[0];
@@ -249,7 +251,9 @@ const ForecastModel = types
         for (let i = 1; i < dataPoints.length; i++) {
           const reading = dataPoints[i];
 
-          if (reading.timestampMs < cutoff) break;
+          if (reading.timestampMs < cutoff) {
+            break;
+          }
 
           if (reading.waterDischarge > max) {
             maxReading = reading;
@@ -326,7 +330,9 @@ export const ForecastStoreModel = types
       Object.keys(response).forEach((gageId, index) => {
         const value = response[gageId];
 
-        if (!value) return;
+        if (!value) {
+          return;
+        }
 
         const existingValue = store.forecasts.get(gageId);
 

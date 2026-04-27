@@ -180,7 +180,12 @@ function BaseButton(props: BaseButtonProps) {
         <Feather size={iconSize} name={icon} color={textColor} textStyle={$icon} />
       </If>
       <If condition={!!rightIcon}>
-        <Feather size={rightIconSize} name={rightIcon} color={textColor} style={$rightIcon as any} />
+        <Feather
+          size={rightIconSize}
+          name={rightIcon}
+          color={textColor}
+          style={$rightIcon as any}
+        />
       </If>
     </Pressable>
   );
