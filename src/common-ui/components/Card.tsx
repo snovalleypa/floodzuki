@@ -58,7 +58,8 @@ const Base = (props: BaseProps): React.ReactElement => {
   }
 
   if (flex) {
-    const flexValue = typeof flex === "boolean" ? 1 : typeof flex === "string" ? parseFloat(flex) : flex;
+    const flexValue =
+      typeof flex === "boolean" ? 1 : typeof flex === "string" ? parseFloat(flex) : flex;
     style.push({ flex: flexValue });
   }
 

@@ -1,4 +1,3 @@
- 
 import { TextStyle } from "react-native";
 import { isWeb } from "@common-ui/utils/responsive";
 import { Colors } from "./colors";

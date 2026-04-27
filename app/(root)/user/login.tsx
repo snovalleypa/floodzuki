@@ -72,7 +72,9 @@ const LoginScreen = observer(function LoginScreen() {
   };
 
   const submit = () => {
-    if (!isValid) return;
+    if (!isValid) {
+      return;
+    }
 
     loginUser();
   };

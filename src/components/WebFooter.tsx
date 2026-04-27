@@ -22,7 +22,9 @@ const WebFooter = () => {
   const { getAsset } = useAppAssets();
   const router = useRouter();
 
-  if (!isWeb) return null;
+  if (!isWeb) {
+    return null;
+  }
 
   const openSvpaWebsite = () => {
     openLinkInBrowser(Config.SVPA_URL);

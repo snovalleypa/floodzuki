@@ -40,7 +40,9 @@ const ResetPasswordScreen = observer(function ResetPasswordScreen() {
   }
 
   const onSubmit = async (params: PasswordSubmitActionProps) => {
-    if (!userId || !code) return;
+    if (!userId || !code) {
+      return;
+    }
 
     setSuccessMessage("");
 
@@ -50,7 +52,9 @@ const ResetPasswordScreen = observer(function ResetPasswordScreen() {
       newPassword: params.newPassword,
     });
 
-    if (authSessionStore.isError) return;
+    if (authSessionStore.isError) {
+      return;
+    }
 
     setSuccessMessage(t("resetpasswordScreen.successMessage"));
   };

@@ -134,7 +134,9 @@ const HistoricEvents = observer(function HistoricEvents({
   // Update chart when historic event selected
   const onHistoricEventSelected = (historicEventId: string) => {
     // Clear params when no event selected
-    if (!historicEventId) return;
+    if (!historicEventId) {
+      return;
+    }
 
     if (historicEventId === SELECT_EVENT) {
       router.setParams({
@@ -148,7 +150,9 @@ const HistoricEvents = observer(function HistoricEvents({
     const historicEventIdNum = parseInt(historicEventId);
     const event = floodEvents.find((e) => e.id === historicEventIdNum);
 
-    if (!event) return;
+    if (!event) {
+      return;
+    }
 
     router.setParams({
       historicEventId,
@@ -228,7 +232,9 @@ const RateOfChange = observer(function RateOfChange({ gage }: { gage: Gage }) {
   const crossingTime = useMemo(() => {
     let crossingTime = null;
 
-    if (!gage?.roadSaddleHeight) return null;
+    if (!gage?.roadSaddleHeight) {
+      return null;
+    }
 
     for (let i = 0; i < gage.predictions?.length - 1; i++) {
       let p = gage.predictions[i];
@@ -254,9 +260,13 @@ const RateOfChange = observer(function RateOfChange({ gage }: { gage: Gage }) {
     return crossingTime;
   }, [gage?.locationId, gage?.roadSaddleHeight]);
 
-  if (!gage?.locationId) return null;
+  if (!gage?.locationId) {
+    return null;
+  }
 
-  if (!rate) return null;
+  if (!rate) {
+    return null;
+  }
 
   const rateText = `${rate > 0 ? "+" : ""}${rate.toFixed(2)} ${t("measure.feet")}/${t(
     "measure.hour"
@@ -281,7 +291,9 @@ const RateOfChange = observer(function RateOfChange({ gage }: { gage: Gage }) {
 const CrestInfo = observer(function CrestInfo({ crest }: { crest: DataPoint }) {
   const { t } = useLocale();
 
-  if (!crest) return null;
+  if (!crest) {
+    return null;
+  }
 
   return (
     <Row align="center" bottom={Spacing.extraSmall}>

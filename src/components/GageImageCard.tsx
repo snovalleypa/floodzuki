@@ -11,7 +11,9 @@ import { useResponsive } from "@common-ui/utils/responsive";
 const GageImageCard = observer(function GageImageCard({ gage }: { gage: Gage }) {
   const { isMobile } = useResponsive();
 
-  if (!gage?.locationInfo?.locationImages?.length) return null;
+  if (!gage?.locationInfo?.locationImages?.length) {
+    return null;
+  }
 
   const imageUrl = Config.GAGE_IMAGE_BASE_URL + "medium/" + gage?.locationInfo?.locationImages[0];
 

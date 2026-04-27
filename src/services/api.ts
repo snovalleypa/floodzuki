@@ -122,7 +122,9 @@ async function genericRequest<T>(
 
   if (!response.ok) {
     const problem = getGeneralApiProblem(response);
-    if (problem) return problem;
+    if (problem) {
+      return problem;
+    }
 
     return { kind: "bad-data", data: null };
   }

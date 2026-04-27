@@ -21,7 +21,9 @@ const CheckBoxItem = (props: CheckBoxItemProps): React.ReactElement => {
   const isCheckboxDisabled = disabled || isLoading;
 
   const toggleCheckbox = () => {
-    if (isCheckboxDisabled) return;
+    if (isCheckboxDisabled) {
+      return;
+    }
 
     onChange(!value);
   };

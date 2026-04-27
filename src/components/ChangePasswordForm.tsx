@@ -82,7 +82,9 @@ const ChangePasswordForm = observer(function ChangePasswordForm(props: ChangePas
   }, [oldPassword, newPassword, confirmPassword, showOldPasswordForm]);
 
   const onSumbit = () => {
-    if (!isValid || passwordError) return;
+    if (!isValid || passwordError) {
+      return;
+    }
 
     submitAction({
       oldPassword,

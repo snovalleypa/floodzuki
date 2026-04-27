@@ -84,7 +84,8 @@ export const Row = ({
   }
 
   if (flex) {
-    const flexValue = typeof flex === "boolean" ? 1 : typeof flex === "string" ? parseFloat(flex) : flex;
+    const flexValue =
+      typeof flex === "boolean" ? 1 : typeof flex === "string" ? parseFloat(flex) : flex;
     styles.push({ flex: flexValue });
   }
 
@@ -164,7 +165,8 @@ export const Cell = ({
   }
 
   if (flex) {
-    const flexValue = typeof flex === "boolean" ? 1 : typeof flex === "string" ? parseFloat(flex) : flex;
+    const flexValue =
+      typeof flex === "boolean" ? 1 : typeof flex === "string" ? parseFloat(flex) : flex;
     styles.push({ flex: flexValue });
   }
 
