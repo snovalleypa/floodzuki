@@ -127,7 +127,7 @@ const AlertSettingsCard = observer(function AlertSettings() {
               label={`${t("alertsScreen.sendEmailAlertsTo")}: ${
                 isLoggedIn ? authSessionStore.user?.email : ""
               }`}
-              value={emailAlertsEnabled && isLoggedIn}
+              value={(emailAlertsEnabled ?? false) && isLoggedIn}
               onChange={updateEmailAlertsEnabled}
             />
           </Cell>
@@ -151,7 +151,7 @@ const AlertSettingsCard = observer(function AlertSettings() {
               isLoading={isUpdatingSms}
               disabled={!isPhoneVerified || !isLoggedIn}
               label={`${t("alertsScreen.sendSmsAlerts")}: ${authSessionStore.userPhone ?? ""}`}
-              value={smsAlertsEnabled && isLoggedIn}
+              value={(smsAlertsEnabled ?? false) && isLoggedIn}
               onChange={updateSmsAlertsEnabled}
             />
           </Cell>
@@ -233,14 +233,14 @@ const ForecastsCard = observer(function ForecastsCard() {
           disabled={!isNotificationsEnabled || !isLoggedIn}
           isLoading={isUpdatingForecast}
           label={t("alertsScreen.genericForecast")}
-          value={forecastsEnabled}
+          value={forecastsEnabled ?? false}
           onChange={updateForecastsEnabled}
         />
         <CheckBoxItem
           disabled={!isNotificationsEnabled || !isLoggedIn}
           isLoading={isUpdatingDailyForecast}
           label={t("alertsScreen.dailyForecast")}
-          value={dailyForecastsEnabled}
+          value={dailyForecastsEnabled ?? false}
           onChange={updateDailyForecastsEnabled}
         />
       </CardContent>
