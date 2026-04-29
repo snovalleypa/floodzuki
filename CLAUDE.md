@@ -32,20 +32,29 @@ eas build --profile preview --platform all
 # Publish OTA update
 eas update --channel production
 
-# Type check — this is the only automated verification available
+# Run tests
+npm test
+
+# Lint
+npm run lint
+npm run lint:fix
+
+# Type check
 npx tsc --noEmit
 ```
 
-There is no test runner configured. The only automated check is `npx tsc --noEmit`. Verify changes by type-checking and manual testing in the browser or on device.
+Automated checks: `npm test` (Jest 29 via `jest-expo` preset, `@testing-library/react-native` available), `npm run lint` (ESLint flat config with `eslint-config-expo` + prettier, `curly` enforced as error), `npx tsc --noEmit`. For UI changes, also verify manually in the browser or on device.
 
 ### Environment variables for local dev
 
 Create a `.env` file or pass inline:
+
 ```bash
 BUILD_ENV="local" SENTRY_AUTH_TOKEN="" GOOGLE_AUTH_CLIENT_SECRET="" GOOGLE_RECAPTCH_SITE_KEY="" GOOGLE_AUTH_EXPO_ID="" GOOGLE_AUTH_WEB_ID="" GOOGLE_AUTH_IOS_ID="" GOOGLE_AUTH_ANDROID_ID="" GOOGLE_MAPS_IOS_API_KEY="" GOOGLE_MAPS_ANDROID_API_KEY="" GOOGLE_MAPS_WEB_API_KEY="" npx expo start
 ```
 
 Google Auth only works in the browser via secure tunnel:
+
 ```bash
 EXPO_TUNNEL_SUBDOMAIN="floodzuki" npx expo start --tunnel --web
 ```
@@ -53,6 +62,7 @@ EXPO_TUNNEL_SUBDOMAIN="floodzuki" npx expo start --tunnel --web
 ## Architecture
 
 ### Tech stack
+
 - **Expo SDK 55** with **React Native 0.83** and new architecture enabled (`newArchEnabled: true`)
 - **Expo Router** (file-based routing under `app/`)
 - **MobX State Tree** for global state management
@@ -105,15 +115,15 @@ src/
 
 ### Path aliases (tsconfig.json)
 
-| Alias | Path |
-|---|---|
-| `@models/*` | `src/models/*` |
-| `@services/*` | `src/services/*` |
+| Alias           | Path               |
+| --------------- | ------------------ |
+| `@models/*`     | `src/models/*`     |
+| `@services/*`   | `src/services/*`   |
 | `@components/*` | `src/components/*` |
-| `@common-ui/*` | `src/common-ui/*` |
-| `@config/*` | `src/config/*` |
-| `@i18n/*` | `src/i18n/*` |
-| `@utils/*` | `src/utils/*` |
+| `@common-ui/*`  | `src/common-ui/*`  |
+| `@config/*`     | `src/config/*`     |
+| `@i18n/*`       | `src/i18n/*`       |
+| `@utils/*`      | `src/utils/*`      |
 
 ### State management pattern
 
@@ -128,6 +138,7 @@ The `authSessionStore` stores the JWT and manages login/logout; the API singleto
 ### Platform-split components
 
 Several components have native/web variants:
+
 - `GageMap.tsx` (router) → `MapLibreMobileGageMap.tsx` / `MapLibreWebGageMap.tsx`
 - `ForecastChart.tsx` / `ForecastChartNative.tsx`
 - `GageDetailsChart.tsx` / `GageDetailsChartNative.tsx`
