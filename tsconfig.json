@@ -1,11 +1,9 @@
 {
   "compilerOptions": {
-    "allowJs": false,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
     "jsx": "react-native",
-    "module": "es2015",
     "moduleResolution": "bundler",
     "noImplicitAny": false,
     "noImplicitReturns": true,
@@ -25,9 +23,7 @@
       "@config/*": ["./src/config/*"],
       "@i18n/*": ["./src/i18n/*"],
       "@models/*": ["./src/models/*"],
-      "@screens/*": ["./src/screens/*"],
       "@services/*": ["./src/services/*"],
-      "@theme": ["./src/theme/*"],
       "@utils/*": ["./src/utils/*"]
     }
   },
