@@ -9,7 +9,7 @@ export function useGoBack(fallbackPathname: string): () => void {
     if (navigation.canGoBack()) {
       navigation.goBack();
     } else {
-      router.push({ pathname: fallbackPathname });
+      router.push({ pathname: fallbackPathname as any });
     }
   }, [navigation, router, fallbackPathname]);
 }

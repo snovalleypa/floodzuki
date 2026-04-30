@@ -1,11 +1,5 @@
 import React, { useEffect } from "react";
-import {
-  ErrorBoundaryProps,
-  Stack,
-  useRouter,
-  useNavigation,
-  useGlobalSearchParams,
-} from "expo-router";
+import { ErrorBoundaryProps, Stack, useGlobalSearchParams } from "expo-router";
 import Head from "expo-router/head";
 
 import { observer } from "mobx-react-lite";
@@ -24,6 +18,7 @@ import { IconButton, LinkButton } from "@common-ui/components/Button";
 import { If, Ternary } from "@common-ui/components/Conditional";
 import { Colors } from "@common-ui/constants/colors";
 import { useTimeout } from "@utils/useTimeout";
+import { useGoBack } from "@utils/useGoBack";
 import { ROUTES } from "app/_layout";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import ForecastFooter from "@components/ForecastFooter";
@@ -37,8 +32,6 @@ export function ErrorBoundary(props: ErrorBoundaryProps) {
 const ForecastDetailsScreen = observer(function ForecastDetailsScreen() {
   const { id } = useGlobalSearchParams();
   const { t } = useLocale();
-  const router = useRouter();
-  const navigation = useNavigation();
   const store = useStores();
 
   const { isMobile } = useResponsive();
@@ -66,9 +59,7 @@ const ForecastDetailsScreen = observer(function ForecastDetailsScreen() {
     setHidden(false);
   }, Timing.zero);
 
-  const goBack = () => {
-    navigation.canGoBack() ? navigation.goBack() : router.push({ pathname: ROUTES.Forecast });
-  };
+  const goBack = useGoBack(ROUTES.Forecast);
 
   const forecastGage = hidden ? undefined : store.getForecastGage(gageId);
 
