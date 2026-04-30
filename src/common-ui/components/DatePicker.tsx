@@ -311,32 +311,38 @@ const DatePickerComponent = React.forwardRef((props: DatePickerProps, ref) => {
 
       setIsOpen(true);
 
-      isMobile
-        ? bottomSheetModalRef.current?.present()
-        : datePickerContext.showPicker(
-            <AbsoluteContainer
-              sticks={["left"]}
-              zIndex={10}
-              top={pageY + Spacing.larger}
-              left={leftOffset}>
-              <Card width={PICKER_WIDTH} height={PICKER_HEIGHT}>
-                <DatePicker
-                  title={title}
-                  minYear={minYear}
-                  maxYear={maxYear}
-                  selectedDate={selectedDate}
-                  onChange={handleChange}
-                />
-              </Card>
-            </AbsoluteContainer>
-          );
+      if (isMobile) {
+        bottomSheetModalRef.current?.present();
+      } else {
+        datePickerContext.showPicker(
+          <AbsoluteContainer
+            sticks={["left"]}
+            zIndex={10}
+            top={pageY + Spacing.larger}
+            left={leftOffset}>
+            <Card width={PICKER_WIDTH} height={PICKER_HEIGHT}>
+              <DatePicker
+                title={title}
+                minYear={minYear}
+                maxYear={maxYear}
+                selectedDate={selectedDate}
+                onChange={handleChange}
+              />
+            </Card>
+          </AbsoluteContainer>
+        );
+      }
     }
   };
 
   const close = () => {
     setIsOpen(false);
 
-    isMobile ? bottomSheetModalRef.current?.dismiss() : datePickerContext.hidePicker();
+    if (isMobile) {
+      bottomSheetModalRef.current?.dismiss();
+    } else {
+      datePickerContext.hidePicker();
+    }
   };
 
   const toggle = () => {
