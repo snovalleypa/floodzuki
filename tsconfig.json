@@ -1,11 +1,9 @@
 {
   "compilerOptions": {
-    "allowJs": false,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
     "jsx": "react-native",
-    "module": "es2015",
     "moduleResolution": "bundler",
     "noImplicitAny": false,
     "noImplicitReturns": true,
@@ -13,56 +11,22 @@
     "noUnusedLocals": false,
     "sourceMap": true,
     "target": "esnext",
-    "lib": [
-      "esnext",
-      "dom"
-    ],
-    "types": [
-      "jest"
-    ],
+    "lib": ["esnext", "dom"],
+    "types": ["jest"],
     "skipLibCheck": true,
     "resolveJsonModule": true,
-    "baseUrl": ".",
     "paths": {
-      "@assets/*": [
-        "assets/*"
-      ],
-      "@components/*": [
-        "src/components/*"
-      ],
-      "@common-ui/*": [
-        "src/common-ui/*"
-      ],
-      "@config/*": [
-        "src/config/*"
-      ],
-      "@i18n/*": [
-        "src/i18n/*"
-      ],
-      "@models/*": [
-        "src/models/*"
-      ],
-      "@screens/*": [
-        "src/screens/*"
-      ],
-      "@services/*": [
-        "src/services/*"
-      ],
-      "@theme": [
-        "src/theme/*"
-      ],
-      "@utils/*": [
-        "src/utils/*"
-      ]
+      "app/*": ["./app/*"],
+      "@assets/*": ["./assets/*"],
+      "@components/*": ["./src/components/*"],
+      "@common-ui/*": ["./src/common-ui/*"],
+      "@config/*": ["./src/config/*"],
+      "@i18n/*": ["./src/i18n/*"],
+      "@models/*": ["./src/models/*"],
+      "@services/*": ["./src/services/*"],
+      "@utils/*": ["./src/utils/*"]
     }
   },
-  "include": [
-    "index.js",
-    "app",
-    "src",
-    "test",
-    ".expo/types/**/*.ts",
-    "expo-env.d.ts"
-  ],
+  "include": ["index.js", "app", "src", "test", ".expo/types/**/*.ts", "expo-env.d.ts"],
   "extends": "expo/tsconfig.base"
 }
