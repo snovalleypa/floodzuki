@@ -5,8 +5,11 @@ import { Gage } from "../models/Gage";
 import { useMemo } from "react";
 
 const Map = Platform.select({
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   ios: () => require("./MapLibreMobileGageMap").default,
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   android: () => require("./MapLibreMobileGageMap").default,
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   default: () => require("./MapLibreWebGageMap").default,
 })();
 
