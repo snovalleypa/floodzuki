@@ -6,11 +6,10 @@ import { ScrollView } from "react-native-gesture-handler";
 import { SmallTitle, RegularText } from "./Text";
 import { Spacing } from "@common-ui/constants/spacing";
 import { If, Ternary } from "./Conditional";
-import { Pressable, View, ViewStyle, useWindowDimensions } from "react-native";
+import { Platform, Pressable, View, ViewStyle, useWindowDimensions } from "react-native";
 import { Colors } from "@common-ui/constants/colors";
 import { SegmentControl } from "./SegmentControl";
 import { Card } from "./Card";
-import { useResponsive } from "@common-ui/utils/responsive";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { useDatePicker } from "@common-ui/contexts/DatePickerContext";
 import { measure, useAnimatedRef } from "react-native-reanimated";
@@ -271,7 +270,7 @@ const DatePicker = (props: DatePickerProps) => {
 // eslint-disable-next-line react/display-name
 const DatePickerComponent = React.forwardRef((props: DatePickerProps, ref) => {
   const { minYear = 1990, maxYear = localDayJs().year(), selectedDate, title, onChange } = props;
-  const { isMobile } = useResponsive();
+  const isNativeMobile = Platform.OS !== "web";
 
   const { width } = useWindowDimensions();
 
@@ -296,7 +295,7 @@ const DatePickerComponent = React.forwardRef((props: DatePickerProps, ref) => {
   };
 
   useEffect(() => {
-    if (isMobile) {
+    if (isNativeMobile) {
       return;
     }
 
@@ -314,11 +313,15 @@ const DatePickerComponent = React.forwardRef((props: DatePickerProps, ref) => {
 
       const offsetLeft = pageX - Spacing.medium;
       const leftOffset =
-        offsetLeft + PICKER_WIDTH > width ? width - PICKER_WIDTH - Spacing.small : offsetLeft;
+        width < 768
+          ? (width - PICKER_WIDTH) / 2
+          : offsetLeft + PICKER_WIDTH > width
+          ? width - PICKER_WIDTH - Spacing.small
+          : offsetLeft;
 
       setIsOpen(true);
 
-      if (isMobile) {
+      if (isNativeMobile) {
         bottomSheetModalRef.current?.present();
       } else {
         datePickerContext.showPicker(
@@ -345,7 +348,7 @@ const DatePickerComponent = React.forwardRef((props: DatePickerProps, ref) => {
   const close = () => {
     setIsOpen(false);
 
-    if (isMobile) {
+    if (isNativeMobile) {
       bottomSheetModalRef.current?.dismiss();
     } else {
       datePickerContext.hidePicker();
