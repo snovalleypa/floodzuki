@@ -354,9 +354,11 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
       : null
   );
 
-  // Fetch data on mount but first wait for main data to be fetched
+  // Fetch data on mount but first wait for main data to be fetched.
+  // Skip if already in historical mode — the dateRange effect handles that case
+  // and re-running this would race against an in-progress historical fetch.
   useEffect(() => {
-    if (gage?.locationId && isDataFetched) {
+    if (gage?.locationId && isDataFetched && chartRange.isNow) {
       gagesStore.fetchDataForGage(
         gage?.locationId,
         chartRange.chartStartDate.utc().format(),
