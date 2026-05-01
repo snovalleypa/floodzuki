@@ -370,24 +370,24 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
   }, [gage?.locationId, isDataFetched]);
 
   useEffect(() => {
-    if (dateRange.from && dateRange.to) {
-      // Convert to Dayjs objects
-      // @ts-ignore
-      const fromDayjs = localDayJs.tz(dateRange.from).startOf("day");
-      // @ts-ignore
-      const toDayjs = localDayJs.tz(dateRange.to).endOf("day");
-
-      // Update chart range
-      chartRange.changeDates(fromDayjs, toDayjs);
-
-      setRange({
-        chartStartDate: chartRange.chartStartDate,
-        chartEndDate: chartRange.chartEndDate,
-      });
-
-      refreshData(chartRange.chartStartDate.utc().format(), chartRange.chartEndDate.utc().format());
+    if (!dateRange.from || !dateRange.to || !gage?.locationId || !isDataFetched) {
+      return;
     }
-  }, [dateRange.from, dateRange.to]);
+
+    // @ts-ignore
+    const fromDayjs = localDayJs.tz(dateRange.from).startOf("day");
+    // @ts-ignore
+    const toDayjs = localDayJs.tz(dateRange.to).endOf("day");
+
+    chartRange.changeDates(fromDayjs, toDayjs);
+
+    setRange({
+      chartStartDate: chartRange.chartStartDate,
+      chartEndDate: chartRange.chartEndDate,
+    });
+
+    refreshData(chartRange.chartStartDate.utc().format(), chartRange.chartEndDate.utc().format());
+  }, [dateRange.from, dateRange.to, gage?.locationId, isDataFetched]);
 
   const refetchData = () => {
     refreshData();
