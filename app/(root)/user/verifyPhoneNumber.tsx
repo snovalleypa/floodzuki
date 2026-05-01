@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { ErrorBoundaryProps, Redirect, useNavigation, useRouter } from "expo-router";
+import { ErrorBoundaryProps, Redirect } from "expo-router";
+import { useGoBack } from "@utils/useGoBack";
 import { KeyboardAvoidingView, Platform } from "react-native";
 
 import { Screen, Content } from "@common-ui/components/Screen";
@@ -26,8 +27,6 @@ export function ErrorBoundary(props: ErrorBoundaryProps) {
 }
 
 const VerifyPhoneNumberScreen = observer(function VerifyPhoneNumberScreen() {
-  const router = useRouter();
-  const navigation = useNavigation();
   const { t } = useLocale();
 
   const { authSessionStore } = useStores();
@@ -45,6 +44,8 @@ const VerifyPhoneNumberScreen = observer(function VerifyPhoneNumberScreen() {
   // Code presence validation
   const codeFieldsToValidate = useMemo(() => ({ code }), [code]);
   const [isCodeValid] = useValidations(codeFieldsToValidate);
+
+  const goBack = useGoBack(ROUTES.UserAlerts);
 
   // Clear any errors when the screen is loaded
   useEffect(() => {
@@ -69,10 +70,6 @@ const VerifyPhoneNumberScreen = observer(function VerifyPhoneNumberScreen() {
     await authSessionStore.reauthenticate();
 
     setCodeVerified(true);
-  };
-
-  const goBack = () => {
-    navigation.canGoBack() ? navigation.goBack() : router.push({ pathname: ROUTES.UserAlerts });
   };
 
   const title = authSessionStore.userPhone

@@ -1,11 +1,6 @@
 import React, { useState } from "react";
-import {
-  ErrorBoundaryProps,
-  Redirect,
-  useLocalSearchParams,
-  useNavigation,
-  useRouter,
-} from "expo-router";
+import { ErrorBoundaryProps, Redirect, useLocalSearchParams } from "expo-router";
+import { useGoBack } from "@utils/useGoBack";
 
 import { Screen, Content } from "@common-ui/components/Screen";
 import { ErrorDetails } from "@components/ErrorDetails";
@@ -25,8 +20,6 @@ export function ErrorBoundary(props: ErrorBoundaryProps) {
 }
 
 const ResetPasswordScreen = observer(function ResetPasswordScreen() {
-  const router = useRouter();
-  const navigation = useNavigation();
   const { t } = useLocale();
 
   const { userId, code } = useLocalSearchParams();
@@ -34,6 +27,8 @@ const ResetPasswordScreen = observer(function ResetPasswordScreen() {
   const { authSessionStore } = useStores();
 
   const [successMessage, setSuccessMessage] = useState<string>("");
+
+  const goBack = useGoBack(ROUTES.UserProfile);
 
   if (!userId || !code) {
     return <Redirect href={ROUTES.Home} />;
@@ -57,10 +52,6 @@ const ResetPasswordScreen = observer(function ResetPasswordScreen() {
     }
 
     setSuccessMessage(t("resetpasswordScreen.successMessage"));
-  };
-
-  const goBack = () => {
-    navigation.canGoBack() ? navigation.goBack() : router.push({ pathname: ROUTES.UserProfile });
   };
 
   return (

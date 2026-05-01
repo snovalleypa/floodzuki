@@ -1,13 +1,6 @@
 import React, { useState } from "react";
 import { TouchableOpacity } from "react-native";
-import {
-  ErrorBoundaryProps,
-  Link,
-  Stack,
-  useGlobalSearchParams,
-  useNavigation,
-  useRouter,
-} from "expo-router";
+import { ErrorBoundaryProps, Link, Stack, useGlobalSearchParams } from "expo-router";
 import Head from "expo-router/head";
 
 import { observer } from "mobx-react-lite";
@@ -39,6 +32,7 @@ import EmptyComponent from "@common-ui/components/EmptyComponent";
 import GageMap from "@components/GageMap";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import { useTimeout } from "@utils/useTimeout";
+import { useGoBack } from "@utils/useGoBack";
 import { Timing } from "@common-ui/constants/timing";
 
 // We use this to wrap each screen with an error boundary
@@ -124,8 +118,6 @@ const DownstreamGageLink = observer(function DownstreamGageLink({ gage, simple }
 });
 
 const GageDetailsScreen = observer(function GageDetailsScreen({ gage }: { gage: Gage }) {
-  const router = useRouter();
-  const navigation = useNavigation();
   const { gagesStore, regionStore } = useStores();
   const { t } = useLocale();
 
@@ -135,9 +127,7 @@ const GageDetailsScreen = observer(function GageDetailsScreen({ gage }: { gage: 
 
   const { isMobile } = useResponsive();
 
-  const goBack = () => {
-    navigation.canGoBack() ? navigation.goBack() : router.push({ pathname: ROUTES.Home });
-  };
+  const goBack = useGoBack(ROUTES.Home);
   return (
     <Screen>
       <Head>

@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
-import { ErrorBoundaryProps, Redirect, Stack, useNavigation, useRouter } from "expo-router";
+import { ErrorBoundaryProps, Redirect, Stack, useRouter } from "expo-router";
+import { useGoBack } from "@utils/useGoBack";
 import { observer } from "mobx-react-lite";
 
 import { Content, Screen } from "@common-ui/components/Screen";
@@ -38,7 +39,6 @@ const sanitizeInput = (s) => {
 
 const ProfileScreen = observer(function ProfileScreen() {
   const router = useRouter();
-  const navigation = useNavigation();
 
   const { t } = useLocale();
   const { authSessionStore } = useStores();
@@ -54,6 +54,8 @@ const ProfileScreen = observer(function ProfileScreen() {
     [email, firstName, lastName]
   );
   const [isFormValid] = useValidations(fieldsToValidate);
+
+  const goBack = useGoBack(ROUTES.About);
 
   if (!authSessionStore.isLoggedIn) {
     return <Redirect href={ROUTES.Home} />;
@@ -112,10 +114,6 @@ const ProfileScreen = observer(function ProfileScreen() {
 
   const changePassword = () => {
     router.push({ pathname: ROUTES.UserSetPassword });
-  };
-
-  const goBack = () => {
-    navigation.canGoBack() ? navigation.goBack() : router.push({ pathname: ROUTES.About });
   };
 
   return (
