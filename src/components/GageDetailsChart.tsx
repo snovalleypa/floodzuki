@@ -32,6 +32,7 @@ import DateRangePicker from "@common-ui/components/DateRangePicker";
 import { Dayjs } from "dayjs";
 import { normalizeSearchParams } from "@utils/navigation";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
+import { useDatePicker } from "@common-ui/contexts/DatePickerContext";
 import { GageDetailsChartNative } from "./GageDetailsChartNative";
 import type { GageDetailsChartOptions } from "./GageDetailsChartNative";
 
@@ -127,6 +128,7 @@ const HistoricEvents = observer(function HistoricEvents({
   const router = useRouter();
   const { t } = useLocale();
   const { historicEventId } = useLocalSearchParams();
+  const { hidePicker } = useDatePicker();
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
   const [selectedEvent, setSelectedEvent] = useState<string | undefined>();
@@ -144,6 +146,7 @@ const HistoricEvents = observer(function HistoricEvents({
         from: undefined,
         to: undefined,
       });
+      hidePicker();
       return;
     }
 
@@ -160,6 +163,7 @@ const HistoricEvents = observer(function HistoricEvents({
       to: localDayJs.tz(event.toDate).format("YYYY-MM-DD"),
     });
 
+    hidePicker();
     bottomSheetModalRef.current?.dismiss();
   };
 
@@ -312,6 +316,7 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
   const { t } = useLocale();
   const { from, to } = useLocalSearchParams();
   const { gagesStore, isDataFetched } = useStores();
+  const { hidePicker } = useDatePicker();
 
   const { isMobile } = useResponsive();
 
@@ -404,6 +409,7 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
   };
 
   const onRangeChange = (key: string) => {
+    hidePicker();
     chartRange.changeDays(parseInt(key));
 
     setRange({

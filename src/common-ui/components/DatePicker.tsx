@@ -283,6 +283,13 @@ const DatePickerComponent = React.forwardRef((props: DatePickerProps, ref) => {
   const datePickerContext = useDatePicker();
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
+  // Sync local isOpen when picker is dismissed externally (navigation, range change, etc.)
+  useEffect(() => {
+    if (!datePickerContext.isVisible) {
+      setIsOpen(false);
+    }
+  }, [datePickerContext.isVisible]);
+
   const handleChange = (date: Dayjs) => {
     close();
     onChange?.(date);
