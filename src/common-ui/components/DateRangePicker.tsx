@@ -34,9 +34,17 @@ const DateRangePicker = (props: DateRangePickerProps) => {
   const startRef = useRef(null);
   const endRef = useRef(null);
 
-  const start = useRef(startDate);
-  const end = useRef(endDate);
+  const [start, setStart] = useState<Dayjs>(startDate);
+  const [end, setEnd] = useState<Dayjs>(endDate);
   const mode = useRef<"start" | "end">("start");
+
+  useEffect(() => {
+    setStart(startDate);
+  }, [startDate.valueOf()]);
+
+  useEffect(() => {
+    setEnd(endDate);
+  }, [endDate.valueOf()]);
 
   const [pickedStart, setPickedStart] = useState<boolean>(false);
 
@@ -67,7 +75,7 @@ const DateRangePicker = (props: DateRangePickerProps) => {
       dateStart = today.subtract(1, "day");
     }
 
-    start.current = dateStart;
+    setStart(dateStart);
     openDateSelector();
   };
 
@@ -80,17 +88,17 @@ const DateRangePicker = (props: DateRangePickerProps) => {
       dateEnd = today;
     }
 
-    const daysDiff = Math.abs(dateEnd.clone().diff(start.current, "day"));
+    const daysDiff = Math.abs(dateEnd.clone().diff(start, "day"));
 
     mode.current = "start";
 
     if (daysDiff > maxRange) {
-      dateEnd = start.current.clone().add(maxRange, "day");
+      dateEnd = start.clone().add(maxRange, "day");
     }
 
-    end.current = dateEnd;
+    setEnd(dateEnd);
 
-    onChange(start.current, dateEnd);
+    onChange(start, dateEnd);
   };
 
   return (
@@ -104,7 +112,7 @@ const DateRangePicker = (props: DateRangePickerProps) => {
       <DatePicker
         title={t("datePicker.startDate")}
         ref={startRef}
-        selectedDate={start.current}
+        selectedDate={start}
         minYear={minYear}
         maxYear={maxYear}
         onChange={handleStartDateChange}
@@ -115,7 +123,7 @@ const DateRangePicker = (props: DateRangePickerProps) => {
       <DatePicker
         title={t("datePicker.endDate")}
         ref={endRef}
-        selectedDate={end.current}
+        selectedDate={end}
         minYear={minYear}
         maxYear={maxYear}
         onChange={handleEndDateChange}
