@@ -1,3 +1,5 @@
+import { existsSync } from "fs";
+
 const isLocalBuild = process.env.BUILD_ENV === "local";
 
 process.env.EXPO_TUNNEL_SUBDOMAIN = "floodzuki";
@@ -54,7 +56,10 @@ export default {
   },
   android: {
     package: "com.floodzilla.floodzuki",
-    googleServicesFile: isLocalBuild ? "./google-services.json" : process.env.GOOGLE_SERVICES_JSON,
+    googleServicesFile:
+      isLocalBuild && existsSync("./google-services.json")
+        ? "./google-services.json"
+        : process.env.GOOGLE_SERVICES_JSON,
     intentFilters: [
       {
         action: "VIEW",
