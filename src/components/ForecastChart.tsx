@@ -18,8 +18,7 @@ import { useStores } from "@models/helpers/useStores";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import { ForecastChartNative } from "./ForecastChartNative";
 import type { ForecastChartOptions } from "./ForecastChartNative";
-
-export const CHART_HEIGHT = 400;
+import { CHART_HEIGHT } from "./forecastChartConstants";
 
 interface ForecastChartProps {
   gages: GageSummary[];
