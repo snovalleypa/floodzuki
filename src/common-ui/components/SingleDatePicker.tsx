@@ -6,7 +6,7 @@ import { ScrollView } from "react-native-gesture-handler";
 import { RegularText } from "./Text";
 import { Spacing } from "@common-ui/constants/spacing";
 import { If } from "./Conditional";
-import { Platform, Pressable, View, useWindowDimensions } from "react-native";
+import { Pressable, View, useWindowDimensions } from "react-native";
 import { Colors } from "@common-ui/constants/colors";
 import { Card } from "./Card";
 import { useDatePicker } from "@common-ui/contexts/DatePickerContext";
@@ -297,16 +297,6 @@ export const SingleDatePicker = ({
   const pickerLayout = useRef<{ pageX: number; pageY: number }>({ pageX: 0, pageY: 0 });
 
   const [isOpen, setIsOpen] = useState(false);
-  const [isCoarsePointer, setIsCoarsePointer] = useState(false);
-
-  // Detect coarse pointer (mobile web) once on mount
-  useEffect(() => {
-    if (Platform.OS !== "web") {
-      return;
-    }
-    const mq = window.matchMedia("(pointer: coarse)");
-    setIsCoarsePointer(mq.matches);
-  }, []);
 
   // Sync local isOpen when the picker is dismissed externally
   useEffect(() => {
@@ -318,17 +308,6 @@ export const SingleDatePicker = ({
   // ---------------------------------------------------------------------------
   // Handlers
   // ---------------------------------------------------------------------------
-  const handleNativeInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value; // "YYYY-MM-DD"
-    if (!val) {
-      return;
-    }
-    const parsed = localDayJs.tz(val, "YYYY-MM-DD", timezone).startOf("day");
-    if (parsed.isValid()) {
-      onChange(parsed);
-    }
-  };
-
   const handleSelectDay = (day: number, viewYear: number, viewMonth: number) => {
     const picked = localDayJs
       .tz(
@@ -397,33 +376,6 @@ export const SingleDatePicker = ({
     ? selectedDate.tz(timezone).format("MM/DD/YYYY")
     : "Select Date";
 
-  // Mobile web: overlay a hidden <input type="date"> over the trigger text
-  if (isCoarsePointer) {
-    return (
-      <View style={{ position: "relative" }}>
-        <RegularText text={formattedDate} />
-        {/* @ts-ignore — raw HTML <input> works in React Native Web */}
-        <input
-          type="date"
-          value={selectedDate.tz(timezone).format("YYYY-MM-DD")}
-          min={minDate.tz(timezone).format("YYYY-MM-DD")}
-          max={maxDate.tz(timezone).format("YYYY-MM-DD")}
-          onChange={handleNativeInputChange}
-          style={{
-            position: "absolute",
-            opacity: 0,
-            width: "100%",
-            height: "100%",
-            top: 0,
-            left: 0,
-            cursor: "pointer",
-          }}
-        />
-      </View>
-    );
-  }
-
-  // Desktop web: JS calendar popover
   return (
     <Pressable onPress={toggle}>
       <View ref={pickerRef}>

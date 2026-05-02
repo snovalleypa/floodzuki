@@ -87,7 +87,7 @@ const SingleDatePickerIOS = ({
       <BottomSheetModal
         ref={bottomSheetModalRef}
         index={0}
-        enableDynamicSizing
+        snapPoints={["70%"]}
         style={$bottomSheetStyle}>
         <BottomSheetView>
           <Cell horizontal={Spacing.small} top={Spacing.medium} bottom={Spacing.extraLarge}>
