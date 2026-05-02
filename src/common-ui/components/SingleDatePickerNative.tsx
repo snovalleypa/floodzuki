@@ -35,6 +35,13 @@ export type SingleDatePickerNativeProps = {
 };
 
 // ---------------------------------------------------------------------------
+// Shared helper
+// ---------------------------------------------------------------------------
+function formatDateTrigger(date: Dayjs, timezone: string): string {
+  return date?.isValid() ? date.tz(timezone).format("MM/DD/YYYY") : "Select Date";
+}
+
+// ---------------------------------------------------------------------------
 // iOS component
 // ---------------------------------------------------------------------------
 const SingleDatePickerIOS = ({
@@ -69,9 +76,7 @@ const SingleDatePickerIOS = ({
     onChange(picked);
   };
 
-  const formattedDate = selectedDate?.isValid()
-    ? selectedDate.tz(timezone).format("MM/DD/YYYY")
-    : "Select Date";
+  const formattedDate = formatDateTrigger(selectedDate, timezone);
 
   return (
     <>
@@ -79,7 +84,11 @@ const SingleDatePickerIOS = ({
         <RegularText text={formattedDate} />
       </Pressable>
 
-      <BottomSheetModal index={0} ref={bottomSheetModalRef} style={$bottomSheetStyle}>
+      <BottomSheetModal
+        ref={bottomSheetModalRef}
+        index={0}
+        enableDynamicSizing
+        style={$bottomSheetStyle}>
         <BottomSheetView>
           <Cell horizontal={Spacing.small} top={Spacing.medium} bottom={Spacing.extraLarge}>
             <DateTimePicker
@@ -125,9 +134,7 @@ const SingleDatePickerAndroid = ({
     });
   };
 
-  const formattedDate = selectedDate?.isValid()
-    ? selectedDate.tz(timezone).format("MM/DD/YYYY")
-    : "Select Date";
+  const formattedDate = formatDateTrigger(selectedDate, timezone);
 
   return (
     <Pressable onPress={openDialog}>
