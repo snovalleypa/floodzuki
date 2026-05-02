@@ -18,6 +18,7 @@ jest.mock("@common-ui/contexts/DatePickerContext", () => ({
 jest.mock("@models/helpers/useStores", () => ({
   useStores: () => ({
     isDataFetched: true,
+    getTimezone: () => "America/Los_Angeles",
     gagesStore: {
       fetchDataForGage: jest.fn(),
       isFetching: false,
@@ -52,6 +53,7 @@ jest.mock("@gorhom/bottom-sheet", () => ({
   BottomSheetView: ({ children }: any) => children,
 }));
 jest.mock("@common-ui/components/DateRangePicker", () => () => null);
+jest.mock("../DatePickerVariantSwitch", () => () => null);
 jest.mock("@common-ui/components/Icon", () => () => null);
 jest.mock("@common-ui/components/Card", () => {
   const React = require("react");

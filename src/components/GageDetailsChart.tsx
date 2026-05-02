@@ -28,7 +28,7 @@ import { DataPoint } from "@models/Forecasts";
 import { formatReadingTime } from "@utils/useTimeFormat";
 import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
 import Icon from "@common-ui/components/Icon";
-import DateRangePicker from "@common-ui/components/DateRangePicker";
+import DatePickerVariantSwitch from "./DatePickerVariantSwitch";
 import { Dayjs } from "dayjs";
 import { normalizeSearchParams } from "@utils/navigation";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
@@ -315,7 +315,7 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
   const router = useRouter();
   const { t } = useLocale();
   const { from, to } = useLocalSearchParams();
-  const { gagesStore, isDataFetched } = useStores();
+  const { gagesStore, isDataFetched, getTimezone } = useStores();
   const { hidePicker } = useDatePicker();
 
   const { isMobile } = useResponsive();
@@ -480,9 +480,11 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
             />
             <If condition={isMobile}>
               <Cell flex align="center" top={Spacing.tiny}>
-                <DateRangePicker
+                <DatePickerVariantSwitch
+                  locationId={gage?.locationId}
                   startDate={range.chartStartDate}
                   endDate={range.chartEndDate}
+                  timezone={getTimezone()}
                   onChange={onDateRangeChange}
                 />
               </Cell>
@@ -490,9 +492,11 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
           </Cell>
           <Cell flex align="flex-end">
             <If condition={!isMobile}>
-              <DateRangePicker
+              <DatePickerVariantSwitch
+                locationId={gage?.locationId}
                 startDate={range.chartStartDate}
                 endDate={range.chartEndDate}
+                timezone={getTimezone()}
                 onChange={onDateRangeChange}
               />
             </If>
