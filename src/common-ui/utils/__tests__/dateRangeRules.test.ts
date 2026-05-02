@@ -147,7 +147,6 @@ describe("applyRangeRules", () => {
     });
 
     it("clamps derived end to maxDate when span would push past it", () => {
-      const prev = { start: d("2026-04-15"), end: d("2026-04-25") }; // span=10
       // pick start=2026-04-25 → candidate: 2026-04-25 to 2026-04-25 → span=0, valid (isSame)
       // But let's test a case where derived end would exceed maxDate
       const result = applyRangeRules(
@@ -181,7 +180,6 @@ describe("applyRangeRules", () => {
 
   describe("auto-derived date before minDate → clamp + fallback 1-day", () => {
     it("clamps derived start to minDate when prevSpan would push before it", () => {
-      const minDate = d("2019-10-01");
       const prev = { start: d("2019-10-03"), end: d("2019-10-13") }; // span=10
       // pick end = 2019-10-05 → candidate: start=2019-10-03, end=2019-10-05 → valid
       const result = applyRangeRules(prev, d("2019-10-05"), "end", defaultBounds);
@@ -190,7 +188,6 @@ describe("applyRangeRules", () => {
     });
 
     it("clamps derived start to minDate when span would push before minDate", () => {
-      const minDate = d("2019-10-01");
       const prev = { start: d("2019-10-05"), end: d("2019-10-20") }; // span=15
       // pick end = 2019-10-10 → candidate: start=2019-10-05, end=2019-10-10 → valid
       const result = applyRangeRules(prev, d("2019-10-10"), "end", defaultBounds);
@@ -199,7 +196,6 @@ describe("applyRangeRules", () => {
     });
 
     it("clamps derived start to minDate when picking end near minDate with large prevSpan", () => {
-      const minDate = d("2019-10-01");
       const prev = { start: d("2020-01-01"), end: d("2020-01-20") }; // span=19
       // pick end = 2019-10-10 → candidate: start=2020-01-01, end=2019-10-10 → out of order → invalid
       // derive: newStart = 2019-10-10 - 19 = 2019-09-21 → clamp to 2019-10-01

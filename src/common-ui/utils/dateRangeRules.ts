@@ -1,4 +1,4 @@
-import dayjs, { Dayjs } from "dayjs";
+import type { Dayjs } from "dayjs";
 
 export type RangeRulesBounds = {
   minDate: Dayjs; // earliest selectable date (e.g. 2019-10-01 in chart tz)
