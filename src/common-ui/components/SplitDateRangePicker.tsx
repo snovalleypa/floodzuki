@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Platform, View, ViewStyle } from "react-native";
 import { Dayjs } from "dayjs";
 import localDayJs from "@services/localDayJs";
@@ -43,9 +43,14 @@ export const SplitDateRangePicker = (props: SplitDateRangePickerProps) => {
   // ---------------------------------------------------------------------------
   // Bounds
   // ---------------------------------------------------------------------------
-  const resolvedMinDate =
-    minDate ?? localDayJs.tz("2019-10-01", "YYYY-MM-DD", timezone).startOf("day");
-  const resolvedMaxDate = maxDate ?? localDayJs().tz(timezone).endOf("day");
+  const resolvedMinDate = useMemo(
+    () => minDate ?? localDayJs.tz("2019-10-01", "YYYY-MM-DD", timezone).startOf("day"),
+    [minDate, timezone]
+  );
+  const resolvedMaxDate = useMemo(
+    () => maxDate ?? localDayJs().tz(timezone).endOf("day"),
+    [maxDate, timezone]
+  );
 
   // ---------------------------------------------------------------------------
   // Pick handler — applies range rules, updates state, fires onChange
@@ -54,7 +59,7 @@ export const SplitDateRangePicker = (props: SplitDateRangePickerProps) => {
     const bounds = {
       minDate: resolvedMinDate,
       maxDate: resolvedMaxDate,
-      maxRange: maxRange,
+      maxRange,
     };
     const result = applyRangeRules({ start, end }, picked, side, bounds);
     setStart(result.start);
