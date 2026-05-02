@@ -57,9 +57,10 @@ const cellPressableStyle = (state: { pressed: boolean; hovered?: boolean }) => [
  * Returns a 2-D grid (array of weeks, each week is 7 day-numbers or null).
  * Week starts on Sunday.
  */
-function buildCalendarGrid(year: number, month: number): (number | null)[][] {
-  const firstDay = localDayJs(new Date(year, month, 1)).day(); // 0=Sun
-  const daysInMonth = localDayJs(new Date(year, month, 1)).daysInMonth();
+function buildCalendarGrid(year: number, month: number, timezone: string): (number | null)[][] {
+  const monthStr = `${year}-${String(month + 1).padStart(2, "0")}-01`;
+  const firstDay = localDayJs.tz(monthStr, "YYYY-MM-DD", timezone).day(); // 0=Sun
+  const daysInMonth = localDayJs.tz(monthStr, "YYYY-MM-DD", timezone).daysInMonth();
 
   const cells: (number | null)[] = [];
 
@@ -88,37 +89,33 @@ function buildCalendarGrid(year: number, month: number): (number | null)[][] {
 // Calendar popover content
 // ---------------------------------------------------------------------------
 type CalendarContentProps = {
-  viewYear: number;
-  viewMonth: number;
   selectedDate: Dayjs;
   minDate: Dayjs;
   maxDate: Dayjs;
   timezone: string;
-  onSelectDay: (day: number) => void;
-  onPrevMonth: () => void;
-  onNextMonth: () => void;
-  onToggleYearPicker: () => void;
-  showYearPicker: boolean;
-  onSelectYear: (year: number) => void;
+  onSelectDay: (day: number, viewYear: number, viewMonth: number) => void;
 };
 
 const CalendarContent = ({
-  viewYear,
-  viewMonth,
   selectedDate,
   minDate,
   maxDate,
   timezone,
   onSelectDay,
-  onPrevMonth,
-  onNextMonth,
-  onToggleYearPicker,
-  showYearPicker,
-  onSelectYear,
 }: CalendarContentProps) => {
-  const rows = useMemo(() => buildCalendarGrid(viewYear, viewMonth), [viewYear, viewMonth]);
+  const dateInTz = selectedDate.tz(timezone);
+  const [viewYear, setViewYear] = useState(dateInTz.year());
+  const [viewMonth, setViewMonth] = useState(dateInTz.month());
+  const [showYearPicker, setShowYearPicker] = useState(false);
 
-  const headerLabel = localDayJs(new Date(viewYear, viewMonth, 1)).format("MMMM YYYY");
+  const rows = useMemo(
+    () => buildCalendarGrid(viewYear, viewMonth, timezone),
+    [viewYear, viewMonth, timezone]
+  );
+
+  const headerLabel = localDayJs
+    .tz(`${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-01`, "YYYY-MM-DD", timezone)
+    .format("MMMM YYYY");
 
   const selectedDateInTz = selectedDate.tz(timezone);
   const minDateInTz = minDate.tz(timezone);
@@ -132,9 +129,37 @@ const CalendarContent = ({
   const isDisabled = (day: number) => {
     const d = localDayJs.tz(
       `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`,
+      "YYYY-MM-DD",
       timezone
     );
     return d.isBefore(minDateInTz, "day") || d.isAfter(maxDateInTz, "day");
+  };
+
+  const handlePrevMonth = () => {
+    if (viewMonth === 0) {
+      setViewMonth(11);
+      setViewYear((y) => y - 1);
+    } else {
+      setViewMonth((m) => m - 1);
+    }
+  };
+
+  const handleNextMonth = () => {
+    if (viewMonth === 11) {
+      setViewMonth(0);
+      setViewYear((y) => y + 1);
+    } else {
+      setViewMonth((m) => m + 1);
+    }
+  };
+
+  const handleToggleYearPicker = () => {
+    setShowYearPicker((v) => !v);
+  };
+
+  const handleSelectYear = (year: number) => {
+    setViewYear(year);
+    setShowYearPicker(false);
   };
 
   const maxYear = localDayJs().year();
@@ -158,15 +183,15 @@ const CalendarContent = ({
     <Cell innerHorizontal={Spacing.extraSmall} innerVertical={Spacing.extraSmall}>
       {/* Header row */}
       <Row align="space-between" justify="center" bottom={Spacing.extraSmall}>
-        <Pressable style={cellPressableStyle} onPress={onPrevMonth}>
+        <Pressable style={cellPressableStyle} onPress={handlePrevMonth}>
           <RegularText text="<" />
         </Pressable>
 
-        <Pressable style={cellPressableStyle} onPress={onToggleYearPicker}>
+        <Pressable style={cellPressableStyle} onPress={handleToggleYearPicker}>
           <RegularText text={headerLabel} />
         </Pressable>
 
-        <Pressable style={cellPressableStyle} onPress={onNextMonth}>
+        <Pressable style={cellPressableStyle} onPress={handleNextMonth}>
           <RegularText text=">" />
         </Pressable>
       </Row>
@@ -188,7 +213,7 @@ const CalendarContent = ({
                             }
                           : {},
                       ]}
-                      onPress={() => onSelectYear(year)}>
+                      onPress={() => handleSelectYear(year)}>
                       <RegularText
                         text={String(year)}
                         color={year === viewYear ? Colors.white : undefined}
@@ -230,7 +255,7 @@ const CalendarContent = ({
                             }
                           : {},
                       ]}
-                      onPress={() => onSelectDay(day)}>
+                      onPress={() => onSelectDay(day, viewYear, viewMonth)}>
                       <RegularText
                         text={String(day)}
                         color={
@@ -274,12 +299,6 @@ export const SingleDatePicker = ({
   const [isOpen, setIsOpen] = useState(false);
   const [isCoarsePointer, setIsCoarsePointer] = useState(false);
 
-  // Calendar navigation state
-  const dateInTz = selectedDate.tz(timezone);
-  const [viewYear, setViewYear] = useState(dateInTz.year());
-  const [viewMonth, setViewMonth] = useState(dateInTz.month());
-  const [showYearPicker, setShowYearPicker] = useState(false);
-
   // Detect coarse pointer (mobile web) once on mount
   useEffect(() => {
     if (Platform.OS !== "web") {
@@ -289,31 +308,12 @@ export const SingleDatePicker = ({
     setIsCoarsePointer(mq.matches);
   }, []);
 
-  // Keep calendar view in sync with external selectedDate changes
-  useEffect(() => {
-    const d = selectedDate.tz(timezone);
-    setViewYear(d.year());
-    setViewMonth(d.month());
-  }, [selectedDate, timezone]);
-
   // Sync local isOpen when the picker is dismissed externally
   useEffect(() => {
     if (!datePickerContext.isVisible) {
       setIsOpen(false);
     }
   }, [datePickerContext.isVisible]);
-
-  // Measure trigger position once on mount (desktop web only)
-  useEffect(() => {
-    if (Platform.OS !== "web" || isCoarsePointer) {
-      return;
-    }
-    const measured = measure(pickerRef);
-    if (measured !== null) {
-      const { pageX, pageY } = measured;
-      pickerLayout.current = { pageX, pageY };
-    }
-  }, []);
 
   // ---------------------------------------------------------------------------
   // Handlers
@@ -329,10 +329,11 @@ export const SingleDatePicker = ({
     }
   };
 
-  const handleSelectDay = (day: number) => {
+  const handleSelectDay = (day: number, viewYear: number, viewMonth: number) => {
     const picked = localDayJs
       .tz(
         `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`,
+        "YYYY-MM-DD",
         timezone
       )
       .startOf("day");
@@ -340,34 +341,13 @@ export const SingleDatePicker = ({
     close();
   };
 
-  const handlePrevMonth = () => {
-    if (viewMonth === 0) {
-      setViewMonth(11);
-      setViewYear((y) => y - 1);
-    } else {
-      setViewMonth((m) => m - 1);
-    }
-  };
-
-  const handleNextMonth = () => {
-    if (viewMonth === 11) {
-      setViewMonth(0);
-      setViewYear((y) => y + 1);
-    } else {
-      setViewMonth((m) => m + 1);
-    }
-  };
-
-  const handleToggleYearPicker = () => {
-    setShowYearPicker((v) => !v);
-  };
-
-  const handleSelectYear = (year: number) => {
-    setViewYear(year);
-    setShowYearPicker(false);
-  };
-
   const open = () => {
+    const measured = measure(pickerRef);
+    if (measured !== null) {
+      const { pageX, pageY } = measured;
+      pickerLayout.current = { pageX, pageY };
+    }
+
     const { pageX, pageY } = pickerLayout.current;
     const offsetLeft = pageX - Spacing.medium;
     const leftOffset =
@@ -386,18 +366,11 @@ export const SingleDatePicker = ({
         left={leftOffset}>
         <Card width={PICKER_WIDTH} height={PICKER_HEIGHT} noPadding>
           <CalendarContent
-            viewYear={viewYear}
-            viewMonth={viewMonth}
             selectedDate={selectedDate}
             minDate={minDate}
             maxDate={maxDate}
             timezone={timezone}
             onSelectDay={handleSelectDay}
-            onPrevMonth={handlePrevMonth}
-            onNextMonth={handleNextMonth}
-            onToggleYearPicker={handleToggleYearPicker}
-            showYearPicker={showYearPicker}
-            onSelectYear={handleSelectYear}
           />
         </Card>
       </AbsoluteContainer>
