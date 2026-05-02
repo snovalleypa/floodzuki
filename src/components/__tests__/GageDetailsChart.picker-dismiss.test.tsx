@@ -52,7 +52,6 @@ jest.mock("@gorhom/bottom-sheet", () => ({
   BottomSheetModal: () => null,
   BottomSheetView: ({ children }: any) => children,
 }));
-jest.mock("@common-ui/components/DateRangePicker", () => () => null);
 jest.mock("../DatePickerVariantSwitch", () => () => null);
 jest.mock("@common-ui/components/Icon", () => () => null);
 jest.mock("@common-ui/components/Card", () => {

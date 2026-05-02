@@ -5,7 +5,7 @@ import { SplitDateRangePicker } from "@common-ui/components/SplitDateRangePicker
 import Config from "@config/config";
 
 type DatePickerVariantSwitchProps = {
-  locationId: string;
+  locationId: string | undefined;
   startDate: Dayjs;
   endDate: Dayjs;
   timezone: string;

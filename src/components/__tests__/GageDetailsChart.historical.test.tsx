@@ -68,7 +68,6 @@ jest.mock("@react-native-picker/picker", () => ({
   Picker: () => null,
 }));
 
-jest.mock("@common-ui/components/DateRangePicker", () => () => null);
 jest.mock("../DatePickerVariantSwitch", () => () => null);
 
 jest.mock("@common-ui/components/SegmentControl", () => ({
