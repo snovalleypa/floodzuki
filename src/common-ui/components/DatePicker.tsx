@@ -10,7 +10,7 @@ import { Platform, Pressable, View, ViewStyle, useWindowDimensions } from "react
 import { Colors } from "@common-ui/constants/colors";
 import { SegmentControl } from "./SegmentControl";
 import { Card } from "./Card";
-import { BottomSheetModal } from "@gorhom/bottom-sheet";
+import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
 import { useDatePicker } from "@common-ui/contexts/DatePickerContext";
 import { measure, useAnimatedRef } from "react-native-reanimated";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
@@ -381,25 +381,18 @@ const DatePickerComponent = React.forwardRef((props: DatePickerProps, ref) => {
       <View ref={pickerRef}>
         <RegularText text={formattedDate} />
       </View>
-      <BottomSheetModal
-        index={0}
-        ref={bottomSheetModalRef}
-        snapPoints={["40%"]}
-        style={$bottomSheetStyleMobile}>
-        <Cell
-          flex
-          height={170}
-          horizontal={Spacing.small}
-          top={Spacing.medium}
-          bottom={Spacing.extraLarge}>
-          <DatePicker
-            title={title}
-            minYear={minYear}
-            maxYear={maxYear}
-            selectedDate={selectedDate}
-            onChange={handleChange}
-          />
-        </Cell>
+      <BottomSheetModal index={0} ref={bottomSheetModalRef} style={$bottomSheetStyleMobile}>
+        <BottomSheetView>
+          <Cell horizontal={Spacing.small} top={Spacing.medium} bottom={Spacing.extraLarge}>
+            <DatePicker
+              title={title}
+              minYear={minYear}
+              maxYear={maxYear}
+              selectedDate={selectedDate}
+              onChange={handleChange}
+            />
+          </Cell>
+        </BottomSheetView>
       </BottomSheetModal>
     </>
   );
