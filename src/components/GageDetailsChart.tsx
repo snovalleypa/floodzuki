@@ -336,15 +336,15 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
   // Fetch data periodically
   useInterval(
     () => {
-      chartRange.isNow
-        ? gagesStore.fetchDataForGage(
-            gage?.locationId,
-            range.chartStartDate.utc().format(),
-            range.chartEndDate.utc().format(),
-            chartRange.isNow,
-            true
-          )
-        : null;
+      if (chartRange.isNow) {
+        gagesStore.fetchDataForGage(
+          gage?.locationId,
+          range.chartStartDate.utc().format(),
+          range.chartEndDate.utc().format(),
+          chartRange.isNow,
+          true
+        );
+      }
     },
     gage?.locationId && isDataFetched && chartRange.isNow
       ? Config.LIVE_CHART_DATA_REFRESH_INTERVAL

@@ -1,5 +1,6 @@
 import React from "react";
-import { ErrorBoundaryProps, Stack, useNavigation, useRouter } from "expo-router";
+import { ErrorBoundaryProps, Stack, useRouter } from "expo-router";
+import { useGoBack } from "@utils/useGoBack";
 
 import { Screen, Content } from "@common-ui/components/Screen";
 import { ErrorDetails } from "@components/ErrorDetails";
@@ -19,7 +20,6 @@ export function ErrorBoundary(props: ErrorBoundaryProps) {
 
 const CreatePasswordScreen = observer(function CreatePasswordScreen() {
   const router = useRouter();
-  const navigation = useNavigation();
 
   const { authSessionStore } = useStores();
   const { t } = useLocale();
@@ -36,9 +36,7 @@ const CreatePasswordScreen = observer(function CreatePasswordScreen() {
     router.push({ pathname: ROUTES.UserChangeEmail });
   };
 
-  const goBack = () => {
-    navigation.canGoBack() ? navigation.goBack() : router.push({ pathname: ROUTES.UserProfile });
-  };
+  const goBack = useGoBack(ROUTES.UserProfile);
 
   return (
     <Screen>
