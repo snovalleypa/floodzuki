@@ -376,14 +376,21 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
       return;
     }
 
-    // @ts-ignore
-    const fromDayjs = localDayJs.tz(dateRange.from).startOf("day");
-    // @ts-ignore
-    const toDayjs = localDayJs.tz(dateRange.to).endOf("day");
+    const tz = getTimezone();
+    // Parse date strings in the gauge timezone.
+    // "YYYY-MM-DD" strings (from date picker and historic events) use the 3-arg form.
+    // Full UTC timestamps (from segment-control presets, e.g. "2026-05-18T22:00:00.000Z")
+    // use the instance form per CLAUDE.md — dayjs(utcStr).tz(tz).
+    const parseToGaugeTz = (str: string) =>
+      /^\d{4}-\d{2}-\d{2}$/.test(str)
+        ? localDayJs.tz(str, "YYYY-MM-DD", tz)
+        : localDayJs(str).tz(tz);
+
+    const fromDayjs = parseToGaugeTz(dateRange.from).startOf("day");
+    const toDayjs = parseToGaugeTz(dateRange.to).endOf("day");
 
     chartRange.changeDates(fromDayjs, toDayjs);
 
-    const newStart = chartRange.chartStartDate;
     const newEnd = chartRange.chartEndDate;
 
     // Only create a new range object when dates actually changed — a new object
@@ -391,15 +398,15 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
     // chart series, which is expensive on native.
     setRange((currentRange) => {
       if (
-        newStart.valueOf() === currentRange.chartStartDate.valueOf() &&
+        fromDayjs.valueOf() === currentRange.chartStartDate.valueOf() &&
         newEnd.valueOf() === currentRange.chartEndDate.valueOf()
       ) {
         return currentRange; // same reference → React bails out, no re-render
       }
-      return { chartStartDate: newStart, chartEndDate: newEnd };
+      return { chartStartDate: fromDayjs, chartEndDate: newEnd };
     });
 
-    refreshData(newStart.utc().format(), newEnd.utc().format());
+    refreshData(fromDayjs.utc().format(), newEnd.utc().format());
   }, [dateRange.from, dateRange.to, gage?.locationId, isDataFetched]);
 
   const refetchData = () => {
