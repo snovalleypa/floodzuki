@@ -439,7 +439,7 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
     chartRange.changeDates(from, to);
 
     setRange({
-      chartStartDate: chartRange.chartStartDate,
+      chartStartDate: from,
       chartEndDate: chartRange.chartEndDate,
     });
 
@@ -449,7 +449,7 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
       to: to.format("YYYY-MM-DD"),
     });
 
-    refreshData(chartRange.chartStartDate.utc().format(), chartRange.chartEndDate.utc().format());
+    refreshData(from.utc().format(), chartRange.chartEndDate.utc().format());
   };
 
   const onChartDataTypeChange = (key: GageChartDataType) => {
