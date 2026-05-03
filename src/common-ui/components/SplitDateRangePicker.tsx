@@ -19,12 +19,22 @@ export type SplitDateRangePickerProps = {
   maxDate?: Dayjs; // default today end-of-day in chart tz
   timezone: string;
   onChange: (startDate: Dayjs, endDate: Dayjs) => void;
+  onRangeRestricted?: () => void;
 };
 
 const isNative = Platform.OS !== "web";
 
 export const SplitDateRangePicker = (props: SplitDateRangePickerProps) => {
-  const { startDate, endDate, maxRange = 30, minDate, maxDate, timezone, onChange } = props;
+  const {
+    startDate,
+    endDate,
+    maxRange = 30,
+    minDate,
+    maxDate,
+    timezone,
+    onChange,
+    onRangeRestricted,
+  } = props;
 
   // ---------------------------------------------------------------------------
   // Local state — synced from props
@@ -65,6 +75,9 @@ export const SplitDateRangePicker = (props: SplitDateRangePickerProps) => {
     setStart(result.start);
     setEnd(result.end);
     onChange(result.start, result.end);
+    if (result.wasRestricted) {
+      onRangeRestricted?.();
+    }
   };
 
   // ---------------------------------------------------------------------------

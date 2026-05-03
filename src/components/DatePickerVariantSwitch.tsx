@@ -10,10 +10,11 @@ type DatePickerVariantSwitchProps = {
   endDate: Dayjs;
   timezone: string;
   onChange: (startDate: Dayjs, endDate: Dayjs) => void;
+  onRangeRestricted?: () => void;
 };
 
 const DatePickerVariantSwitch = (props: DatePickerVariantSwitchProps) => {
-  const { locationId, startDate, endDate, timezone, onChange } = props;
+  const { locationId, startDate, endDate, timezone, onChange, onRangeRestricted } = props;
 
   const variant =
     Config.DATE_PICKER_VARIANT.byLocationId[locationId] ?? Config.DATE_PICKER_VARIANT.default;
@@ -25,6 +26,7 @@ const DatePickerVariantSwitch = (props: DatePickerVariantSwitchProps) => {
         endDate={endDate}
         timezone={timezone}
         onChange={onChange}
+        onRangeRestricted={onRangeRestricted}
       />
     );
   }
