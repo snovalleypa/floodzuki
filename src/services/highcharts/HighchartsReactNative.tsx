@@ -1,115 +1,50 @@
-// Copied from https://github.com/highcharts/highcharts-react-native/blob/master/dist/src/HighchartsReactNative.js
+// Adapted from https://github.com/highcharts/highcharts-react-native
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { View, ViewStyle } from "react-native";
 import { WebView, WebViewMessageEvent, WebViewProps } from "react-native-webview";
-import { LAYOUT_HTML } from "./HighchartsLayout";
-
-const stringifiedScripts = {};
-
-let cdnPath = "code.highcharts.com/";
-let httpProto = "http://";
+import { buildLayoutHtml } from "./HighchartsLayout";
 
 interface HighchartsReactNativeProps {
-  data?: any; // Data to be stored as global variable in Webview.
-  options: Highcharts.Options; // Highcharts options.
-  modules?: string[]; // List of modules to be loaded.
-  setOptions?: Record<string, unknown>; // Highcharts setOptions.
-  styles?: ViewStyle; // Styles to be applied to the container.
-  webviewProps?: WebViewProps; // Props to be passed to the WebView.
-  onMessage?: (data: string) => void; // Callback for WebView messages.
-  startInLoadingState?: boolean; // Whether to show loading indicator on WebView.
-  webviewStyles?: ViewStyle; // Styles to be applied to the WebView.
+  options: Highcharts.Options;
+  modules?: string[];
+  styles?: ViewStyle;
+  webviewProps?: WebViewProps;
+  onMessage?: (data: string) => void;
+  startInLoadingState?: boolean;
+  webviewStyles?: ViewStyle;
+  setOptions?: Record<string, unknown>;
 }
 
-type ScriptsProps = Pick<HighchartsReactNativeProps, "data" | "modules" | "options" | "setOptions">;
+// Serialize Highcharts options to a JSON string, converting functions to
+// string representations so they survive the RN→WebView boundary.
+const serialize = (chartOptions: Highcharts.Options, isUpdate?: boolean): string => {
+  const hcFunctions: Record<string, string> = {};
+  let i = 0;
 
-const serialize = (chartOptions: Highcharts.Options, isUpdate?: boolean) => {
-  let hcFunctions = {},
-    serializedOptions,
-    i = 0;
-
-  serializedOptions = JSON.stringify(chartOptions, function (_val, key) {
-    const fcId = "###HighchartsFunction" + i + "###";
-
-    // set reference to function for the later replacement
-    if (typeof key === "function") {
-      hcFunctions[fcId] = key.toString();
+  let serialized = JSON.stringify(chartOptions, function (_key, value) {
+    if (typeof value === "function") {
+      const fcId = "###HCF" + i + "###";
+      hcFunctions[fcId] = value.toString();
       i++;
-      return isUpdate ? key.toString() : fcId;
+      return isUpdate ? value.toString() : fcId;
     }
-
-    return key;
+    return value;
   });
 
-  // replace ids with functions.
   if (!isUpdate) {
-    Object.keys(hcFunctions).forEach(function (key) {
-      serializedOptions = serializedOptions.replace('"' + key + '"', hcFunctions[key]);
+    Object.keys(hcFunctions).forEach((key) => {
+      serialized = serialized.replace('"' + key + '"', hcFunctions[key]);
     });
   }
 
-  return serializedOptions;
-};
-
-const buildScripts = (props: ScriptsProps) => {
-  const { data, modules, options, setOptions } = props;
-
-  return `(function() {
-        window.data = \"${data ? data : null}\";
-        var modulesList = ${JSON.stringify(modules)};
-        var readable = ${JSON.stringify(stringifiedScripts)}
-
-        function loadScripts(file, callback, redraw) {
-          var hcScript = document.createElement('script');
-          hcScript.innerHTML = readable[file]
-          document.body.appendChild(hcScript);
-
-          if (callback) {
-            callback.call();
-          }
-
-          if (redraw) {
-            Highcharts.setOptions(${serialize(setOptions)});
-            Highcharts.chart("container", ${serialize(options)});
-          }
-        }
-
-        loadScripts('highcharts', function () {
-          var redraw = modulesList.length > 0 ? false : true;
-          loadScripts('highcharts-more', function () {
-              if (modulesList.length > 0) {
-                  for (var i = 0; i < modulesList.length; i++) {
-                      if (i === (modulesList.length - 1)) {
-                          redraw = true;
-                      } else {
-                          redraw = false;
-                      }
-                      loadScripts(modulesList[i], undefined, redraw, true);
-                  }
-              }
-          }, redraw);
-        }, false);
-
-        return true;
-      })();
-    `;
-};
-
-const addScript = async (name: string, isModule: boolean) => {
-  const moduleUrl = httpProto + cdnPath + (isModule ? "modules/" : "") + name + ".js";
-
-  const response = await fetch(moduleUrl).catch((error) => {
-    throw error;
-  });
-  stringifiedScripts[name] = await response.text();
+  return serialized;
 };
 
 const HighchartsReactNative = React.memo((props: HighchartsReactNativeProps) => {
   const {
     styles,
     onMessage,
-    data,
     startInLoadingState = true,
     webviewStyles,
     webviewProps = {},
@@ -119,53 +54,50 @@ const HighchartsReactNative = React.memo((props: HighchartsReactNativeProps) => 
   } = props;
 
   const webviewRef = useRef<WebView>(null);
+  const [chartReady, setChartReady] = useState(false);
 
-  const [modulesReady, setModulesReady] = useState(false);
+  // Build HTML once per modules list — changes to modules force a WebView reload.
+  const html = useMemo(() => buildLayoutHtml(modules), [modules.join(",")]);
 
-  const handleMessage = (event: WebViewMessageEvent) => {
-    onMessage && onMessage(event.nativeEvent.data);
-  };
-
+  // Send updated options to the already-rendered chart via postMessage.
   useEffect(() => {
-    if (!modulesReady) {
+    if (!chartReady) {
       return;
     }
-
     webviewRef.current?.postMessage(serialize(options, true));
-  }, [options, modulesReady]);
+  }, [options, chartReady]);
 
-  useEffect(() => {
-    const getModules = async () => {
-      await addScript("highcharts", false);
+  const handleMessage = (event: WebViewMessageEvent) => {
+    const { data } = event.nativeEvent;
+    if (data === "chart-ready") {
+      setChartReady(true);
+      return;
+    }
+    onMessage?.(data);
+  };
 
-      if (modules.length > 0) {
-        await addScript("highcharts-more", false);
-
-        for (let i = 0; i < modules.length; i++) {
-          await addScript(modules[i], true);
-        }
+  // Highcharts is loaded by the HTML via <script src>. This script only
+  // initializes the chart — it is small enough to inject safely.
+  const initScript = `
+    (function() {
+      try {
+        Highcharts.setOptions(${serialize(setOptions)});
+        Highcharts.chart('container', ${serialize(options)});
+        window.ReactNativeWebView.postMessage('chart-ready');
+      } catch (e) {
+        window.ReactNativeWebView.postMessage('error:' + e.message);
       }
-
-      setModulesReady(true);
-    };
-
-    getModules();
-  }, []);
-
-  // Do not render anything until modules are ready.
-  if (!modulesReady) {
-    return null;
-  }
-
-  const runFirst = buildScripts({ data, modules, options, setOptions });
+      return true;
+    })();
+  `;
 
   return (
     <View style={styles}>
       <WebView
         ref={webviewRef}
         onMessage={handleMessage}
-        source={{ html: LAYOUT_HTML }}
-        injectedJavaScript={runFirst}
+        source={{ html, baseUrl: "https://code.highcharts.com/" }}
+        injectedJavaScript={initScript}
         originWhitelist={["*"]}
         automaticallyAdjustContentInsets={true}
         allowFileAccess={true}
