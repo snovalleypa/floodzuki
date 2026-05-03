@@ -42,9 +42,17 @@ const DateRangePicker = (props: DateRangePickerProps) => {
 
   const openDateSelector = () => {
     if (mode.current === "start") {
-      startRef.current?.isPickerOpen() ? startRef.current?.close() : startRef.current?.open();
+      if (startRef.current?.isPickerOpen()) {
+        startRef.current?.close();
+      } else {
+        startRef.current?.open();
+      }
     } else {
-      endRef.current?.isPickerOpen() ? endRef.current?.close() : endRef.current?.open();
+      if (endRef.current?.isPickerOpen()) {
+        endRef.current?.close();
+      } else {
+        endRef.current?.open();
+      }
     }
   };
 
