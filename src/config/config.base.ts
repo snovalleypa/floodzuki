@@ -114,7 +114,7 @@ const BaseConfig: {
   GAGES_WITHOUT_DISHCARGE: ["USGS-9"],
   DATE_PICKER_VARIANT: {
     default: "legacy",
-    byLocationId: { "USGS-38": "split-v1" },
+    byLocationId: { "USGS-38": "split-v1", "SVPA-26": "split-v1" },
   },
 };
 
