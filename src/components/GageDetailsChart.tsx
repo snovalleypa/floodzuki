@@ -4,6 +4,7 @@ import { observer } from "mobx-react-lite";
 import { useLocalSearchParams, useRouter } from "expo-router";
 
 import LocalHighchartsReact from "@services/highcharts/LocalHighchartsReact";
+import HighchartsReactNative from "@services/highcharts/HighchartsReactNative";
 
 import { Gage, GageChartDataType } from "@models/Gage";
 import { If, Ternary } from "@common-ui/components/Conditional";
@@ -32,8 +33,6 @@ import DateRangePicker from "@common-ui/components/DateRangePicker";
 import { Dayjs } from "dayjs";
 import { normalizeSearchParams } from "@utils/navigation";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
-import { GageDetailsChartNative } from "./GageDetailsChartNative";
-import type { GageDetailsChartOptions } from "./GageDetailsChartNative";
 
 interface GageDetailsChartProps {
   gage: Gage;
@@ -78,18 +77,16 @@ const CHART_DATA_TYPES = (t) => [
 
 const SELECT_EVENT = "gageDetailsChart._selectEvent";
 
-const Charts = (props: ChartsProps) => {
-  const { options } = props;
-
+const Charts = React.memo(function Charts({ options }: ChartsProps) {
   return (
     <Cell height={320}>
       <Ternary condition={isMobile}>
-        <GageDetailsChartNative options={options as unknown as GageDetailsChartOptions} />
+        <HighchartsReactNative options={options} styles={{ height: 320 }} />
         <LocalHighchartsReact options={options} />
       </Ternary>
     </Cell>
   );
-};
+});
 
 const PickerSelector = ({
   floodEvents = [],
