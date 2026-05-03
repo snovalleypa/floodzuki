@@ -331,6 +331,7 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
 
   const chartRange = useChartRange(dateRange.from, dateRange.to);
 
+  const [showRangeWarning, setShowRangeWarning] = useState(false);
   const [chartDataType, setChartDataType] = useState<GageChartDataType>(GageChartDataType.LEVEL);
   const [range, setRange] = useState({
     chartStartDate: chartRange.chartStartDate,
@@ -415,6 +416,14 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
 
     refreshData(fromDayjs.utc().format(), newEnd.utc().format());
   }, [dateRange.from, dateRange.to, gage?.locationId, isDataFetched]);
+
+  useEffect(() => {
+    if (!showRangeWarning) {
+      return undefined;
+    }
+    const id = setTimeout(() => setShowRangeWarning(false), 10_000);
+    return () => clearTimeout(id);
+  }, [showRangeWarning]);
 
   const refetchData = () => {
     refreshData();
@@ -509,6 +518,7 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
                   endDate={range.chartEndDate}
                   timezone={getTimezone()}
                   onChange={onDateRangeChange}
+                  onRangeRestricted={() => setShowRangeWarning(true)}
                 />
               </Cell>
             </If>
@@ -521,11 +531,25 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
                 endDate={range.chartEndDate}
                 timezone={getTimezone()}
                 onChange={onDateRangeChange}
+                onRangeRestricted={() => setShowRangeWarning(true)}
               />
             </If>
           </Cell>
         </Row>
       </CardHeader>
+      {showRangeWarning && (
+        <View
+          style={{
+            backgroundColor: "#FEF3C7",
+            borderRadius: Spacing.tiny,
+            paddingHorizontal: Spacing.extraSmall,
+            paddingVertical: Spacing.extraSmall,
+          }}>
+          <RegularText style={{ color: "#92400E" }}>
+            Range adjusted to 30 days — the maximum this chart supports.
+          </RegularText>
+        </View>
+      )}
       <Ternary condition={!Object.keys(chartOptions).length || hideChart}>
         <Cell height={320} flex>
           <ActivityIndicator animating />
