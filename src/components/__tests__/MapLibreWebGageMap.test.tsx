@@ -60,7 +60,7 @@ describe("MapLibreWebGageMap — marker filtering", () => {
     expect(MockMarker).toHaveBeenCalledTimes(2);
   });
 
-  it("skips a gage that has no latitude", () => {
+  it("skips a gauge that has no latitude", () => {
     const gages = [
       makeGage({ locationId: "valid", latitude: 47.5, longitude: -121.8 }),
       makeGage({ locationId: "no-lat", latitude: null, longitude: -121.8 }),
@@ -183,12 +183,12 @@ describe("MapLibreWebGageMap — startBounds", () => {
 
 describe("MapLibreWebGageMap — regionBounds", () => {
   it("uses region.regionBounds when available", () => {
-    const region = makeRegion({ regionBounds: [-122.4, 46.9, -120.9, 48.4] });
+    const region = makeRegion({ regionBounds: [122.4, -46.9, 120.9, -48.4] });
     render(
       <MapLibreWebGageWebMap gages={[]} region={region} onGagePress={jest.fn()} singleGage={null} />
     );
     const maxBounds = MockMap.mock.calls[0][0].maxBounds;
-    expect(maxBounds).toEqual([-122.4, 46.9, -120.9, 48.4]);
+    expect(maxBounds).toEqual([122.4, -46.9, 120.9, -48.4]);
   });
 
   it("falls back to hardcoded defaultRegionBounds when region has no regionBounds", () => {
