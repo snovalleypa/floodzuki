@@ -24,6 +24,7 @@ declare module "highcharts" {
 interface Range {
   chartStartDate: dayjs.Dayjs;
   chartEndDate: dayjs.Dayjs;
+  isNow?: boolean;
 }
 
 interface BuildOptionsProps {
@@ -35,7 +36,7 @@ interface BuildOptionsProps {
 const DEBUGGING_TIMESPAN_MARGIN = 0; // 300;
 const PREDICTION_WINDOW_MINUTES = 60 * 6; // 6 hours of predictions
 
-const CHART_OPTIONS = {
+export const CHART_OPTIONS = {
   dashboardOptions: (options: Highcharts.Options, gage: Gage, range: Range, t) => {
     const xAxis = options.xAxis as Highcharts.XAxisOptions;
     const yAxis = options.yAxis as Highcharts.YAxisOptions;
@@ -80,7 +81,7 @@ const CHART_OPTIONS = {
 
     let predictionWindow = 0;
 
-    if (gage?.predictedPoints) {
+    if (gage?.predictedPoints && range.isNow !== false) {
       predictionWindow = PREDICTION_WINDOW_MINUTES;
     }
 

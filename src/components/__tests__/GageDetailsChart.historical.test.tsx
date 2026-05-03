@@ -11,6 +11,7 @@ const mockFetchDataForGage = jest.fn();
 jest.mock("@models/helpers/useStores", () => ({
   useStores: () => ({
     isDataFetched: mockIsDataFetched,
+    getTimezone: () => "America/Los_Angeles",
     gagesStore: {
       fetchDataForGage: mockFetchDataForGage,
       isFetching: false,
@@ -30,6 +31,7 @@ jest.mock("expo-router", () => ({
 
 // --- UI/infrastructure mocks ---
 jest.mock("@services/highcharts/LocalHighchartsReact", () => () => null);
+jest.mock("@services/highcharts/HighchartsReactNative", () => () => null);
 
 jest.mock("../GageDetailsChartNative", () => ({
   GageDetailsChartNative: () => null,
@@ -67,7 +69,7 @@ jest.mock("@react-native-picker/picker", () => ({
   Picker: () => null,
 }));
 
-jest.mock("@common-ui/components/DateRangePicker", () => () => null);
+jest.mock("../DatePickerVariantSwitch", () => () => null);
 
 jest.mock("@common-ui/components/SegmentControl", () => ({
   SegmentControl: () => null,

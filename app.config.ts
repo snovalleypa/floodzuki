@@ -100,6 +100,7 @@ export default {
     },
   },
   plugins: [
+    "@react-native-community/datetimepicker",
     "@maplibre/maplibre-react-native",
     "expo-localization",
     "expo-router",

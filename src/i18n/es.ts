@@ -270,6 +270,7 @@ const es = {
     historicalEvents: "Eventos históricos",
     rateOfChange: "Tasa de cambio",
     roadLevel: "Nivel de la carretera",
+    rangeWarning: "Rango ajustado a 30 días — el máximo que admite este gráfico.",
   },
   gageInfoCard: {
     gageInfo: "Información del medidor",

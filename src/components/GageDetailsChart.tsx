@@ -29,7 +29,7 @@ import { DataPoint } from "@models/Forecasts";
 import { formatReadingTime } from "@utils/useTimeFormat";
 import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
 import Icon from "@common-ui/components/Icon";
-import DateRangePicker from "@common-ui/components/DateRangePicker";
+import DatePickerVariantSwitch from "./DatePickerVariantSwitch";
 import { Dayjs } from "dayjs";
 import { normalizeSearchParams } from "@utils/navigation";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
@@ -312,7 +312,7 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
   const router = useRouter();
   const { t } = useLocale();
   const { from, to } = useLocalSearchParams();
-  const { gagesStore, isDataFetched } = useStores();
+  const { gagesStore, isDataFetched, getTimezone } = useStores();
   const { hidePicker } = useDatePicker();
 
   const { isMobile } = useResponsive();
@@ -331,12 +331,18 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
 
   const chartRange = useChartRange(dateRange.from, dateRange.to);
 
-  const [rangeOption, setRangeOption] = useState("2");
+  const [showRangeWarning, setShowRangeWarning] = useState(false);
   const [chartDataType, setChartDataType] = useState<GageChartDataType>(GageChartDataType.LEVEL);
   const [range, setRange] = useState({
     chartStartDate: chartRange.chartStartDate,
     chartEndDate: chartRange.chartEndDate,
+    isNow: chartRange.isNow,
   });
+
+  const rangeOption = useMemo(() => {
+    const diff = Math.round(range.chartEndDate.diff(range.chartStartDate, "day", true));
+    return (["1", "2", "7", "14"] as const).find((k) => parseInt(k) === diff) ?? "";
+  }, [range]);
 
   // Fetch data periodically
   useInterval(
@@ -376,20 +382,48 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
       return;
     }
 
-    // @ts-ignore
-    const fromDayjs = localDayJs.tz(dateRange.from).startOf("day");
-    // @ts-ignore
-    const toDayjs = localDayJs.tz(dateRange.to).endOf("day");
+    const tz = getTimezone();
+    // Parse date strings in the gauge timezone.
+    // "YYYY-MM-DD" strings (from date picker and historic events) use the 3-arg form.
+    // Full UTC timestamps (from segment-control presets, e.g. "2026-05-18T22:00:00.000Z")
+    // use the instance form per CLAUDE.md — dayjs(utcStr).tz(tz).
+    const parseToGaugeTz = (str: string) =>
+      /^\d{4}-\d{2}-\d{2}$/.test(str)
+        ? localDayJs.tz(str, "YYYY-MM-DD", tz)
+        : localDayJs(str).tz(tz);
+
+    const fromDayjs = parseToGaugeTz(dateRange.from).startOf("day");
+    const toDayjs = parseToGaugeTz(dateRange.to).endOf("day");
 
     chartRange.changeDates(fromDayjs, toDayjs);
 
-    setRange({
-      chartStartDate: chartRange.chartStartDate,
-      chartEndDate: chartRange.chartEndDate,
+    const newEnd = chartRange.chartEndDate;
+
+    // Only create a new range object when dates actually changed — a new object
+    // reference unconditionally triggers useGageChartOptions to recompute all
+    // chart series, which is expensive on native.
+    setRange((currentRange) => {
+      const newIsNow = chartRange.isNow;
+      if (
+        fromDayjs.valueOf() === currentRange.chartStartDate.valueOf() &&
+        newEnd.valueOf() === currentRange.chartEndDate.valueOf() &&
+        newIsNow === currentRange.isNow
+      ) {
+        return currentRange; // same reference → React bails out, no re-render
+      }
+      return { chartStartDate: fromDayjs, chartEndDate: newEnd, isNow: newIsNow };
     });
 
-    refreshData(chartRange.chartStartDate.utc().format(), chartRange.chartEndDate.utc().format());
+    refreshData(fromDayjs.utc().format(), newEnd.utc().format());
   }, [dateRange.from, dateRange.to, gage?.locationId, isDataFetched]);
+
+  useEffect(() => {
+    if (!showRangeWarning) {
+      return undefined;
+    }
+    const id = setTimeout(() => setShowRangeWarning(false), 10_000);
+    return () => clearTimeout(id);
+  }, [showRangeWarning]);
 
   const refetchData = () => {
     refreshData();
@@ -412,6 +446,7 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
     setRange({
       chartStartDate: chartRange.chartStartDate,
       chartEndDate: chartRange.chartEndDate,
+      isNow: chartRange.isNow,
     });
 
     router.setParams({
@@ -420,7 +455,6 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
       to: chartRange.chartEndDate.utc().format(),
     });
 
-    setRangeOption(key);
     refreshData(chartRange.chartStartDate.utc().format(), chartRange.chartEndDate.utc().format());
   };
 
@@ -428,8 +462,9 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
     chartRange.changeDates(from, to);
 
     setRange({
-      chartStartDate: chartRange.chartStartDate,
+      chartStartDate: from,
       chartEndDate: chartRange.chartEndDate,
+      isNow: chartRange.isNow,
     });
 
     router.setParams({
@@ -438,7 +473,7 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
       to: to.format("YYYY-MM-DD"),
     });
 
-    refreshData(chartRange.chartStartDate.utc().format(), chartRange.chartEndDate.utc().format());
+    refreshData(from.utc().format(), chartRange.chartEndDate.utc().format());
   };
 
   const onChartDataTypeChange = (key: GageChartDataType) => {
@@ -477,25 +512,45 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
             />
             <If condition={isMobile}>
               <Cell flex align="center" top={Spacing.tiny}>
-                <DateRangePicker
+                <DatePickerVariantSwitch
+                  locationId={gage?.locationId}
                   startDate={range.chartStartDate}
                   endDate={range.chartEndDate}
+                  timezone={getTimezone()}
                   onChange={onDateRangeChange}
+                  onRangeRestricted={() => setShowRangeWarning(true)}
                 />
               </Cell>
             </If>
           </Cell>
           <Cell flex align="flex-end">
             <If condition={!isMobile}>
-              <DateRangePicker
+              <DatePickerVariantSwitch
+                locationId={gage?.locationId}
                 startDate={range.chartStartDate}
                 endDate={range.chartEndDate}
+                timezone={getTimezone()}
                 onChange={onDateRangeChange}
+                onRangeRestricted={() => setShowRangeWarning(true)}
               />
             </If>
           </Cell>
         </Row>
       </CardHeader>
+      {showRangeWarning && (
+        <View
+          style={{
+            backgroundColor: Colors.softYellow,
+            borderRadius: Spacing.tiny,
+            paddingHorizontal: Spacing.extraSmall,
+            paddingVertical: Spacing.extraSmall,
+            alignItems: "center",
+          }}>
+          <RegularText style={{ textAlign: "center" }}>
+            {t("gageDetailsChart.rangeWarning")}
+          </RegularText>
+        </View>
+      )}
       <Ternary condition={!Object.keys(chartOptions).length || hideChart}>
         <Cell height={320} flex>
           <ActivityIndicator animating />

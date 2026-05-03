@@ -379,7 +379,11 @@ const DatePickerComponent = React.forwardRef((props: DatePickerProps, ref) => {
       <View ref={pickerRef}>
         <RegularText text={formattedDate} />
       </View>
-      <BottomSheetModal index={0} ref={bottomSheetModalRef} style={$bottomSheetStyleMobile}>
+      <BottomSheetModal
+        index={0}
+        ref={bottomSheetModalRef}
+        snapPoints={["40%"]}
+        style={$bottomSheetStyleMobile}>
         <BottomSheetView>
           <Cell horizontal={Spacing.small} top={Spacing.medium} bottom={Spacing.extraLarge}>
             <DatePicker

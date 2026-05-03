@@ -1,38 +1,40 @@
-// src/components/__tests__/GageDetailsChart.picker-dismiss.test.tsx
+// src/components/__tests__/GageDetailsChart.range-highlight.test.tsx
 import React from "react";
-import { render, act, fireEvent } from "@testing-library/react-native";
+import { render } from "@testing-library/react-native";
 import { GageDetailsChart } from "../GageDetailsChart";
 
-const mockHidePicker = jest.fn();
-
-// --- DatePickerContext mock ---
-jest.mock("@common-ui/contexts/DatePickerContext", () => ({
-  useDatePicker: () => ({
-    isVisible: false,
-    showPicker: jest.fn(),
-    hidePicker: mockHidePicker,
-  }),
+// Capture the selectedSegment prop passed to the range SegmentControl.
+// The chart-data-type SegmentControl only renders when hasDischargeControl=true
+// (requires hasDischarge=true on the gage). With the mock gage below
+// (hasDischarge: false), only the range SegmentControl renders, so every
+// SegmentControl call here is the range one.
+let capturedSelectedSegment = "";
+jest.mock("@common-ui/components/SegmentControl", () => ({
+  SegmentControl: ({ selectedSegment }: { selectedSegment: string }) => {
+    capturedSelectedSegment = selectedSegment;
+    return null;
+  },
 }));
 
-// --- Store mock ---
-jest.mock("@models/helpers/useStores", () => ({
-  useStores: () => ({
-    isDataFetched: true,
-    getTimezone: () => "America/Los_Angeles",
-    gagesStore: {
-      fetchDataForGage: jest.fn(),
-      isFetching: false,
-    },
-  }),
-}));
+let mockParams: { from?: string; to?: string; historicEventId?: string } = {};
 
-// --- Expo Router mock ---
 jest.mock("expo-router", () => ({
-  useLocalSearchParams: () => ({ from: undefined, to: undefined, historicEventId: undefined }),
+  useLocalSearchParams: () => mockParams,
   useRouter: () => ({ setParams: jest.fn() }),
 }));
 
-// --- UI mocks ---
+jest.mock("@models/helpers/useStores", () => ({
+  useStores: () => ({
+    isDataFetched: false,
+    getTimezone: () => "America/Los_Angeles",
+    gagesStore: { fetchDataForGage: jest.fn(), isFetching: false },
+  }),
+}));
+
+jest.mock("@common-ui/contexts/DatePickerContext", () => ({
+  useDatePicker: () => ({ isVisible: false, showPicker: jest.fn(), hidePicker: jest.fn() }),
+}));
+
 jest.mock("@services/highcharts/LocalHighchartsReact", () => () => null);
 jest.mock("@services/highcharts/HighchartsReactNative", () => () => null);
 jest.mock("../GageDetailsChartNative", () => ({ GageDetailsChartNative: () => null }));
@@ -53,6 +55,16 @@ jest.mock("@gorhom/bottom-sheet", () => ({
   BottomSheetModal: () => null,
   BottomSheetView: ({ children }: any) => children,
 }));
+jest.mock("@react-native-picker/picker", () => {
+  function PickerMock() {
+    return null;
+  }
+  function PickerItem() {
+    return null;
+  }
+  PickerMock.Item = PickerItem;
+  return { Picker: PickerMock };
+});
 jest.mock("../DatePickerVariantSwitch", () => () => null);
 jest.mock("@common-ui/components/Icon", () => () => null);
 jest.mock("@common-ui/components/Card", () => {
@@ -94,42 +106,10 @@ jest.mock("@config/config", () => ({
   default: { LIVE_CHART_DATA_REFRESH_INTERVAL: 60000, GAGES_WITHOUT_DISHCARGE: [] },
 }));
 
-// SegmentControl mock: renders a Pressable for each segment so tests can press them
-jest.mock("@common-ui/components/SegmentControl", () => ({
-  SegmentControl: ({ onChange, segments }: any) => {
-    const React = require("react");
-    const { Pressable } = require("react-native");
-    return (segments ?? []).map((s: any) =>
-      React.createElement(Pressable, {
-        key: s.key,
-        testID: `segment-option-${s.key}`,
-        onPress: () => onChange?.(s.key),
-      })
-    );
-  },
-}));
-
-// Picker mock: renders a Pressable that fires onValueChange with a specific event id
-jest.mock("@react-native-picker/picker", () => {
-  const React = require("react");
-  const { Pressable } = require("react-native");
-  const PickerMock = ({ onValueChange }: any) =>
-    React.createElement(Pressable, {
-      testID: "historical-event-picker",
-      onPress: () => onValueChange?.("22"),
-    });
-  PickerMock.Item = function PickerItem() {
-    return null;
-  };
-  return { Picker: PickerMock };
-});
-
 const mockGage: any = {
   locationId: "USGS-NF10",
   locationInfo: {
-    floodEvents: [
-      { id: 22, eventName: "February 2020 Flood", fromDate: "2020-02-04", toDate: "2020-02-13" },
-    ],
+    floodEvents: [],
     hasDischarge: false,
     locationName: "North Fork Snoqualmie River",
     dischargeMin: 0,
@@ -149,29 +129,45 @@ const mockGage: any = {
   hasData: false,
 };
 
-describe("GageDetailsChart — picker dismissal", () => {
+describe("GageDetailsChart — range shortcut highlight", () => {
   beforeEach(() => {
-    mockHidePicker.mockClear();
+    capturedSelectedSegment = "";
+    mockParams = {};
   });
 
-  it("calls hidePicker when a range segment option is selected", () => {
-    const { getByTestId } = render(<GageDetailsChart gage={mockGage} />);
-
-    // RANGES keys are "14", "7", "2", "1" — press the "14" day segment
-    act(() => {
-      fireEvent.press(getByTestId("segment-option-14"));
-    });
-
-    expect(mockHidePicker).toHaveBeenCalled();
+  it("highlights the 2-day shortcut when the date span is exactly 2 days", () => {
+    mockParams = { from: "2020-05-01", to: "2020-05-02" };
+    render(<GageDetailsChart gage={mockGage} />);
+    expect(capturedSelectedSegment).toBe("2");
   });
 
-  it("calls hidePicker when a historical flood event is selected", () => {
-    const { getByTestId } = render(<GageDetailsChart gage={mockGage} />);
+  it("highlights no shortcut when the date span is 3 days (not a valid shortcut)", () => {
+    mockParams = { from: "2020-05-01", to: "2020-05-03" };
+    render(<GageDetailsChart gage={mockGage} />);
+    expect(capturedSelectedSegment).toBe("");
+  });
 
-    act(() => {
-      fireEvent.press(getByTestId("historical-event-picker"));
-    });
+  it("highlights the 7-day shortcut when the date span is exactly 7 days", () => {
+    mockParams = { from: "2020-05-01", to: "2020-05-07" };
+    render(<GageDetailsChart gage={mockGage} />);
+    expect(capturedSelectedSegment).toBe("7");
+  });
 
-    expect(mockHidePicker).toHaveBeenCalled();
+  it("highlights the 14-day shortcut when the date span is exactly 14 days", () => {
+    mockParams = { from: "2020-05-01", to: "2020-05-14" };
+    render(<GageDetailsChart gage={mockGage} />);
+    expect(capturedSelectedSegment).toBe("14");
+  });
+
+  it("highlights the 1-day shortcut when the date span is exactly 1 day", () => {
+    mockParams = { from: "2020-05-01", to: "2020-05-01" };
+    render(<GageDetailsChart gage={mockGage} />);
+    expect(capturedSelectedSegment).toBe("1");
+  });
+
+  it("highlights no shortcut when the date span is 10 days (not a valid shortcut)", () => {
+    mockParams = { from: "2020-05-01", to: "2020-05-10" };
+    render(<GageDetailsChart gage={mockGage} />);
+    expect(capturedSelectedSegment).toBe("");
   });
 });
