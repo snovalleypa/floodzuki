@@ -27,13 +27,13 @@ describe("applyRangeRules", () => {
       expect(result.end.format("YYYY-MM-DD")).toBe("2026-04-15");
     });
 
-    it("returns candidate unchanged for exactly 30-day range", () => {
+    it("expands to max range when start moved earlier by ≤ maxRange days, causing span violation", () => {
       const prev = { start: d("2026-04-01"), end: d("2026-04-20") };
       const result = applyRangeRules(prev, d("2026-03-20"), "start", defaultBounds);
-      // candidate: start=2026-03-20, end=2026-04-20 → span=31 > 30 → invalid → derives newEnd
-      // span preserved: 2026-03-20 + 19 days = 2026-04-08
+      // candidate: start=2026-03-20, end=2026-04-20 → span=31 > 30, in order
+      // prev.start.diff(picked, 'day') = 12 ≤ 30 → widen: derivedEnd = 2026-03-20 + 30 = 2026-04-19
       expect(result.start.format("YYYY-MM-DD")).toBe("2026-03-20");
-      expect(result.end.format("YYYY-MM-DD")).toBe("2026-04-08");
+      expect(result.end.format("YYYY-MM-DD")).toBe("2026-04-19");
     });
 
     it("returns candidate for exactly maxRange end pick that is still valid", () => {
@@ -98,16 +98,152 @@ describe("applyRangeRules", () => {
       expect(result.end.format("YYYY-MM-DD")).toBe("2026-05-01");
     });
 
-    it("derives start when end change makes span > 30 days (over by 1)", () => {
+    it("expands to max range when end moved later by ≤ maxRange days, causing span violation", () => {
       const prev = { start: d("2026-03-31"), end: d("2026-04-06") }; // span=6
       const result = applyRangeRules(prev, d("2026-05-01"), "end", {
         ...defaultBounds,
         maxDate: d("2026-06-01"),
       });
-      // candidate: start=2026-03-31, end=2026-05-01 → span=31 > 30 → invalid
-      // derive: newStart = 2026-05-01 - 6 = 2026-04-25
-      expect(result.start.format("YYYY-MM-DD")).toBe("2026-04-25");
+      // candidate: start=2026-03-31, end=2026-05-01 → span=31 > 30, in order
+      // picked.diff(prev.end, 'day') = 25 ≤ 30 → widen: derivedStart = 2026-05-01 - 30 = 2026-04-01
+      expect(result.start.format("YYYY-MM-DD")).toBe("2026-04-01");
       expect(result.end.format("YYYY-MM-DD")).toBe("2026-05-01");
+    });
+  });
+
+  // ─── Widen-to-max-range exception ────────────────────────────────────────
+
+  describe("widen-to-max-range exception", () => {
+    // ── Start side ──────────────────────────────────────────────────────────
+
+    it("expands end to full maxRange when start moved earlier by < maxRange days causing violation", () => {
+      const prev = { start: d("2026-04-20"), end: d("2026-04-25") }; // span=5
+      const result = applyRangeRules(prev, d("2026-03-25"), "start", defaultBounds);
+      // candidate: Mar 25–Apr 25 = 31 days > 30, in order
+      // prev.start.diff(Mar 25, 'day') = 26 ≤ 30 → widen: end = Mar 25 + 30 = Apr 24
+      expect(result.start.format("YYYY-MM-DD")).toBe("2026-03-25");
+      expect(result.end.format("YYYY-MM-DD")).toBe("2026-04-24");
+    });
+
+    it("expands end to full maxRange when start moved exactly maxRange days earlier (boundary)", () => {
+      const prev = { start: d("2026-04-20"), end: d("2026-04-25") }; // span=5
+      const result = applyRangeRules(prev, d("2026-03-21"), "start", defaultBounds);
+      // prev.start.diff(Mar 21, 'day') = 30 = maxRange → widen: end = Mar 21 + 30 = Apr 20
+      expect(result.start.format("YYYY-MM-DD")).toBe("2026-03-21");
+      expect(result.end.format("YYYY-MM-DD")).toBe("2026-04-20");
+    });
+
+    it("preserves span (old rule) when start moved more than maxRange days earlier", () => {
+      const prev = { start: d("2026-04-20"), end: d("2026-04-25") }; // span=5
+      const result = applyRangeRules(prev, d("2026-03-20"), "start", defaultBounds);
+      // prev.start.diff(Mar 20, 'day') = 31 > 30 → old rule: end = Mar 20 + 5 = Mar 25
+      expect(result.start.format("YYYY-MM-DD")).toBe("2026-03-20");
+      expect(result.end.format("YYYY-MM-DD")).toBe("2026-03-25");
+    });
+
+    // ── End side ─────────────────────────────────────────────────────────────
+
+    it("expands start to full maxRange when end moved later by < maxRange days causing violation", () => {
+      const prev = { start: d("2026-04-20"), end: d("2026-04-25") }; // span=5
+      const result = applyRangeRules(prev, d("2026-05-21"), "end", {
+        ...defaultBounds,
+        maxDate: d("2026-12-31"),
+      });
+      // candidate: Apr 20–May 21 = 31 days > 30, in order
+      // May 21.diff(Apr 25, 'day') = 26 ≤ 30 → widen: start = May 21 - 30 = Apr 21
+      expect(result.start.format("YYYY-MM-DD")).toBe("2026-04-21");
+      expect(result.end.format("YYYY-MM-DD")).toBe("2026-05-21");
+    });
+
+    it("expands start to full maxRange when end moved exactly maxRange days later (boundary)", () => {
+      const prev = { start: d("2026-04-20"), end: d("2026-04-25") }; // span=5
+      const result = applyRangeRules(prev, d("2026-05-25"), "end", {
+        ...defaultBounds,
+        maxDate: d("2026-12-31"),
+      });
+      // May 25.diff(Apr 25, 'day') = 30 = maxRange → widen: start = May 25 - 30 = Apr 25
+      expect(result.start.format("YYYY-MM-DD")).toBe("2026-04-25");
+      expect(result.end.format("YYYY-MM-DD")).toBe("2026-05-25");
+    });
+
+    it("preserves span (old rule) when end moved more than maxRange days later", () => {
+      const prev = { start: d("2026-04-20"), end: d("2026-04-25") }; // span=5
+      const result = applyRangeRules(prev, d("2026-05-26"), "end", {
+        ...defaultBounds,
+        maxDate: d("2026-12-31"),
+      });
+      // May 26.diff(Apr 25, 'day') = 31 > 30 → old rule: start = May 26 - 5 = May 21
+      expect(result.start.format("YYYY-MM-DD")).toBe("2026-05-21");
+      expect(result.end.format("YYYY-MM-DD")).toBe("2026-05-26");
+    });
+
+    // ── Widen exception + clamping ────────────────────────────────────────────
+
+    it("clamps the widen-derived end to maxDate when it exceeds the bound", () => {
+      const prev = { start: d("2026-04-20"), end: d("2026-04-25") }; // span=5
+      // Use a tighter maxDate to force the clamp:
+      const result = applyRangeRules(prev, d("2026-03-25"), "start", {
+        ...defaultBounds,
+        maxDate: d("2026-04-20"),
+      });
+      // derivedEnd = Mar 25 + 30 = Apr 24 > maxDate Apr 20 → clamp to Apr 20
+      expect(result.start.format("YYYY-MM-DD")).toBe("2026-03-25");
+      expect(result.end.format("YYYY-MM-DD")).toBe("2026-04-20");
+    });
+
+    it("clamps the widen-derived start to minDate when it precedes the bound", () => {
+      const prev = { start: d("2019-10-10"), end: d("2019-10-25") }; // span=15
+      // Use tighter minDate to force clamp:
+      const result = applyRangeRules(prev, d("2019-11-10"), "end", {
+        minDate: d("2019-10-15"),
+        maxDate: d("2026-05-01"),
+        maxRange: 30,
+      });
+      // derivedStart = Nov 10 - 30 = Oct 11 < minDate Oct 15 → clamp to Oct 15
+      expect(result.start.format("YYYY-MM-DD")).toBe("2019-10-15");
+      expect(result.end.format("YYYY-MM-DD")).toBe("2019-11-10");
+    });
+
+    // ── Out-of-order candidate is NOT subject to the widen exception ──────────
+
+    it("does NOT apply widen exception when candidate is out-of-order (preserves span)", () => {
+      // Start picked after current end → out-of-order, not over-range
+      const prev = { start: d("2026-04-01"), end: d("2026-04-10") }; // span=9
+      const result = applyRangeRules(prev, d("2026-04-20"), "start", defaultBounds);
+      // candidate: Apr 20–Apr 10 → out of order (NOT over-range-in-order)
+      // widen exception does NOT apply; old rule: end = Apr 20 + 9 = Apr 29
+      expect(result.start.format("YYYY-MM-DD")).toBe("2026-04-20");
+      expect(result.end.format("YYYY-MM-DD")).toBe("2026-04-29");
+    });
+
+    // ── Custom maxRange ───────────────────────────────────────────────────────
+
+    it("uses custom maxRange as both the threshold and the expansion size", () => {
+      const bounds: RangeRulesBounds = {
+        minDate: d("2019-10-01"),
+        maxDate: d("2026-12-31"),
+        maxRange: 7,
+      };
+      const prev = { start: d("2026-04-10"), end: d("2026-04-14") }; // span=4
+      // pick start = 2026-04-03 → candidate: Apr 3–Apr 14 = 11 days > 7, in order
+      // prev.start.diff(Apr 3, 'day') = 7 ≤ 7 → widen: derivedEnd = Apr 3 + 7 = Apr 10
+      const result = applyRangeRules(prev, d("2026-04-03"), "start", bounds);
+      expect(result.start.format("YYYY-MM-DD")).toBe("2026-04-03");
+      expect(result.end.format("YYYY-MM-DD")).toBe("2026-04-10");
+    });
+
+    it("preserves span with custom maxRange when movement exceeds that maxRange", () => {
+      const bounds: RangeRulesBounds = {
+        minDate: d("2019-10-01"),
+        maxDate: d("2026-12-31"),
+        maxRange: 7,
+      };
+      const prev = { start: d("2026-04-10"), end: d("2026-04-14") }; // span=4
+      // pick start = 2026-04-02 → candidate: Apr 2–Apr 14 = 12 days > 7, in order
+      // prev.start.diff(Apr 2, 'day') = 8 > 7 → old rule: derivedEnd = Apr 2 + 4 = Apr 6
+      const result = applyRangeRules(prev, d("2026-04-02"), "start", bounds);
+      expect(result.start.format("YYYY-MM-DD")).toBe("2026-04-02");
+      expect(result.end.format("YYYY-MM-DD")).toBe("2026-04-06");
     });
   });
 
@@ -267,7 +403,7 @@ describe("applyRangeRules", () => {
       expect(result.end.format("YYYY-MM-DD")).toBe("2025-04-04");
     });
 
-    it("Example 2: prev=2026-05-01→2026-05-03 (span=2), pick start=2026-04-02 → 2026-04-02→2026-04-04", () => {
+    it("Example 2 updated: prev=2026-05-01→2026-05-03, pick start=2026-04-02 → expands to full max range: 2026-04-02→2026-05-02", () => {
       const prev = { start: d("2026-05-01"), end: d("2026-05-03") }; // span=2
       const bounds: RangeRulesBounds = {
         minDate: d("2019-10-01"),
@@ -275,10 +411,10 @@ describe("applyRangeRules", () => {
         maxRange: 30,
       };
       const result = applyRangeRules(prev, d("2026-04-02"), "start", bounds);
-      // candidate: start=2026-04-02, end=2026-05-03 → span=31 > 30 → invalid
-      // derive: newEnd = 2026-04-02 + 2 = 2026-04-04 → within bounds
+      // candidate: start=2026-04-02, end=2026-05-03 → span=31 > 30, in order
+      // prev.start.diff(picked, 'day') = 29 ≤ 30 → widen: derivedEnd = 2026-04-02 + 30 = 2026-05-02
       expect(result.start.format("YYYY-MM-DD")).toBe("2026-04-02");
-      expect(result.end.format("YYYY-MM-DD")).toBe("2026-04-04");
+      expect(result.end.format("YYYY-MM-DD")).toBe("2026-05-02");
     });
 
     it("Example 3: prev=2026-04-20→2026-04-25 (span=5), pick end=2026-04-22 → 2026-04-20→2026-04-22", () => {

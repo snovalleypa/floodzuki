@@ -58,16 +58,32 @@ export function applyRangeRules(
     return candidate;
   }
 
-  // Step 5: derive the other date using prevSpanDays
+  // Step 5: derive the other date.
+  //
+  // Widen exception: if the candidate failed only because the span exceeded
+  // maxRange (it was still in chronological order), AND the picked date hasn't
+  // moved more than maxRange days from its previous position on the same side,
+  // the user is likely trying to widen the range rather than navigate to a
+  // different part of the calendar. In that case, expand to the full maxRange
+  // instead of preserving the previous span.
+  const candidateOverRangeOnly = candidateInOrder && !candidateWithinMaxRange;
+  const distanceFromPrevSameSide =
+    side === "start"
+      ? prev.start.diff(clampedPicked, "day") // positive when picked is earlier
+      : clampedPicked.diff(prev.end, "day"); // positive when picked is later
+  const useWidenException = candidateOverRangeOnly && distanceFromPrevSameSide <= bounds.maxRange;
+
+  const spanToDerive = useWidenException ? bounds.maxRange : prevSpanDays;
+
   let derivedStart: Dayjs;
   let derivedEnd: Dayjs;
 
   if (side === "start") {
     derivedStart = clampedPicked;
-    derivedEnd = clampedPicked.add(prevSpanDays, "day");
+    derivedEnd = clampedPicked.add(spanToDerive, "day");
   } else {
     derivedEnd = clampedPicked;
-    derivedStart = clampedPicked.subtract(prevSpanDays, "day");
+    derivedStart = clampedPicked.subtract(spanToDerive, "day");
   }
 
   // Step 6: clamp the derived date to bounds
