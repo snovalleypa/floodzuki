@@ -28,12 +28,12 @@ type GoogleRecaptchaProps = {
   onExpire: () => void;
 };
 
-type WebRecpatcha = Pick<GoogleRecaptchaProps, "onVerify" | "onExpire">;
+type WebRecaptchaProps = Pick<GoogleRecaptchaProps, "onVerify" | "onExpire">;
 
 const RECAPTCHA_KEY = Constants.expoConfig.extra.recaptchaKey;
 
 // eslint-disable-next-line react/display-name
-const WebRecpatcha = React.forwardRef(({ onVerify, onExpire }: WebRecpatcha, ref) => {
+const WebRecaptchaInner = React.forwardRef(({ onVerify, onExpire }: WebRecaptchaProps, ref) => {
   const isRendered = useRef(false);
 
   const uniqueId = Math.random().toString(36).substring(2, 15);
@@ -107,7 +107,7 @@ const GoogleRecaptcha = React.forwardRef((props: GoogleRecaptchaProps, ref) => {
 
   return (
     <Ternary condition={isWeb}>
-      <WebRecpatcha ref={recaptchaWeb} onVerify={onVerify} onExpire={onExpire} />
+      <WebRecaptchaInner ref={recaptchaWeb} onVerify={onVerify} onExpire={onExpire} />
       <Recaptcha
         ref={recaptcha as any}
         siteKey={RECAPTCHA_KEY}

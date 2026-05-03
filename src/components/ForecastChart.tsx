@@ -16,8 +16,6 @@ import { Cell } from "@common-ui/components/Common";
 import { SegmentControl } from "@common-ui/components/SegmentControl";
 import { useStores } from "@models/helpers/useStores";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
-import { ForecastChartNative } from "./ForecastChartNative";
-import type { ForecastChartOptions } from "./ForecastChartNative";
 import { CHART_HEIGHT } from "./forecastChartConstants";
 
 interface ForecastChartProps {
@@ -67,7 +65,7 @@ const Charts = (props: ChartsProps) => {
 
   return (
     <Ternary condition={isMobile}>
-      <ForecastChartNative options={options as unknown as ForecastChartOptions} />
+      <HighchartsReactNative options={options} styles={{ height: CHART_HEIGHT }} />
       <LocalHighchartsReact options={options} />
     </Ternary>
   );
