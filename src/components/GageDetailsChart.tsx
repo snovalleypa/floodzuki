@@ -544,8 +544,11 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
             borderRadius: Spacing.tiny,
             paddingHorizontal: Spacing.extraSmall,
             paddingVertical: Spacing.extraSmall,
+            alignItems: "center",
           }}>
-          <RegularText>{t("gageDetailsChart.rangeWarning")}</RegularText>
+          <RegularText style={{ textAlign: "center" }}>
+            {t("gageDetailsChart.rangeWarning")}
+          </RegularText>
         </View>
       )}
       <Ternary condition={!Object.keys(chartOptions).length || hideChart}>
