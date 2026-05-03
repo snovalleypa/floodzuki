@@ -4,6 +4,7 @@ import { observer } from "mobx-react-lite";
 import { useLocalSearchParams, useRouter } from "expo-router";
 
 import LocalHighchartsReact from "@services/highcharts/LocalHighchartsReact";
+import HighchartsReactNative from "@services/highcharts/HighchartsReactNative";
 
 import { Gage, GageChartDataType } from "@models/Gage";
 import { If, Ternary } from "@common-ui/components/Conditional";
@@ -33,8 +34,6 @@ import { Dayjs } from "dayjs";
 import { normalizeSearchParams } from "@utils/navigation";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import { useDatePicker } from "@common-ui/contexts/DatePickerContext";
-import { GageDetailsChartNative } from "./GageDetailsChartNative";
-import type { GageDetailsChartOptions } from "./GageDetailsChartNative";
 
 interface GageDetailsChartProps {
   gage: Gage;
@@ -79,18 +78,16 @@ const CHART_DATA_TYPES = (t) => [
 
 const SELECT_EVENT = "gageDetailsChart._selectEvent";
 
-const Charts = (props: ChartsProps) => {
-  const { options } = props;
-
+const Charts = React.memo(function Charts({ options }: ChartsProps) {
   return (
     <Cell height={320}>
       <Ternary condition={isMobile}>
-        <GageDetailsChartNative options={options as unknown as GageDetailsChartOptions} />
+        <HighchartsReactNative options={options} styles={{ height: 320 }} />
         <LocalHighchartsReact options={options} />
       </Ternary>
     </Cell>
   );
-};
+});
 
 const PickerSelector = ({
   floodEvents = [],
@@ -386,12 +383,23 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
 
     chartRange.changeDates(fromDayjs, toDayjs);
 
-    setRange({
-      chartStartDate: chartRange.chartStartDate,
-      chartEndDate: chartRange.chartEndDate,
+    const newStart = chartRange.chartStartDate;
+    const newEnd = chartRange.chartEndDate;
+
+    // Only create a new range object when dates actually changed — a new object
+    // reference unconditionally triggers useGageChartOptions to recompute all
+    // chart series, which is expensive on native.
+    setRange((currentRange) => {
+      if (
+        newStart.valueOf() === currentRange.chartStartDate.valueOf() &&
+        newEnd.valueOf() === currentRange.chartEndDate.valueOf()
+      ) {
+        return currentRange; // same reference → React bails out, no re-render
+      }
+      return { chartStartDate: newStart, chartEndDate: newEnd };
     });
 
-    refreshData(chartRange.chartStartDate.utc().format(), chartRange.chartEndDate.utc().format());
+    refreshData(newStart.utc().format(), newEnd.utc().format());
   }, [dateRange.from, dateRange.to, gage?.locationId, isDataFetched]);
 
   const refetchData = () => {
