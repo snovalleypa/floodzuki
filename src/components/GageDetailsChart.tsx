@@ -335,6 +335,7 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
   const [range, setRange] = useState({
     chartStartDate: chartRange.chartStartDate,
     chartEndDate: chartRange.chartEndDate,
+    isNow: chartRange.isNow,
   });
 
   const rangeOption = useMemo(() => {
@@ -401,13 +402,15 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
     // reference unconditionally triggers useGageChartOptions to recompute all
     // chart series, which is expensive on native.
     setRange((currentRange) => {
+      const newIsNow = chartRange.isNow;
       if (
         fromDayjs.valueOf() === currentRange.chartStartDate.valueOf() &&
-        newEnd.valueOf() === currentRange.chartEndDate.valueOf()
+        newEnd.valueOf() === currentRange.chartEndDate.valueOf() &&
+        newIsNow === currentRange.isNow
       ) {
         return currentRange; // same reference → React bails out, no re-render
       }
-      return { chartStartDate: fromDayjs, chartEndDate: newEnd };
+      return { chartStartDate: fromDayjs, chartEndDate: newEnd, isNow: newIsNow };
     });
 
     refreshData(fromDayjs.utc().format(), newEnd.utc().format());
@@ -434,6 +437,7 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
     setRange({
       chartStartDate: chartRange.chartStartDate,
       chartEndDate: chartRange.chartEndDate,
+      isNow: chartRange.isNow,
     });
 
     router.setParams({
@@ -451,6 +455,7 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
     setRange({
       chartStartDate: from,
       chartEndDate: chartRange.chartEndDate,
+      isNow: chartRange.isNow,
     });
 
     router.setParams({
