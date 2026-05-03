@@ -56,10 +56,7 @@ export default {
   },
   android: {
     package: "com.floodzilla.floodzuki",
-    googleServicesFile:
-      isLocalBuild && existsSync("./google-services.json")
-        ? "./google-services.json"
-        : process.env.GOOGLE_SERVICES_JSON,
+    googleServicesFile: isLocalBuild ? "./google-services.json" : process.env.GOOGLE_SERVICES_JSON,
     intentFilters: [
       {
         action: "VIEW",
