@@ -1,4 +1,5 @@
 import React from "react";
+import { usePathname } from "expo-router";
 
 type DatePickerContextType = {
   isVisible: boolean;
@@ -18,15 +19,21 @@ export const DatePickerProvider = ({ children }: { children: React.ReactNode }) 
   const [isVisible, setIsVisible] = React.useState(false);
   const [content, setContent] = React.useState<React.ReactNode>(null);
 
-  const showPicker = (content: React.ReactNode) => {
-    setContent(content);
-    setIsVisible(true);
-  };
+  const pathname = usePathname();
 
-  const hidePicker = () => {
+  const hidePicker = React.useCallback(() => {
     setIsVisible(false);
     setContent(null);
-  };
+  }, []);
+
+  const showPicker = React.useCallback((newContent: React.ReactNode) => {
+    setContent(newContent);
+    setIsVisible(true);
+  }, []);
+
+  React.useEffect(() => {
+    hidePicker();
+  }, [pathname, hidePicker]);
 
   return (
     <DatePickerContext.Provider value={{ isVisible, showPicker, hidePicker }}>

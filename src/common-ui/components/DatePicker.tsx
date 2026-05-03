@@ -6,12 +6,11 @@ import { ScrollView } from "react-native-gesture-handler";
 import { SmallTitle, RegularText } from "./Text";
 import { Spacing } from "@common-ui/constants/spacing";
 import { If, Ternary } from "./Conditional";
-import { Pressable, View, ViewStyle, useWindowDimensions } from "react-native";
+import { Platform, Pressable, View, ViewStyle, useWindowDimensions } from "react-native";
 import { Colors } from "@common-ui/constants/colors";
 import { SegmentControl } from "./SegmentControl";
 import { Card } from "./Card";
-import { useResponsive } from "@common-ui/utils/responsive";
-import { BottomSheetModal } from "@gorhom/bottom-sheet";
+import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
 import { useDatePicker } from "@common-ui/contexts/DatePickerContext";
 import { measure, useAnimatedRef } from "react-native-reanimated";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
@@ -271,7 +270,7 @@ const DatePicker = (props: DatePickerProps) => {
 // eslint-disable-next-line react/display-name
 const DatePickerComponent = React.forwardRef((props: DatePickerProps, ref) => {
   const { minYear = 1990, maxYear = localDayJs().year(), selectedDate, title, onChange } = props;
-  const { isMobile } = useResponsive();
+  const isNativeMobile = Platform.OS !== "web";
 
   const { width } = useWindowDimensions();
 
@@ -283,13 +282,20 @@ const DatePickerComponent = React.forwardRef((props: DatePickerProps, ref) => {
   const datePickerContext = useDatePicker();
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
+  // Sync local isOpen when picker is dismissed externally (navigation, range change, etc.)
+  useEffect(() => {
+    if (!datePickerContext.isVisible) {
+      setIsOpen(false);
+    }
+  }, [datePickerContext.isVisible]);
+
   const handleChange = (date: Dayjs) => {
     close();
     onChange?.(date);
   };
 
   useEffect(() => {
-    if (isMobile) {
+    if (isNativeMobile) {
       return;
     }
 
@@ -307,11 +313,13 @@ const DatePickerComponent = React.forwardRef((props: DatePickerProps, ref) => {
 
       const offsetLeft = pageX - Spacing.medium;
       const leftOffset =
-        offsetLeft + PICKER_WIDTH > width ? width - PICKER_WIDTH - Spacing.small : offsetLeft;
+        width < Spacing.tabletWidth
+          ? (width - PICKER_WIDTH) / 2
+          : Math.min(offsetLeft, width - PICKER_WIDTH - Spacing.small);
 
       setIsOpen(true);
 
-      if (isMobile) {
+      if (isNativeMobile) {
         bottomSheetModalRef.current?.present();
       } else {
         datePickerContext.showPicker(
@@ -338,7 +346,7 @@ const DatePickerComponent = React.forwardRef((props: DatePickerProps, ref) => {
   const close = () => {
     setIsOpen(false);
 
-    if (isMobile) {
+    if (isNativeMobile) {
       bottomSheetModalRef.current?.dismiss();
     } else {
       datePickerContext.hidePicker();
@@ -371,25 +379,18 @@ const DatePickerComponent = React.forwardRef((props: DatePickerProps, ref) => {
       <View ref={pickerRef}>
         <RegularText text={formattedDate} />
       </View>
-      <BottomSheetModal
-        index={0}
-        ref={bottomSheetModalRef}
-        snapPoints={["40%"]}
-        style={$bottomSheetStyleMobile}>
-        <Cell
-          flex
-          height={170}
-          horizontal={Spacing.small}
-          top={Spacing.medium}
-          bottom={Spacing.extraLarge}>
-          <DatePicker
-            title={title}
-            minYear={minYear}
-            maxYear={maxYear}
-            selectedDate={selectedDate}
-            onChange={handleChange}
-          />
-        </Cell>
+      <BottomSheetModal index={0} ref={bottomSheetModalRef} style={$bottomSheetStyleMobile}>
+        <BottomSheetView>
+          <Cell horizontal={Spacing.small} top={Spacing.medium} bottom={Spacing.extraLarge}>
+            <DatePicker
+              title={title}
+              minYear={minYear}
+              maxYear={maxYear}
+              selectedDate={selectedDate}
+              onChange={handleChange}
+            />
+          </Cell>
+        </BottomSheetView>
       </BottomSheetModal>
     </>
   );

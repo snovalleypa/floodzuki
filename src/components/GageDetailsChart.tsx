@@ -33,6 +33,7 @@ import DateRangePicker from "@common-ui/components/DateRangePicker";
 import { Dayjs } from "dayjs";
 import { normalizeSearchParams } from "@utils/navigation";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
+import { useDatePicker } from "@common-ui/contexts/DatePickerContext";
 
 interface GageDetailsChartProps {
   gage: Gage;
@@ -124,6 +125,7 @@ const HistoricEvents = observer(function HistoricEvents({
   const router = useRouter();
   const { t } = useLocale();
   const { historicEventId } = useLocalSearchParams();
+  const { hidePicker } = useDatePicker();
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
   const [selectedEvent, setSelectedEvent] = useState<string | undefined>();
@@ -141,6 +143,7 @@ const HistoricEvents = observer(function HistoricEvents({
         from: undefined,
         to: undefined,
       });
+      hidePicker();
       return;
     }
 
@@ -157,6 +160,7 @@ const HistoricEvents = observer(function HistoricEvents({
       to: localDayJs.tz(event.toDate).format("YYYY-MM-DD"),
     });
 
+    hidePicker();
     bottomSheetModalRef.current?.dismiss();
   };
 
@@ -309,6 +313,7 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
   const { t } = useLocale();
   const { from, to } = useLocalSearchParams();
   const { gagesStore, isDataFetched } = useStores();
+  const { hidePicker } = useDatePicker();
 
   const { isMobile } = useResponsive();
 
@@ -351,9 +356,11 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
       : null
   );
 
-  // Fetch data on mount but first wait for main data to be fetched
+  // Fetch data on mount but first wait for main data to be fetched.
+  // Skip if already in historical mode — the dateRange effect handles that case
+  // and re-running this would race against an in-progress historical fetch.
   useEffect(() => {
-    if (gage?.locationId && isDataFetched) {
+    if (gage?.locationId && isDataFetched && chartRange.isNow) {
       gagesStore.fetchDataForGage(
         gage?.locationId,
         chartRange.chartStartDate.utc().format(),
@@ -365,24 +372,24 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
   }, [gage?.locationId, isDataFetched]);
 
   useEffect(() => {
-    if (dateRange.from && dateRange.to) {
-      // Convert to Dayjs objects
-      // @ts-ignore
-      const fromDayjs = localDayJs.tz(dateRange.from).startOf("day");
-      // @ts-ignore
-      const toDayjs = localDayJs.tz(dateRange.to).endOf("day");
-
-      // Update chart range
-      chartRange.changeDates(fromDayjs, toDayjs);
-
-      setRange({
-        chartStartDate: chartRange.chartStartDate,
-        chartEndDate: chartRange.chartEndDate,
-      });
-
-      refreshData(chartRange.chartStartDate.utc().format(), chartRange.chartEndDate.utc().format());
+    if (!dateRange.from || !dateRange.to || !gage?.locationId || !isDataFetched) {
+      return;
     }
-  }, [dateRange.from, dateRange.to]);
+
+    // @ts-ignore
+    const fromDayjs = localDayJs.tz(dateRange.from).startOf("day");
+    // @ts-ignore
+    const toDayjs = localDayJs.tz(dateRange.to).endOf("day");
+
+    chartRange.changeDates(fromDayjs, toDayjs);
+
+    setRange({
+      chartStartDate: chartRange.chartStartDate,
+      chartEndDate: chartRange.chartEndDate,
+    });
+
+    refreshData(chartRange.chartStartDate.utc().format(), chartRange.chartEndDate.utc().format());
+  }, [dateRange.from, dateRange.to, gage?.locationId, isDataFetched]);
 
   const refetchData = () => {
     refreshData();
@@ -399,6 +406,7 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
   };
 
   const onRangeChange = (key: string) => {
+    hidePicker();
     chartRange.changeDays(parseInt(key));
 
     setRange({
