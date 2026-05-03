@@ -313,11 +313,9 @@ const DatePickerComponent = React.forwardRef((props: DatePickerProps, ref) => {
 
       const offsetLeft = pageX - Spacing.medium;
       const leftOffset =
-        width < 768
+        width < Spacing.tabletWidth
           ? (width - PICKER_WIDTH) / 2
-          : offsetLeft + PICKER_WIDTH > width
-          ? width - PICKER_WIDTH - Spacing.small
-          : offsetLeft;
+          : Math.min(offsetLeft, width - PICKER_WIDTH - Spacing.small);
 
       setIsOpen(true);
 
