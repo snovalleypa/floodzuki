@@ -9,6 +9,7 @@ export type RangeRulesBounds = {
 export type RangeRulesResult = {
   start: Dayjs;
   end: Dayjs;
+  wasRestricted: boolean;
 };
 
 /**
@@ -36,8 +37,8 @@ export function applyRangeRules(
   // Step 3: build candidate using clamped picked date
   const candidate: RangeRulesResult =
     side === "start"
-      ? { start: clampedPicked, end: prev.end }
-      : { start: prev.start, end: clampedPicked };
+      ? { start: clampedPicked, end: prev.end, wasRestricted: false }
+      : { start: prev.start, end: clampedPicked, wasRestricted: false };
 
   // Step 4: check if candidate is valid
   const candidateSpan = candidate.end.diff(candidate.start, "day");
@@ -119,5 +120,5 @@ export function applyRangeRules(
     }
   }
 
-  return { start: derivedStart, end: derivedEnd };
+  return { start: derivedStart, end: derivedEnd, wasRestricted: useWidenException };
 }
