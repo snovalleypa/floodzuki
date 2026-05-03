@@ -540,14 +540,12 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
       {showRangeWarning && (
         <View
           style={{
-            backgroundColor: "#FEF3C7",
+            backgroundColor: Colors.softYellow,
             borderRadius: Spacing.tiny,
             paddingHorizontal: Spacing.extraSmall,
             paddingVertical: Spacing.extraSmall,
           }}>
-          <RegularText style={{ color: "#92400E" }}>
-            Range adjusted to 30 days — the maximum this chart supports.
-          </RegularText>
+          <RegularText>{t("gageDetailsChart.rangeWarning")}</RegularText>
         </View>
       )}
       <Ternary condition={!Object.keys(chartOptions).length || hideChart}>

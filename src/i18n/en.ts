@@ -266,6 +266,7 @@ const en = {
     historicalEvents: "Historical Events",
     rateOfChange: "Rate of Change",
     roadLevel: "Road Level",
+    rangeWarning: "Range adjusted to 30 days — the maximum this chart supports.",
   },
   gageInfoCard: {
     gageInfo: "Gauge Info",
