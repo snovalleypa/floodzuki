@@ -331,12 +331,16 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
 
   const chartRange = useChartRange(dateRange.from, dateRange.to);
 
-  const [rangeOption, setRangeOption] = useState("2");
   const [chartDataType, setChartDataType] = useState<GageChartDataType>(GageChartDataType.LEVEL);
   const [range, setRange] = useState({
     chartStartDate: chartRange.chartStartDate,
     chartEndDate: chartRange.chartEndDate,
   });
+
+  const rangeOption = useMemo(() => {
+    const diff = Math.round(range.chartEndDate.diff(range.chartStartDate, "day", true));
+    return (["1", "2", "7", "14"] as const).find((k) => parseInt(k) === diff) ?? "";
+  }, [range]);
 
   // Fetch data periodically
   useInterval(
@@ -438,7 +442,6 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
       to: chartRange.chartEndDate.utc().format(),
     });
 
-    setRangeOption(key);
     refreshData(chartRange.chartStartDate.utc().format(), chartRange.chartEndDate.utc().format());
   };
 
