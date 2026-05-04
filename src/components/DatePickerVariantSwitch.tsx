@@ -2,6 +2,7 @@ import React from "react";
 import { Dayjs } from "dayjs";
 import DateRangePicker from "@common-ui/components/DateRangePicker";
 import { SplitDateRangePicker } from "@common-ui/components/SplitDateRangePicker";
+import { DateRangePickerRangeV1 } from "@common-ui/components/DateRangePickerRangeV1";
 import Config from "@config/config";
 
 type DatePickerVariantSwitchProps = {
@@ -27,6 +28,17 @@ const DatePickerVariantSwitch = (props: DatePickerVariantSwitchProps) => {
         timezone={timezone}
         onChange={onChange}
         onRangeRestricted={onRangeRestricted}
+      />
+    );
+  }
+
+  if (variant === "range-v1") {
+    return (
+      <DateRangePickerRangeV1
+        startDate={startDate}
+        endDate={endDate}
+        timezone={timezone}
+        onChange={onChange}
       />
     );
   }

@@ -6,7 +6,7 @@ import DatePickerVariantSwitch from "../DatePickerVariantSwitch";
 jest.mock("@config/config", () => ({
   DATE_PICKER_VARIANT: {
     default: "legacy",
-    byLocationId: { "USGS-38": "split-v1" },
+    byLocationId: { "USGS-38": "split-v1", "USGS-22": "range-v1" },
   },
 }));
 
@@ -24,6 +24,15 @@ jest.mock("@common-ui/components/SplitDateRangePicker", () => {
   return {
     SplitDateRangePicker: function MockSplitDateRangePicker() {
       return React.createElement(View, { testID: "split-picker" });
+    },
+  };
+});
+jest.mock("@common-ui/components/DateRangePickerRangeV1", () => {
+  const React = require("react");
+  const { View } = require("react-native");
+  return {
+    DateRangePickerRangeV1: function MockRangeV1() {
+      return React.createElement(View, { testID: "range-v1-picker" });
     },
   };
 });
@@ -47,11 +56,12 @@ describe("DatePickerVariantSwitch", () => {
 
   it("renders DateRangePicker for a locationId not in the map", () => {
     const { queryByTestId } = render(
-      <DatePickerVariantSwitch locationId="USGS-22" {...baseProps} />
+      <DatePickerVariantSwitch locationId="USGS-9" {...baseProps} />
     );
 
     expect(queryByTestId("legacy-picker")).not.toBeNull();
     expect(queryByTestId("split-picker")).toBeNull();
+    expect(queryByTestId("range-v1-picker")).toBeNull();
   });
 
   it("renders DateRangePicker when locationId is undefined (falls back to default)", () => {
@@ -61,5 +71,16 @@ describe("DatePickerVariantSwitch", () => {
 
     expect(queryByTestId("legacy-picker")).not.toBeNull();
     expect(queryByTestId("split-picker")).toBeNull();
+    expect(queryByTestId("range-v1-picker")).toBeNull();
+  });
+
+  it("renders DateRangePickerRangeV1 for locationId mapped to range-v1", () => {
+    const { queryByTestId } = render(
+      <DatePickerVariantSwitch locationId="USGS-22" {...baseProps} />
+    );
+
+    expect(queryByTestId("range-v1-picker")).not.toBeNull();
+    expect(queryByTestId("split-picker")).toBeNull();
+    expect(queryByTestId("legacy-picker")).toBeNull();
   });
 });
