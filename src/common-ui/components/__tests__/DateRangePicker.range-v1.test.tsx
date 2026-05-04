@@ -13,6 +13,7 @@ jest.mock("react-native-ui-datepicker", () => ({
     capturedPickerOnChange = onChange;
     return null;
   },
+  useDefaultStyles: () => ({}),
 }));
 
 jest.mock("@gorhom/bottom-sheet", () => ({
@@ -90,9 +91,13 @@ describe("DateRangePickerRangeV1", () => {
       const { getByTestId } = render(<DateRangePickerRangeV1 {...baseProps} />);
       fireEvent.press(getByTestId("range-v1-trigger"));
 
-      // Simulate first tap: within range, endDate undefined
+      // Simulate first tap: real library reports {startDate: existing_start, endDate: tap}
+      // when the click is within the existing range
       act(() => {
-        capturedPickerOnChange!({ startDate: dayjs("2026-04-22").toDate(), endDate: undefined });
+        capturedPickerOnChange!({
+          startDate: dayjs("2026-04-20").toDate(),
+          endDate: dayjs("2026-04-22").toDate(),
+        });
       });
 
       const setButton = getByTestId("range-v1-set-button");

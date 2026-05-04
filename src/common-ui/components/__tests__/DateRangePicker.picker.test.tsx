@@ -5,10 +5,10 @@ import dayjs from "dayjs";
 import { DateRangePickerRangeV1 } from "../DateRangePickerRangeV1";
 
 let capturedProps: {
-  startDate?: Date;
-  endDate?: Date;
-  minDate?: Date;
-  maxDate?: Date;
+  startDate?: string;
+  endDate?: string;
+  minDate?: string;
+  maxDate?: string;
   onChange?: (params: { startDate?: Date; endDate?: Date }) => void;
 } = {};
 
@@ -18,6 +18,7 @@ jest.mock("react-native-ui-datepicker", () => ({
     capturedProps = props;
     return null;
   },
+  useDefaultStyles: () => ({}),
 }));
 
 jest.mock("@gorhom/bottom-sheet", () => ({
@@ -69,22 +70,19 @@ beforeEach(() => {
 });
 
 describe("DateRangePickerRangeV1 — picker props", () => {
-  it("passes startDate and endDate as Date objects matching initial props", () => {
+  it("passes startDate and endDate as YYYY-MM-DD strings matching initial props", () => {
     const { getByTestId } = render(<DateRangePickerRangeV1 {...baseProps} />);
     fireEvent.press(getByTestId("range-v1-trigger"));
 
-    expect(capturedProps.startDate).toBeInstanceOf(Date);
-    expect(capturedProps.endDate).toBeInstanceOf(Date);
-    expect(dayjs(capturedProps.startDate).format("YYYY-MM-DD")).toBe("2026-04-20");
-    expect(dayjs(capturedProps.endDate).format("YYYY-MM-DD")).toBe("2026-04-25");
+    expect(capturedProps.startDate).toBe("2026-04-20");
+    expect(capturedProps.endDate).toBe("2026-04-25");
   });
 
   it("passes minDate = 2019-10-01 by default", () => {
     const { getByTestId } = render(<DateRangePickerRangeV1 {...baseProps} />);
     fireEvent.press(getByTestId("range-v1-trigger"));
 
-    expect(capturedProps.minDate).toBeInstanceOf(Date);
-    expect(dayjs(capturedProps.minDate).format("YYYY-MM-DD")).toBe("2019-10-01");
+    expect(capturedProps.minDate).toBe("2019-10-01");
   });
 
   it("passes maxDate = today by default", () => {

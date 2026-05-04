@@ -1,7 +1,7 @@
 import React, { useMemo, useRef, useState } from "react";
 import { Modal, Platform, Pressable, View, ViewStyle } from "react-native";
 import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
-import DateTimePicker, { DateType } from "react-native-ui-datepicker";
+import DateTimePicker, { DateType, useDefaultStyles } from "react-native-ui-datepicker";
 import { Dayjs } from "dayjs";
 import localDayJs from "@services/localDayJs";
 import {
@@ -59,16 +59,18 @@ const RangeCalendarSheet = ({
   onCancel,
 }: RangeCalendarSheetProps) => {
   const setDisabled = pickerState.proposedEnd === null;
+  const defaultStyles = useDefaultStyles();
 
   return (
     <Cell horizontal={Spacing.small} top={Spacing.medium} bottom={Spacing.extraLarge}>
       <DateTimePicker
         mode="range"
-        startDate={pickerState.proposedStart.toDate()}
-        endDate={pickerState.proposedEnd?.toDate()}
-        minDate={resolvedMinDate.toDate()}
-        maxDate={effectiveMaxDate.toDate()}
+        startDate={pickerState.proposedStart.format("YYYY-MM-DD")}
+        endDate={pickerState.proposedEnd?.format("YYYY-MM-DD")}
+        minDate={resolvedMinDate.format("YYYY-MM-DD")}
+        maxDate={effectiveMaxDate.format("YYYY-MM-DD")}
         onChange={onPickerChange}
+        styles={defaultStyles}
       />
       <Row align="center" top={Spacing.small}>
         <OutlinedButton title="Cancel" onPress={onCancel} testID="range-v1-cancel-button" />
@@ -159,16 +161,14 @@ export const DateRangePickerRangeV1 = ({
     startDate: DateType;
     endDate: DateType;
   }) => {
-    if (!pickedStart) {
-      return;
-    }
-    const tapped = localDayJs(pickedStart as Date).tz(timezone);
+    const newStart = pickedStart ? localDayJs(pickedStart as Date).tz(timezone) : null;
+    const newEnd = pickedEnd ? localDayJs(pickedEnd as Date).tz(timezone) : null;
 
-    if (pickedEnd && pickerState.selectionPhase === "awaitingEnd" && pickerState.tentativeStart) {
-      // Second tap: Case 2a end selection
-      const endDayjs = localDayJs(pickedEnd as Date).tz(timezone);
-      const result = applySecondTap(pickerState.tentativeStart, endDayjs);
-      // Re-anchor so any subsequent tap in this session classifies against the new range
+    // Awaiting-end branch: completing a Case 2a selection. The library returns a properly
+    // ordered { startDate, endDate } pair on the second tap; trust its ordering rather than
+    // assuming the second tap is after tentativeStart.
+    if (pickerState.selectionPhase === "awaitingEnd" && newStart && newEnd) {
+      const result = applySecondTap(newStart, newEnd);
       capturedPrevRef.current = {
         prevStart: result.proposedStart,
         prevEnd: result.proposedEnd,
@@ -185,7 +185,25 @@ export const DateRangePickerRangeV1 = ({
       return;
     }
 
-    // First tap
+    // First-tap branch. The library reports the user's click in whichever of (startDate, endDate)
+    // differs from our prior proposed state — when the user clicks within the existing range,
+    // the library keeps the existing start and reports the click as endDate.
+    const proposedStartStr = pickerState.proposedStart.format("YYYY-MM-DD");
+    const proposedEndStr = pickerState.proposedEnd?.format("YYYY-MM-DD") ?? null;
+    let tapped: Dayjs | null = null;
+    if (newStart && newStart.format("YYYY-MM-DD") !== proposedStartStr) {
+      tapped = newStart;
+    } else if (newEnd && newEnd.format("YYYY-MM-DD") !== proposedEndStr) {
+      tapped = newEnd;
+    } else if (newStart && !pickerState.proposedEnd) {
+      // Awaiting-end fallback: only one date returned, treat as the tap
+      tapped = newStart;
+    }
+
+    if (!tapped) {
+      return;
+    }
+
     const { prevStart, prevEnd, prevSpanDays } = capturedPrevRef.current;
     const result: FirstTapResult = applyFirstTap({
       tapped,
