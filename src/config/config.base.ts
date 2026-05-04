@@ -81,8 +81,8 @@ const BaseConfig: {
   FORECAST_GAGE_IDS: string[];
   GAGES_WITHOUT_DISHCARGE: string[];
   DATE_PICKER_VARIANT: {
-    default: "legacy" | "split-v1";
-    byLocationId: Record<string, "legacy" | "split-v1">;
+    default: "legacy" | "split-v1" | "range-v1";
+    byLocationId: Record<string, "legacy" | "split-v1" | "range-v1">;
   };
 } = {
   BASE_URL: "https://floodzilla.com",
@@ -114,7 +114,7 @@ const BaseConfig: {
   GAGES_WITHOUT_DISHCARGE: ["USGS-9"],
   DATE_PICKER_VARIANT: {
     default: "legacy",
-    byLocationId: { "USGS-38": "split-v1", "SVPA-26": "split-v1" },
+    byLocationId: { "USGS-38": "split-v1", "SVPA-26": "split-v1", "USGS-22": "range-v1" },
   },
 };
 
