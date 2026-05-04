@@ -147,7 +147,7 @@ const HeaderComponent = ({ gages, region }: { gages: Gage[]; region: Region }) =
         innerVertical={Spacing.tiny}
         bottom={Spacing.small}>
         <GageMap
-          gages={gages}
+          gages={gages || []}
           region={region}
           onGagePress={(gage) => {
             if (gage && router) {
