@@ -1,5 +1,3 @@
-import { existsSync } from "fs";
-
 const isLocalBuild = process.env.BUILD_ENV === "local";
 
 process.env.EXPO_TUNNEL_SUBDOMAIN = "floodzuki";
