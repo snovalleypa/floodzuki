@@ -16,8 +16,7 @@ import { Cell } from "@common-ui/components/Common";
 import { SegmentControl } from "@common-ui/components/SegmentControl";
 import { useStores } from "@models/helpers/useStores";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
-
-export const CHART_HEIGHT = 400;
+import { CHART_HEIGHT } from "./forecastChartConstants";
 
 interface ForecastChartProps {
   gages: GageSummary[];

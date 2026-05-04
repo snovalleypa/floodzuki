@@ -25,7 +25,7 @@ import Icon from "@common-ui/components/Icon";
 import { isWeb, useResponsive } from "@common-ui/utils/responsive";
 import { openLinkInBrowser } from "@utils/navigation";
 import { useAppAssets } from "@common-ui/contexts/AssetsContext";
-import { useRegisterPushNotificationsListener } from "@services/pushNotifications";
+import { useRegisterPushNotificationsListener } from "@services/usePushNotificationsListener";
 import { useCheckForUpdates } from "@services/expoUpdates";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import LocaleChange from "@components/LocaleChange";
