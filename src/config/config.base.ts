@@ -81,8 +81,8 @@ const BaseConfig: {
   FORECAST_GAGE_IDS: string[];
   GAGES_WITHOUT_DISHCARGE: string[];
   DATE_PICKER_VARIANT: {
-    default: "legacy" | "split-v1" | "range-v1";
-    byLocationId: Record<string, "legacy" | "split-v1" | "range-v1">;
+    default: "legacy" | "split-v1" | "range-v1" | "range-v2";
+    byLocationId: Record<string, "legacy" | "split-v1" | "range-v1" | "range-v2">;
   };
 } = {
   BASE_URL: "https://floodzilla.com",
