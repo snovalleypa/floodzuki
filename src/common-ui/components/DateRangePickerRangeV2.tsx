@@ -212,7 +212,7 @@ export const DateRangePickerRangeV2 = ({
           size={Spacing.medium}
           right={Spacing.extraSmall}
         />
-        <RegularText text={`${formattedStart} – ${formattedEnd}`} />
+        <RegularText text={`${formattedStart} – ${formattedEnd}`} numberOfLines={1} />
       </Pressable>
 
       {isNative && (
