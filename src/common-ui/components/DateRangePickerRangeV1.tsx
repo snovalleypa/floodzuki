@@ -59,7 +59,15 @@ const RangeCalendarSheet = ({
   onCancel,
 }: RangeCalendarSheetProps) => {
   const setDisabled = pickerState.proposedEnd === null;
-  const defaultStyles = useDefaultStyles();
+  const defaultStyles = useDefaultStyles("light");
+  const calendarStyles = useMemo(
+    () => ({
+      ...defaultStyles,
+      button_prev_image: { tintColor: Colors.darkGrey },
+      button_next_image: { tintColor: Colors.darkGrey },
+    }),
+    [defaultStyles]
+  );
 
   return (
     <Cell horizontal={Spacing.small} top={Spacing.medium} bottom={Spacing.extraLarge}>
@@ -69,17 +77,26 @@ const RangeCalendarSheet = ({
         endDate={pickerState.proposedEnd?.format("YYYY-MM-DD")}
         minDate={resolvedMinDate.format("YYYY-MM-DD")}
         maxDate={effectiveMaxDate.format("YYYY-MM-DD")}
+        showOutsideDays
         onChange={onPickerChange}
-        styles={defaultStyles}
+        styles={calendarStyles}
       />
       <Row align="center" top={Spacing.small}>
-        <OutlinedButton title="Cancel" onPress={onCancel} testID="range-v1-cancel-button" />
-        <Cell left={Spacing.small}>
+        <Cell flex>
+          <OutlinedButton
+            title="Cancel"
+            onPress={onCancel}
+            testID="range-v1-cancel-button"
+            fullWidth
+          />
+        </Cell>
+        <Cell flex left={Spacing.small}>
           <SolidButton
             title="Set"
             onPress={onSet}
             disabled={setDisabled}
             testID="range-v1-set-button"
+            fullWidth
           />
         </Cell>
       </Row>
@@ -285,7 +302,7 @@ export const DateRangePickerRangeV1 = ({
           size={Spacing.medium}
           right={Spacing.extraSmall}
         />
-        <RegularText text={`${formattedStart} – ${formattedEnd}`} />
+        <RegularText text={`${formattedStart} – ${formattedEnd}`} numberOfLines={1} />
       </Pressable>
 
       {isNative && (
