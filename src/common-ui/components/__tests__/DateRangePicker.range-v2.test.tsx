@@ -164,6 +164,57 @@ describe("DateRangePickerRangeV2", () => {
     expect(e.format("YYYY-MM-DD")).toBe("2026-04-30");
   });
 
+  it("renders a Clear button after opening", () => {
+    const { getByTestId } = render(<DateRangePickerRangeV2 {...baseProps} />);
+    fireEvent.press(getByTestId("range-v2-trigger"));
+    expect(getByTestId("range-v2-clear-button")).not.toBeNull();
+  });
+
+  it("Clear disables Set and removes the proposed range", () => {
+    const { getByTestId } = render(<DateRangePickerRangeV2 {...baseProps} />);
+    fireEvent.press(getByTestId("range-v2-trigger"));
+    fireEvent.press(getByTestId("range-v2-clear-button"));
+    expect(getByTestId("range-v2-set-button").props.accessibilityState?.disabled).toBe(true);
+  });
+
+  it("Clear does not commit", () => {
+    const { getByTestId } = render(<DateRangePickerRangeV2 {...baseProps} />);
+    fireEvent.press(getByTestId("range-v2-trigger"));
+    fireEvent.press(getByTestId("range-v2-clear-button"));
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it("after Clear, picking a start keeps Set disabled", () => {
+    const { getByTestId } = render(<DateRangePickerRangeV2 {...baseProps} />);
+    fireEvent.press(getByTestId("range-v2-trigger"));
+    fireEvent.press(getByTestId("range-v2-clear-button"));
+    act(() => {
+      capturedPickerOnChange!({ startDate: dayjs("2026-04-22").toDate(), endDate: undefined });
+    });
+    expect(getByTestId("range-v2-set-button").props.accessibilityState?.disabled).toBe(true);
+  });
+
+  it("after Clear, picking a full range re-enables Set and commits correctly", () => {
+    const { getByTestId } = render(<DateRangePickerRangeV2 {...baseProps} />);
+    fireEvent.press(getByTestId("range-v2-trigger"));
+    fireEvent.press(getByTestId("range-v2-clear-button"));
+    act(() => {
+      capturedPickerOnChange!({ startDate: dayjs("2026-04-22").toDate(), endDate: undefined });
+    });
+    act(() => {
+      capturedPickerOnChange!({
+        startDate: dayjs("2026-04-22").toDate(),
+        endDate: dayjs("2026-04-30").toDate(),
+      });
+    });
+    expect(getByTestId("range-v2-set-button").props.accessibilityState?.disabled).toBeFalsy();
+    fireEvent.press(getByTestId("range-v2-set-button"));
+    expect(onChange).toHaveBeenCalledTimes(1);
+    const [s, e] = onChange.mock.calls[0];
+    expect(s.format("YYYY-MM-DD")).toBe("2026-04-22");
+    expect(e.format("YYYY-MM-DD")).toBe("2026-04-30");
+  });
+
   it("Cancel after intermediate taps does not commit", () => {
     const { getByTestId } = render(<DateRangePickerRangeV2 {...baseProps} />);
     fireEvent.press(getByTestId("range-v2-trigger"));

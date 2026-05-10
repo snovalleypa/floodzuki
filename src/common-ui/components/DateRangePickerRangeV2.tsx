@@ -22,7 +22,7 @@ export type DateRangePickerRangeV2Props = {
 };
 
 type PickerStateV2 = {
-  proposedStart: Dayjs;
+  proposedStart: Dayjs | null;
   proposedEnd: Dayjs | null;
 };
 
@@ -35,6 +35,7 @@ type RangeCalendarSheetProps = {
   onPickerChange: (params: { startDate: DateType; endDate: DateType }) => void;
   onSet: () => void;
   onCancel: () => void;
+  onClear: () => void;
 };
 
 const RangeCalendarSheet = ({
@@ -44,29 +45,55 @@ const RangeCalendarSheet = ({
   onPickerChange,
   onSet,
   onCancel,
+  onClear,
 }: RangeCalendarSheetProps) => {
-  const setDisabled = pickerState.proposedEnd === null;
-  const defaultStyles = useDefaultStyles();
+  const setDisabled = pickerState.proposedStart === null || pickerState.proposedEnd === null;
+  const defaultStyles = useDefaultStyles("light");
+  const calendarStyles = useMemo(
+    () => ({
+      ...defaultStyles,
+      button_prev_image: { tintColor: Colors.darkGrey },
+      button_next_image: { tintColor: Colors.darkGrey },
+    }),
+    [defaultStyles]
+  );
 
   return (
     <Cell horizontal={Spacing.small} top={Spacing.medium} bottom={Spacing.extraLarge}>
       <DateTimePicker
         mode="range"
-        startDate={pickerState.proposedStart.format("YYYY-MM-DD")}
+        startDate={pickerState.proposedStart?.format("YYYY-MM-DD")}
         endDate={pickerState.proposedEnd?.format("YYYY-MM-DD")}
         minDate={resolvedMinDate.format("YYYY-MM-DD")}
         maxDate={resolvedMaxDate.format("YYYY-MM-DD")}
+        showOutsideDays
         onChange={onPickerChange}
-        styles={defaultStyles}
+        styles={calendarStyles}
       />
       <Row align="center" top={Spacing.small}>
-        <OutlinedButton title="Cancel" onPress={onCancel} testID="range-v2-cancel-button" />
-        <Cell left={Spacing.small}>
+        <Cell flex>
+          <OutlinedButton
+            title="Cancel"
+            onPress={onCancel}
+            testID="range-v2-cancel-button"
+            fullWidth
+          />
+        </Cell>
+        <Cell flex left={Spacing.small}>
+          <OutlinedButton
+            title="Clear"
+            onPress={onClear}
+            testID="range-v2-clear-button"
+            fullWidth
+          />
+        </Cell>
+        <Cell flex left={Spacing.small}>
           <SolidButton
             title="Set"
             onPress={onSet}
             disabled={setDisabled}
             testID="range-v2-set-button"
+            fullWidth
           />
         </Cell>
       </Row>
@@ -147,8 +174,12 @@ export const DateRangePickerRangeV2 = ({
     }
   };
 
+  const handleClear = () => {
+    setPickerState({ proposedStart: null, proposedEnd: null });
+  };
+
   const handleSet = () => {
-    if (!pickerState.proposedEnd) {
+    if (!pickerState.proposedStart || !pickerState.proposedEnd) {
       return;
     }
     onChange(pickerState.proposedStart, pickerState.proposedEnd);
@@ -169,6 +200,7 @@ export const DateRangePickerRangeV2 = ({
     onPickerChange: handlePickerChange,
     onSet: handleSet,
     onCancel: handleCancel,
+    onClear: handleClear,
   };
 
   return (
