@@ -110,6 +110,17 @@ export const DateRangePickerRangeV2 = ({
     }
   };
 
+  // The picker emits endDate at end-of-day in the browser's local TZ (it calls
+  // its own getEndOfDay before invoking onChange). We don't want that time
+  // component leaking into our state — it survives commit and gets a second
+  // endOf("day") applied downstream, which can shift the calendar date forward.
+  // Normalize both dates to start-of-day in the gauge timezone, by extracting
+  // the calendar date the user actually clicked.
+  const toGageDay = (d: Date): Dayjs => {
+    const dayString = localDayJs(d).format("YYYY-MM-DD");
+    return localDayJs.tz(dayString, "YYYY-MM-DD", timezone).startOf("day");
+  };
+
   const handlePickerChange = ({
     startDate: pickedStart,
     endDate: pickedEnd,
@@ -117,8 +128,8 @@ export const DateRangePickerRangeV2 = ({
     startDate: DateType;
     endDate: DateType;
   }) => {
-    const newStart = pickedStart ? localDayJs(pickedStart as Date).tz(timezone) : null;
-    const newEnd = pickedEnd ? localDayJs(pickedEnd as Date).tz(timezone) : null;
+    const newStart = pickedStart ? toGageDay(pickedStart as Date) : null;
+    const newEnd = pickedEnd ? toGageDay(pickedEnd as Date) : null;
 
     if (!newStart) {
       return;
