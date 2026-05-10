@@ -174,6 +174,59 @@ describe("DateRangePickerRangeV1", () => {
       fireEvent.press(getByTestId("range-v1-cancel-button"));
       expect(onChange).not.toHaveBeenCalled();
     });
+
+    it("accepts second tap before tentativeStart when library emits a reversed complete pair", () => {
+      const { getByTestId } = render(<DateRangePickerRangeV1 {...baseProps} />);
+      fireEvent.press(getByTestId("range-v1-trigger"));
+
+      // First tap inside [Apr 20, Apr 25] → awaitingEnd, tentativeStart = Apr 22
+      act(() => {
+        capturedPickerOnChange!({
+          startDate: dayjs("2026-04-20").toDate(),
+          endDate: dayjs("2026-04-22").toDate(),
+        });
+      });
+
+      // Second tap before tentativeStart: library reverses to {Apr 18, Apr 22}
+      act(() => {
+        capturedPickerOnChange!({
+          startDate: dayjs("2026-04-18").toDate(),
+          endDate: dayjs("2026-04-22").toDate(),
+        });
+      });
+
+      expect(getByTestId("range-v1-set-button").props.accessibilityState?.disabled).toBeFalsy();
+      fireEvent.press(getByTestId("range-v1-set-button"));
+      expect(onChange).toHaveBeenCalledTimes(1);
+      const [s, e] = onChange.mock.calls[0];
+      expect(s.format("YYYY-MM-DD")).toBe("2026-04-18");
+      expect(e.format("YYYY-MM-DD")).toBe("2026-04-22");
+    });
+
+    it("reconstructs range when library restarts selection on second tap before tentativeStart", () => {
+      const { getByTestId } = render(<DateRangePickerRangeV1 {...baseProps} />);
+      fireEvent.press(getByTestId("range-v1-trigger"));
+
+      // First tap inside [Apr 20, Apr 25] → awaitingEnd, tentativeStart = Apr 22
+      act(() => {
+        capturedPickerOnChange!({
+          startDate: dayjs("2026-04-20").toDate(),
+          endDate: dayjs("2026-04-22").toDate(),
+        });
+      });
+
+      // Second tap before tentativeStart: library restarts (only startDate emitted)
+      act(() => {
+        capturedPickerOnChange!({ startDate: dayjs("2026-04-18").toDate(), endDate: undefined });
+      });
+
+      expect(getByTestId("range-v1-set-button").props.accessibilityState?.disabled).toBeFalsy();
+      fireEvent.press(getByTestId("range-v1-set-button"));
+      expect(onChange).toHaveBeenCalledTimes(1);
+      const [s, e] = onChange.mock.calls[0];
+      expect(s.format("YYYY-MM-DD")).toBe("2026-04-18");
+      expect(e.format("YYYY-MM-DD")).toBe("2026-04-22");
+    });
   });
 
   describe("Cases 2b–2e — single-tap range update", () => {

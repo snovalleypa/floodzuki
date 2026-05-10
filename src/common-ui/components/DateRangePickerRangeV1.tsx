@@ -181,24 +181,43 @@ export const DateRangePickerRangeV1 = ({
     const newStart = pickedStart ? localDayJs(pickedStart as Date).tz(timezone) : null;
     const newEnd = pickedEnd ? localDayJs(pickedEnd as Date).tz(timezone) : null;
 
-    // Awaiting-end branch: completing a Case 2a selection. The library returns a properly
-    // ordered { startDate, endDate } pair on the second tap; trust its ordering rather than
-    // assuming the second tap is after tentativeStart.
-    if (pickerState.selectionPhase === "awaitingEnd" && newStart && newEnd) {
-      const result = applySecondTap(newStart, newEnd);
-      capturedPrevRef.current = {
-        prevStart: result.proposedStart,
-        prevEnd: result.proposedEnd,
-        prevSpanDays: Math.min(result.proposedEnd.diff(result.proposedStart, "day"), maxRange),
-      };
-      setPickerState((prev) => ({
-        ...prev,
-        selectionPhase: "idle",
-        tentativeStart: null,
-        proposedStart: result.proposedStart,
-        proposedEnd: result.proposedEnd,
-        dynamicMaxDate: null,
-      }));
+    // Awaiting-end branch: completing a Case 2a selection.
+    // The library may give us an ordered {startDate, endDate} pair (including reversing the order
+    // when the second tap is before the anchor), or it may restart the selection and only emit
+    // startDate. In the restart case we reconstruct the ordered pair against tentativeStart.
+    // Either way we never fall through to the first-tap branch while awaiting an end date.
+    if (pickerState.selectionPhase === "awaitingEnd") {
+      let orderedStart: Dayjs | null = null;
+      let orderedEnd: Dayjs | null = null;
+
+      if (newStart && newEnd) {
+        // Library gave a complete ordered pair — accept as-is.
+        [orderedStart, orderedEnd] = [newStart, newEnd];
+      } else if (newStart && pickerState.tentativeStart) {
+        // Library restarted selection (only startDate emitted) — order against tentativeStart.
+        if (newStart.isBefore(pickerState.tentativeStart)) {
+          [orderedStart, orderedEnd] = [newStart, pickerState.tentativeStart];
+        } else {
+          [orderedStart, orderedEnd] = [pickerState.tentativeStart, newStart];
+        }
+      }
+
+      if (orderedStart && orderedEnd) {
+        const result = applySecondTap(orderedStart, orderedEnd);
+        capturedPrevRef.current = {
+          prevStart: result.proposedStart,
+          prevEnd: result.proposedEnd,
+          prevSpanDays: Math.min(result.proposedEnd.diff(result.proposedStart, "day"), maxRange),
+        };
+        setPickerState((prev) => ({
+          ...prev,
+          selectionPhase: "idle",
+          tentativeStart: null,
+          proposedStart: result.proposedStart,
+          proposedEnd: result.proposedEnd,
+          dynamicMaxDate: null,
+        }));
+      }
       return;
     }
 
