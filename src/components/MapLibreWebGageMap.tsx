@@ -41,11 +41,6 @@ const MapLibreWebGageWebMap = ({
   onGagePress,
   singleGage,
 }: InternalGageMapProps) => {
-  if (!gages || !region) {
-    return null;
-  }
-
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const mapStyleUrl = useMemo(() => {
     let url = mapStyleBaseUrl;
     if (!url.endsWith("/")) {
@@ -54,27 +49,28 @@ const MapLibreWebGageWebMap = ({
     return url + region.id + "/webstyles";
   }, [region]);
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const { current: map } = useMap();
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const markers = useMemo(() => {
-    return gages.map((g, index) => (
-      <Marker
-        style={styles.marker}
-        longitude={g.longitude}
-        latitude={g.latitude}
-        anchor="bottom"
-        onClick={() => {
-          onGagePress(g);
-        }}
-        key={"marker" + index}>
-        <TrendIcon gage={g} iconType={TREND_ICON_TYPES.Map} />
-      </Marker>
-    ));
+    return gages.map(
+      (g, index) =>
+        g.latitude &&
+        g.longitude && (
+          <Marker
+            style={styles.marker}
+            longitude={g.longitude}
+            latitude={g.latitude}
+            anchor="bottom"
+            onClick={() => {
+              onGagePress(g);
+            }}
+            key={"marker" + index}>
+            <TrendIcon gage={g} iconType={TREND_ICON_TYPES.Map} />
+          </Marker>
+        )
+    );
   }, [map, gages]);
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const regionBounds: [number, number, number, number] = useMemo(() => {
     if (region && region.regionBounds) {
       return [
@@ -87,9 +83,8 @@ const MapLibreWebGageWebMap = ({
     return defaultRegionBounds as [number, number, number, number];
   }, [region]);
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const startBounds: [number, number, number, number] = useMemo(() => {
-    if (singleGage) {
+    if (singleGage && singleGage.longitude && singleGage.latitude) {
       return [
         singleGage.longitude - singleGageLngDelta,
         singleGage.latitude - singleGageLatDelta,
