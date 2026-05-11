@@ -510,18 +510,6 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
               selectedSegment={rangeOption}
               onChange={onRangeChange}
             />
-            <If condition={isMobile}>
-              <Cell flex align="center" top={Spacing.tiny}>
-                <DatePickerVariantSwitch
-                  locationId={gage?.locationId}
-                  startDate={range.chartStartDate}
-                  endDate={range.chartEndDate}
-                  timezone={getTimezone()}
-                  onChange={onDateRangeChange}
-                  onRangeRestricted={() => setShowRangeWarning(true)}
-                />
-              </Cell>
-            </If>
           </Cell>
           <Cell flex align="flex-end">
             <If condition={!isMobile}>
@@ -536,6 +524,18 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
             </If>
           </Cell>
         </Row>
+        <If condition={isMobile}>
+          <Cell align="center" top={Spacing.tiny}>
+            <DatePickerVariantSwitch
+              locationId={gage?.locationId}
+              startDate={range.chartStartDate}
+              endDate={range.chartEndDate}
+              timezone={getTimezone()}
+              onChange={onDateRangeChange}
+              onRangeRestricted={() => setShowRangeWarning(true)}
+            />
+          </Cell>
+        </If>
       </CardHeader>
       {showRangeWarning && (
         <View
