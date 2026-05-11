@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import { Modal, Platform, Pressable, View, ViewStyle } from "react-native";
 import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
 import DateTimePicker, { DateType, useDefaultStyles } from "react-native-ui-datepicker";
@@ -133,6 +133,11 @@ export const DateRangePickerRangeV1 = ({
   // Do NOT derive from props mid-session — props only reflect the committed chart range.
   const capturedPrevRef = useRef({ prevStart: startDate, prevEnd: endDate, prevSpanDays: 0 });
 
+  const toGageDay = (d: Date): Dayjs => {
+    const dayString = localDayJs(d).format("YYYY-MM-DD");
+    return localDayJs.tz(dayString, "YYYY-MM-DD", timezone).startOf("day");
+  };
+
   const [pickerState, setPickerState] = useState<PickerState>({
     selectionPhase: "idle",
     tentativeStart: null,
@@ -140,6 +145,8 @@ export const DateRangePickerRangeV1 = ({
     proposedEnd: endDate,
     dynamicMaxDate: null,
   });
+  const pickerStateRef = useRef(pickerState);
+  pickerStateRef.current = pickerState;
 
   const effectiveMaxDate = (() => {
     if (!pickerState.dynamicMaxDate) {
@@ -171,39 +178,102 @@ export const DateRangePickerRangeV1 = ({
     }
   };
 
-  const handlePickerChange = ({
-    startDate: pickedStart,
-    endDate: pickedEnd,
-  }: {
-    startDate: DateType;
-    endDate: DateType;
-  }) => {
-    const newStart = pickedStart ? localDayJs(pickedStart as Date).tz(timezone) : null;
-    const newEnd = pickedEnd ? localDayJs(pickedEnd as Date).tz(timezone) : null;
+  // Stable reference so the library's stale onSelectDate closure always invokes
+  // the current handler. pickerStateRef.current is read at call time (not captured).
+  const handlePickerChange = useCallback(
+    ({
+      startDate: pickedStart,
+      endDate: pickedEnd,
+    }: {
+      startDate: DateType;
+      endDate: DateType;
+    }) => {
+      const state = pickerStateRef.current;
+      const newStart = pickedStart ? toGageDay(pickedStart as Date) : null;
+      const newEnd = pickedEnd ? toGageDay(pickedEnd as Date) : null;
 
-    // Awaiting-end branch: completing a Case 2a selection.
-    // The library may give us an ordered {startDate, endDate} pair (including reversing the order
-    // when the second tap is before the anchor), or it may restart the selection and only emit
-    // startDate. In the restart case we reconstruct the ordered pair against tentativeStart.
-    // Either way we never fall through to the first-tap branch while awaiting an end date.
-    if (pickerState.selectionPhase === "awaitingEnd") {
-      let orderedStart: Dayjs | null = null;
-      let orderedEnd: Dayjs | null = null;
+      // Awaiting-end branch: completing a Case 2a selection.
+      // The library may give us an ordered {startDate, endDate} pair (including reversing the order
+      // when the second tap is before the anchor), or it may restart the selection and only emit
+      // startDate. In the restart case we reconstruct the ordered pair against tentativeStart.
+      // Either way we never fall through to the first-tap branch while awaiting an end date.
+      if (state.selectionPhase === "awaitingEnd") {
+        let orderedStart: Dayjs | null = null;
+        let orderedEnd: Dayjs | null = null;
 
-      if (newStart && newEnd) {
-        // Library gave a complete ordered pair — accept as-is.
-        [orderedStart, orderedEnd] = [newStart, newEnd];
-      } else if (newStart && pickerState.tentativeStart) {
-        // Library restarted selection (only startDate emitted) — order against tentativeStart.
-        if (newStart.isBefore(pickerState.tentativeStart)) {
-          [orderedStart, orderedEnd] = [newStart, pickerState.tentativeStart];
-        } else {
-          [orderedStart, orderedEnd] = [pickerState.tentativeStart, newStart];
+        if (newStart && newEnd) {
+          // Library gave a complete ordered pair — accept as-is.
+          [orderedStart, orderedEnd] = [newStart, newEnd];
+        } else if (newStart && state.tentativeStart) {
+          // Library restarted selection (only startDate emitted) — order against tentativeStart.
+          if (newStart.isBefore(state.tentativeStart)) {
+            [orderedStart, orderedEnd] = [newStart, state.tentativeStart];
+          } else {
+            [orderedStart, orderedEnd] = [state.tentativeStart, newStart];
+          }
         }
+
+        if (orderedStart && orderedEnd) {
+          const result = applySecondTap(orderedStart, orderedEnd);
+          capturedPrevRef.current = {
+            prevStart: result.proposedStart,
+            prevEnd: result.proposedEnd,
+            prevSpanDays: Math.min(result.proposedEnd.diff(result.proposedStart, "day"), maxRange),
+          };
+          setPickerState((prev) => ({
+            ...prev,
+            selectionPhase: "idle",
+            tentativeStart: null,
+            proposedStart: result.proposedStart,
+            proposedEnd: result.proposedEnd,
+            dynamicMaxDate: null,
+          }));
+        }
+        return;
       }
 
-      if (orderedStart && orderedEnd) {
-        const result = applySecondTap(orderedStart, orderedEnd);
+      // First-tap branch. The library reports the user's click in whichever of (startDate, endDate)
+      // differs from our prior proposed state — when the user clicks within the existing range,
+      // the library keeps the existing start and reports the click as endDate.
+      const proposedStartStr = state.proposedStart.format("YYYY-MM-DD");
+      const proposedEndStr = state.proposedEnd?.format("YYYY-MM-DD") ?? null;
+      let tapped: Dayjs | null = null;
+      if (newStart && newStart.format("YYYY-MM-DD") !== proposedStartStr) {
+        tapped = newStart;
+      } else if (newEnd && newEnd.format("YYYY-MM-DD") !== proposedEndStr) {
+        tapped = newEnd;
+      } else if (newStart && !state.proposedEnd) {
+        // Awaiting-end fallback: only one date returned, treat as the tap
+        tapped = newStart;
+      }
+
+      if (!tapped) {
+        return;
+      }
+
+      const { prevStart, prevEnd, prevSpanDays } = capturedPrevRef.current;
+      const result: FirstTapResult = applyFirstTap({
+        tapped,
+        prevStart,
+        prevEnd,
+        prevSpanDays,
+        maxRange,
+        minDate: resolvedMinDate,
+        maxDate: resolvedMaxDate,
+      });
+
+      if (result.phase === "awaitingEnd") {
+        // Do NOT re-anchor during Case 2a — anchor updates only when the range is complete
+        setPickerState((prev) => ({
+          ...prev,
+          selectionPhase: "awaitingEnd",
+          tentativeStart: result.tentativeStart,
+          proposedStart: result.proposedStart,
+          proposedEnd: null,
+          dynamicMaxDate: result.maxDate,
+        }));
+      } else {
+        // Re-anchor so any subsequent tap classifies against the new proposed range
         capturedPrevRef.current = {
           prevStart: result.proposedStart,
           prevEnd: result.proposedEnd,
@@ -218,66 +288,10 @@ export const DateRangePickerRangeV1 = ({
           dynamicMaxDate: null,
         }));
       }
-      return;
-    }
-
-    // First-tap branch. The library reports the user's click in whichever of (startDate, endDate)
-    // differs from our prior proposed state — when the user clicks within the existing range,
-    // the library keeps the existing start and reports the click as endDate.
-    const proposedStartStr = pickerState.proposedStart.format("YYYY-MM-DD");
-    const proposedEndStr = pickerState.proposedEnd?.format("YYYY-MM-DD") ?? null;
-    let tapped: Dayjs | null = null;
-    if (newStart && newStart.format("YYYY-MM-DD") !== proposedStartStr) {
-      tapped = newStart;
-    } else if (newEnd && newEnd.format("YYYY-MM-DD") !== proposedEndStr) {
-      tapped = newEnd;
-    } else if (newStart && !pickerState.proposedEnd) {
-      // Awaiting-end fallback: only one date returned, treat as the tap
-      tapped = newStart;
-    }
-
-    if (!tapped) {
-      return;
-    }
-
-    const { prevStart, prevEnd, prevSpanDays } = capturedPrevRef.current;
-    const result: FirstTapResult = applyFirstTap({
-      tapped,
-      prevStart,
-      prevEnd,
-      prevSpanDays,
-      maxRange,
-      minDate: resolvedMinDate,
-      maxDate: resolvedMaxDate,
-    });
-
-    if (result.phase === "awaitingEnd") {
-      // Do NOT re-anchor during Case 2a — anchor updates only when the range is complete
-      setPickerState((prev) => ({
-        ...prev,
-        selectionPhase: "awaitingEnd",
-        tentativeStart: result.tentativeStart,
-        proposedStart: result.proposedStart,
-        proposedEnd: null,
-        dynamicMaxDate: result.maxDate,
-      }));
-    } else {
-      // Re-anchor so any subsequent tap classifies against the new proposed range
-      capturedPrevRef.current = {
-        prevStart: result.proposedStart,
-        prevEnd: result.proposedEnd,
-        prevSpanDays: Math.min(result.proposedEnd.diff(result.proposedStart, "day"), maxRange),
-      };
-      setPickerState((prev) => ({
-        ...prev,
-        selectionPhase: "idle",
-        tentativeStart: null,
-        proposedStart: result.proposedStart,
-        proposedEnd: result.proposedEnd,
-        dynamicMaxDate: null,
-      }));
-    }
-  };
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [timezone, maxRange, resolvedMinDate, resolvedMaxDate]
+  );
 
   const handleClose = () => {
     if (isNative) {
