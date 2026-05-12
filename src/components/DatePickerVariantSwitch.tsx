@@ -40,6 +40,7 @@ const DatePickerVariantSwitch = (props: DatePickerVariantSwitchProps) => {
         endDate={endDate}
         timezone={timezone}
         onChange={onChange}
+        onRangeRestricted={onRangeRestricted}
       />
     );
   }

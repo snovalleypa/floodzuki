@@ -12,6 +12,7 @@ export type FirstTapIdle = {
   phase: "idle";
   proposedStart: Dayjs;
   proposedEnd: Dayjs;
+  wasRestricted: boolean;
 };
 
 export type FirstTapResult = FirstTapAwaitingEnd | FirstTapIdle;
@@ -52,15 +53,16 @@ export function applyFirstTap({
     if (daysBeforePrevStart <= maxRange) {
       // Case 2b: keep prevEnd if within maxRange of tapped, else cap at tapped + maxRange
       const cappedEnd = tapped.add(maxRange, "day");
-      const rawEnd = prevEnd.isBefore(cappedEnd) ? prevEnd : cappedEnd;
+      const wasRestricted = prevEnd.isAfter(cappedEnd);
+      const rawEnd = wasRestricted ? cappedEnd : prevEnd;
       const proposedEnd = rawEnd.isAfter(maxDate) ? maxDate : rawEnd;
-      return { phase: "idle", proposedStart: tapped, proposedEnd };
+      return { phase: "idle", proposedStart: tapped, proposedEnd, wasRestricted };
     } else {
       // Case 2c: navigate to distant past — preserve span from new start
       const proposedStart = tapped.isBefore(minDate) ? minDate : tapped;
       const rawEnd = proposedStart.add(prevSpanDays, "day");
       const proposedEnd = rawEnd.isAfter(maxDate) ? maxDate : rawEnd;
-      return { phase: "idle", proposedStart, proposedEnd };
+      return { phase: "idle", proposedStart, proposedEnd, wasRestricted: false };
     }
   }
 
@@ -69,17 +71,23 @@ export function applyFirstTap({
   if (daysAfterPrevEnd <= maxRange) {
     // Case 2d: keep prevStart if within maxRange of tapped, else pull forward to tapped - maxRange
     const pulledStart = tapped.subtract(maxRange, "day");
-    const rawStart = prevStart.isAfter(pulledStart) ? prevStart : pulledStart;
+    const wasRestricted = prevStart.isBefore(pulledStart);
+    const rawStart = wasRestricted ? pulledStart : prevStart;
     const proposedStart = rawStart.isBefore(minDate) ? minDate : rawStart;
-    return { phase: "idle", proposedStart, proposedEnd: tapped };
+    return { phase: "idle", proposedStart, proposedEnd: tapped, wasRestricted };
   } else {
     // Case 2e: navigate to distant future — preserve span from new start
     const rawEnd = tapped.add(prevSpanDays, "day");
     const proposedEnd = rawEnd.isAfter(maxDate) ? maxDate : rawEnd;
-    return { phase: "idle", proposedStart: tapped, proposedEnd };
+    return { phase: "idle", proposedStart: tapped, proposedEnd, wasRestricted: false };
   }
 }
 
 export function applySecondTap(tentativeStart: Dayjs, endDate: Dayjs): FirstTapIdle {
-  return { phase: "idle", proposedStart: tentativeStart, proposedEnd: endDate };
+  return {
+    phase: "idle",
+    proposedStart: tentativeStart,
+    proposedEnd: endDate,
+    wasRestricted: false,
+  };
 }

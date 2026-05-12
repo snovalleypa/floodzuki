@@ -35,6 +35,7 @@ type PickerState = {
   proposedStart: Dayjs;
   proposedEnd: Dayjs | null;
   dynamicMaxDate: Dayjs | null;
+  wasRestricted: boolean;
 };
 
 const isNative = Platform.OS !== "web";
@@ -116,6 +117,7 @@ export const DateRangePickerRangeV1 = ({
   maxDate,
   timezone,
   onChange,
+  onRangeRestricted,
 }: DateRangePickerRangeV1Props) => {
   const { hidePicker } = useDatePicker();
   const bottomSheetRef = useRef<BottomSheetModal>(null);
@@ -145,6 +147,7 @@ export const DateRangePickerRangeV1 = ({
     proposedStart: startDate,
     proposedEnd: endDate,
     dynamicMaxDate: null,
+    wasRestricted: false,
   });
   const pickerStateRef = useRef(pickerState);
   pickerStateRef.current = pickerState;
@@ -170,6 +173,7 @@ export const DateRangePickerRangeV1 = ({
       proposedStart: prevStart,
       proposedEnd: prevEnd,
       dynamicMaxDate: null,
+      wasRestricted: false,
     });
 
     if (isNative) {
@@ -228,6 +232,7 @@ export const DateRangePickerRangeV1 = ({
             proposedStart: result.proposedStart,
             proposedEnd: result.proposedEnd,
             dynamicMaxDate: null,
+            wasRestricted: false,
           }));
         }
         return;
@@ -287,6 +292,7 @@ export const DateRangePickerRangeV1 = ({
           proposedStart: result.proposedStart,
           proposedEnd: result.proposedEnd,
           dynamicMaxDate: null,
+          wasRestricted: result.wasRestricted,
         }));
       }
     },
@@ -306,6 +312,9 @@ export const DateRangePickerRangeV1 = ({
   const handleSet = () => {
     if (!pickerState.proposedEnd) {
       return;
+    }
+    if (pickerState.wasRestricted) {
+      onRangeRestricted?.();
     }
     onChange(pickerState.proposedStart, pickerState.proposedEnd);
     handleClose();
