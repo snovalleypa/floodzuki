@@ -12,7 +12,7 @@ import {
   VictoryLabel,
 } from "victory-native";
 import { Dimensions, View } from "react-native";
-import { CHART_HEIGHT } from "./ForecastChart";
+import { CHART_HEIGHT } from "./forecastChartConstants";
 import { Cell } from "@common-ui/components/Common";
 
 interface ChartsProps {
