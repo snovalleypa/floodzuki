@@ -3,7 +3,7 @@ import type { Dayjs } from "dayjs";
 export type RangeRulesBounds = {
   minDate: Dayjs; // earliest selectable date (e.g. 2019-10-01 in chart tz)
   maxDate: Dayjs; // latest selectable date (e.g. today end-of-day in chart tz)
-  maxRange: number; // max span in days (default 30)
+  maxRange: number; // max span in days (defaults to Config.MAX_DATE_PICKER_RANGE)
 };
 
 export type RangeRulesResult = {

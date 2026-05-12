@@ -16,6 +16,7 @@ import { Cell, Row } from "@common-ui/components/Common";
 import { SolidButton, OutlinedButton } from "@common-ui/components/Button";
 import { Colors } from "@common-ui/constants/colors";
 import { Spacing } from "@common-ui/constants/spacing";
+import Config from "@config/config";
 
 export type DateRangePickerRangeV1Props = {
   startDate: Dayjs;
@@ -110,7 +111,7 @@ const RangeCalendarSheet = ({
 export const DateRangePickerRangeV1 = ({
   startDate,
   endDate,
-  maxRange = 30,
+  maxRange = Config.MAX_DATE_PICKER_RANGE,
   minDate,
   maxDate,
   timezone,

@@ -11,14 +11,17 @@ import { Cell, Row } from "@common-ui/components/Common";
 import { SolidButton, OutlinedButton } from "@common-ui/components/Button";
 import { Colors } from "@common-ui/constants/colors";
 import { Spacing } from "@common-ui/constants/spacing";
+import Config from "@config/config";
 
 export type DateRangePickerRangeV2Props = {
   startDate: Dayjs;
   endDate: Dayjs;
   minDate?: Dayjs;
   maxDate?: Dayjs;
+  maxRange?: number;
   timezone: string;
   onChange: (startDate: Dayjs, endDate: Dayjs) => void;
+  onRangeRestricted?: () => void;
 };
 
 type PickerStateV2 = {
@@ -106,8 +109,10 @@ export const DateRangePickerRangeV2 = ({
   endDate,
   minDate,
   maxDate,
+  maxRange = Config.MAX_DATE_PICKER_RANGE,
   timezone,
   onChange,
+  onRangeRestricted,
 }: DateRangePickerRangeV2Props) => {
   const { hidePicker } = useDatePicker();
   const bottomSheetRef = useRef<BottomSheetModal>(null);
@@ -182,7 +187,12 @@ export const DateRangePickerRangeV2 = ({
     if (!pickerState.proposedStart || !pickerState.proposedEnd) {
       return;
     }
-    onChange(pickerState.proposedStart, pickerState.proposedEnd);
+    let { proposedStart, proposedEnd } = pickerState;
+    if (proposedEnd.diff(proposedStart, "day") > maxRange) {
+      proposedEnd = proposedStart.add(maxRange, "day");
+      onRangeRestricted?.();
+    }
+    onChange(proposedStart, proposedEnd);
     handleClose();
   };
 

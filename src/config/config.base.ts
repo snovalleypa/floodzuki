@@ -70,6 +70,7 @@ const BaseConfig: {
   GAGE_CLIENT_CACHE_TIME: number;
   DASHBOARD_DATA_REFRESH_RATE: number;
   LIVE_CHART_DATA_REFRESH_INTERVAL: number;
+  MAX_DATE_PICKER_RANGE: number;
 
   FRONT_PAGE_CHART_DURATION_NUMBER: number;
   FRONT_PAGE_CHART_DURATION_UNIT: dayjs.ManipulateType;
@@ -102,6 +103,7 @@ const BaseConfig: {
   GAGE_CLIENT_CACHE_TIME: 9000, // ms
   DASHBOARD_DATA_REFRESH_RATE: 30 * 1000, // ms
   LIVE_CHART_DATA_REFRESH_INTERVAL: 60 * 1000, // ms
+  MAX_DATE_PICKER_RANGE: 90, //days
 
   FRONT_PAGE_CHART_DURATION_NUMBER: 2,
   FRONT_PAGE_CHART_DURATION_UNIT: "day",
@@ -115,10 +117,9 @@ const BaseConfig: {
   DATE_PICKER_VARIANT: {
     default: "legacy",
     byLocationId: {
-      "USGS-38": "split-v1",
-      "SVPA-26": "range-v1",
-      "USGS-9": "range-v1",
-      "USGS-22": "range-v2",
+      "USGS-SF17": "split-v1",
+      "USGS-MF11": "range-v1",
+      "USGS-NF10": "range-v1",
     },
   },
 };

@@ -3,6 +3,7 @@ import { Dayjs } from "dayjs";
 import DatePicker from "./DatePicker";
 import Icon from "./Icon";
 import { Colors } from "@common-ui/constants/colors";
+import Config from "@config/config";
 import { RegularText } from "./Text";
 import { Pressable, View, ViewStyle } from "react-native";
 import { Spacing } from "@common-ui/constants/spacing";
@@ -23,7 +24,7 @@ const DateRangePicker = (props: DateRangePickerProps) => {
   const {
     startDate,
     endDate,
-    maxRange = 90,
+    maxRange = Config.MAX_DATE_PICKER_RANGE,
     minYear = 2001,
     maxYear = new Date().getFullYear(),
     onChange,

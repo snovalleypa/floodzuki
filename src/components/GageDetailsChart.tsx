@@ -547,7 +547,7 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
             alignItems: "center",
           }}>
           <RegularText style={{ textAlign: "center" }}>
-            {t("gageDetailsChart.rangeWarning")}
+            {t("gageDetailsChart.rangeWarning", { maxRange: Config.MAX_DATE_PICKER_RANGE })}
           </RegularText>
         </View>
       )}

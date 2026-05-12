@@ -10,11 +10,12 @@ import { RegularText } from "@common-ui/components/Text";
 import { Cell } from "@common-ui/components/Common";
 import { Colors } from "@common-ui/constants/colors";
 import { Spacing } from "@common-ui/constants/spacing";
+import Config from "@config/config";
 
 export type SplitDateRangePickerProps = {
   startDate: Dayjs;
   endDate: Dayjs;
-  maxRange?: number; // default 30
+  maxRange?: number; // default MAX_DATE_PICKER_RANGE
   minDate?: Dayjs; // default 2019-10-01 start-of-day in timezone
   maxDate?: Dayjs; // default today end-of-day in chart tz
   timezone: string;
@@ -28,7 +29,7 @@ export const SplitDateRangePicker = (props: SplitDateRangePickerProps) => {
   const {
     startDate,
     endDate,
-    maxRange = 30,
+    maxRange = Config.MAX_DATE_PICKER_RANGE,
     minDate,
     maxDate,
     timezone,
