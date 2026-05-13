@@ -119,7 +119,7 @@ const BaseConfig: {
     byLocationId: {
       "USGS-SF17": "split-v1",
       "USGS-MF11": "range-v1",
-      "USGS-NF10": "range-v1",
+      "USGS-NF10": "range-v2",
     },
   },
 };

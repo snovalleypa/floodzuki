@@ -44,6 +44,7 @@ const isNative = Platform.OS !== "web";
 // Calendar content (shared across all modal surfaces)
 // ---------------------------------------------------------------------------
 type RangeCalendarSheetProps = {
+  calendarKey: number;
   pickerState: PickerState;
   resolvedMinDate: Dayjs;
   effectiveMaxDate: Dayjs;
@@ -54,6 +55,7 @@ type RangeCalendarSheetProps = {
 };
 
 const RangeCalendarSheet = ({
+  calendarKey,
   pickerState,
   resolvedMinDate,
   effectiveMaxDate,
@@ -76,6 +78,7 @@ const RangeCalendarSheet = ({
   return (
     <Cell horizontal={Spacing.small} top={Spacing.medium} bottom={Spacing.extraLarge}>
       <DateTimePicker
+        key={calendarKey}
         mode="range"
         timeZone={timezone}
         startDate={pickerState.proposedStart.format("YYYY-MM-DD")}
@@ -85,6 +88,13 @@ const RangeCalendarSheet = ({
         showOutsideDays
         onChange={onPickerChange}
         styles={calendarStyles}
+        // Library bug: an internal timezone-change effect dispatches currentDate=today
+        // on every mount (its usePrevious is undefined on the first run, so the
+        // !== check always fires). Passing month/year — which the library treats
+        // as controlled "snap-to" effects firing after the timezone reset — restores
+        // the calendar to the start date's month.
+        month={pickerState.proposedStart.month()}
+        year={pickerState.proposedStart.year()}
       />
       <Row align="center" top={Spacing.small}>
         <Cell flex>
@@ -125,6 +135,7 @@ export const DateRangePickerRangeV1 = ({
   const { hidePicker } = useDatePicker();
   const bottomSheetRef = useRef<BottomSheetModal>(null);
   const [webModalVisible, setWebModalVisible] = useState(false);
+  const [calendarKey, setCalendarKey] = useState(0);
 
   const resolvedMinDate = useMemo(
     () => minDate ?? localDayJs.tz("2019-10-01", "YYYY-MM-DD", timezone).startOf("day"),
@@ -170,6 +181,7 @@ export const DateRangePickerRangeV1 = ({
     const prevSpanDays = Math.min(prevEnd.diff(prevStart, "day"), maxRange);
     capturedPrevRef.current = { prevStart, prevEnd, prevSpanDays };
 
+    setCalendarKey((k) => k + 1);
     setPickerState({
       selectionPhase: "idle",
       tentativeStart: null,
@@ -331,6 +343,7 @@ export const DateRangePickerRangeV1 = ({
   const formattedEnd = endDate.tz(timezone).format("MM/DD/YYYY");
 
   const sheetProps: RangeCalendarSheetProps = {
+    calendarKey,
     pickerState,
     resolvedMinDate,
     effectiveMaxDate,
