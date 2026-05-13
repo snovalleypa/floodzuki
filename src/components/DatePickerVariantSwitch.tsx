@@ -6,6 +6,17 @@ import { DateRangePickerRangeV1 } from "@common-ui/components/DateRangePickerRan
 import { DateRangePickerRangeV2 } from "@common-ui/components/DateRangePickerRangeV2";
 import Config from "@config/config";
 
+// react-native-ui-datepicker installs a side-effect polyfill that replaces
+// Date.prototype.toLocaleString with a non-en-US format. Dayjs's timezone
+// plugin parses the original en-US format internally, so the override breaks
+// every .tz() call app-wide. The polyfill stashes the original at
+// _toLocaleString — restore it now that the package's imports have evaluated.
+const proto = Date.prototype as Date & { _toLocaleString?: Date["toLocaleString"] };
+if (proto._toLocaleString) {
+  Date.prototype.toLocaleString = proto._toLocaleString;
+  delete proto._toLocaleString;
+}
+
 type DatePickerVariantSwitchProps = {
   locationId: string | undefined;
   startDate: Dayjs;

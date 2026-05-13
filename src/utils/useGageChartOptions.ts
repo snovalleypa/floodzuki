@@ -157,7 +157,7 @@ function calculateCrest(
   return null;
 }
 
-function dataPointPopup(gage: Gage, t) {
+function dataPointPopup(gage: Gage, t, tz: string) {
   return function (this: Highcharts.TooltipFormatterContextObject) {
     const roadStatus = gage?.getCalculatedRoadStatus(this.y);
 
@@ -179,7 +179,7 @@ function dataPointPopup(gage: Gage, t) {
         </span>
         <br />
         <span class="data-point-content">
-          ${localDayJs.tz(this.x, gage?.timeZoneName).format("ddd, MMM D, h:mm A")}
+          ${localDayJs(this.x).tz(tz).format("ddd, MMM D, h:mm A")}
         </span>
         ${roadDesc}
       </div>`;
@@ -456,7 +456,7 @@ const buildBasicOptions = (props: BuildOptionsProps, t) => {
     },
     tooltip: {
       useHTML: true,
-      formatter: dataPointPopup(gage, t),
+      formatter: dataPointPopup(gage, t, props.timezone),
     },
     xAxis: {
       type: "datetime",

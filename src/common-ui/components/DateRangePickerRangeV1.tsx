@@ -47,6 +47,7 @@ type RangeCalendarSheetProps = {
   pickerState: PickerState;
   resolvedMinDate: Dayjs;
   effectiveMaxDate: Dayjs;
+  timezone: string;
   onPickerChange: (params: { startDate: DateType; endDate: DateType }) => void;
   onSet: () => void;
   onCancel: () => void;
@@ -56,6 +57,7 @@ const RangeCalendarSheet = ({
   pickerState,
   resolvedMinDate,
   effectiveMaxDate,
+  timezone,
   onPickerChange,
   onSet,
   onCancel,
@@ -75,6 +77,7 @@ const RangeCalendarSheet = ({
     <Cell horizontal={Spacing.small} top={Spacing.medium} bottom={Spacing.extraLarge}>
       <DateTimePicker
         mode="range"
+        timeZone={timezone}
         startDate={pickerState.proposedStart.format("YYYY-MM-DD")}
         endDate={pickerState.proposedEnd?.format("YYYY-MM-DD")}
         minDate={resolvedMinDate.format("YYYY-MM-DD")}
@@ -331,6 +334,7 @@ export const DateRangePickerRangeV1 = ({
     pickerState,
     resolvedMinDate,
     effectiveMaxDate,
+    timezone,
     onPickerChange: handlePickerChange,
     onSet: handleSet,
     onCancel: handleCancel,
