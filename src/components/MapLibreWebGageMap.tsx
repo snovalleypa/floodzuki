@@ -42,6 +42,9 @@ const MapLibreWebGageWebMap = ({
   singleGage,
 }: InternalGageMapProps) => {
   const mapStyleUrl = useMemo(() => {
+    if (!region) {
+      return "";
+    }
     let url = mapStyleBaseUrl;
     if (!url.endsWith("/")) {
       url += "/";
