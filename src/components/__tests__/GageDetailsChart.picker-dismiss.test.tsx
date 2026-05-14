@@ -53,7 +53,14 @@ jest.mock("@gorhom/bottom-sheet", () => ({
   BottomSheetModal: () => null,
   BottomSheetView: ({ children }: any) => children,
 }));
-jest.mock("../DatePickerVariantSwitch", () => () => null);
+let capturedDatePickerOnChange: ((start: any, end: any) => void) | undefined;
+jest.mock("../DatePickerVariantSwitch", () => ({
+  __esModule: true,
+  default: (props: any) => {
+    capturedDatePickerOnChange = props.onChange;
+    return null;
+  },
+}));
 jest.mock("@common-ui/components/Icon", () => () => null);
 jest.mock("@common-ui/components/Card", () => {
   const React = require("react");
@@ -152,6 +159,7 @@ const mockGage: any = {
 describe("GageDetailsChart — picker dismissal", () => {
   beforeEach(() => {
     mockHidePicker.mockClear();
+    capturedDatePickerOnChange = undefined;
   });
 
   it("calls hidePicker when a range segment option is selected", () => {
@@ -170,6 +178,22 @@ describe("GageDetailsChart — picker dismissal", () => {
 
     act(() => {
       fireEvent.press(getByTestId("historical-event-picker"));
+    });
+
+    expect(mockHidePicker).toHaveBeenCalled();
+  });
+
+  it("calls hidePicker when a date range is picked", async () => {
+    const localDayJs = require("@services/localDayJs").default;
+
+    render(<GageDetailsChart gage={mockGage} />);
+
+    const tz = "America/Los_Angeles";
+    const start = localDayJs.tz("2026-05-01", "YYYY-MM-DD", tz).startOf("day");
+    const end = localDayJs.tz("2026-05-05", "YYYY-MM-DD", tz).startOf("day");
+
+    await act(async () => {
+      capturedDatePickerOnChange?.(start, end);
     });
 
     expect(mockHidePicker).toHaveBeenCalled();

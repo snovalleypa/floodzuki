@@ -170,4 +170,28 @@ describe("GageDetailsChart — range shortcut highlight", () => {
     render(<GageDetailsChart gage={mockGage} />);
     expect(capturedSelectedSegment).toBe("");
   });
+
+  it("highlights the 2-day shortcut for from=-2&to=now (live relative format)", () => {
+    mockParams = { from: "-2", to: "now" };
+    render(<GageDetailsChart gage={mockGage} />);
+    expect(capturedSelectedSegment).toBe("2");
+  });
+
+  it("highlights the 7-day shortcut for from=-7&to=now (live relative format)", () => {
+    mockParams = { from: "-7", to: "now" };
+    render(<GageDetailsChart gage={mockGage} />);
+    expect(capturedSelectedSegment).toBe("7");
+  });
+
+  it("highlights the 1-day shortcut for from=-1&to=now (live relative format)", () => {
+    mockParams = { from: "-1", to: "now" };
+    render(<GageDetailsChart gage={mockGage} />);
+    expect(capturedSelectedSegment).toBe("1");
+  });
+
+  it("highlights the 14-day shortcut for from=-14&to=now (live relative format)", () => {
+    mockParams = { from: "-14", to: "now" };
+    render(<GageDetailsChart gage={mockGage} />);
+    expect(capturedSelectedSegment).toBe("14");
+  });
 });

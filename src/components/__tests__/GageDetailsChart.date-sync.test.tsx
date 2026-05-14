@@ -4,10 +4,19 @@ import { render, act } from "@testing-library/react-native";
 import { GageDetailsChart } from "../GageDetailsChart";
 import localDayJs from "@services/localDayJs";
 
-// Capture the onChange callback and the latest startDate/endDate passed back
-// to the picker variant switch after a date-range change.
 let capturedOnChange: ((start: any, end: any) => void) | undefined;
 let latestStartDate: any;
+
+let mockParams: { from?: string; to?: string; historicEventId?: string } = {};
+const mockSetParams = jest.fn((patch: Record<string, string | undefined>) => {
+  mockParams = { ...mockParams, ...patch };
+  // Strip undefined values so useLocalSearchParams sees them as absent
+  Object.keys(patch).forEach((k) => {
+    if (patch[k] === undefined) {
+      delete (mockParams as any)[k];
+    }
+  });
+});
 
 jest.mock("../DatePickerVariantSwitch", () => ({
   __esModule: true,
@@ -27,8 +36,8 @@ jest.mock("@models/helpers/useStores", () => ({
 }));
 
 jest.mock("expo-router", () => ({
-  useLocalSearchParams: () => ({ from: undefined, to: undefined, historicEventId: undefined }),
-  useRouter: () => ({ setParams: jest.fn() }),
+  useLocalSearchParams: () => mockParams,
+  useRouter: () => ({ setParams: mockSetParams }),
 }));
 
 jest.mock("@common-ui/contexts/DatePickerContext", () => ({
@@ -124,64 +133,52 @@ describe("GageDetailsChart — split picker date sync", () => {
   beforeEach(() => {
     capturedOnChange = undefined;
     latestStartDate = undefined;
+    mockParams = {};
+    mockSetParams.mockClear();
   });
 
-  it("passes the user-picked start date back as startDate without off-by-one", async () => {
+  it("writes the user-picked dates to the URL as YYYY-MM-DD", async () => {
     render(<GageDetailsChart gage={mockGage} />);
 
     const tz = "America/Los_Angeles";
-    // Simulate what SingleDatePicker.handleSelectDay produces: midnight in gauge tz
     const pickedStart = localDayJs.tz("2026-05-20", "YYYY-MM-DD", tz).startOf("day");
-    // End date one day later — a simple valid range
     const pickedEnd = localDayJs.tz("2026-05-21", "YYYY-MM-DD", tz).startOf("day");
 
     await act(async () => {
       capturedOnChange?.(pickedStart, pickedEnd);
     });
 
-    // The startDate prop passed back to the picker must be the same calendar date
-    // the user picked, expressed in the gauge timezone.
-    // Bug: shows "2026-05-19" because chartRange.chartStartDate = now - 1 day.
-    // Fix: shows "2026-05-20" because we use `from` directly.
+    expect(mockSetParams).toHaveBeenCalledWith(
+      expect.objectContaining({
+        from: "2026-05-20",
+        to: "2026-05-21",
+        historicEventId: undefined,
+      })
+    );
+  });
+
+  it("reflects the picked start date in the picker's startDate prop after URL roundtrip", async () => {
+    const tz = "America/Los_Angeles";
+    const pickedStart = localDayJs.tz("2026-05-20", "YYYY-MM-DD", tz).startOf("day");
+    const pickedEnd = localDayJs.tz("2026-05-21", "YYYY-MM-DD", tz).startOf("day");
+
+    const { rerender } = render(<GageDetailsChart gage={mockGage} />);
+
+    await act(async () => {
+      capturedOnChange?.(pickedStart, pickedEnd);
+    });
+
+    // Force a re-render so useLocalSearchParams picks up the new mockParams
+    rerender(<GageDetailsChart gage={mockGage} />);
+
     expect(latestStartDate?.tz(tz).format("YYYY-MM-DD")).toBe("2026-05-20");
   });
 
-  it("passes the user-picked start date back with matching valueOf", async () => {
-    render(<GageDetailsChart gage={mockGage} />);
-
+  it("reflects historic URL params on page load", () => {
+    mockParams = { from: "2020-02-04", to: "2020-02-13" };
     const tz = "America/Los_Angeles";
-    const pickedStart = localDayJs.tz("2026-04-15", "YYYY-MM-DD", tz).startOf("day");
-    const pickedEnd = localDayJs.tz("2026-04-20", "YYYY-MM-DD", tz).startOf("day");
-
-    await act(async () => {
-      capturedOnChange?.(pickedStart, pickedEnd);
-    });
-
-    expect(latestStartDate?.valueOf()).toBe(pickedStart.valueOf());
-  });
-
-  it("reflects URL date params as the correct gauge-timezone calendar date on page load", async () => {
-    // Simulate the historical test scenario: URL has "YYYY-MM-DD" params already set.
-    // The useEffect fires after isDataFetched→true and should set startDate to
-    // midnight Feb 4 2020 in gauge timezone, not some UTC-shifted value.
-    //
-    // We can't easily change useLocalSearchParams per-test here (it's a top-level mock
-    // that returns undefined). This test instead verifies the parsing helper inline
-    // by calling onDateRangeChange with dates that would trigger the URL path, then
-    // confirming the startDate prop after the state settles.
-    //
-    // The URL-effect path is covered by the existing historical.test.tsx for the
-    // fetch-trigger behavior; this test covers the startDate display correctness
-    // when the user picks a date and the URL params subsequently update.
-    const tz = "America/Los_Angeles";
-    const pickedStart = localDayJs.tz("2020-02-04", "YYYY-MM-DD", tz).startOf("day");
-    const pickedEnd = localDayJs.tz("2020-02-13", "YYYY-MM-DD", tz).startOf("day");
 
     render(<GageDetailsChart gage={mockGage} />);
-
-    await act(async () => {
-      capturedOnChange?.(pickedStart, pickedEnd);
-    });
 
     expect(latestStartDate?.tz(tz).format("YYYY-MM-DD")).toBe("2020-02-04");
   });
