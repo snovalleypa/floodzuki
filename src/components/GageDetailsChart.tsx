@@ -127,6 +127,8 @@ const HistoricEvents = observer(function HistoricEvents({
   const { t } = useLocale();
   const { historicEventId } = useLocalSearchParams();
   const { hidePicker } = useDatePicker();
+  const { getTimezone } = useStores();
+  const tz = getTimezone();
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
   const [selectedEvent, setSelectedEvent] = useState<string | undefined>();
@@ -157,8 +159,8 @@ const HistoricEvents = observer(function HistoricEvents({
 
     router.setParams({
       historicEventId,
-      from: localDayJs.tz(event.fromDate).format("YYYY-MM-DD"),
-      to: localDayJs.tz(event.toDate).format("YYYY-MM-DD"),
+      from: formatUrlDate(localDayJs(event.fromDate), tz),
+      to: formatUrlDate(localDayJs(event.toDate), tz),
     });
 
     hidePicker();
