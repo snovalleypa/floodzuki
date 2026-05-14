@@ -7,15 +7,17 @@ import localDayJs from "@services/localDayJs";
 let capturedOnChange: ((start: any, end: any) => void) | undefined;
 let latestStartDate: any;
 
-let mockParams: { from?: string; to?: string; historicEventId?: string } = {};
+const mockParamsBox: { current: { from?: string; to?: string; historicEventId?: string } } = {
+  current: {},
+};
 const mockSetParams = jest.fn((patch: Record<string, string | undefined>) => {
-  mockParams = { ...mockParams, ...patch };
-  // Strip undefined values so useLocalSearchParams sees them as absent
+  const next = { ...mockParamsBox.current, ...patch };
   Object.keys(patch).forEach((k) => {
     if (patch[k] === undefined) {
-      delete (mockParams as any)[k];
+      delete (next as any)[k];
     }
   });
+  mockParamsBox.current = next;
 });
 
 jest.mock("../DatePickerVariantSwitch", () => ({
@@ -36,7 +38,7 @@ jest.mock("@models/helpers/useStores", () => ({
 }));
 
 jest.mock("expo-router", () => ({
-  useLocalSearchParams: () => mockParams,
+  useLocalSearchParams: () => mockParamsBox.current,
   useRouter: () => ({ setParams: mockSetParams }),
 }));
 
@@ -133,7 +135,7 @@ describe("GageDetailsChart — split picker date sync", () => {
   beforeEach(() => {
     capturedOnChange = undefined;
     latestStartDate = undefined;
-    mockParams = {};
+    mockParamsBox.current = {};
     mockSetParams.mockClear();
   });
 
@@ -168,14 +170,17 @@ describe("GageDetailsChart — split picker date sync", () => {
       capturedOnChange?.(pickedStart, pickedEnd);
     });
 
-    // Force a re-render so useLocalSearchParams picks up the new mockParams
-    rerender(<GageDetailsChart gage={mockGage} />);
+    // Force a re-render so useLocalSearchParams picks up the new mockParams.
+    // `observer()` wraps the component in React.memo — passing a fresh prop
+    // reference (a shallow clone) breaks the bail-out so the component
+    // re-renders and re-reads useLocalSearchParams.
+    rerender(<GageDetailsChart gage={{ ...mockGage }} />);
 
     expect(latestStartDate?.tz(tz).format("YYYY-MM-DD")).toBe("2026-05-20");
   });
 
   it("reflects historic URL params on page load", () => {
-    mockParams = { from: "2020-02-04", to: "2020-02-13" };
+    mockParamsBox.current = { from: "2020-02-04", to: "2020-02-13" };
     const tz = "America/Los_Angeles";
 
     render(<GageDetailsChart gage={mockGage} />);

@@ -15,7 +15,8 @@ import { Spacing } from "@common-ui/constants/spacing";
 import { Cell, Row } from "@common-ui/components/Common";
 import { SegmentControl } from "@common-ui/components/SegmentControl";
 import useGageChartOptions from "@utils/useGageChartOptions";
-import useChartRange from "@utils/useChartRange";
+import { UTC_ISO_FORMAT, formatUrlDate } from "@utils/urlDates";
+import { deriveRange } from "@utils/deriveRange";
 import localDayJs from "@services/localDayJs";
 import { useStores } from "@models/helpers/useStores";
 import { useInterval } from "@utils/useTimeout";
@@ -34,13 +35,6 @@ import { Dayjs } from "dayjs";
 import { normalizeSearchParams } from "@utils/navigation";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import { useDatePicker } from "@common-ui/contexts/DatePickerContext";
-
-// Explicit ISO-8601 UTC format with literal "Z". We can't rely on dayjs's
-// default format string here: react-native-ui-datepicker globally extends
-// dayjs with the `localizedFormat` plugin, which changes the default output
-// of a no-arg `.utc().format()` from "...Z" to "...+00:00".
-const UTC_ISO_FORMAT = "YYYY-MM-DDTHH:mm:ss[Z]";
-const LOCAL_ISO_FORMAT = "YYYY-MM-DDTHH:mm:ss"; // no Z, no offset
 
 interface GageDetailsChartProps {
   gage: Gage;
@@ -324,111 +318,62 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
 
   const { isMobile } = useResponsive();
 
-  const [dateRange, setDateRange] = useState({
-    from: normalizeSearchParams(from),
-    to: normalizeSearchParams(to),
-  });
+  const tz = getTimezone();
+  const fromStr = normalizeSearchParams(from);
+  const toStr = normalizeSearchParams(to);
 
-  useEffect(() => {
-    setDateRange({
-      from: normalizeSearchParams(from),
-      to: normalizeSearchParams(to),
-    });
-  }, [from, to]);
-
-  const chartRange = useChartRange(dateRange.from, dateRange.to);
-
-  const [showRangeWarning, setShowRangeWarning] = useState(false);
-  const [chartDataType, setChartDataType] = useState<GageChartDataType>(GageChartDataType.LEVEL);
-  const [range, setRange] = useState({
-    chartStartDate: chartRange.chartStartDate,
-    chartEndDate: chartRange.chartEndDate,
-    isNow: chartRange.isNow,
-  });
+  const range = useMemo(() => deriveRange(fromStr, toStr, tz), [fromStr, toStr, tz]);
 
   const rangeOption = useMemo(() => {
     const diff = Math.round(range.chartEndDate.diff(range.chartStartDate, "day", true));
     return (["1", "2", "7", "14"] as const).find((k) => parseInt(k) === diff) ?? "";
   }, [range]);
 
-  // Fetch data periodically
+  const [showRangeWarning, setShowRangeWarning] = useState(false);
+  const [chartDataType, setChartDataType] = useState<GageChartDataType>(GageChartDataType.LEVEL);
+
+  // Single fetch effect: re-runs whenever the gage, data-readiness, or the
+  // derived range changes. Replaces the previous mount-effect + dateRange-effect split.
+  useEffect(() => {
+    if (!gage?.locationId || !isDataFetched) {
+      return;
+    }
+    gagesStore.fetchDataForGage(
+      gage.locationId,
+      range.chartStartDate.utc().format(UTC_ISO_FORMAT),
+      range.chartEndDate.utc().format(UTC_ISO_FORMAT),
+      range.isNow,
+      range.isNow
+    );
+  }, [gage?.locationId, isDataFetched, range]);
+
+  // Live polling while in "now" mode.
+  // Each tick re-anchors the window to the current moment so the chart's
+  // visible range advances with wall time. The window width is the gap
+  // captured in `range` at memo time; the end is recomputed as `now()` on
+  // every tick.
   useInterval(
     () => {
-      if (chartRange.isNow) {
-        gagesStore.fetchDataForGage(
-          gage?.locationId,
-          range.chartStartDate.utc().format(UTC_ISO_FORMAT),
-          range.chartEndDate.utc().format(UTC_ISO_FORMAT),
-          chartRange.isNow,
-          true
-        );
+      if (!gage?.locationId) {
+        return;
       }
+      const now = localDayJs();
+      const windowMs = range.chartEndDate.diff(range.chartStartDate);
+      const start = now.subtract(windowMs, "millisecond");
+      gagesStore.fetchDataForGage(
+        gage.locationId,
+        start.utc().format(UTC_ISO_FORMAT),
+        now.utc().format(UTC_ISO_FORMAT),
+        true,
+        true
+      );
     },
-    gage?.locationId && isDataFetched && chartRange.isNow
+    gage?.locationId && isDataFetched && range.isNow
       ? Config.LIVE_CHART_DATA_REFRESH_INTERVAL
       : null
   );
 
-  // Fetch data on mount but first wait for main data to be fetched.
-  // Skip if already in historical mode — the dateRange effect handles that case
-  // and re-running this would race against an in-progress historical fetch.
-  useEffect(() => {
-    if (gage?.locationId && isDataFetched && chartRange.isNow) {
-      gagesStore.fetchDataForGage(
-        gage?.locationId,
-        chartRange.chartStartDate.utc().format(UTC_ISO_FORMAT),
-        chartRange.chartEndDate.utc().format(UTC_ISO_FORMAT),
-        chartRange.isNow,
-        false
-      );
-    }
-  }, [gage?.locationId, isDataFetched]);
-
-  useEffect(() => {
-    if (!dateRange.from || !dateRange.to || !gage?.locationId || !isDataFetched) {
-      return;
-    }
-
-    const tz = getTimezone();
-    // Parse date strings in the gauge timezone.
-    // "YYYY-MM-DD" strings (from date picker and historic events) use the 3-arg form.
-    // Full UTC timestamps (from segment-control presets, e.g. "2026-05-18T22:00:00.000Z")
-    // use the instance form per CLAUDE.md — dayjs(utcStr).tz(tz).
-    const parseToGaugeTz = (str: string) => {
-      if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
-        return localDayJs.tz(str, "YYYY-MM-DD", tz);
-      }
-      if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/.test(str)) {
-        return localDayJs.tz(str, "YYYY-MM-DDTHH:mm:ss", tz);
-      }
-      return localDayJs(str).tz(tz); // legacy UTC strings still work
-    };
-
-    const fromDayjs = parseToGaugeTz(dateRange.from).startOf("day");
-    const toDayjs = parseToGaugeTz(dateRange.to).endOf("day");
-
-    chartRange.changeDates(fromDayjs, toDayjs);
-
-    const newEnd = chartRange.chartEndDate;
-
-    // Only create a new range object when dates actually changed — a new object
-    // reference unconditionally triggers useGageChartOptions to recompute all
-    // chart series, which is expensive on native.
-    setRange((currentRange) => {
-      const newIsNow = chartRange.isNow;
-      if (
-        fromDayjs.valueOf() === currentRange.chartStartDate.valueOf() &&
-        newEnd.valueOf() === currentRange.chartEndDate.valueOf() &&
-        newIsNow === currentRange.isNow
-      ) {
-        return currentRange; // same reference → React bails out, no re-render
-      }
-      return { chartStartDate: fromDayjs, chartEndDate: newEnd, isNow: newIsNow };
-    });
-
-    refreshData(fromDayjs.utc().format(UTC_ISO_FORMAT), newEnd.utc().format(UTC_ISO_FORMAT));
-  }, [dateRange.from, dateRange.to, gage?.locationId, isDataFetched]);
-
+  // Auto-dismiss the range-too-wide warning after 10 seconds.
   useEffect(() => {
     if (!showRangeWarning) {
       return undefined;
@@ -437,62 +382,49 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
     return () => clearTimeout(id);
   }, [showRangeWarning]);
 
+  // Manual refresh button. In live mode, re-anchor to the current moment
+  // so "refresh" actually advances the window (matching polling behavior).
+  // In historic mode, refetch the same bounds.
   const refetchData = () => {
-    refreshData();
-  };
-
-  const refreshData = (from?: string, to?: string) => {
+    if (!gage?.locationId) {
+      return;
+    }
+    let start = range.chartStartDate;
+    let end = range.chartEndDate;
+    if (range.isNow) {
+      const now = localDayJs();
+      const windowMs = end.diff(start);
+      start = now.subtract(windowMs, "millisecond");
+      end = now;
+    }
     gagesStore.fetchDataForGage(
-      gage?.locationId,
-      from ?? range.chartStartDate.utc().format(UTC_ISO_FORMAT),
-      to ?? range.chartEndDate.utc().format(UTC_ISO_FORMAT),
-      chartRange.isNow,
-      !from && chartRange.isNow
+      gage.locationId,
+      start.utc().format(UTC_ISO_FORMAT),
+      end.utc().format(UTC_ISO_FORMAT),
+      range.isNow,
+      range.isNow
     );
   };
 
+  // Segment shortcut: write the relative live form to the URL.
+  // `to=now` signals live mode; `from=-N` means "N days back from now".
   const onRangeChange = (key: string) => {
     hidePicker();
-    chartRange.changeDays(parseInt(key));
-
-    setRange({
-      chartStartDate: chartRange.chartStartDate,
-      chartEndDate: chartRange.chartEndDate,
-      isNow: chartRange.isNow,
-    });
-
-    const tz = getTimezone();
     router.setParams({
       historicEventId: undefined,
-      from: chartRange.chartStartDate.tz(tz).format(LOCAL_ISO_FORMAT),
-      to: chartRange.chartEndDate.tz(tz).format(LOCAL_ISO_FORMAT),
+      from: `-${key}`,
+      to: "now",
     });
-
-    refreshData(
-      chartRange.chartStartDate.utc().format(UTC_ISO_FORMAT),
-      chartRange.chartEndDate.utc().format(UTC_ISO_FORMAT)
-    );
   };
 
-  const onDateRangeChange = (from: Dayjs, to: Dayjs) => {
-    chartRange.changeDates(from, to);
-
-    setRange({
-      chartStartDate: from,
-      chartEndDate: chartRange.chartEndDate,
-      isNow: chartRange.isNow,
-    });
-
+  // Custom range from the date picker.
+  const onDateRangeChange = (pickedFrom: Dayjs, pickedTo: Dayjs) => {
+    hidePicker();
     router.setParams({
       historicEventId: undefined,
-      from: from.format("YYYY-MM-DD"),
-      to: to.format("YYYY-MM-DD"),
+      from: formatUrlDate(pickedFrom, tz),
+      to: formatUrlDate(pickedTo, tz),
     });
-
-    refreshData(
-      from.utc().format(UTC_ISO_FORMAT),
-      chartRange.chartEndDate.utc().format(UTC_ISO_FORMAT)
-    );
   };
 
   const onChartDataTypeChange = (key: GageChartDataType) => {
@@ -536,7 +468,7 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
                 locationId={gage?.locationId}
                 startDate={range.chartStartDate}
                 endDate={range.chartEndDate}
-                timezone={getTimezone()}
+                timezone={tz}
                 onChange={onDateRangeChange}
                 onRangeRestricted={() => setShowRangeWarning(true)}
               />
@@ -549,7 +481,7 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
               locationId={gage?.locationId}
               startDate={range.chartStartDate}
               endDate={range.chartEndDate}
-              timezone={getTimezone()}
+              timezone={tz}
               onChange={onDateRangeChange}
               onRangeRestricted={() => setShowRangeWarning(true)}
             />
