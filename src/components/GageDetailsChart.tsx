@@ -35,6 +35,12 @@ import { normalizeSearchParams } from "@utils/navigation";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import { useDatePicker } from "@common-ui/contexts/DatePickerContext";
 
+// Explicit ISO-8601 UTC format with literal "Z". We can't rely on dayjs's
+// default format string here: react-native-ui-datepicker globally extends
+// dayjs with the `localizedFormat` plugin, which changes the default output
+// of a no-arg `.utc().format()` from "...Z" to "...+00:00".
+const UTC_ISO_FORMAT = "YYYY-MM-DDTHH:mm:ss[Z]";
+
 interface GageDetailsChartProps {
   gage: Gage;
   hideChart?: boolean;
@@ -350,8 +356,8 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
       if (chartRange.isNow) {
         gagesStore.fetchDataForGage(
           gage?.locationId,
-          range.chartStartDate.utc().format(),
-          range.chartEndDate.utc().format(),
+          range.chartStartDate.utc().format(UTC_ISO_FORMAT),
+          range.chartEndDate.utc().format(UTC_ISO_FORMAT),
           chartRange.isNow,
           true
         );
@@ -369,8 +375,8 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
     if (gage?.locationId && isDataFetched && chartRange.isNow) {
       gagesStore.fetchDataForGage(
         gage?.locationId,
-        chartRange.chartStartDate.utc().format(),
-        chartRange.chartEndDate.utc().format(),
+        chartRange.chartStartDate.utc().format(UTC_ISO_FORMAT),
+        chartRange.chartEndDate.utc().format(UTC_ISO_FORMAT),
         chartRange.isNow,
         false
       );
@@ -414,7 +420,7 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
       return { chartStartDate: fromDayjs, chartEndDate: newEnd, isNow: newIsNow };
     });
 
-    refreshData(fromDayjs.utc().format(), newEnd.utc().format());
+    refreshData(fromDayjs.utc().format(UTC_ISO_FORMAT), newEnd.utc().format(UTC_ISO_FORMAT));
   }, [dateRange.from, dateRange.to, gage?.locationId, isDataFetched]);
 
   useEffect(() => {
@@ -432,8 +438,8 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
   const refreshData = (from?: string, to?: string) => {
     gagesStore.fetchDataForGage(
       gage?.locationId,
-      from ?? range.chartStartDate.utc().format(),
-      to ?? range.chartEndDate.utc().format(),
+      from ?? range.chartStartDate.utc().format(UTC_ISO_FORMAT),
+      to ?? range.chartEndDate.utc().format(UTC_ISO_FORMAT),
       chartRange.isNow,
       !from && chartRange.isNow
     );
@@ -451,11 +457,14 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
 
     router.setParams({
       historicEventId: undefined,
-      from: chartRange.chartStartDate.utc().format(),
-      to: chartRange.chartEndDate.utc().format(),
+      from: chartRange.chartStartDate.utc().format(UTC_ISO_FORMAT),
+      to: chartRange.chartEndDate.utc().format(UTC_ISO_FORMAT),
     });
 
-    refreshData(chartRange.chartStartDate.utc().format(), chartRange.chartEndDate.utc().format());
+    refreshData(
+      chartRange.chartStartDate.utc().format(UTC_ISO_FORMAT),
+      chartRange.chartEndDate.utc().format(UTC_ISO_FORMAT)
+    );
   };
 
   const onDateRangeChange = (from: Dayjs, to: Dayjs) => {
@@ -473,7 +482,10 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
       to: to.format("YYYY-MM-DD"),
     });
 
-    refreshData(from.utc().format(), chartRange.chartEndDate.utc().format());
+    refreshData(
+      from.utc().format(UTC_ISO_FORMAT),
+      chartRange.chartEndDate.utc().format(UTC_ISO_FORMAT)
+    );
   };
 
   const onChartDataTypeChange = (key: GageChartDataType) => {
