@@ -373,7 +373,6 @@ export const GageStoreModel = types
           .subtract(Config.FRONT_PAGE_CHART_DURATION_NUMBER, Config.FRONT_PAGE_CHART_DURATION_UNIT)
           .utc()
           .format();
-
       const gage = store.gages.find((gage) => gage?.locationId === locationId);
 
       if (!gage) {

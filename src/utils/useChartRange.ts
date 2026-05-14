@@ -45,7 +45,6 @@ const useChartRange = (from?: string, to?: string) => {
       }
     },
     get chartEndDate() {
-      const endDate = _inputEndDate.current.clone();
       if (_isNow.current) {
         return localDayJs();
       } else {

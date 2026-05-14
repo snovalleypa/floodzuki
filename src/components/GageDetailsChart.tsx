@@ -40,6 +40,7 @@ import { useDatePicker } from "@common-ui/contexts/DatePickerContext";
 // dayjs with the `localizedFormat` plugin, which changes the default output
 // of a no-arg `.utc().format()` from "...Z" to "...+00:00".
 const UTC_ISO_FORMAT = "YYYY-MM-DDTHH:mm:ss[Z]";
+const LOCAL_ISO_FORMAT = "YYYY-MM-DDTHH:mm:ss"; // no Z, no offset
 
 interface GageDetailsChartProps {
   gage: Gage;
@@ -393,10 +394,15 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
     // "YYYY-MM-DD" strings (from date picker and historic events) use the 3-arg form.
     // Full UTC timestamps (from segment-control presets, e.g. "2026-05-18T22:00:00.000Z")
     // use the instance form per CLAUDE.md — dayjs(utcStr).tz(tz).
-    const parseToGaugeTz = (str: string) =>
-      /^\d{4}-\d{2}-\d{2}$/.test(str)
-        ? localDayJs.tz(str, "YYYY-MM-DD", tz)
-        : localDayJs(str).tz(tz);
+    const parseToGaugeTz = (str: string) => {
+      if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
+        return localDayJs.tz(str, "YYYY-MM-DD", tz);
+      }
+      if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/.test(str)) {
+        return localDayJs.tz(str, "YYYY-MM-DDTHH:mm:ss", tz);
+      }
+      return localDayJs(str).tz(tz); // legacy UTC strings still work
+    };
 
     const fromDayjs = parseToGaugeTz(dateRange.from).startOf("day");
     const toDayjs = parseToGaugeTz(dateRange.to).endOf("day");
@@ -455,10 +461,11 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
       isNow: chartRange.isNow,
     });
 
+    const tz = getTimezone();
     router.setParams({
       historicEventId: undefined,
-      from: chartRange.chartStartDate.utc().format(UTC_ISO_FORMAT),
-      to: chartRange.chartEndDate.utc().format(UTC_ISO_FORMAT),
+      from: chartRange.chartStartDate.tz(tz).format(LOCAL_ISO_FORMAT),
+      to: chartRange.chartEndDate.tz(tz).format(LOCAL_ISO_FORMAT),
     });
 
     refreshData(
