@@ -29,6 +29,7 @@ import { FloodEvent } from "@models/LocationInfo";
 import { DataPoint } from "@models/Forecasts";
 import { formatReadingTime } from "@utils/useTimeFormat";
 import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Icon from "@common-ui/components/Icon";
 import DatePickerVariantSwitch from "./DatePickerVariantSwitch";
 import { Dayjs } from "dayjs";
@@ -137,6 +138,7 @@ const HistoricEvents = observer(function HistoricEvents({
   const { hidePicker } = useDatePicker();
   const { getTimezone } = useStores();
   const tz = getTimezone();
+  const insets = useSafeAreaInsets();
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
   const urlEventId = Array.isArray(historicEventId) ? historicEventId[0] : historicEventId;
@@ -209,9 +211,9 @@ const HistoricEvents = observer(function HistoricEvents({
               index={0}
               detached={true}
               ref={bottomSheetModalRef}
-              snapPoints={["40%"]}
+              snapPoints={["50%"]}
               style={$bottomSheetStyle}>
-              <BottomSheetView>
+              <BottomSheetView style={{ paddingBottom: insets.bottom + Spacing.medium }}>
                 <PickerSelector
                   historicEventId={selectedEvent ?? historicEventId}
                   floodEvents={floodEvents}
