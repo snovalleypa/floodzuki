@@ -111,6 +111,8 @@ jest.mock("@common-ui/components/Text", () => ({
   RegularText: () => null,
   SmallerText: () => null,
   LabelText: () => null,
+  MediumTitle: () => null,
+  SmallTitle: () => null,
 }));
 
 jest.mock("@utils/navigation", () => ({

@@ -1,5 +1,12 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { ActivityIndicator, TextStyle, TouchableOpacity, View, ViewStyle } from "react-native";
+import {
+  ActivityIndicator,
+  Pressable,
+  TextStyle,
+  TouchableOpacity,
+  View,
+  ViewStyle,
+} from "react-native";
 import { observer } from "mobx-react-lite";
 import { useLocalSearchParams, useRouter } from "expo-router";
 
@@ -16,7 +23,7 @@ import { Cell, Row } from "@common-ui/components/Common";
 import { SegmentControl } from "@common-ui/components/SegmentControl";
 import useGageChartOptions from "@utils/useGageChartOptions";
 import { UTC_ISO_FORMAT, formatUrlDate } from "@utils/urlDates";
-import { deriveRange, NOW_LITERAL } from "@utils/deriveRange";
+import { CHART_DEFAULT_RANGE_DAYS, deriveRange, NOW_LITERAL } from "@utils/deriveRange";
 import localDayJs from "@services/localDayJs";
 import { useStores } from "@models/helpers/useStores";
 import { useInterval } from "@utils/useTimeout";
@@ -24,7 +31,14 @@ import Config from "@config/config";
 import { IconButton, SolidButton } from "@common-ui/components/Button";
 import { Colors } from "@common-ui/constants/colors";
 import { Picker } from "@react-native-picker/picker";
-import { LabelText, MediumText, RegularText, SmallerText } from "@common-ui/components/Text";
+import {
+  LabelText,
+  MediumText,
+  MediumTitle,
+  RegularText,
+  SmallerText,
+  SmallTitle,
+} from "@common-ui/components/Text";
 import { FloodEvent } from "@models/LocationInfo";
 import { DataPoint } from "@models/Forecasts";
 import { formatReadingTime } from "@utils/useTimeFormat";
@@ -309,6 +323,41 @@ const CrestInfo = observer(function CrestInfo({ crest }: { crest: DataPoint }) {
   );
 });
 
+/** "Live" reset button — returns the chart to the default live window. */
+const LiveButton = observer(function LiveButton({ isNow }: { isNow: boolean }) {
+  const router = useRouter();
+  const { t } = useLocale();
+  const { isMobile } = useResponsive();
+
+  if (isNow) {
+    return null;
+  }
+
+  const TextComponent = isMobile ? SmallTitle : MediumTitle;
+
+  const handlePress = () => {
+    router.setParams({
+      historicEventId: undefined,
+      from: `-${CHART_DEFAULT_RANGE_DAYS}`,
+      to: NOW_LITERAL,
+    });
+  };
+
+  return (
+    <Pressable
+      onPress={handlePress}
+      style={(state) => [
+        $liveButton,
+        state.pressed && $liveButtonPressed,
+        state.hovered && $liveButtonHovered,
+      ]}>
+      <TextComponent color={Colors.dark} align="center">
+        {t("forecastChart.live")}
+      </TextComponent>
+    </Pressable>
+  );
+});
+
 export const GageDetailsChart = observer(function GageDetailsChart(props: GageDetailsChartProps) {
   const { gage, hideChart } = props;
 
@@ -503,6 +552,7 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
           </Cell>
           <Cell flex align="flex-end">
             <If condition={!isMobile}>
+              <LiveButton isNow={range.isNow} />
               <DatePickerVariantSwitch
                 locationId={gage?.locationId}
                 startDate={range.chartStartDate}
@@ -515,16 +565,22 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
           </Cell>
         </Row>
         <If condition={isMobile}>
-          <Cell align="center" top={Spacing.tiny}>
-            <DatePickerVariantSwitch
-              locationId={gage?.locationId}
-              startDate={range.chartStartDate}
-              endDate={range.chartEndDate}
-              timezone={tz}
-              onChange={onDateRangeChange}
-              onRangeRestricted={() => setShowRangeWarning(true)}
-            />
-          </Cell>
+          <Row align="center" top={Spacing.tiny}>
+            <Cell flex />
+            <Cell>
+              <DatePickerVariantSwitch
+                locationId={gage?.locationId}
+                startDate={range.chartStartDate}
+                endDate={range.chartEndDate}
+                timezone={tz}
+                onChange={onDateRangeChange}
+                onRangeRestricted={() => setShowRangeWarning(true)}
+              />
+            </Cell>
+            <Cell flex align="flex-start">
+              <LiveButton isNow={range.isNow} />
+            </Cell>
+          </Row>
         </If>
       </CardHeader>
       {showRangeWarning && (
@@ -609,4 +665,21 @@ const $bottomSheetStyle: ViewStyle = {
     width: 0,
     height: -4,
   },
+};
+
+const $liveButton: ViewStyle = {
+  paddingHorizontal: Spacing.extraSmall,
+  paddingVertical: Spacing.extraSmall,
+  backgroundColor: "transparent",
+  borderRadius: Spacing.extraSmall,
+};
+
+const $liveButtonPressed: ViewStyle = {
+  backgroundColor: Colors.lightGrey,
+  opacity: 0.8,
+};
+
+const $liveButtonHovered: ViewStyle = {
+  backgroundColor: Colors.lightGrey,
+  opacity: 0.8,
 };
