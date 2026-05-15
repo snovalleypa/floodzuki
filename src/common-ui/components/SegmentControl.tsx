@@ -53,47 +53,42 @@ export function SegmentControl(props: SegmentControlProps) {
   );
 }
 
-const SegmentItem = React.memo(
-  function SegmentItem({
-    segment,
-    isSelected,
-    onPress,
-  }: {
-    segment: Segment;
-    isSelected: boolean;
-    onPress: (segmentKey: string) => void;
-  }) {
-    const key = segment.key;
+const SegmentItem = React.memo(function SegmentItem({
+  segment,
+  isSelected,
+  onPress,
+}: {
+  segment: Segment;
+  isSelected: boolean;
+  onPress: (segmentKey: string) => void;
+}) {
+  const key = segment.key;
 
-    const { isMobile } = useResponsive();
+  const { isMobile } = useResponsive();
 
-    const handlePress = () => {
-      onPress(segment.key);
-    };
+  const handlePress = () => {
+    onPress(segment.key);
+  };
 
-    const $textColor = isSelected ? Colors.primary : Colors.dark;
+  const $textColor = isSelected ? Colors.primary : Colors.dark;
 
-    const TextComponent = isMobile ? SmallTitle : MediumTitle;
+  const TextComponent = isMobile ? SmallTitle : MediumTitle;
 
-    return (
-      <Pressable
-        key={key}
-        onPress={handlePress}
-        style={(state) => [
-          $segmentStyle,
-          state.pressed && $segmentPressed,
-          state.hovered && $segmentHovered,
-        ]}>
-        <TextComponent color={$textColor} align="center">
-          {segment.title}
-        </TextComponent>
-      </Pressable>
-    );
-  },
-  (prevProps, nextProps) => {
-    return prevProps.isSelected === nextProps.isSelected;
-  }
-);
+  return (
+    <Pressable
+      key={key}
+      onPress={handlePress}
+      style={(state) => [
+        $segmentStyle,
+        state.pressed && $segmentPressed,
+        state.hovered && $segmentHovered,
+      ]}>
+      <TextComponent color={$textColor} align="center">
+        {segment.title}
+      </TextComponent>
+    </Pressable>
+  );
+});
 
 const $segmentHolder: ViewStyle = {
   flexDirection: "row",
