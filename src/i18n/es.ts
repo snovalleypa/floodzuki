@@ -239,6 +239,7 @@ const es = {
     fullRangeTitle: "Completo",
     rangeDays: "{{days}} días",
     rangeDay: "día",
+    live: "En vivo",
   },
   gageChart: {
     discharge: "Descarga",
