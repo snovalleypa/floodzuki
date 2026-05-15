@@ -434,8 +434,8 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
     const totalDays = endDay.diff(startDay, "day") + 1;
     const centerDay = startDay.add(Math.floor(totalDays / 2), "day");
 
-    const before = Math.floor((days - 1) / 2);
-    const after = Math.floor(days / 2);
+    const before = Math.floor(days / 2);
+    const after = Math.floor((days - 1) / 2);
     const newStart = centerDay.subtract(before, "day");
     const newEnd = centerDay.add(after, "day");
 
