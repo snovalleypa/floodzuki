@@ -16,7 +16,7 @@ import { Cell, Row } from "@common-ui/components/Common";
 import { SegmentControl } from "@common-ui/components/SegmentControl";
 import useGageChartOptions from "@utils/useGageChartOptions";
 import { UTC_ISO_FORMAT, formatUrlDate } from "@utils/urlDates";
-import { deriveRange } from "@utils/deriveRange";
+import { deriveRange, NOW_LITERAL } from "@utils/deriveRange";
 import localDayJs from "@services/localDayJs";
 import { useStores } from "@models/helpers/useStores";
 import { useInterval } from "@utils/useTimeout";
@@ -424,7 +424,7 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
       router.setParams({
         historicEventId: undefined,
         from: `-${key}`,
-        to: "now",
+        to: NOW_LITERAL,
       });
       return;
     }
@@ -444,7 +444,7 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
       router.setParams({
         historicEventId: undefined,
         from: `-${key}`,
-        to: "now",
+        to: NOW_LITERAL,
       });
       return;
     }
