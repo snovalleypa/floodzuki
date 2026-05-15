@@ -408,14 +408,49 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
     );
   };
 
-  // Segment shortcut: write the relative live form to the URL.
-  // `to=now` signals live mode; `from=-N` means "N days back from now".
+  // Segment shortcut.
+  //   Live mode  → write the relative live form (`from=-N&to=now`).
+  //   Historic   → rebuild an N-day absolute-date window centered on the
+  //                current range's center day, later-biased when N or the
+  //                current span is even. If the new window extends past
+  //                today in gauge tz, flip to live mode instead.
   const onRangeChange = (key: string) => {
     hidePicker();
+    const days = parseInt(key, 10);
+
+    if (range.isNow) {
+      router.setParams({
+        historicEventId: undefined,
+        from: `-${key}`,
+        to: "now",
+      });
+      return;
+    }
+
+    const startDay = range.chartStartDate.tz(tz).startOf("day");
+    const endDay = range.chartEndDate.tz(tz).startOf("day");
+    const totalDays = endDay.diff(startDay, "day") + 1;
+    const centerDay = startDay.add(Math.floor(totalDays / 2), "day");
+
+    const before = Math.floor((days - 1) / 2);
+    const after = Math.floor(days / 2);
+    const newStart = centerDay.subtract(before, "day");
+    const newEnd = centerDay.add(after, "day");
+
+    const todayStart = localDayJs().tz(tz).startOf("day");
+    if (newEnd.valueOf() >= todayStart.valueOf()) {
+      router.setParams({
+        historicEventId: undefined,
+        from: `-${key}`,
+        to: "now",
+      });
+      return;
+    }
+
     router.setParams({
       historicEventId: undefined,
-      from: `-${key}`,
-      to: "now",
+      from: formatUrlDate(newStart, tz),
+      to: formatUrlDate(newEnd, tz),
     });
   };
 
