@@ -114,7 +114,7 @@ const PickerSelector = ({
 
   return (
     <Picker
-      selectedValue={eventId}
+      selectedValue={eventId ?? SELECT_EVENT}
       onValueChange={onHistoricEventSelected}
       style={[$pickerStyle, width]}>
       <Picker.Item label={t(SELECT_EVENT)} value={SELECT_EVENT} />
@@ -139,7 +139,16 @@ const HistoricEvents = observer(function HistoricEvents({
   const tz = getTimezone();
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
-  const [selectedEvent, setSelectedEvent] = useState<string | undefined>();
+  const urlEventId = Array.isArray(historicEventId) ? historicEventId[0] : historicEventId;
+
+  const [selectedEvent, setSelectedEvent] = useState<string | undefined>(urlEventId);
+
+  // Keep the iOS bottom-sheet's pending selection in sync with the URL.
+  // Without this, clearing `historicEventId` via a range change leaves the
+  // sheet showing the previously-selected event the next time it opens.
+  useEffect(() => {
+    setSelectedEvent(urlEventId);
+  }, [urlEventId]);
 
   // Update chart when historic event selected
   const onHistoricEventSelected = (historicEventId: string) => {
@@ -179,9 +188,7 @@ const HistoricEvents = observer(function HistoricEvents({
     bottomSheetModalRef.current?.present();
   };
 
-  const historicEventIdNum = Array.isArray(historicEventId)
-    ? parseInt(historicEventId[0])
-    : parseInt(historicEventId);
+  const historicEventIdNum = parseInt(urlEventId);
   const title =
     floodEvents.find((e) => e.id === historicEventIdNum)?.eventName ??
     t("gageDetailsChart.selectEvent");
