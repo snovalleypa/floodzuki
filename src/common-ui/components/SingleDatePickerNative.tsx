@@ -35,10 +35,19 @@ export type SingleDatePickerNativeProps = {
 };
 
 // ---------------------------------------------------------------------------
-// Shared helper
+// Shared helpers
 // ---------------------------------------------------------------------------
 function formatDateTrigger(date: Dayjs, timezone: string): string {
   return date?.isValid() ? date.tz(timezone).format("MM/DD/YYYY") : "Select Date";
+}
+
+// The OS picker emits a JS Date at *device-tz* midnight of the calendar day
+// the user tapped. We treat that calendar day as gauge-tz, not as a UTC
+// instant — so a user picking "Jun 10" commits Jun 10 in gauge tz regardless
+// of the device's tz.
+function pickedDateToGaugeTz(date: Date, timezone: string): Dayjs {
+  const ymd = dayjs(date).format("YYYY-MM-DD");
+  return dayjs.tz(ymd, "YYYY-MM-DD", timezone).startOf("day");
 }
 
 // ---------------------------------------------------------------------------
@@ -54,13 +63,12 @@ const SingleDatePickerIOS = ({
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
   // Track the pending date while the user spins through the inline calendar.
-  // We start with the currently-selected date so "Done" without interacting
-  // still commits a valid date.
-  const pendingDateRef = useRef<Date>(selectedDate.toDate());
+  // null = picker untouched since the sheet was opened, in which case "Done"
+  // re-commits the original selectedDate unchanged.
+  const pendingDateRef = useRef<Date | null>(null);
 
   const openSheet = () => {
-    // Reset pending date each time the sheet opens
-    pendingDateRef.current = selectedDate.toDate();
+    pendingDateRef.current = null;
     bottomSheetModalRef.current?.present();
   };
 
@@ -72,7 +80,9 @@ const SingleDatePickerIOS = ({
 
   const handleDone = () => {
     bottomSheetModalRef.current?.dismiss();
-    const picked = dayjs(pendingDateRef.current).tz(timezone).startOf("day");
+    const picked = pendingDateRef.current
+      ? pickedDateToGaugeTz(pendingDateRef.current, timezone)
+      : selectedDate.tz(timezone).startOf("day");
     onChange(picked);
   };
 
@@ -127,8 +137,7 @@ const SingleDatePickerAndroid = ({
       mode: "date",
       onChange: (event, date) => {
         if (event.type === "set" && date) {
-          const picked = dayjs(date).tz(timezone).startOf("day");
-          onChange(picked);
+          onChange(pickedDateToGaugeTz(date, timezone));
         }
       },
     });

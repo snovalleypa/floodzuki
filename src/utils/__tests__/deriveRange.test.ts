@@ -1,9 +1,12 @@
 import localDayJs from "@services/localDayJs";
 import { deriveRange, CHART_DEFAULT_RANGE_DAYS } from "../deriveRange";
 
-const TZ = "America/Los_Angeles";
+// Exercise the gauge-tz logic across a westward, eastward, and far-east tz.
+// Each runs under TZ=UTC (set by `npm test`), so this also catches any code
+// that silently uses system tz instead of the gauge tz parameter.
+const TZ_CASES = [["America/Los_Angeles"], ["America/New_York"], ["Pacific/Auckland"]] as const;
 
-describe("deriveRange", () => {
+describe.each(TZ_CASES)("deriveRange [%s]", (TZ) => {
   it("returns a default live-mode range when both URL params are missing", () => {
     const now = localDayJs.tz("2026-05-14T10:00:00", "YYYY-MM-DDTHH:mm:ss", TZ);
     const range = deriveRange(undefined, undefined, TZ, now);

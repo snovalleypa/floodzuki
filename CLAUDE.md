@@ -163,8 +163,14 @@ The app uses `expo-updates` with channel `production`. OTA updates are published
 
 ### Timezone and time display
 
-**All displayed times must use the gauge location's timezone, not the client's system timezone.** Readings and forecasts represent physical events at a specific location on Earth (the Snoqualmie Valley), so times should always reflect local conditions at that location regardless of where the user is viewing the app.
+**The gauge's timezone is the only timezone that matters anywhere in the app.** The user's device timezone is irrelevant — it must never influence what's displayed, what's interpreted from user input, what's sent to the API, or what's compared against. Readings and forecasts represent physical events at a specific location on Earth (the Snoqualmie Valley), and dates and times the user picks or types are questions _about_ that location.
 
-- Get the timezone via `rootStore.getTimezone()` (from `@models/helpers/useStores`), which returns the region timezone from the API (e.g. `"America/Los_Angeles"`) with a Pacific fallback.
-- Use `dayjs(timestamp).tz(tz)` to convert a UTC or offset-aware string to the location timezone. Do **not** use `dayjs.tz(timestamp)` (the static form) — it does not convert UTC strings correctly; it displays the raw UTC value instead of converting it.
-- The utility functions in `src/utils/useTimeFormat.ts` (`formatDateTime`, `formatReadingTime`) already follow this pattern and should be used for all time display.
+The mental model: if a user asks for the time of sunrise in Cairo on May 30, the answer is in Cairo's timezone regardless of where the asker is sitting. "May 30" means May 30 in Cairo, not May 30 in the asker's tz. Same here — "March 1 to March 7" means those calendar days in the gauge's tz, the chart's "today" means today in the gauge's tz, and a time like "8:00 AM" means 8 AM at the gauge.
+
+This applies in three directions:
+
+- **Display (out):** every formatted timestamp must be rendered in gauge tz. Use the utility functions in `src/utils/useTimeFormat.ts` (`formatDateTime`, `formatReadingTime`) — they already follow this pattern. Get the timezone via `rootStore.getTimezone()` (from `@models/helpers/useStores`), which returns the region timezone from the API (e.g. `"America/Los_Angeles"`) with a Pacific fallback. Use `dayjs(timestamp).tz(tz)` to convert a UTC or offset-aware string to the location timezone. Do **not** use `dayjs.tz(timestamp)` (the static form) — it does not convert UTC strings correctly; it displays the raw UTC value instead of converting it.
+- **User input (in):** dates and times the user picks, types, or selects must be interpreted as gauge tz, not device tz. A user picking "May 15" on a native date picker is asking for May 15 _at the gauge_, even if their phone is in another timezone. URL params (`from=2026-05-01`), date pickers, range shortcuts, and "today" comparisons must all be evaluated in gauge tz. See [SingleDatePickerNative.tsx](src/common-ui/components/SingleDatePickerNative.tsx) for the pattern: extract the device-tz calendar components from the OS-emitted Date, then rebuild as gauge-tz midnight.
+- **Construction:** when building a Dayjs from a date string in code (in components, stores, tests), construct it in gauge tz from the start: `localDayJs.tz("2026-05-01", "YYYY-MM-DD", timezone)`. A bare `dayjs("2026-05-01")` is midnight in the _system_ tz and will silently produce the wrong day when system tz != gauge tz.
+
+**Testing:** the Jest suite runs with `TZ=UTC` so any code that silently relies on system tz matching gauge tz will fail in tests. When writing tz-sensitive tests, never construct dates with bare `dayjs(string)` or `new Date(string)` — always specify the tz explicitly.

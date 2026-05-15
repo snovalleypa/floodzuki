@@ -5,7 +5,7 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "postinstall": "patch-package",
-    "test": "jest",
+    "test": "TZ=UTC jest",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "prepare": "husky"

@@ -127,14 +127,20 @@ function getPickerOnChange(): ((event: any, date?: Date) => void) | null {
   return mockAndroidOpenFn._capturePickerOnChange ?? null;
 }
 
-const MOCK_PICKER_DATE = new Date("2026-05-15T00:00:00");
+const GAUGE_TZ = "America/Los_Angeles";
+
+// Native OS pickers emit a JS Date for "midnight on the picked day in the
+// device's tz". Production assumes device tz == gauge tz, so to keep the test
+// faithful regardless of the system tz the suite runs under, build picker-
+// emitted dates as midnight in the gauge tz.
+const MOCK_PICKER_DATE = dayjs.tz("2026-05-15", "YYYY-MM-DD", GAUGE_TZ).toDate();
 const MOCK_PICKER_EVENT = { type: "set", nativeEvent: {} };
 
 const BASE_PROPS = {
-  selectedDate: dayjs("2026-04-01"),
-  minDate: dayjs("2026-01-01"),
-  maxDate: dayjs("2026-12-31"),
-  timezone: "America/Los_Angeles",
+  selectedDate: dayjs.tz("2026-04-01", "YYYY-MM-DD", GAUGE_TZ),
+  minDate: dayjs.tz("2026-01-01", "YYYY-MM-DD", GAUGE_TZ),
+  maxDate: dayjs.tz("2026-12-31", "YYYY-MM-DD", GAUGE_TZ),
+  timezone: GAUGE_TZ,
   onChange: jest.fn(),
 };
 
@@ -199,6 +205,32 @@ describe("SingleDatePickerNative — iOS", () => {
     const result = onChange.mock.calls[0][0];
     expect(result.format("YYYY-MM-DD")).toBe("2026-05-15");
   });
+
+  it("treats picked calendar day as gauge tz, not device tz", () => {
+    // Simulates a device whose system tz differs from the gauge tz.
+    // The OS picker emits a Date at *device-tz* midnight (here: UTC, the test
+    // runner's tz). The component must commit the picked calendar day in gauge
+    // tz, regardless of device tz.
+    const deviceTzMidnight = new Date(2026, 5, 10); // Jun 10 00:00 in TZ=UTC
+
+    const onChange = jest.fn();
+    const { getByTestId } = render(<SingleDatePickerNative {...BASE_PROPS} onChange={onChange} />);
+
+    fireEvent.press(getByTestId("date-text"));
+
+    act(() => {
+      const pickerOnChange = getPickerOnChange();
+      pickerOnChange!(MOCK_PICKER_EVENT, deviceTzMidnight);
+    });
+
+    act(() => {
+      fireEvent.press(getByTestId("done-button"));
+    });
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+    const result = onChange.mock.calls[0][0];
+    expect(result.tz(GAUGE_TZ).format("YYYY-MM-DD")).toBe("2026-06-10");
+  });
 });
 
 // ===========================================================================
@@ -234,7 +266,7 @@ describe("SingleDatePickerNative — Android", () => {
 
     // Simulate the OS calling onChange with event.type === "set"
     act(() => {
-      openArgs.onChange({ type: "set" }, new Date("2026-06-10T00:00:00"));
+      openArgs.onChange({ type: "set" }, dayjs.tz("2026-06-10", "YYYY-MM-DD", GAUGE_TZ).toDate());
     });
 
     expect(onChange).toHaveBeenCalledTimes(1);
@@ -255,5 +287,25 @@ describe("SingleDatePickerNative — Android", () => {
     });
 
     expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it("treats picked calendar day as gauge tz, not device tz", () => {
+    // See iOS counterpart — the OS picker emits a Date at device-tz midnight,
+    // and the picked calendar day must round-trip to the same day in gauge tz.
+    const deviceTzMidnight = new Date(2026, 5, 10); // Jun 10 00:00 in TZ=UTC
+
+    const onChange = jest.fn();
+    const { getByTestId } = render(<SingleDatePickerNative {...BASE_PROPS} onChange={onChange} />);
+
+    fireEvent.press(getByTestId("date-text"));
+    const openArgs = mockAndroidOpenFn.mock.calls[0][0];
+
+    act(() => {
+      openArgs.onChange({ type: "set" }, deviceTzMidnight);
+    });
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+    const result = onChange.mock.calls[0][0];
+    expect(result.tz(GAUGE_TZ).format("YYYY-MM-DD")).toBe("2026-06-10");
   });
 });
