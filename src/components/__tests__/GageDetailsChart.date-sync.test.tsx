@@ -99,8 +99,6 @@ jest.mock("@common-ui/components/Text", () => ({
   RegularText: () => null,
   SmallerText: () => null,
   LabelText: () => null,
-  MediumTitle: () => null,
-  SmallTitle: () => null,
 }));
 jest.mock("@utils/navigation", () => ({
   normalizeSearchParams: (v: string | string[]) => (Array.isArray(v) ? v.join(", ") : v),

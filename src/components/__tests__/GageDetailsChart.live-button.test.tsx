@@ -1,6 +1,6 @@
 // src/components/__tests__/GageDetailsChart.live-button.test.tsx
 import React from "react";
-import { render, fireEvent } from "@testing-library/react-native";
+import { render, act } from "@testing-library/react-native";
 import { GageDetailsChart } from "../GageDetailsChart";
 
 // --- Mocks ---
@@ -9,8 +9,14 @@ const mockParamsBox: { current: { from?: string; to?: string; historicEventId?: 
 };
 const mockSetParams = jest.fn();
 
+let capturedSegments: { key: string; title: string }[] | undefined;
+let capturedRangeOnChange: ((key: string) => void) | undefined;
 jest.mock("@common-ui/components/SegmentControl", () => ({
-  SegmentControl: () => null,
+  SegmentControl: ({ segments, onChange }: any) => {
+    capturedSegments = segments;
+    capturedRangeOnChange = onChange;
+    return null;
+  },
 }));
 
 jest.mock("expo-router", () => ({
@@ -87,20 +93,12 @@ jest.mock("@common-ui/components/Button", () => ({
   IconButton: () => null,
   SolidButton: () => null,
 }));
-jest.mock("@common-ui/components/Text", () => {
-  const React = require("react");
-  const RN = require("react-native");
-  const Pass = ({ children }: any) =>
-    React.createElement(RN.Text, null, typeof children === "string" ? children : null);
-  return {
-    MediumText: () => null,
-    RegularText: () => null,
-    SmallerText: () => null,
-    LabelText: () => null,
-    SmallTitle: Pass,
-    MediumTitle: Pass,
-  };
-});
+jest.mock("@common-ui/components/Text", () => ({
+  MediumText: () => null,
+  RegularText: () => null,
+  SmallerText: () => null,
+  LabelText: () => null,
+}));
 jest.mock("@utils/navigation", () => ({
   normalizeSearchParams: (v: string | string[]) => (Array.isArray(v) ? v.join(", ") : v),
 }));
@@ -132,35 +130,42 @@ const mockGage: any = {
   hasData: false,
 };
 
-describe("GageDetailsChart — Live button", () => {
+describe("GageDetailsChart — Live segment", () => {
   beforeEach(() => {
     mockParamsBox.current = {};
     mockSetParams.mockClear();
+    capturedSegments = undefined;
+    capturedRangeOnChange = undefined;
   });
 
-  it("does not render the Live button in live mode (to=now)", () => {
+  it("omits the live segment when range.isNow is true (to=now)", () => {
     mockParamsBox.current = { from: "-2", to: "now" };
-    const { queryByText } = render(<GageDetailsChart gage={mockGage} />);
-    expect(queryByText("forecastChart.live")).toBeNull();
+    render(<GageDetailsChart gage={mockGage} />);
+    const keys = capturedSegments?.map((s) => s.key);
+    expect(keys).toEqual(["14", "7", "2", "1"]);
   });
 
-  it("does not render the Live button on cold-load (no params → live default)", () => {
+  it("omits the live segment on cold-load (no params → live default)", () => {
     mockParamsBox.current = {};
-    const { queryByText } = render(<GageDetailsChart gage={mockGage} />);
-    expect(queryByText("forecastChart.live")).toBeNull();
+    render(<GageDetailsChart gage={mockGage} />);
+    const keys = capturedSegments?.map((s) => s.key);
+    expect(keys).toEqual(["14", "7", "2", "1"]);
   });
 
-  it("renders the Live button when range is historic", () => {
+  it("includes the live segment as the last item when in historic mode", () => {
     mockParamsBox.current = { from: "2020-02-04", to: "2020-02-13" };
-    const { getByText } = render(<GageDetailsChart gage={mockGage} />);
-    expect(getByText("forecastChart.live")).toBeTruthy();
+    render(<GageDetailsChart gage={mockGage} />);
+    const keys = capturedSegments?.map((s) => s.key);
+    expect(keys).toEqual(["14", "7", "2", "1", "live"]);
   });
 
-  it("pressing Live resets URL to from=-2 / to=now and clears historicEventId", () => {
+  it("selecting the live segment resets URL to from=-2 / to=now and clears historicEventId", async () => {
     mockParamsBox.current = { from: "2020-02-04", to: "2020-02-13" };
-    const { getByText } = render(<GageDetailsChart gage={mockGage} />);
+    render(<GageDetailsChart gage={mockGage} />);
 
-    fireEvent.press(getByText("forecastChart.live"));
+    await act(async () => {
+      capturedRangeOnChange?.("live");
+    });
 
     expect(mockSetParams).toHaveBeenCalledWith({
       historicEventId: undefined,
