@@ -336,6 +336,8 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
 
   // Single fetch effect: re-runs whenever the gage, data-readiness, or the
   // derived range changes. Replaces the previous mount-effect + dateRange-effect split.
+  // includeLastReading=false → REPLACE readings array; the polling tick below
+  // is the only call that appends incrementally.
   useEffect(() => {
     if (!gage?.locationId || !isDataFetched) {
       return;
@@ -345,7 +347,7 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
       range.chartStartDate.utc().format(UTC_ISO_FORMAT),
       range.chartEndDate.utc().format(UTC_ISO_FORMAT),
       range.isNow,
-      range.isNow
+      false
     );
   }, [gage?.locationId, isDataFetched, range]);
 
@@ -404,7 +406,7 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
       start.utc().format(UTC_ISO_FORMAT),
       end.utc().format(UTC_ISO_FORMAT),
       range.isNow,
-      range.isNow
+      false
     );
   };
 
