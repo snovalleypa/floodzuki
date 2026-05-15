@@ -178,7 +178,7 @@ describe("GageDetailsChart — segment shortcut behavior", () => {
       );
     });
 
-    it("centers a 14d window on Feb 9 with later-bias → Feb 3 to Feb 16 (6 before / 7 after)", async () => {
+    it("centers a 14d window on Feb 9 with earlier-bias → Feb 2 to Feb 15 (7 before / 6 after)", async () => {
       mockParamsBox.current = { from: "2020-02-04", to: "2020-02-13" };
       render(<GageDetailsChart gage={mockGage} />);
 
@@ -187,11 +187,11 @@ describe("GageDetailsChart — segment shortcut behavior", () => {
       });
 
       expect(mockSetParams).toHaveBeenCalledWith(
-        expect.objectContaining({ from: "2020-02-03", to: "2020-02-16" })
+        expect.objectContaining({ from: "2020-02-02", to: "2020-02-15" })
       );
     });
 
-    it("centers a 2d window on Feb 9 with later-bias → Feb 9 to Feb 10", async () => {
+    it("centers a 2d window on Feb 9 with earlier-bias → Feb 8 to Feb 9", async () => {
       mockParamsBox.current = { from: "2020-02-04", to: "2020-02-13" };
       render(<GageDetailsChart gage={mockGage} />);
 
@@ -200,7 +200,7 @@ describe("GageDetailsChart — segment shortcut behavior", () => {
       });
 
       expect(mockSetParams).toHaveBeenCalledWith(
-        expect.objectContaining({ from: "2020-02-09", to: "2020-02-10" })
+        expect.objectContaining({ from: "2020-02-08", to: "2020-02-09" })
       );
     });
 

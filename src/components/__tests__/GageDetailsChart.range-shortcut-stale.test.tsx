@@ -184,19 +184,18 @@ describe("GageDetailsChart — segment shortcut closure freshness (regression)",
     rerender(<GageDetailsChart gage={{ ...mockGage }} />);
 
     // Click "2d" — should now use the CURRENT range [Feb 5, Feb 5], center Feb 5,
-    // producing [Feb 5, Feb 6] (0 before, 1 after). Bug would produce a window
-    // computed from the stale 3-day range — e.g. [Feb 5, Feb 6] from old center Feb 5
-    // happens to coincide, so use a more discriminating test instead.
+    // producing [Feb 4, Feb 5] (1 before, 0 after). Bug would produce a window
+    // computed from the stale 3-day range — also center Feb 5 → [Feb 4, Feb 5], a
+    // coincidence here. The next test covers a discriminating case.
     await act(async () => {
       fireEvent.press(findSegment(getAllByText, "2"));
     });
     expect(mockSetParams).toHaveBeenLastCalledWith(
-      expect.objectContaining({ from: "2020-02-05", to: "2020-02-06" })
+      expect.objectContaining({ from: "2020-02-04", to: "2020-02-05" })
     );
   });
 
   it("uses CURRENT range across multiple shortcut clicks (discriminating case)", async () => {
-    // Pick an asymmetric historic range so the centers of pre/post states differ.
     // Initial: [Feb 1, Feb 11] (11 days) → center = Feb 1 + floor(11/2) = Feb 6.
     mockParamsBox.current = { from: "2020-02-01", to: "2020-02-11" };
     const { getAllByText, rerender } = render(<GageDetailsChart gage={mockGage} />);
@@ -211,42 +210,39 @@ describe("GageDetailsChart — segment shortcut closure freshness (regression)",
 
     rerender(<GageDetailsChart gage={{ ...mockGage }} />);
 
-    // Click "14d" — must center on Feb 6 (new center), producing Feb 6 - 6 = Jan 31
-    // to Feb 6 + 7 = Feb 13. If the handler is stale and reads the old 11-day range,
-    // it would still center on Feb 6 and produce the same answer — so use 7d instead
-    // for a discriminating case.
+    // Click "7d" — current [Feb 6, Feb 6], center Feb 6 → [Feb 3, Feb 9].
     await act(async () => {
       fireEvent.press(findSegment(getAllByText, "7"));
     });
-    // Center Feb 6 (from current [Feb 6, Feb 6]) → [Feb 3, Feb 9] (3 before / 3 after).
     expect(mockSetParams).toHaveBeenLastCalledWith(
       expect.objectContaining({ from: "2020-02-03", to: "2020-02-09" })
     );
 
+    // Simulate the user navigating to an unrelated range via the date picker.
+    // The shortcut math (now drift-free) preserves the center across shortcut
+    // round-trips, so we need an external URL change to make stale vs. fresh
+    // handlers produce different output.
+    mockParamsBox.current = { from: "2020-04-10", to: "2020-04-15" }; // 6d, center Apr 13
     rerender(<GageDetailsChart gage={{ ...mockGage }} />);
 
-    // Click "2d" again. Current range is [Feb 3, Feb 9] (7 days) → center = Feb 6.
-    // 2d → [Feb 6, Feb 7]. If stale (still reading [Feb 6, Feb 6] from before 7d),
-    // it would also produce [Feb 6, Feb 7]. So use 14d to get a different answer.
+    // Click "1d" — fresh handler reads [Apr 10, Apr 15], center Apr 13 → [Apr 13, Apr 13].
+    // Stale handler still sees [Feb 3, Feb 9], center Feb 6 → [Feb 6, Feb 6]. Discriminates.
     await act(async () => {
-      fireEvent.press(findSegment(getAllByText, "14"));
+      fireEvent.press(findSegment(getAllByText, "1"));
     });
-    // Current [Feb 3, Feb 9] (7 days), center Feb 6, 14d → 6 before/7 after → [Jan 31, Feb 13].
     expect(mockSetParams).toHaveBeenLastCalledWith(
-      expect.objectContaining({ from: "2020-01-31", to: "2020-02-13" })
+      expect.objectContaining({ from: "2020-04-13", to: "2020-04-13" })
     );
 
     rerender(<GageDetailsChart gage={{ ...mockGage }} />);
 
-    // NOW the discriminating click: with current range [Jan 31, Feb 13] (14 days),
-    // center = Jan 31 + floor(14/2) = Feb 7. Click "2d" → [Feb 7, Feb 8] (0 before / 1 after).
-    // If the handler is stale and reads the 7-day [Feb 3, Feb 9] (center Feb 6), it would
-    // write [Feb 6, Feb 7]. Different from [Feb 7, Feb 8].
+    // Click "14d" — current [Apr 13, Apr 13], center Apr 13, 14d → 7 before / 6 after →
+    // [Apr 6, Apr 19]. Stale ([Feb 3, Feb 9], center Feb 6) → [Jan 30, Feb 12]. Discriminates.
     await act(async () => {
-      fireEvent.press(findSegment(getAllByText, "2"));
+      fireEvent.press(findSegment(getAllByText, "14"));
     });
     expect(mockSetParams).toHaveBeenLastCalledWith(
-      expect.objectContaining({ from: "2020-02-07", to: "2020-02-08" })
+      expect.objectContaining({ from: "2020-04-06", to: "2020-04-19" })
     );
   });
 });
