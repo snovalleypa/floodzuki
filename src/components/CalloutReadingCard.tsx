@@ -27,7 +27,7 @@ const CalloutReading = observer(function CalloutReadingCard({ gage }: { gage: Ga
 
   const { formatFlow, formatHeight, formatTrend } = useUtils();
 
-  const isNow = !!from && !!to ? to === localDayJs().format("YYYY-MM-DD") : true;
+  const isNow = !!from && !!to ? to === localDayJs().tz(tz).format("YYYY-MM-DD") : true;
 
   const status = isNow ? gage?.status : gage?.peakStatus;
   const reading = status?.lastReading;
@@ -35,7 +35,10 @@ const CalloutReading = observer(function CalloutReadingCard({ gage }: { gage: Ga
 
   const roadStatus = gage?.getCalculatedRoadStatus(gage?.waterLevel);
 
-  const timeAgo = isNow && reading?.timestamp ? localDayJs.tz(reading?.timestamp).fromNow() : null;
+  const timeAgo =
+    isNow && reading?.timestamp
+      ? localDayJs.tz(reading.timestamp, "YYYY-MM-DDTHH:mm:ss", tz).fromNow()
+      : null;
 
   const hasTrendInfo =
     !!status?.levelTrend && !!status?.waterTrend && !isNullish(status?.waterTrend?.trendValue);

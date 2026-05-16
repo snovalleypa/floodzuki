@@ -1,4 +1,4 @@
-import { Instance, SnapshotIn, SnapshotOut, types, flow } from "mobx-state-tree";
+import { Instance, SnapshotIn, SnapshotOut, types, flow, getRoot } from "mobx-state-tree";
 import { api } from "@services/api";
 import dayjs from "dayjs";
 
@@ -59,23 +59,23 @@ export const STATUSES = {
   Flooding: "danger",
 };
 
-const mapAndAdjustForecastTimestampsForDisplay = (forecastData) => {
+const mapAndAdjustForecastTimestampsForDisplay = (forecastData, tz: string) => {
   return forecastData.map((point) => {
     return {
       reading: point.stage,
       waterDischarge: point.waterDischarge,
-      timestamp: localDayJs.tz(point.timestamp),
+      timestamp: localDayJs.tz(point.timestamp, "YYYY-MM-DDTHH:mm:ss", tz),
       isDeleted: false,
     } as DataPoint;
   });
 };
 
-const mapAndAdjustTimestampsForDisplay = (dataPoints) => {
+const mapAndAdjustTimestampsForDisplay = (dataPoints, tz: string) => {
   return dataPoints.map((point) => {
     return {
       reading: point.waterHeight,
       waterDischarge: point.waterDischarge,
-      timestamp: localDayJs.tz(point.timestamp),
+      timestamp: localDayJs.tz(point.timestamp, "YYYY-MM-DDTHH:mm:ss", tz),
       isDeleted: point.isDeleted,
     } as DataPoint;
   });
@@ -216,7 +216,7 @@ export const GageModel = types
         return [];
       }
 
-      return mapAndAdjustTimestampsForDisplay(store.readings);
+      return mapAndAdjustTimestampsForDisplay(store.readings, getRoot<any>(store).getTimezone());
     },
 
     get chartReadings() {
@@ -241,7 +241,7 @@ export const GageModel = types
         let predWithNoGap = [...predictions];
         predWithNoGap.unshift(store.readings[0]);
 
-        points = mapAndAdjustTimestampsForDisplay(predWithNoGap);
+        points = mapAndAdjustTimestampsForDisplay(predWithNoGap, getRoot<any>(store).getTimezone());
       }
 
       return points;
@@ -256,11 +256,17 @@ export const GageModel = types
     },
 
     get actualPoints() {
-      return mapAndAdjustTimestampsForDisplay(store.actualReadings || []);
+      return mapAndAdjustTimestampsForDisplay(
+        store.actualReadings || [],
+        getRoot<any>(store).getTimezone()
+      );
     },
 
     get noaaForecastData() {
-      return mapAndAdjustForecastTimestampsForDisplay(store.noaaForecast?.data || []);
+      return mapAndAdjustForecastTimestampsForDisplay(
+        store.noaaForecast?.data || [],
+        getRoot<any>(store).getTimezone()
+      );
     },
 
     get roadToYellowStage() {

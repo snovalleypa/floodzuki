@@ -226,6 +226,8 @@ const HistoricEvents = observer(function HistoricEvents({
 /** Water level rate of change */
 const RateOfChange = observer(function RateOfChange({ gage }: { gage: Gage }) {
   const { t } = useLocale();
+  const { getTimezone } = useStores();
+  const tz = getTimezone();
 
   // set rate of change
   let rate = gage?.predictedFeetPerHour;
@@ -240,12 +242,14 @@ const RateOfChange = observer(function RateOfChange({ gage }: { gage: Gage }) {
       return null;
     }
 
+    const toGaugeTime = (s: string) => localDayJs.tz(s, "YYYY-MM-DDTHH:mm:ss", tz);
+
     for (let i = 0; i < gage.predictions?.length - 1; i++) {
       let p = gage.predictions[i];
       let pNext = gage.predictions[i + 1];
 
       if (pNext.waterHeight === gage.roadSaddleHeight) {
-        crossingTime = localDayJs.tz(pNext.timestamp);
+        crossingTime = toGaugeTime(pNext.timestamp);
         break;
       }
 
@@ -255,14 +259,14 @@ const RateOfChange = observer(function RateOfChange({ gage }: { gage: Gage }) {
       ) {
         let waterDelta =
           (gage.roadSaddleHeight - p.waterHeight) / (pNext.waterHeight - p.waterHeight);
-        let msec = localDayJs.tz(pNext.timestamp).diff(localDayJs.tz(p.timestamp)) * waterDelta;
-        crossingTime = localDayJs.tz(p.timestamp).add(msec, "milliseconds");
+        let msec = toGaugeTime(pNext.timestamp).diff(toGaugeTime(p.timestamp)) * waterDelta;
+        crossingTime = toGaugeTime(p.timestamp).add(msec, "milliseconds");
         break;
       }
     }
 
     return crossingTime;
-  }, [gage?.locationId, gage?.roadSaddleHeight]);
+  }, [gage?.locationId, gage?.roadSaddleHeight, tz]);
 
   if (!gage?.locationId) {
     return null;
