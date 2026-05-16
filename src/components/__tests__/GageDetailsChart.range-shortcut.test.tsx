@@ -25,7 +25,7 @@ jest.mock("expo-router", () => ({
 jest.mock("@models/helpers/useStores", () => ({
   useStores: () => ({
     isDataFetched: true,
-    getTimezone: () => "America/Los_Angeles",
+    getTimezone: () => "Australia/Sydney",
     gagesStore: { fetchDataForGage: jest.fn(), isFetching: false },
   }),
 }));
@@ -240,7 +240,7 @@ describe("GageDetailsChart — segment shortcut behavior", () => {
     it("flips to live (-N/now) when extending past today in gauge tz", async () => {
       // Pick a historic range ending yesterday-ish — guaranteed to push past today on 14d expand.
       const localDayJs = require("@services/localDayJs").default;
-      const tz = "America/Los_Angeles";
+      const tz = "Australia/Sydney";
       const today = localDayJs().tz(tz).startOf("day");
       const yesterday = today.subtract(1, "day");
       const twoDaysAgo = today.subtract(2, "day");

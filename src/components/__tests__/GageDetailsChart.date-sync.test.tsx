@@ -32,7 +32,7 @@ jest.mock("../DatePickerVariantSwitch", () => ({
 jest.mock("@models/helpers/useStores", () => ({
   useStores: () => ({
     isDataFetched: true,
-    getTimezone: () => "America/Los_Angeles",
+    getTimezone: () => "Pacific/Auckland",
     gagesStore: { fetchDataForGage: jest.fn(), isFetching: false },
   }),
 }));
@@ -142,7 +142,7 @@ describe("GageDetailsChart — split picker date sync", () => {
   it("writes the user-picked dates to the URL as YYYY-MM-DD", async () => {
     render(<GageDetailsChart gage={mockGage} />);
 
-    const tz = "America/Los_Angeles";
+    const tz = "Pacific/Auckland";
     const pickedStart = localDayJs.tz("2026-05-20", "YYYY-MM-DD", tz).startOf("day");
     const pickedEnd = localDayJs.tz("2026-05-21", "YYYY-MM-DD", tz).startOf("day");
 
@@ -160,7 +160,7 @@ describe("GageDetailsChart — split picker date sync", () => {
   });
 
   it("reflects the picked start date in the picker's startDate prop after URL roundtrip", async () => {
-    const tz = "America/Los_Angeles";
+    const tz = "Pacific/Auckland";
     const pickedStart = localDayJs.tz("2026-05-20", "YYYY-MM-DD", tz).startOf("day");
     const pickedEnd = localDayJs.tz("2026-05-21", "YYYY-MM-DD", tz).startOf("day");
 
@@ -181,7 +181,7 @@ describe("GageDetailsChart — split picker date sync", () => {
 
   it("reflects historic URL params on page load", () => {
     mockParamsBox.current = { from: "2020-02-04", to: "2020-02-13" };
-    const tz = "America/Los_Angeles";
+    const tz = "Pacific/Auckland";
 
     render(<GageDetailsChart gage={mockGage} />);
 

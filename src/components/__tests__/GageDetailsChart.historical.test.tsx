@@ -1,7 +1,10 @@
 // src/components/__tests__/GageDetailsChart.historical.test.tsx
 import React from "react";
 import { render, act } from "@testing-library/react-native";
+import localDayJs from "@services/localDayJs";
 import { GageDetailsChart } from "../GageDetailsChart";
+
+const GAUGE_TZ = "Asia/Tokyo";
 
 // --- Mutable mock state ---
 let mockIsDataFetched = false;
@@ -11,7 +14,7 @@ const mockFetchDataForGage = jest.fn();
 jest.mock("@models/helpers/useStores", () => ({
   useStores: () => ({
     isDataFetched: mockIsDataFetched,
-    getTimezone: () => "America/Los_Angeles",
+    getTimezone: () => "Asia/Tokyo",
     gagesStore: {
       fetchDataForGage: mockFetchDataForGage,
       isFetching: false,
@@ -204,12 +207,19 @@ describe("GageDetailsChart — historical data fetch on page load", () => {
     // Fixed code: new deps [gage?.locationId, isDataFetched] both changed
     //   → effect re-fires → fetchDataForGage called with correct historical args
     //   → this assertion PASSES ✓
-    expect(mockFetchDataForGage).toHaveBeenCalledWith(
-      "USGS-NF10",
-      expect.stringContaining("2020-02-04"),
-      expect.any(String),
-      false, // includePredictions: false for historical data
-      false // includeLastReading: false for historical data (replace, don't append)
+    expect(mockFetchDataForGage).toHaveBeenCalledTimes(1);
+    const [locationId, fromStr, , includePredictions, includeLastReading] =
+      mockFetchDataForGage.mock.calls[0];
+
+    expect(locationId).toBe("USGS-NF10");
+    // The from-date param is a UTC ISO string representing Feb 4 midnight in
+    // the gauge tz. Asserting against the UTC string prefix is fragile when
+    // the gauge tz is east of UTC (e.g. Tokyo's Feb 4 00:00 = Feb 3 15:00 UTC),
+    // so we round-trip through the gauge tz and assert the gauge-tz wall clock.
+    expect(localDayJs(fromStr).tz(GAUGE_TZ).format("YYYY-MM-DD HH:mm:ss")).toBe(
+      "2020-02-04 00:00:00"
     );
+    expect(includePredictions).toBe(false);
+    expect(includeLastReading).toBe(false);
   });
 });

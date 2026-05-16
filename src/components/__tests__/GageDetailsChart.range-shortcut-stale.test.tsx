@@ -35,7 +35,7 @@ jest.mock("expo-router", () => ({
 jest.mock("@models/helpers/useStores", () => ({
   useStores: () => ({
     isDataFetched: true,
-    getTimezone: () => "America/Los_Angeles",
+    getTimezone: () => "America/Chicago",
     gagesStore: { fetchDataForGage: jest.fn(), isFetching: false },
   }),
 }));

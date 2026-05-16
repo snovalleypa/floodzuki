@@ -18,7 +18,7 @@ jest.mock("@common-ui/contexts/DatePickerContext", () => ({
 jest.mock("@models/helpers/useStores", () => ({
   useStores: () => ({
     isDataFetched: true,
-    getTimezone: () => "America/Los_Angeles",
+    getTimezone: () => "Europe/London",
     gagesStore: {
       fetchDataForGage: jest.fn(),
       isFetching: false,
@@ -188,7 +188,7 @@ describe("GageDetailsChart — picker dismissal", () => {
 
     render(<GageDetailsChart gage={mockGage} />);
 
-    const tz = "America/Los_Angeles";
+    const tz = "Europe/London";
     const start = localDayJs.tz("2026-05-01", "YYYY-MM-DD", tz).startOf("day");
     const end = localDayJs.tz("2026-05-05", "YYYY-MM-DD", tz).startOf("day");
 
