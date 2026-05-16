@@ -6,6 +6,7 @@
     "web": "expo start --web",
     "postinstall": "patch-package",
     "test": "TZ=UTC jest",
+    "test:ist": "TZ=Asia/Kolkata jest",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "prepare": "husky"
