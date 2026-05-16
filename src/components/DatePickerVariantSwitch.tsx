@@ -68,7 +68,14 @@ const DatePickerVariantSwitch = (props: DatePickerVariantSwitchProps) => {
     );
   }
 
-  return <DateRangePicker startDate={startDate} endDate={endDate} onChange={onChange} />;
+  return (
+    <DateRangePicker
+      startDate={startDate}
+      endDate={endDate}
+      timezone={timezone}
+      onChange={onChange}
+    />
+  );
 };
 
 export default DatePickerVariantSwitch;

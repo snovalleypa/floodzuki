@@ -52,7 +52,12 @@ const jan31 = dayjs("2022-01-31");
 describe("DateRangePicker", () => {
   it("renders the formatted start and end dates from initial props", () => {
     const { getByTestId } = render(
-      <DateRangePicker startDate={jan1} endDate={jan31} onChange={jest.fn()} />
+      <DateRangePicker
+        startDate={jan1}
+        endDate={jan31}
+        timezone="America/Los_Angeles"
+        onChange={jest.fn()}
+      />
     );
 
     expect(getByTestId("date-picker-datePicker.startDate").props.children).toBe("01/01/2022");
@@ -62,11 +67,21 @@ describe("DateRangePicker", () => {
   it("updates the displayed start date when startDate prop changes externally", () => {
     const onChange = jest.fn();
     const { rerender, getByTestId } = render(
-      <DateRangePicker startDate={jan1} endDate={jan31} onChange={onChange} />
+      <DateRangePicker
+        startDate={jan1}
+        endDate={jan31}
+        timezone="America/Los_Angeles"
+        onChange={onChange}
+      />
     );
 
     rerender(
-      <DateRangePicker startDate={dayjs("2021-11-15")} endDate={jan31} onChange={onChange} />
+      <DateRangePicker
+        startDate={dayjs("2021-11-15")}
+        endDate={jan31}
+        timezone="America/Los_Angeles"
+        onChange={onChange}
+      />
     );
 
     expect(getByTestId("date-picker-datePicker.startDate").props.children).toBe("11/15/2021");
@@ -75,11 +90,21 @@ describe("DateRangePicker", () => {
   it("updates the displayed end date when endDate prop changes externally", () => {
     const onChange = jest.fn();
     const { rerender, getByTestId } = render(
-      <DateRangePicker startDate={jan1} endDate={jan31} onChange={onChange} />
+      <DateRangePicker
+        startDate={jan1}
+        endDate={jan31}
+        timezone="America/Los_Angeles"
+        onChange={onChange}
+      />
     );
 
     rerender(
-      <DateRangePicker startDate={jan1} endDate={dayjs("2022-03-15")} onChange={onChange} />
+      <DateRangePicker
+        startDate={jan1}
+        endDate={dayjs("2022-03-15")}
+        timezone="America/Los_Angeles"
+        onChange={onChange}
+      />
     );
 
     expect(getByTestId("date-picker-datePicker.endDate").props.children).toBe("03/15/2022");
@@ -87,7 +112,14 @@ describe("DateRangePicker", () => {
 
   it("calls onChange with selected start and end dates after user picks both", () => {
     const onChange = jest.fn();
-    render(<DateRangePicker startDate={jan1} endDate={jan31} onChange={onChange} />);
+    render(
+      <DateRangePicker
+        startDate={jan1}
+        endDate={jan31}
+        timezone="America/Los_Angeles"
+        onChange={onChange}
+      />
+    );
 
     act(() => {
       pickerRegistry["datePicker.startDate"]?.(dayjs("2022-06-01"));
@@ -104,7 +136,15 @@ describe("DateRangePicker", () => {
 
   it("clamps end date to start + maxRange days when selection exceeds the limit", () => {
     const onChange = jest.fn();
-    render(<DateRangePicker startDate={jan1} endDate={jan31} maxRange={30} onChange={onChange} />);
+    render(
+      <DateRangePicker
+        startDate={jan1}
+        endDate={jan31}
+        maxRange={30}
+        timezone="America/Los_Angeles"
+        onChange={onChange}
+      />
+    );
 
     act(() => {
       pickerRegistry["datePicker.startDate"]?.(dayjs("2022-06-01"));

@@ -224,10 +224,11 @@ export const GageModel = types
         return [];
       }
 
+      const tz = getRoot<any>(store).getTimezone();
       return store.readings
         .filter((reading) => !reading.isDeleted)
         .map((reading) => ({
-          date: new Date(reading.timestamp),
+          date: localDayJs.tz(reading.timestamp, "YYYY-MM-DDTHH:mm:ss", tz).toDate(),
           value: reading.waterHeight,
         }));
     },

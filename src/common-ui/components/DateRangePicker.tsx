@@ -14,6 +14,7 @@ import { useLocale } from "@common-ui/contexts/LocaleContext";
 type DateRangePickerProps = {
   startDate: Dayjs;
   endDate: Dayjs;
+  timezone: string;
   maxRange?: number; // in days
   minYear?: number;
   maxYear?: number;
@@ -24,9 +25,10 @@ const DateRangePicker = (props: DateRangePickerProps) => {
   const {
     startDate,
     endDate,
+    timezone,
     maxRange = Config.MAX_DATE_PICKER_RANGE,
     minYear = 2001,
-    maxYear = new Date().getFullYear(),
+    maxYear = localDayJs().tz(timezone).year(),
     onChange,
   } = props;
 
@@ -66,7 +68,7 @@ const DateRangePicker = (props: DateRangePickerProps) => {
   };
 
   const handleStartDateChange = (date: Dayjs) => {
-    const today = localDayJs().endOf("day");
+    const today = localDayJs().tz(timezone).endOf("day");
     let dateStart = date;
 
     mode.current = "end";
@@ -81,7 +83,7 @@ const DateRangePicker = (props: DateRangePickerProps) => {
   };
 
   const handleEndDateChange = (date: Dayjs) => {
-    const today = localDayJs().endOf("day");
+    const today = localDayJs().tz(timezone).endOf("day");
 
     let dateEnd = date;
 
