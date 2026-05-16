@@ -20,7 +20,8 @@ import { useLocale } from "@common-ui/contexts/LocaleContext";
 import { TxKeyPath } from "@i18n/i18n";
 
 const CalloutReading = observer(function CalloutReadingCard({ gage }: { gage: Gage }) {
-  const { gagesStore } = useStores();
+  const { gagesStore, getTimezone } = useStores();
+  const tz = getTimezone();
   const { t } = useLocale();
   const { from, to } = useLocalSearchParams();
 
@@ -54,7 +55,7 @@ const CalloutReading = observer(function CalloutReadingCard({ gage }: { gage: Ga
             {timeAgo}
             {" / "}
           </If>
-          {formatReadingTime(reading?.timestamp)}
+          {formatReadingTime(reading?.timestamp, tz)}
         </LabelText>
       </CardHeader>
       <Cell flex>

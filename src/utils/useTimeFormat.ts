@@ -16,12 +16,16 @@ export const formatDateTime = (time: string | dayjs.Dayjs, tz: string) => {
   return result;
 };
 
-export const formatReadingTime = (timestamp: string) => {
+export const formatReadingTime = (timestamp: string, tz: string) => {
   if (!timestamp) {
     return "";
   }
 
-  const time = localDayJs(timestamp);
+  // API timestamps arrive without offset information — they are wall-clock
+  // times at the gauge. Interpret them in the gauge tz so both the elapsed-
+  // time bucketing and the formatted output are correct regardless of the
+  // viewer's system tz.
+  const time = localDayJs.tz(timestamp, "YYYY-MM-DDTHH:mm:ss", tz);
 
   const timeAgo = localDayJs().valueOf() - time.valueOf();
 

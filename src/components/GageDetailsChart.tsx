@@ -294,6 +294,8 @@ const RateOfChange = observer(function RateOfChange({ gage }: { gage: Gage }) {
 /** Crest Info */
 const CrestInfo = observer(function CrestInfo({ crest }: { crest: DataPoint }) {
   const { t } = useLocale();
+  const { getTimezone } = useStores();
+  const tz = getTimezone();
 
   if (!crest) {
     return null;
@@ -303,7 +305,7 @@ const CrestInfo = observer(function CrestInfo({ crest }: { crest: DataPoint }) {
     <Row align="center" bottom={Spacing.extraSmall}>
       <MediumText muted>{t("measure.max")}: </MediumText>
       <RegularText muted>
-        {crest?.reading?.toFixed(2)} {t("measure.ft")}. / {formatReadingTime(crest?.timestamp)}
+        {crest?.reading?.toFixed(2)} {t("measure.ft")}. / {formatReadingTime(crest?.timestamp, tz)}
       </RegularText>
     </Row>
   );

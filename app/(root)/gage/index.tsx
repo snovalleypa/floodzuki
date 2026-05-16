@@ -68,6 +68,8 @@ const GageItem = observer(function GageItem({ item }: GageItemProps) {
   const router = useRouter();
   const { isMobile } = useResponsive();
   const { formatFlow, formatHeight } = useUtils();
+  const { getTimezone } = useStores();
+  const tz = getTimezone();
 
   const gage = item;
 
@@ -123,7 +125,7 @@ const GageItem = observer(function GageItem({ item }: GageItemProps) {
                 <If condition={!!lastReading?.timestamp}>
                   <SmallText>
                     {" @ "}
-                    {formatReadingTime(lastReading?.timestamp)}
+                    {formatReadingTime(lastReading?.timestamp, tz)}
                   </SmallText>
                 </If>
               </Row>

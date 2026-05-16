@@ -2,6 +2,7 @@
 import React from "react";
 import { render, fireEvent, act } from "@testing-library/react-native";
 import dayjs from "dayjs";
+import localDayJs from "@services/localDayJs";
 import { DateRangePickerRangeV1 } from "../DateRangePickerRangeV1";
 
 let capturedProps: {
@@ -89,10 +90,13 @@ describe("DateRangePickerRangeV1 — picker props", () => {
     const { getByTestId } = render(<DateRangePickerRangeV1 {...baseProps} />);
     fireEvent.press(getByTestId("range-v1-trigger"));
 
-    // maxDate should be today or very close to it
-    const passedMaxDate = dayjs(capturedProps.maxDate);
-    const today = dayjs();
-    expect(passedMaxDate.diff(today, "day")).toBe(0);
+    // "today" must be compared in the gauge tz, not the system tz — otherwise
+    // this test flakes when real-world UTC date != gauge tz date (e.g. early
+    // UTC morning vs late evening in LA).
+    // capturedProps.maxDate is already a "YYYY-MM-DD" string in the gauge tz,
+    // so compare directly to today in the gauge tz.
+    const todayInGaugeTz = localDayJs().tz(baseProps.timezone).format("YYYY-MM-DD");
+    expect(capturedProps.maxDate).toBe(todayInGaugeTz);
   });
 
   it("updates maxDate prop to clamped tapped+30 after a Case 2a first tap", () => {
@@ -106,9 +110,9 @@ describe("DateRangePickerRangeV1 — picker props", () => {
 
     // After re-render: maxDate prop should update
     // tapped + 30 = 2026-05-22, today = ~2026-05-03 → clamped to today
-    const newMaxDate = dayjs(capturedProps.maxDate);
-    // maxDate must not exceed today
-    expect(newMaxDate.isAfter(dayjs(), "day")).toBe(false);
+    // maxDate must not exceed today in the gauge tz (see flakiness note above).
+    const todayInGaugeTz = localDayJs().tz(baseProps.timezone).format("YYYY-MM-DD");
+    expect(capturedProps.maxDate <= todayInGaugeTz).toBe(true);
   });
 
   it("renders Set and Cancel buttons below the calendar", () => {
