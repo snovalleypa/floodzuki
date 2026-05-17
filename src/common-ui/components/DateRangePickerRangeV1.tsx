@@ -32,7 +32,7 @@ export type DateRangePickerRangeV1Props = {
 type PickerState = {
   selectionPhase: "idle" | "awaitingEnd";
   tentativeStart: Dayjs | null;
-  proposedStart: Dayjs;
+  proposedStart: Dayjs | null;
   proposedEnd: Dayjs | null;
   dynamicMaxDate: Dayjs | null;
   wasRestricted: boolean;
@@ -52,6 +52,7 @@ type RangeCalendarSheetProps = {
   onPickerChange: (params: { startDate: DateType; endDate: DateType }) => void;
   onSet: () => void;
   onCancel: () => void;
+  onClear: () => void;
 };
 
 const RangeCalendarSheet = ({
@@ -63,8 +64,9 @@ const RangeCalendarSheet = ({
   onPickerChange,
   onSet,
   onCancel,
+  onClear,
 }: RangeCalendarSheetProps) => {
-  const setDisabled = pickerState.proposedEnd === null;
+  const setDisabled = pickerState.proposedStart === null || pickerState.proposedEnd === null;
   const defaultStyles = useDefaultStyles("light");
   const calendarStyles = useMemo(
     () => ({
@@ -81,7 +83,7 @@ const RangeCalendarSheet = ({
         key={calendarKey}
         mode="range"
         timeZone={timezone}
-        startDate={pickerState.proposedStart.format("YYYY-MM-DD")}
+        startDate={pickerState.proposedStart?.format("YYYY-MM-DD")}
         endDate={pickerState.proposedEnd?.format("YYYY-MM-DD")}
         minDate={resolvedMinDate.format("YYYY-MM-DD")}
         maxDate={effectiveMaxDate.format("YYYY-MM-DD")}
@@ -93,8 +95,8 @@ const RangeCalendarSheet = ({
         // !== check always fires). Passing month/year — which the library treats
         // as controlled "snap-to" effects firing after the timezone reset — restores
         // the calendar to the start date's month.
-        month={pickerState.proposedStart.month()}
-        year={pickerState.proposedStart.year()}
+        month={pickerState.proposedStart?.month()}
+        year={pickerState.proposedStart?.year()}
       />
       <Row align="center" top={Spacing.small}>
         <Cell flex>
@@ -102,6 +104,14 @@ const RangeCalendarSheet = ({
             title="Cancel"
             onPress={onCancel}
             testID="range-v1-cancel-button"
+            fullWidth
+          />
+        </Cell>
+        <Cell flex left={Spacing.small}>
+          <OutlinedButton
+            title="Clear"
+            onPress={onClear}
+            testID="range-v1-clear-button"
             fullWidth
           />
         </Cell>
@@ -325,7 +335,7 @@ export const DateRangePickerRangeV1 = ({
   };
 
   const handleSet = () => {
-    if (!pickerState.proposedEnd) {
+    if (!pickerState.proposedStart || !pickerState.proposedEnd) {
       return;
     }
     if (pickerState.wasRestricted) {
@@ -337,6 +347,17 @@ export const DateRangePickerRangeV1 = ({
 
   const handleCancel = () => {
     handleClose();
+  };
+
+  const handleClear = () => {
+    setPickerState({
+      selectionPhase: "idle",
+      tentativeStart: null,
+      proposedStart: null,
+      proposedEnd: null,
+      dynamicMaxDate: null,
+      wasRestricted: false,
+    });
   };
 
   const formattedStart = startDate.tz(timezone).format("MM/DD/YYYY");
@@ -351,6 +372,7 @@ export const DateRangePickerRangeV1 = ({
     onPickerChange: handlePickerChange,
     onSet: handleSet,
     onCancel: handleCancel,
+    onClear: handleClear,
   };
 
   return (

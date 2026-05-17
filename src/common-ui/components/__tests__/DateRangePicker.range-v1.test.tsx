@@ -304,4 +304,28 @@ describe("DateRangePickerRangeV1", () => {
       expect(calledEnd.format("YYYY-MM-DD")).toBe("2026-01-15");
     });
   });
+
+  describe("Clear button", () => {
+    it("renders a Clear button after opening", () => {
+      const { getByTestId } = render(<DateRangePickerRangeV1 {...baseProps} />);
+      fireEvent.press(getByTestId("range-v1-trigger"));
+      expect(getByTestId("range-v1-clear-button")).not.toBeNull();
+    });
+
+    it("disables Set button after pressing Clear", () => {
+      const { getByTestId } = render(<DateRangePickerRangeV1 {...baseProps} />);
+      fireEvent.press(getByTestId("range-v1-trigger"));
+      fireEvent.press(getByTestId("range-v1-clear-button"));
+      const setButton = getByTestId("range-v1-set-button");
+      expect(setButton.props.accessibilityState?.disabled).toBe(true);
+    });
+
+    it("does not fire onChange when Set is pressed after Clear", () => {
+      const { getByTestId } = render(<DateRangePickerRangeV1 {...baseProps} />);
+      fireEvent.press(getByTestId("range-v1-trigger"));
+      fireEvent.press(getByTestId("range-v1-clear-button"));
+      fireEvent.press(getByTestId("range-v1-set-button"));
+      expect(onChange).not.toHaveBeenCalled();
+    });
+  });
 });
