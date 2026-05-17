@@ -263,6 +263,24 @@ export const DateRangePickerRangeV1 = ({
         return;
       }
 
+      // Post-Clear: no prior range to classify against. Anchor on the tap and
+      // wait for the second tap (same state shape as Case 2a).
+      if (state.proposedStart === null) {
+        const tapped = newStart ?? newEnd;
+        if (!tapped) {
+          return;
+        }
+        setPickerState((prev) => ({
+          ...prev,
+          selectionPhase: "awaitingEnd",
+          tentativeStart: tapped,
+          proposedStart: tapped,
+          proposedEnd: null,
+          dynamicMaxDate: tapped.add(maxRange, "day"),
+        }));
+        return;
+      }
+
       // First-tap branch. The library reports the user's click in whichever of (startDate, endDate)
       // differs from our prior proposed state — when the user clicks within the existing range,
       // the library keeps the existing start and reports the click as endDate.

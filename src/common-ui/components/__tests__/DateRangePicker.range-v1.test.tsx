@@ -327,5 +327,19 @@ describe("DateRangePickerRangeV1", () => {
       fireEvent.press(getByTestId("range-v1-set-button"));
       expect(onChange).not.toHaveBeenCalled();
     });
+
+    it("after Clear, single tap enters awaiting-end (Set stays disabled, no onChange)", () => {
+      const { getByTestId } = render(<DateRangePickerRangeV1 {...baseProps} />);
+      fireEvent.press(getByTestId("range-v1-trigger"));
+      fireEvent.press(getByTestId("range-v1-clear-button"));
+
+      // Library emits {startDate: tap1, endDate: undefined} on first click in a fresh range
+      act(() => {
+        capturedPickerOnChange!({ startDate: dayjs("2026-05-10").toDate(), endDate: undefined });
+      });
+
+      expect(getByTestId("range-v1-set-button").props.accessibilityState?.disabled).toBe(true);
+      expect(onChange).not.toHaveBeenCalled();
+    });
   });
 });
