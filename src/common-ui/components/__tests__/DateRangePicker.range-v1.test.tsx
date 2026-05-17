@@ -341,5 +341,49 @@ describe("DateRangePickerRangeV1", () => {
       expect(getByTestId("range-v1-set-button").props.accessibilityState?.disabled).toBe(true);
       expect(onChange).not.toHaveBeenCalled();
     });
+
+    it("after Clear, two taps complete a range and Set commits it", () => {
+      const { getByTestId } = render(<DateRangePickerRangeV1 {...baseProps} />);
+      fireEvent.press(getByTestId("range-v1-trigger"));
+      fireEvent.press(getByTestId("range-v1-clear-button"));
+
+      // First tap: library emits {startDate: tap1, endDate: undefined}
+      act(() => {
+        capturedPickerOnChange!({ startDate: dayjs("2026-05-10").toDate(), endDate: undefined });
+      });
+
+      // Second tap: library emits an ordered pair {startDate: tap1, endDate: tap2}
+      act(() => {
+        capturedPickerOnChange!({
+          startDate: dayjs("2026-05-10").toDate(),
+          endDate: dayjs("2026-05-15").toDate(),
+        });
+      });
+
+      expect(getByTestId("range-v1-set-button").props.accessibilityState?.disabled).toBeFalsy();
+      fireEvent.press(getByTestId("range-v1-set-button"));
+
+      expect(onChange).toHaveBeenCalledTimes(1);
+      const [s, e] = onChange.mock.calls[0];
+      expect(s.format("YYYY-MM-DD")).toBe("2026-05-10");
+      expect(e.format("YYYY-MM-DD")).toBe("2026-05-15");
+    });
+
+    it("Cancel after Clear preserves the committed range on reopen", () => {
+      const { getByTestId } = render(<DateRangePickerRangeV1 {...baseProps} />);
+      fireEvent.press(getByTestId("range-v1-trigger"));
+      fireEvent.press(getByTestId("range-v1-clear-button"));
+      fireEvent.press(getByTestId("range-v1-cancel-button"));
+
+      // Reopen — handleOpen resets proposed dates from props
+      fireEvent.press(getByTestId("range-v1-trigger"));
+      expect(getByTestId("range-v1-set-button").props.accessibilityState?.disabled).toBeFalsy();
+
+      fireEvent.press(getByTestId("range-v1-set-button"));
+      expect(onChange).toHaveBeenCalledTimes(1);
+      const [s, e] = onChange.mock.calls[0];
+      expect(s.format("YYYY-MM-DD")).toBe("2026-04-20");
+      expect(e.format("YYYY-MM-DD")).toBe("2026-04-25");
+    });
   });
 });
