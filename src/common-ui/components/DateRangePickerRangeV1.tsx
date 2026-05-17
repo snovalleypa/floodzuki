@@ -10,6 +10,7 @@ import {
   FirstTapResult,
 } from "@common-ui/utils/applyRangeRulesRangeV1";
 import { useDatePicker } from "@common-ui/contexts/DatePickerContext";
+import { useLocale, useLocaleContext } from "@common-ui/contexts/LocaleContext";
 import Icon from "@common-ui/components/Icon";
 import { RegularText } from "@common-ui/components/Text";
 import { Cell, Row } from "@common-ui/components/Common";
@@ -49,6 +50,7 @@ type RangeCalendarSheetProps = {
   resolvedMinDate: Dayjs;
   effectiveMaxDate: Dayjs;
   timezone: string;
+  locale: string;
   onPickerChange: (params: { startDate: DateType; endDate: DateType }) => void;
   onSet: () => void;
   onCancel: () => void;
@@ -61,11 +63,13 @@ const RangeCalendarSheet = ({
   resolvedMinDate,
   effectiveMaxDate,
   timezone,
+  locale,
   onPickerChange,
   onSet,
   onCancel,
   onClear,
 }: RangeCalendarSheetProps) => {
+  const { t } = useLocale();
   const setDisabled = pickerState.proposedStart === null || pickerState.proposedEnd === null;
   const defaultStyles = useDefaultStyles("light");
   const calendarStyles = useMemo(
@@ -94,6 +98,7 @@ const RangeCalendarSheet = ({
       <DateTimePicker
         key={calendarKey}
         mode="range"
+        locale={locale}
         timeZone={timezone}
         startDate={pickerState.proposedStart?.format("YYYY-MM-DD")}
         endDate={pickerState.proposedEnd?.format("YYYY-MM-DD")}
@@ -113,7 +118,7 @@ const RangeCalendarSheet = ({
       <Row align="center" top={Spacing.small}>
         <Cell flex>
           <OutlinedButton
-            title="Cancel"
+            title={t("datePicker.cancel")}
             onPress={onCancel}
             testID="range-v1-cancel-button"
             fullWidth
@@ -121,7 +126,7 @@ const RangeCalendarSheet = ({
         </Cell>
         <Cell flex left={Spacing.small}>
           <OutlinedButton
-            title="Clear"
+            title={t("datePicker.clear")}
             onPress={onClear}
             testID="range-v1-clear-button"
             fullWidth
@@ -129,7 +134,7 @@ const RangeCalendarSheet = ({
         </Cell>
         <Cell flex left={Spacing.small}>
           <SolidButton
-            title="Set"
+            title={t("datePicker.set")}
             onPress={onSet}
             disabled={setDisabled}
             testID="range-v1-set-button"
@@ -155,6 +160,7 @@ export const DateRangePickerRangeV1 = ({
   onRangeRestricted,
 }: DateRangePickerRangeV1Props) => {
   const { hidePicker } = useDatePicker();
+  const { locale } = useLocaleContext();
   const bottomSheetRef = useRef<BottomSheetModal>(null);
   const [webModalVisible, setWebModalVisible] = useState(false);
   const [calendarKey, setCalendarKey] = useState(0);
@@ -399,6 +405,7 @@ export const DateRangePickerRangeV1 = ({
     resolvedMinDate,
     effectiveMaxDate,
     timezone,
+    locale,
     onPickerChange: handlePickerChange,
     onSet: handleSet,
     onCancel: handleCancel,
