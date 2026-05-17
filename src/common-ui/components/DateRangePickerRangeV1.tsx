@@ -73,6 +73,18 @@ const RangeCalendarSheet = ({
       ...defaultStyles,
       button_prev_image: { tintColor: Colors.darkGrey },
       button_next_image: { tintColor: Colors.darkGrey },
+      month_selector: {
+        backgroundColor: Colors.lightGrey,
+        borderRadius: Spacing.tiny,
+        paddingHorizontal: Spacing.small,
+        paddingVertical: Spacing.tiny,
+      },
+      year_selector: {
+        backgroundColor: Colors.lightGrey,
+        borderRadius: Spacing.tiny,
+        paddingHorizontal: Spacing.small,
+        paddingVertical: Spacing.tiny,
+      },
     }),
     [defaultStyles]
   );
