@@ -115,12 +115,8 @@ const BaseConfig: {
   FORECAST_GAGE_IDS: ["USGS-SF17/USGS-NF10/USGS-MF11", "USGS-38", "USGS-22"],
   GAGES_WITHOUT_DISHCARGE: ["USGS-9"],
   DATE_PICKER_VARIANT: {
-    default: "legacy",
-    byLocationId: {
-      "USGS-SF17": "split-v1",
-      "USGS-MF11": "range-v1",
-      "USGS-NF10": "range-v2",
-    },
+    default: "range-v1",
+    byLocationId: {},
   },
 };
 
