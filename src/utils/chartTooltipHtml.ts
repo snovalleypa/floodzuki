@@ -3,6 +3,21 @@ import { Gage } from "@models/Gage";
 
 type TFn = (key: string, vars?: Record<string, any>) => string;
 
+export function buildForecastTooltipHtml(args: {
+  tz: string;
+  seriesName: string;
+  x: number;
+  y: number;
+  stage?: number;
+}): string {
+  const { tz, seriesName, x, y, stage } = args;
+
+  const stageDisplay = stage != null ? `/ ${stage} ft` : "";
+  const timeLabel = localDayJs(x).tz(tz).format("MMM D, h:mm A");
+
+  return `<b>${seriesName}</b><br/>${timeLabel}: ${y} cfs ${stageDisplay}`;
+}
+
 export function buildGageTooltipHtml(args: {
   gage: Gage;
   t: TFn;

@@ -1,4 +1,4 @@
-import { buildGageTooltipHtml } from "../chartTooltipHtml";
+import { buildGageTooltipHtml, buildForecastTooltipHtml } from "../chartTooltipHtml";
 
 const t = (key: string) => key;
 const TZ = "America/Los_Angeles";
@@ -85,5 +85,48 @@ describe("buildGageTooltipHtml", () => {
     expect(html).toContain('class="data-point"');
     expect(html).toContain('class="data-point-title"');
     expect(html).toContain('class="data-point-content"');
+  });
+});
+
+describe("buildForecastTooltipHtml", () => {
+  it("renders a forecast point without stage", () => {
+    const html = buildForecastTooltipHtml({
+      tz: TZ,
+      seriesName: "Observed: Below the Falls",
+      x: new Date("2026-05-17T15:15:00Z").valueOf(),
+      y: 258,
+    });
+
+    expect(html).toContain("<b>Observed: Below the Falls</b>");
+    expect(html).toContain("258");
+    expect(html).toContain("cfs");
+    expect(html).not.toContain("ft");
+  });
+
+  it("renders a forecast point with stage when provided", () => {
+    const html = buildForecastTooltipHtml({
+      tz: TZ,
+      seriesName: "Forecast: Carnation",
+      x: new Date("2026-05-17T15:15:00Z").valueOf(),
+      y: 461.79,
+      stage: 44.77,
+    });
+
+    expect(html).toContain("461.79");
+    expect(html).toContain("44.77");
+    expect(html).toContain("cfs");
+    expect(html).toContain("ft");
+  });
+
+  it("formats the timestamp in the given timezone", () => {
+    const html = buildForecastTooltipHtml({
+      tz: TZ,
+      seriesName: "Observed: Carnation",
+      x: new Date("2026-05-17T15:15:00Z").valueOf(),
+      y: 100,
+    });
+
+    expect(html).toContain("May 17");
+    expect(html).toContain("8:15 AM");
   });
 });
