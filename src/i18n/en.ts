@@ -235,6 +235,7 @@ const en = {
     fullRangeTitle: "Full",
     rangeDays: "{{days}} days",
     rangeDay: "day",
+    live: "Live",
   },
   gageChart: {
     discharge: "Discharge",

@@ -16,7 +16,7 @@ import { Cell, Row } from "@common-ui/components/Common";
 import { SegmentControl } from "@common-ui/components/SegmentControl";
 import useGageChartOptions from "@utils/useGageChartOptions";
 import { UTC_ISO_FORMAT, formatUrlDate } from "@utils/urlDates";
-import { deriveRange, NOW_LITERAL } from "@utils/deriveRange";
+import { CHART_DEFAULT_RANGE_DAYS, deriveRange, NOW_LITERAL } from "@utils/deriveRange";
 import localDayJs from "@services/localDayJs";
 import { useStores } from "@models/helpers/useStores";
 import { useInterval } from "@utils/useTimeout";
@@ -29,6 +29,7 @@ import { FloodEvent } from "@models/LocationInfo";
 import { DataPoint } from "@models/Forecasts";
 import { formatReadingTime } from "@utils/useTimeFormat";
 import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Icon from "@common-ui/components/Icon";
 import DatePickerVariantSwitch from "./DatePickerVariantSwitch";
 import { Dayjs } from "dayjs";
@@ -46,7 +47,7 @@ interface ChartsProps {
 }
 
 // Ranges available for selection
-const RANGES = (t) => [
+const RANGES = (t, showLive: boolean) => [
   {
     key: "14",
     title: t("forecastChart.rangeDays", { days: 14 }),
@@ -63,6 +64,14 @@ const RANGES = (t) => [
     key: "1",
     title: `1 ${t("forecastChart.rangeDay")}`,
   },
+  ...(showLive
+    ? [
+        {
+          key: "live",
+          title: t("forecastChart.live"),
+        },
+      ]
+    : []),
 ];
 
 // Possible chart data types
@@ -106,7 +115,7 @@ const PickerSelector = ({
 
   return (
     <Picker
-      selectedValue={eventId}
+      selectedValue={eventId ?? SELECT_EVENT}
       onValueChange={onHistoricEventSelected}
       style={[$pickerStyle, width]}>
       <Picker.Item label={t(SELECT_EVENT)} value={SELECT_EVENT} />
@@ -129,9 +138,19 @@ const HistoricEvents = observer(function HistoricEvents({
   const { hidePicker } = useDatePicker();
   const { getTimezone } = useStores();
   const tz = getTimezone();
+  const insets = useSafeAreaInsets();
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
-  const [selectedEvent, setSelectedEvent] = useState<string | undefined>();
+  const urlEventId = Array.isArray(historicEventId) ? historicEventId[0] : historicEventId;
+
+  const [selectedEvent, setSelectedEvent] = useState<string | undefined>(urlEventId);
+
+  // Keep the iOS bottom-sheet's pending selection in sync with the URL.
+  // Without this, clearing `historicEventId` via a range change leaves the
+  // sheet showing the previously-selected event the next time it opens.
+  useEffect(() => {
+    setSelectedEvent(urlEventId);
+  }, [urlEventId]);
 
   // Update chart when historic event selected
   const onHistoricEventSelected = (historicEventId: string) => {
@@ -171,9 +190,7 @@ const HistoricEvents = observer(function HistoricEvents({
     bottomSheetModalRef.current?.present();
   };
 
-  const historicEventIdNum = Array.isArray(historicEventId)
-    ? parseInt(historicEventId[0])
-    : parseInt(historicEventId);
+  const historicEventIdNum = parseInt(urlEventId);
   const title =
     floodEvents.find((e) => e.id === historicEventIdNum)?.eventName ??
     t("gageDetailsChart.selectEvent");
@@ -194,9 +211,9 @@ const HistoricEvents = observer(function HistoricEvents({
               index={0}
               detached={true}
               ref={bottomSheetModalRef}
-              snapPoints={["40%"]}
+              snapPoints={["50%"]}
               style={$bottomSheetStyle}>
-              <BottomSheetView>
+              <BottomSheetView style={{ paddingBottom: insets.bottom + Spacing.medium }}>
                 <PickerSelector
                   historicEventId={selectedEvent ?? historicEventId}
                   floodEvents={floodEvents}
@@ -424,6 +441,16 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
   //                today in gauge tz, flip to live mode instead.
   const onRangeChange = (key: string) => {
     hidePicker();
+
+    if (key === "live") {
+      router.setParams({
+        historicEventId: undefined,
+        from: `-${CHART_DEFAULT_RANGE_DAYS}`,
+        to: NOW_LITERAL,
+      });
+      return;
+    }
+
     const days = parseInt(key, 10);
 
     if (range.isNow) {
@@ -502,7 +529,7 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
           <Cell flex>
             <SegmentControl
               bottom={Spacing.zero}
-              segments={RANGES(t)}
+              segments={RANGES(t, !range.isNow)}
               selectedSegment={rangeOption}
               onChange={onRangeChange}
             />
