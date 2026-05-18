@@ -93,7 +93,7 @@ const CalloutReading = observer(function CalloutReadingCard({ gage }: { gage: Ga
           <CardItem noBorder>
             <RegularText>{t("calloutReading.road")}</RegularText>
             <MediumText>
-              {roadStatus?.deltaFormatted}{" "}
+              {roadStatus?.delta?.toFixed(1)} {t("measure.ft")}{" "}
               {t(`statusLevelsCard.${roadStatus?.preposition}` as TxKeyPath)}
               {t("calloutReading.roadSmall")}
             </MediumText>

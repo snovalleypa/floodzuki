@@ -34,7 +34,7 @@ export function buildGageTooltipHtml(args: {
   let roadDesc = "";
   if (roadStatus) {
     roadDesc = `<br />
-      <span class="data-point-content">${roadStatus.deltaFormatted}</span>
+      <span class="data-point-content">${roadStatus.delta.toFixed(1)} ${t("measure.ft")}</span>
       <span class="data-point-title"> ${t(`statusLevelsCard.${roadStatus.preposition}`)} ${t(
       "calloutReading.roadSmall"
     )}</span>`;
