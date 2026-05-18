@@ -44,6 +44,20 @@ const BASE_HTML = `
         }
       };
 
+      // Default tooltip formatter for every chart in this WebView.
+      // Reads precomputed HTML from point.options.tooltipHtml because Hermes
+      // strips function bodies during RN -> WebView serialization (see
+      // HighchartsReactNative.tsx). Defined here as static source so it is
+      // never round-tripped through Function.prototype.toString().
+      Highcharts.setOptions({
+        tooltip: {
+          useHTML: true,
+          formatter: function () {
+            return (this.point && this.point.options && this.point.options.tooltipHtml) || '';
+          }
+        }
+      });
+
       document.addEventListener('message', function (data) {
         if (Highcharts.charts[0]) {
           Highcharts.charts[0].update(hcUtils.parseOptions(data.data), true, true, true);
