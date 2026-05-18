@@ -108,6 +108,7 @@ const HighchartsReactNative = React.memo((props: HighchartsReactNativeProps) => 
         allowFileAccessFromFileURLs={true}
         startInLoadingState={startInLoadingState}
         style={webviewStyles}
+        webviewDebuggingEnabled={__DEV__}
         {...({ androidHardwareAccelerationDisabled: true } as any)}
         {...webviewProps}
       />
