@@ -1,3 +1,5 @@
+import { TOOLTIP_CSS } from "./tooltipStyles";
+
 const BASE_HTML = `
 <html>
   <head>
@@ -25,18 +27,7 @@ const BASE_HTML = `
         -ms-user-select: none;
         user-select: none;
       }
-      .data-point {
-        font-family: -apple-system, system-ui, sans-serif;
-        font-size: 12px;
-        line-height: 1.4;
-      }
-      .data-point-title {
-        color: #606060;
-      }
-      .data-point-content {
-        color: #1a1a1a;
-        font-weight: 600;
-      }
+      ${TOOLTIP_CSS}
     </style>
     <script>
       // Default tooltip formatter for every chart in this WebView.

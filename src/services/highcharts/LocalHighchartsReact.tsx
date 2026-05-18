@@ -6,6 +6,19 @@ import BrokenAxis from "highcharts/modules/broken-axis";
 import { isWeb } from "@common-ui/utils/responsive";
 import { useLocaleContext } from "@common-ui/contexts/LocaleContext";
 import { getHighchartsLang } from "@services/highcharts/highchartsLang";
+import { TOOLTIP_CSS, TOOLTIP_STYLE_ELEMENT_ID } from "@services/highcharts/tooltipStyles";
+
+// Web mounts Highcharts directly in the main DOM, so the tooltip CSS defined
+// in the WebView shell (HighchartsLayout.tsx) does not reach it. Inject the
+// same rules into document.head, idempotently by id.
+if (isWeb && typeof document !== "undefined") {
+  if (!document.getElementById(TOOLTIP_STYLE_ELEMENT_ID)) {
+    const styleEl = document.createElement("style");
+    styleEl.id = TOOLTIP_STYLE_ELEMENT_ID;
+    styleEl.textContent = TOOLTIP_CSS;
+    document.head.appendChild(styleEl);
+  }
+}
 
 export default function LocalHighchartsReact(props: HighchartsReact.Props) {
   if (isWeb) {
