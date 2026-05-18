@@ -16,16 +16,16 @@ interface HighchartsReactNativeProps {
   setOptions?: Record<string, unknown>;
 }
 
-// Serialize Highcharts options to a JSON string. Functions in `chartOptions`
-// are converted via `Function.prototype.toString()`. WARNING: on Hermes (RN
-// new arch default), `toString()` returns `function () { [bytecode] }`
-// instead of real source — the function will throw `ReferenceError: Can't
-// find variable: bytecode` when called inside the WebView. Callers that
-// need per-point computed values should precompute them as plain-data
-// fields on each point (e.g. `tooltipHtml`) and rely on a static formatter
-// installed inside HighchartsLayout.tsx, rather than passing a function
-// through this serializer.
-const serialize = (chartOptions: Highcharts.Options, isUpdate?: boolean): string => {
+// Serialize options as a JS literal for inline interpolation into the WebView
+// init script. Functions are emitted as raw source via
+// `Function.prototype.toString()`. WARNING: on Hermes (RN new arch default),
+// `toString()` returns `function () { [bytecode] }` instead of real source —
+// the function will throw `ReferenceError: Can't find variable: bytecode`
+// when called inside the WebView. Callers that need per-point computed
+// values should precompute them as plain-data fields on each point (e.g.
+// `tooltipHtml`) and rely on a static formatter installed inside
+// HighchartsLayout.tsx.
+const serializeForInit = (chartOptions: Highcharts.Options | Record<string, unknown>): string => {
   const hcFunctions: Record<string, string> = {};
   let i = 0;
 
@@ -34,19 +34,22 @@ const serialize = (chartOptions: Highcharts.Options, isUpdate?: boolean): string
       const fcId = "###HCF" + i + "###";
       hcFunctions[fcId] = value.toString();
       i++;
-      return isUpdate ? value.toString() : fcId;
+      return fcId;
     }
     return value;
   });
 
-  if (!isUpdate) {
-    Object.keys(hcFunctions).forEach((key) => {
-      serialized = serialized.replace('"' + key + '"', hcFunctions[key]);
-    });
-  }
+  Object.keys(hcFunctions).forEach((key) => {
+    serialized = serialized.replace('"' + key + '"', hcFunctions[key]);
+  });
 
   return serialized;
 };
+
+// Serialize options as plain JSON for the postMessage update path. Functions
+// are dropped — the WebView side runs JSON.parse, which can't restore them.
+const serializeForUpdate = (chartOptions: Highcharts.Options): string =>
+  JSON.stringify(chartOptions, (_key, value) => (typeof value === "function" ? undefined : value));
 
 const HighchartsReactNative = React.memo((props: HighchartsReactNativeProps) => {
   const {
@@ -71,7 +74,7 @@ const HighchartsReactNative = React.memo((props: HighchartsReactNativeProps) => 
     if (!chartReady) {
       return;
     }
-    webviewRef.current?.postMessage(serialize(options, true));
+    webviewRef.current?.postMessage(serializeForUpdate(options));
   }, [options, chartReady]);
 
   const handleMessage = (event: WebViewMessageEvent) => {
@@ -88,8 +91,8 @@ const HighchartsReactNative = React.memo((props: HighchartsReactNativeProps) => 
   const initScript = `
     (function() {
       try {
-        Highcharts.setOptions(${serialize(setOptions)});
-        Highcharts.chart('container', ${serialize(options)});
+        Highcharts.setOptions(${serializeForInit(setOptions)});
+        Highcharts.chart('container', ${serializeForInit(options)});
         window.ReactNativeWebView.postMessage('chart-ready');
       } catch (e) {
         window.ReactNativeWebView.postMessage('error:' + e.message);

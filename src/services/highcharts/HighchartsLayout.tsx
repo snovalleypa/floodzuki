@@ -39,23 +39,6 @@ const BASE_HTML = `
       }
     </style>
     <script>
-      const hcUtils = {
-        parseOptions: function (chartOptions) {
-          const parseFunction = this.parseFunction;
-          return JSON.parse(chartOptions, function (val, key) {
-            if (typeof key === 'string' && key.indexOf('function') > -1) {
-              return parseFunction(key);
-            }
-            return key;
-          });
-        },
-        parseFunction: function (fc) {
-          const fcArgs = fc.match(/\\((.*?)\\)/)[1];
-          const fcbody = fc.split('{');
-          return new Function(fcArgs, '{' + fcbody.slice(1).join('{'));
-        }
-      };
-
       // Default tooltip formatter for every chart in this WebView.
       // Reads precomputed HTML from point.options.tooltipHtml because Hermes
       // strips function bodies during RN -> WebView serialization (see
@@ -70,16 +53,13 @@ const BASE_HTML = `
         }
       });
 
-      document.addEventListener('message', function (data) {
+      function applyUpdate(data) {
         if (Highcharts.charts[0]) {
-          Highcharts.charts[0].update(hcUtils.parseOptions(data.data), true, true, true);
+          Highcharts.charts[0].update(JSON.parse(data), true, true, true);
         }
-      });
-      window.addEventListener('message', function (data) {
-        if (Highcharts.charts[0]) {
-          Highcharts.charts[0].update(hcUtils.parseOptions(data.data), true, true, true);
-        }
-      });
+      }
+      document.addEventListener('message', function (e) { applyUpdate(e.data); });
+      window.addEventListener('message', function (e) { applyUpdate(e.data); });
     </script>
   </head>
   <body>
