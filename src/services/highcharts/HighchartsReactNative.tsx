@@ -16,8 +16,15 @@ interface HighchartsReactNativeProps {
   setOptions?: Record<string, unknown>;
 }
 
-// Serialize Highcharts options to a JSON string, converting functions to
-// string representations so they survive the RN→WebView boundary.
+// Serialize Highcharts options to a JSON string. Functions in `chartOptions`
+// are converted via `Function.prototype.toString()`. WARNING: on Hermes (RN
+// new arch default), `toString()` returns `function () { [bytecode] }`
+// instead of real source — the function will throw `ReferenceError: Can't
+// find variable: bytecode` when called inside the WebView. Callers that
+// need per-point computed values should precompute them as plain-data
+// fields on each point (e.g. `tooltipHtml`) and rely on a static formatter
+// installed inside HighchartsLayout.tsx, rather than passing a function
+// through this serializer.
 const serialize = (chartOptions: Highcharts.Options, isUpdate?: boolean): string => {
   const hcFunctions: Record<string, string> = {};
   let i = 0;
