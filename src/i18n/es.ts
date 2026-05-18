@@ -84,6 +84,9 @@ const es = {
     noaaGage: "Medidor NOAA",
     dataSuppliedBy: "Datos de medidores de inundaciones proporcionados por",
     noaaTitle: "El centro de pronóstico de ríos del noroeste del Servicio Meteorológico Nacional",
+    timeHeader: "Hora",
+    heightHeader: "Altura",
+    flowHeader: "Flujo",
   },
   profileScreen: {
     title: "Perfil",
@@ -234,7 +237,7 @@ const es = {
     observed: "Observado",
     forecast: "Pronóstico",
     floodStage: "Nivel de inundación",
-    discharge: "Descarga",
+    discharge: "Flujo",
     now: "ahora",
     fullRangeTitle: "Completo",
     rangeDays: "{{days}} días",
@@ -242,7 +245,7 @@ const es = {
     live: "En vivo",
   },
   gageChart: {
-    discharge: "Descarga",
+    discharge: "Flujo",
     waterLevel: "Nivel del agua",
     Now: "Ahora",
     dashboardDurationLabel: "hace 48 horas",
@@ -264,7 +267,7 @@ const es = {
     roadSmall: " carretera",
   },
   gageDetailsChart: {
-    discharge: "Descarga",
+    discharge: "Flujo",
     waterLevel: "Nivel del agua",
     _selectEvent: "- seleccionar evento -",
     selectEvent: "Seleccionar evento",
