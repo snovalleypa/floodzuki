@@ -162,7 +162,7 @@ describe("GageDetailsChart — Live segment", () => {
     expect(keys).toEqual(["14", "7", "2", "1", "live"]);
   });
 
-  it("selecting the live segment resets URL to from=-2 / to=now and clears historicEventId", async () => {
+  it("resets the URL properly when selecting the live segment", async () => {
     mockParamsBox.current = { from: "2020-02-04", to: "2020-02-13" };
     render(<GageDetailsChart gage={mockGage} />);
 

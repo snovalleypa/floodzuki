@@ -142,7 +142,7 @@ describe("GageDetailsChart — historic event picker resets when range changes",
     capturedPickerSelectedValue = undefined;
   });
 
-  it("Picker reflects the historicEventId from the URL", () => {
+  test("Picker reflects the historicEventId from the URL", () => {
     mockParamsBox.current = {
       from: "2020-02-04",
       to: "2020-02-13",
@@ -152,7 +152,7 @@ describe("GageDetailsChart — historic event picker resets when range changes",
     expect(capturedPickerSelectedValue).toBe("5");
   });
 
-  it("Picker resets to SELECT_EVENT when URL clears historicEventId (range change)", async () => {
+  test("Picker resets to SELECT_EVENT when URL clears historicEventId (range change)", async () => {
     mockParamsBox.current = {
       from: "2020-02-04",
       to: "2020-02-13",
@@ -179,7 +179,7 @@ describe("GageDetailsChart — historic event picker resets when range changes",
     expect(capturedPickerSelectedValue).toBe(SELECT_EVENT);
   });
 
-  it("Picker shows SELECT_EVENT on cold-load (no params)", () => {
+  test("Picker shows SELECT_EVENT on cold-load (no params)", () => {
     mockParamsBox.current = {};
     render(<GageDetailsChart gage={mockGage} />);
     expect(capturedPickerSelectedValue).toBe(SELECT_EVENT);
