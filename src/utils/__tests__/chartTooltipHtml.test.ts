@@ -16,7 +16,7 @@ describe("buildGageTooltipHtml", () => {
       t,
       tz: TZ,
       x: new Date("2026-05-17T15:15:00Z").valueOf(),
-      y: 10.872,
+      waterLevel: 10.872,
       isPrediction: false,
     });
 
@@ -34,7 +34,7 @@ describe("buildGageTooltipHtml", () => {
       t,
       tz: TZ,
       x: new Date("2026-05-17T15:15:00Z").valueOf(),
-      y: 4.5,
+      waterLevel: 4.5,
       isPrediction: true,
     });
 
@@ -48,7 +48,7 @@ describe("buildGageTooltipHtml", () => {
       t,
       tz: TZ,
       x: new Date("2026-05-17T15:15:00Z").valueOf(),
-      y: 10.0,
+      waterLevel: 10.0,
       isPrediction: false,
     });
 
@@ -64,7 +64,7 @@ describe("buildGageTooltipHtml", () => {
       t,
       tz: TZ,
       x: new Date("2026-05-17T15:15:00Z").valueOf(),
-      y: 10,
+      waterLevel: 10,
       isPrediction: false,
     });
 
@@ -78,13 +78,65 @@ describe("buildGageTooltipHtml", () => {
       t,
       tz: TZ,
       x: Date.now(),
-      y: 5,
+      waterLevel: 5,
       isPrediction: false,
     });
 
     expect(html).toContain('class="data-point"');
     expect(html).toContain('class="data-point-title"');
     expect(html).toContain('class="data-point-content"');
+  });
+
+  it("includes both water level and flow lines when both values are provided", () => {
+    const html = buildGageTooltipHtml({
+      gage: makeGage(),
+      t,
+      tz: TZ,
+      x: new Date("2026-05-17T15:15:00Z").valueOf(),
+      waterLevel: 10.5,
+      waterDischarge: 5678,
+      isPrediction: false,
+    });
+
+    expect(html).toContain("10.50");
+    expect(html).toContain("measure.ft");
+    expect(html).toContain("gageChart.flow");
+    expect(html).toContain("5,678");
+    expect(html).toContain("measure.cfs");
+  });
+
+  it("omits the flow line when waterDischarge is undefined", () => {
+    const html = buildGageTooltipHtml({
+      gage: makeGage(),
+      t,
+      tz: TZ,
+      x: new Date("2026-05-17T15:15:00Z").valueOf(),
+      waterLevel: 10.5,
+      isPrediction: false,
+    });
+
+    expect(html).not.toContain("gageChart.flow");
+    expect(html).not.toContain("measure.cfs");
+  });
+
+  it("uses waterLevel (not waterDischarge) to compute road status", () => {
+    const getCalculatedRoadStatus = jest.fn(() => ({
+      deltaFormatted: "1.0 ft.",
+      preposition: "above",
+    }));
+    const gage: any = { getCalculatedRoadStatus };
+
+    buildGageTooltipHtml({
+      gage,
+      t,
+      tz: TZ,
+      x: new Date("2026-05-17T15:15:00Z").valueOf(),
+      waterLevel: 12.34,
+      waterDischarge: 5000,
+      isPrediction: false,
+    });
+
+    expect(getCalculatedRoadStatus).toHaveBeenCalledWith(12.34);
   });
 });
 

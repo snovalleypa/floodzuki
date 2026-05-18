@@ -23,12 +23,13 @@ export function buildGageTooltipHtml(args: {
   t: TFn;
   tz: string;
   x: number;
-  y: number;
+  waterLevel?: number | null;
+  waterDischarge?: number | null;
   isPrediction: boolean;
 }): string {
-  const { gage, t, tz, x, y, isPrediction } = args;
+  const { gage, t, tz, x, waterLevel, waterDischarge, isPrediction } = args;
 
-  const roadStatus = gage?.getCalculatedRoadStatus(y);
+  const roadStatus = waterLevel != null ? gage?.getCalculatedRoadStatus(waterLevel) : null;
 
   let roadDesc = "";
   if (roadStatus) {
@@ -41,12 +42,32 @@ export function buildGageTooltipHtml(args: {
 
   const titleKey = isPrediction ? t("statusLevelsCard.predicted") : t("statusLevelsCard.water");
 
-  return ` <div class="data-point">
+  let levelLine = "";
+  if (waterLevel != null) {
+    levelLine = `
       <span class="data-point-title">${titleKey} ${t("statusLevelsCard.level")}: </span>
       <span class="data-point-content">
-        ${y?.toFixed(2)} ${t("measure.ft")}.
+        ${waterLevel.toFixed(2)} ${t("measure.ft")}
       </span>
-      <br />
+      <br />`;
+  }
+
+  let flowLine = "";
+  if (waterDischarge != null) {
+    const flowFormatted = waterDischarge.toLocaleString(undefined, {
+      maximumFractionDigits: 0,
+    });
+    flowLine = `
+      <span class="data-point-title">${t("gageChart.flow")}: </span>
+      <span class="data-point-content">
+        ${flowFormatted} ${t("measure.cfs")}
+      </span>
+      <br />`;
+  }
+
+  return ` <div class="data-point">
+      ${levelLine}
+      ${flowLine}
       <span class="data-point-content">
         ${localDayJs(x).tz(tz).format("ddd, MMM D, h:mm A")}
       </span>

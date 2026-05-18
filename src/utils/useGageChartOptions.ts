@@ -191,7 +191,15 @@ function createPredictionSeries(
         y,
         name: `${t("statusLevelsCard.predicted")} ${t("statusLevelsCard.level")}: `,
         isPrediction: true,
-        tooltipHtml: buildGageTooltipHtml({ gage, t, tz, x, y, isPrediction: true }),
+        tooltipHtml: buildGageTooltipHtml({
+          gage,
+          t,
+          tz,
+          x,
+          waterLevel: d.reading,
+          waterDischarge: d.waterDischarge,
+          isPrediction: true,
+        }),
       };
     }),
     fillOpacity: 0,
@@ -226,7 +234,15 @@ function createActualDataSeries(
         ts: d.timestamp,
         name: `${t("statusLevelsCard.water")} ${t("statusLevelsCard.level")}: `,
         isPrediction: false,
-        tooltipHtml: buildGageTooltipHtml({ gage, t, tz, x, y, isPrediction: false }),
+        tooltipHtml: buildGageTooltipHtml({
+          gage,
+          t,
+          tz,
+          x,
+          waterLevel: d.reading,
+          waterDischarge: d.waterDischarge,
+          isPrediction: false,
+        }),
       };
     }),
     fillOpacity: 0,
@@ -260,7 +276,15 @@ function createForecastDataSeries(
         y,
         name: `${t("statusLevelsCard.predicted")} ${t("statusLevelsCard.level")}: `,
         isPrediction: true,
-        tooltipHtml: buildGageTooltipHtml({ gage, t, tz, x, y, isPrediction: true }),
+        tooltipHtml: buildGageTooltipHtml({
+          gage,
+          t,
+          tz,
+          x,
+          waterLevel: d.reading,
+          waterDischarge: d.waterDischarge,
+          isPrediction: true,
+        }),
       };
     }),
     fillOpacity: 0,
@@ -301,7 +325,15 @@ function createSeriesAndReturnMin(
           name: `${t("statusLevelsCard.water")} ${t("statusLevelsCard.level")}: `,
           ts: d.timestamp?.format(),
           isPrediction: false,
-          tooltipHtml: buildGageTooltipHtml({ gage, t, tz, x, y, isPrediction: false }),
+          tooltipHtml: buildGageTooltipHtml({
+            gage,
+            t,
+            tz,
+            x,
+            waterLevel: d.reading,
+            waterDischarge: d.waterDischarge,
+            isPrediction: false,
+          }),
         };
       });
     } else {
@@ -314,7 +346,15 @@ function createSeriesAndReturnMin(
           name: `${t("statusLevelsCard.water")} ${t("statusLevelsCard.level")}: `,
           ts: d.timestamp?.format(),
           isPrediction: false,
-          tooltipHtml: buildGageTooltipHtml({ gage, t, tz, x, y, isPrediction: false }),
+          tooltipHtml: buildGageTooltipHtml({
+            gage,
+            t,
+            tz,
+            x,
+            waterLevel: d.reading,
+            waterDischarge: d.waterDischarge,
+            isPrediction: false,
+          }),
         };
       });
     }
@@ -327,7 +367,15 @@ function createSeriesAndReturnMin(
           x,
           y,
           name: `${t("statusLevelsCard.predicted")} ${t("statusLevelsCard.level")}: `,
-          tooltipHtml: buildGageTooltipHtml({ gage, t, tz, x, y, isPrediction: false }),
+          tooltipHtml: buildGageTooltipHtml({
+            gage,
+            t,
+            tz,
+            x,
+            waterLevel: d.reading,
+            waterDischarge: d.waterDischarge,
+            isPrediction: false,
+          }),
         };
       });
     } else {
@@ -338,7 +386,15 @@ function createSeriesAndReturnMin(
           x,
           y,
           name: `${t("statusLevelsCard.predicted")} ${t("statusLevelsCard.level")}: `,
-          tooltipHtml: buildGageTooltipHtml({ gage, t, tz, x, y, isPrediction: false }),
+          tooltipHtml: buildGageTooltipHtml({
+            gage,
+            t,
+            tz,
+            x,
+            waterLevel: d.reading,
+            waterDischarge: d.waterDischarge,
+            isPrediction: false,
+          }),
         };
       });
     }
