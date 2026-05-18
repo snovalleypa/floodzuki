@@ -11,6 +11,7 @@ import { Colors } from "@common-ui/constants/colors";
 import { DataPoint } from "@models/Forecasts";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import { Timing } from "@common-ui/constants/timing";
+import { buildGageTooltipHtml } from "./chartTooltipHtml";
 
 declare module "highcharts" {
   interface Options {
@@ -157,35 +158,6 @@ function calculateCrest(
   return null;
 }
 
-function dataPointPopup(gage: Gage, t, tz: string) {
-  return function (this: Highcharts.TooltipFormatterContextObject) {
-    const roadStatus = gage?.getCalculatedRoadStatus(this.y);
-
-    let roadDesc = "";
-
-    if (roadStatus) {
-      roadDesc = `<br />
-        <span class="data-point-content">${roadStatus.deltaFormatted}</span>
-        <span class="data-point-title"> ${t(`statusLevelsCard.${roadStatus?.preposition}`)} ${t(
-        "calloutReading.roadSmall"
-      )}</span>`;
-    }
-    return ` <div class="data-point">
-        <span class="data-point-title">${
-          this.point.isPrediction ? t("statusLevelsCard.predicted") : t("statusLevelsCard.water")
-        } ${t("statusLevelsCard.level")}: </span>
-        <span class="data-point-content">
-          ${this.y?.toFixed(2)} ${t("measure.ft")}.
-        </span>
-        <br />
-        <span class="data-point-content">
-          ${localDayJs(this.x).tz(tz).format("ddd, MMM D, h:mm A")}
-        </span>
-        ${roadDesc}
-      </div>`;
-  };
-}
-
 function makePlotLine({ value, label, color = "#9a9a9a" }): Highcharts.XAxisPlotLinesOptions {
   return {
     value,
@@ -200,16 +172,28 @@ function makePlotLine({ value, label, color = "#9a9a9a" }): Highcharts.XAxisPlot
   };
 }
 
-function createPredictionSeries(dataPoints: DataPoint[], t, groundHeight: number, color: string) {
+function createPredictionSeries(
+  dataPoints: DataPoint[],
+  t,
+  groundHeight: number,
+  color: string,
+  gage: Gage,
+  tz: string
+) {
   return {
     animation: false,
     name: "predicted gage height",
-    data: dataPoints.map((d) => ({
-      x: d.timestamp.valueOf(),
-      y: d.reading,
-      name: `${t("statusLevelsCard.predicted")} ${t("statusLevelsCard.level")}: `,
-      isPrediction: true,
-    })),
+    data: dataPoints.map((d) => {
+      const x = d.timestamp.valueOf();
+      const y = d.reading;
+      return {
+        x,
+        y,
+        name: `${t("statusLevelsCard.predicted")} ${t("statusLevelsCard.level")}: `,
+        isPrediction: true,
+        tooltipHtml: buildGageTooltipHtml({ gage, t, tz, x, y, isPrediction: true }),
+      };
+    }),
     fillOpacity: 0,
     color: color,
     threshold: groundHeight || 0,
@@ -222,17 +206,29 @@ function createPredictionSeries(dataPoints: DataPoint[], t, groundHeight: number
   };
 }
 
-function createActualDataSeries(dataPoints: DataPoint[], t, groundHeight: number, color: string) {
+function createActualDataSeries(
+  dataPoints: DataPoint[],
+  t,
+  groundHeight: number,
+  color: string,
+  gage: Gage,
+  tz: string
+) {
   return {
     animation: false,
     name: "actual gage height",
-    data: dataPoints.map((d) => ({
-      x: d.timestamp.valueOf(),
-      y: d.reading,
-      ts: d.timestamp,
-      name: `${t("statusLevelsCard.water")} ${t("statusLevelsCard.level")}: `,
-      isPrediction: false,
-    })),
+    data: dataPoints.map((d) => {
+      const x = d.timestamp.valueOf();
+      const y = d.reading;
+      return {
+        x,
+        y,
+        ts: d.timestamp,
+        name: `${t("statusLevelsCard.water")} ${t("statusLevelsCard.level")}: `,
+        isPrediction: false,
+        tooltipHtml: buildGageTooltipHtml({ gage, t, tz, x, y, isPrediction: false }),
+      };
+    }),
     fillOpacity: 0,
     color: color,
     threshold: groundHeight || 0,
@@ -245,16 +241,28 @@ function createActualDataSeries(dataPoints: DataPoint[], t, groundHeight: number
   };
 }
 
-function createForecastDataSeries(dataPoints: DataPoint[], t, groundHeight: number, color: string) {
+function createForecastDataSeries(
+  dataPoints: DataPoint[],
+  t,
+  groundHeight: number,
+  color: string,
+  gage: Gage,
+  tz: string
+) {
   return {
     animation: false,
     name: "forecast gage height",
-    data: dataPoints.map((d) => ({
-      x: d.timestamp.valueOf(),
-      y: d.reading,
-      name: `${t("statusLevelsCard.predicted")} ${t("statusLevelsCard.level")}: `,
-      isPrediction: true,
-    })),
+    data: dataPoints.map((d) => {
+      const x = d.timestamp.valueOf();
+      const y = d.reading;
+      return {
+        x,
+        y,
+        name: `${t("statusLevelsCard.predicted")} ${t("statusLevelsCard.level")}: `,
+        isPrediction: true,
+        tooltipHtml: buildGageTooltipHtml({ gage, t, tz, x, y, isPrediction: true }),
+      };
+    }),
     fillOpacity: 0,
     color: color,
     threshold: groundHeight || 0,
@@ -267,7 +275,15 @@ function createForecastDataSeries(dataPoints: DataPoint[], t, groundHeight: numb
   };
 }
 
-function createSeriesAndReturnMin(dataPoints, gage, t, color, setIsPrediction, chartDataType) {
+function createSeriesAndReturnMin(
+  dataPoints,
+  gage,
+  t,
+  color,
+  setIsPrediction,
+  chartDataType,
+  tz: string
+) {
   let data = null;
   let min = Math.min.apply(
     null,
@@ -276,37 +292,53 @@ function createSeriesAndReturnMin(dataPoints, gage, t, color, setIsPrediction, c
 
   if (setIsPrediction) {
     if (chartDataType === GageChartDataType.DISCHARGE) {
-      data = dataPoints.map((d) => ({
-        x: d.timestamp.valueOf(),
-        y: d.waterDischarge,
-        name: `${t("statusLevelsCard.water")} ${t("statusLevelsCard.level")}: `,
-        ts: d.timestamp?.format(),
-        isPrediction: false,
-      }));
-    } else {
-      data = dataPoints.map((d) => ({
-        x: d.timestamp.valueOf(),
-        y: d.reading,
-        name: `${t("statusLevelsCard.water")} ${t("statusLevelsCard.level")}: `,
-        ts: d.timestamp?.format(),
-        isPrediction: false,
-      }));
-    }
-  } else {
-    if (chartDataType === GageChartDataType.DISCHARGE) {
       data = dataPoints.map((d) => {
+        const x = d.timestamp.valueOf();
+        const y = d.waterDischarge;
         return {
-          x: d.timestamp.valueOf(),
-          y: d.waterDischarge,
-          name: `${t("statusLevelsCard.predicted")} ${t("statusLevelsCard.level")}: `,
+          x,
+          y,
+          name: `${t("statusLevelsCard.water")} ${t("statusLevelsCard.level")}: `,
+          ts: d.timestamp?.format(),
+          isPrediction: false,
+          tooltipHtml: buildGageTooltipHtml({ gage, t, tz, x, y, isPrediction: false }),
         };
       });
     } else {
       data = dataPoints.map((d) => {
+        const x = d.timestamp.valueOf();
+        const y = d.reading;
         return {
-          x: d.timestamp.valueOf(),
-          y: d.reading,
+          x,
+          y,
+          name: `${t("statusLevelsCard.water")} ${t("statusLevelsCard.level")}: `,
+          ts: d.timestamp?.format(),
+          isPrediction: false,
+          tooltipHtml: buildGageTooltipHtml({ gage, t, tz, x, y, isPrediction: false }),
+        };
+      });
+    }
+  } else {
+    if (chartDataType === GageChartDataType.DISCHARGE) {
+      data = dataPoints.map((d) => {
+        const x = d.timestamp.valueOf();
+        const y = d.waterDischarge;
+        return {
+          x,
+          y,
           name: `${t("statusLevelsCard.predicted")} ${t("statusLevelsCard.level")}: `,
+          tooltipHtml: buildGageTooltipHtml({ gage, t, tz, x, y, isPrediction: false }),
+        };
+      });
+    } else {
+      data = dataPoints.map((d) => {
+        const x = d.timestamp.valueOf();
+        const y = d.reading;
+        return {
+          x,
+          y,
+          name: `${t("statusLevelsCard.predicted")} ${t("statusLevelsCard.level")}: `,
+          tooltipHtml: buildGageTooltipHtml({ gage, t, tz, x, y, isPrediction: false }),
         };
       });
     }
@@ -343,48 +375,50 @@ function createSeriesAndReturnMin(dataPoints, gage, t, color, setIsPrediction, c
   return [series, min];
 }
 
-function createDataAndReturnMin(gage: Gage, chartDataType: GageChartDataType, t) {
+function createDataAndReturnMin(gage: Gage, chartDataType: GageChartDataType, t, tz: string) {
   let hasPredictions = false;
   const chartData = [];
 
-  // Get predicted points
   if (gage?.predictedPoints.length > 0) {
     chartData.push(
       createPredictionSeries(
         gage?.predictedPoints,
         t,
         gage?.groundHeight,
-        Colors.gageChartPredictionsLineColor
+        Colors.gageChartPredictionsLineColor,
+        gage,
+        tz
       )
     );
     hasPredictions = true;
   }
 
-  // Get actual points
   if (gage?.actualPoints.length > 0) {
     chartData.push(
       createActualDataSeries(
         gage?.actualPoints,
         t,
         gage?.groundHeight,
-        Colors.gageChartActualDataLineColor
+        Colors.gageChartActualDataLineColor,
+        gage,
+        tz
       )
     );
   }
 
-  // Get forecast points
   if (gage?.noaaForecastData.length > 0) {
     chartData.push(
       createForecastDataSeries(
         gage?.noaaForecastData,
         t,
         gage?.groundHeight,
-        Colors.gageChartForecastDataLineColor
+        Colors.gageChartForecastDataLineColor,
+        gage,
+        tz
       )
     );
   }
 
-  // Get readings
   const dataPoints = gage?.dataPoints;
 
   let min = 0;
@@ -404,7 +438,8 @@ function createDataAndReturnMin(gage: Gage, chartDataType: GageChartDataType, t)
     t,
     Colors.gageChartColor,
     hasPredictions,
-    chartDataType
+    chartDataType,
+    tz
   );
   min = seriesMin;
 
@@ -417,7 +452,8 @@ function createDataAndReturnMin(gage: Gage, chartDataType: GageChartDataType, t)
       t,
       Colors.gageChartDeletedLineColor,
       false,
-      chartDataType
+      chartDataType,
+      tz
     );
     chartData.push(...deletedReadingsSeries);
     min = Math.min(seriesMin, deletedSeriesMin);
@@ -456,7 +492,6 @@ const buildBasicOptions = (props: BuildOptionsProps, t) => {
     },
     tooltip: {
       useHTML: true,
-      formatter: dataPointPopup(gage, t, props.timezone),
     },
     xAxis: {
       type: "datetime",
@@ -483,7 +518,7 @@ const buildBasicOptions = (props: BuildOptionsProps, t) => {
     },
   };
 
-  const [series, minVal] = createDataAndReturnMin(gage, chartDataType, t);
+  const [series, minVal] = createDataAndReturnMin(gage, chartDataType, t, props.timezone);
 
   const { yMaximum, yMinimum } = gage?.getChartMinAndMax(chartDataType);
 
