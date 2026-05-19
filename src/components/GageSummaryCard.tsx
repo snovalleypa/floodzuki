@@ -1,5 +1,6 @@
 import React from "react";
 import { observer } from "mobx-react-lite";
+import { View } from "react-native";
 
 import { Card, CardFooter } from "@common-ui/components/Card";
 import { Cell, Row, RowOrCell } from "@common-ui/components/Common";
@@ -29,8 +30,13 @@ interface GageSummaryProps {
   noDetails?: boolean;
 }
 
-function ReadingRow(props: { reading?: DataPoint; delta?: number }) {
-  const { reading, delta } = props;
+function ReadingRow(props: {
+  reading?: DataPoint;
+  delta?: number;
+  isCrest?: boolean;
+  showCrestSlot?: boolean;
+}) {
+  const { reading, delta, isCrest, showCrestSlot } = props;
 
   const { formatFlow, formatFlowTrend, formatHeight } = useUtils();
   const { getTimezone } = useStores();
@@ -46,6 +52,11 @@ function ReadingRow(props: { reading?: DataPoint; delta?: number }) {
       innerHorizontal={Spacing.tiny}
       innerVertical={Spacing.micro}
       top={Spacing.tiny}>
+      <If condition={!!showCrestSlot}>
+        <View style={{ width: 16 }}>
+          <SmallerText>{isCrest ? "▲" : ""}</SmallerText>
+        </View>
+      </If>
       <Cell flex={2}>
         <SmallerText>{formatDateTime(reading.timestamp, getTimezone())}</SmallerText>
       </Cell>
