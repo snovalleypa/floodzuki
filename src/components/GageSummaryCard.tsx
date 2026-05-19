@@ -172,29 +172,33 @@ export const GageSummaryCard = observer(function GageSummaryCard(props: GageSumm
           </If>
         </Ternary>
       </Row>
-      <Cell top={Spacing.small}>
-        <LabelText color={Colors.success}>{t("forecastScreen.latestReading")}:</LabelText>
-        <ReadingRow reading={forecast?.latestReading} delta={forecast?.predictedCfsPerHour} />
-      </Cell>
-      {/* This is done for performance reason. Defer reading the expensive computation */}
-      <Ternary condition={showMaxReading}>
-        <MaxReading forecast={forecast} />
+      <Cell maxWidth={600}>
+        <ColumnHeaderRow />
         <Cell top={Spacing.small}>
-          <LabelText color={Colors.success}>{t("forecastScreen.pastMax")}:</LabelText>
-          <Cell height={18} />
+          <LabelText color={Colors.success}>{t("forecastScreen.latestReading")}:</LabelText>
+          <ReadingRow reading={forecast?.latestReading} delta={forecast?.predictedCfsPerHour} />
         </Cell>
-      </Ternary>
-      <Cell top={Spacing.small}>
-        <LabelText color={Colors.success}>
-          {t("forecastScreen.forecastedCrests")}:
-          <SmallText muted>
-            {" "}
-            ({t("forecastScreen.published")} {formatDateTime(predictionTime, getTimezone())})
-          </SmallText>
-        </LabelText>
-        {peaks?.map((peak) => (
-          <ReadingRow key={peak.timestampMs} reading={peak as DataPoint} />
-        ))}
+        {/* This is done for performance reason. Defer reading the expensive computation */}
+        <Ternary condition={showMaxReading}>
+          <MaxReading forecast={forecast} />
+          <Cell top={Spacing.small}>
+            <LabelText color={Colors.success}>{t("forecastScreen.pastMax")}:</LabelText>
+            <Cell height={18} />
+          </Cell>
+        </Ternary>
+        <Cell top={Spacing.small}>
+          <LabelText color={Colors.success}>
+            {"▲ "}
+            {t("forecastScreen.forecastedCrests")}:
+            <SmallText muted>
+              {" "}
+              ({t("forecastScreen.published")} {formatDateTime(predictionTime, getTimezone())})
+            </SmallText>
+          </LabelText>
+          {peaks?.map((peak) => (
+            <ReadingRow key={peak.timestampMs} reading={peak as DataPoint} />
+          ))}
+        </Cell>
       </Cell>
       <If condition={!gage?.isMetagage && noDetails}>
         <CardFooter>
