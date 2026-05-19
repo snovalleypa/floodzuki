@@ -6,9 +6,12 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import TrendIcon, { TREND_ICON_TYPES } from "./TrendIcon";
 import Config from "../config/config";
 import Constants from "expo-constants";
+import floodzillaLocalStyle from "./mapStyles/floodzilla-webstyles.json";
 
 const mapStyleBaseUrl =
   Constants.expoConfig.extra.mapTileUrlBase || Config.DEFAULT_MAP_TILE_BASE_URL;
+
+const useLocalMapStyle = Boolean(Constants.expoConfig.extra.mapStyleLocal);
 
 const styles = StyleSheet.create({
   map: {
@@ -41,7 +44,10 @@ const MapLibreWebGageWebMap = ({
   onGagePress,
   singleGage,
 }: InternalGageMapProps) => {
-  const mapStyleUrl = useMemo(() => {
+  const mapStyle = useMemo(() => {
+    if (useLocalMapStyle) {
+      return floodzillaLocalStyle as never;
+    }
     if (!region) {
       return "";
     }
@@ -112,7 +118,7 @@ const MapLibreWebGageWebMap = ({
         bounds: startBounds,
       }}
       maxBounds={regionBounds}
-      mapStyle={mapStyleUrl}
+      mapStyle={mapStyle}
       style={styles.map}>
       {markers}
     </Map>

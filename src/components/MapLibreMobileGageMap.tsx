@@ -7,9 +7,12 @@ import { Spacing } from "../common-ui/constants/spacing";
 import TrendIcon, { TREND_ICON_TYPES } from "./TrendIcon";
 import Config from "../config/config";
 import Constants from "expo-constants";
+import floodzillaLocalStyle from "./mapStyles/floodzilla-webstyles.json";
 
 const mapStyleBaseUrl =
   Constants.expoConfig!.extra!.mapTileUrlBase || Config.DEFAULT_MAP_TILE_BASE_URL;
+
+const useLocalMapStyle = Boolean(Constants.expoConfig!.extra!.mapStyleLocal);
 
 const styles = StyleSheet.create({
   map: {
@@ -47,7 +50,10 @@ const MapLibreMobileGageMap = ({
   const router = useRouter();
   const mapRef = useRef(null);
 
-  const mapStyleUrl = useMemo(() => {
+  const mapStyle = useMemo(() => {
+    if (useLocalMapStyle) {
+      return floodzillaLocalStyle as never;
+    }
     if (!region) {
       return "";
     }
@@ -108,7 +114,7 @@ const MapLibreMobileGageMap = ({
   }, [region, singleGage]);
 
   return (
-    <Map ref={mapRef} style={styles.map} mapStyle={mapStyleUrl} touchRotate={false}>
+    <Map ref={mapRef} style={styles.map} mapStyle={mapStyle} touchRotate={false}>
       <Camera maxBounds={regionBounds} bounds={startBounds} />
       {markers}
     </Map>
