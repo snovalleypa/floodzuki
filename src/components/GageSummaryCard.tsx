@@ -77,8 +77,8 @@ function ReadingRow(props: {
   );
 }
 
-function ColumnHeaderRow(props: { showCrestSlot?: boolean }) {
-  const { showCrestSlot } = props;
+function ColumnHeaderRow(props: { showCrestSlot?: boolean; showHeight?: boolean }) {
+  const { showCrestSlot, showHeight = true } = props;
   const { t } = useLocale();
 
   return (
@@ -94,11 +94,13 @@ function ColumnHeaderRow(props: { showCrestSlot?: boolean }) {
       <Cell flex={2}>
         <SmallerText color={Colors.darkGrey}>{t("forecastScreen.timeHeader")}</SmallerText>
       </Cell>
-      <Cell flex align="center">
-        <SmallerText align="center" color={Colors.darkGrey}>
-          {t("forecastScreen.heightHeader")}
-        </SmallerText>
-      </Cell>
+      <If condition={showHeight}>
+        <Cell flex align="center">
+          <SmallerText align="center" color={Colors.darkGrey}>
+            {t("forecastScreen.heightHeader")}
+          </SmallerText>
+        </Cell>
+      </If>
       <Cell flex>
         <SmallerText align="center" color={Colors.darkGrey}>
           {t("forecastScreen.flowHeader")}
@@ -146,12 +148,13 @@ export const GageSummaryCard = observer(function GageSummaryCard(props: GageSumm
   const gageTitle = gage?.title;
   const peaks = forecast?.peaks;
   const predictionTime = forecast?.predictions?.forecastCreated;
+  const hasHeight = forecast?.latestReading?.reading != null;
 
   const $offsetLeft = !firstItem && isWideScreen ? Spacing.medium : 0;
   const $offsetTop = !isWideScreen && firstItem ? 0 : Spacing.medium;
 
   return (
-    <Card flex left={$offsetLeft} top={$offsetTop}>
+    <Card flex={isWideScreen} left={$offsetLeft} top={$offsetTop}>
       <Row align="space-between">
         <SmallTitle color={Colors.primary}>{gageTitle}</SmallTitle>
         <Ternary condition={!noDetails}>
@@ -173,8 +176,8 @@ export const GageSummaryCard = observer(function GageSummaryCard(props: GageSumm
           </If>
         </Ternary>
       </Row>
-      <Cell maxWidth={600}>
-        <ColumnHeaderRow />
+      <Cell maxWidth={600} innerBottom={Spacing.small}>
+        <ColumnHeaderRow showHeight={hasHeight} />
         <Cell top={Spacing.small}>
           <LabelText color={Colors.success}>{t("forecastScreen.latestReading")}:</LabelText>
           <ReadingRow reading={forecast?.latestReading} delta={forecast?.predictedCfsPerHour} />
@@ -202,7 +205,7 @@ export const GageSummaryCard = observer(function GageSummaryCard(props: GageSumm
         </Cell>
       </Cell>
       <If condition={!gage?.isMetagage && noDetails}>
-        <CardFooter innerBottom={Spacing.small}>
+        <CardFooter>
           <Cell flex align="center">
             <LinkButton
               selfAlign="center"
@@ -222,17 +225,26 @@ export const ExtendedGageSummaryCard = observer(function ExtendedGageSummaryCard
   const { gage } = props;
 
   const { t } = useLocale();
-  const { forecastsStore } = useStores();
+  const { forecastsStore, getTimezone } = useStores();
+  const { isWideScreen } = useResponsive();
 
   const forecast = forecastsStore.getForecast(gage?.id);
   const crestTimestamps = buildCrestTimestampSet(forecast?.peaks);
+  const hasHeight = forecast?.latestReading?.reading != null;
+  const predictionTime = forecast?.predictions?.forecastCreated;
 
   return (
-    <RowOrCell flex justify="flex-start" align="flex-start" gap={Spacing.medium}>
-      <Cell flex maxWidth={480}>
+    <RowOrCell flex={isWideScreen} justify="flex-start" align="flex-start" gap={Spacing.medium}>
+      <Cell flex={isWideScreen} maxWidth={480}>
         <Card>
-          <SmallTitle color={Colors.primary}>{t("forecastScreen.currentlyForecasted")}</SmallTitle>
-          <ColumnHeaderRow showCrestSlot />
+          <SmallTitle color={Colors.primary}>
+            {t("forecastScreen.currentlyForecasted")}
+            <SmallText muted>
+              {" "}
+              ({t("forecastScreen.published")} {formatDateTime(predictionTime, getTimezone())})
+            </SmallText>
+          </SmallTitle>
+          <ColumnHeaderRow showCrestSlot showHeight={hasHeight} />
           {forecast?.last100ForecastReadings?.map((reading) => (
             <ReadingRow
               key={reading.timestamp}
@@ -243,10 +255,10 @@ export const ExtendedGageSummaryCard = observer(function ExtendedGageSummaryCard
           ))}
         </Card>
       </Cell>
-      <Cell flex maxWidth={480}>
+      <Cell flex={isWideScreen} maxWidth={480}>
         <Card>
           <SmallTitle color={Colors.primary}>{t("forecastScreen.lastReadings")}</SmallTitle>
-          <ColumnHeaderRow />
+          <ColumnHeaderRow showHeight={hasHeight} />
           {forecast?.last100Readings?.map((reading) => (
             <ReadingRow key={reading.timestamp} reading={reading} />
           ))}

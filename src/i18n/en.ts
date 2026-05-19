@@ -82,7 +82,7 @@ const en = {
     noaaGage: "NOAA Gauge",
     dataSuppliedBy: "Flood gauge data supplied by the",
     noaaTitle: "National Weather Service Northwest River Forecast Center",
-    timeHeader: "Time",
+    timeHeader: "Local Time",
     heightHeader: "Height",
     flowHeader: "Flow",
   },

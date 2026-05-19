@@ -84,7 +84,7 @@ const es = {
     noaaGage: "Medidor NOAA",
     dataSuppliedBy: "Datos de medidores de inundaciones proporcionados por",
     noaaTitle: "El centro de pronóstico de ríos del noroeste del Servicio Meteorológico Nacional",
-    timeHeader: "Hora",
+    timeHeader: "Hora Local",
     heightHeader: "Altura",
     flowHeader: "Flujo",
   },

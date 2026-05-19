@@ -91,10 +91,10 @@ const ForecastDetailsScreen = observer(function ForecastDetailsScreen() {
       <Content scrollable onRefresh={fetchData}>
         <If condition={!!forecastGage}>
           <ForecastChart gages={[forecastGage]} />
-          <Cell top={Spacing.mediumXL}>
+          <Cell top={isMobile ? Spacing.small : Spacing.tiny}>
             <GageSummaryCard firstItem noDetails gage={forecastGage} />
           </Cell>
-          <Cell top={Spacing.mediumXL}>
+          <Cell top={isMobile ? Spacing.small : Spacing.mediumXL}>
             <ExtendedGageSummaryCard gage={forecastGage} />
           </Cell>
           <ForecastFooter />
