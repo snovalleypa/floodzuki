@@ -76,6 +76,37 @@ function ReadingRow(props: {
   );
 }
 
+function ColumnHeaderRow(props: { showCrestSlot?: boolean }) {
+  const { showCrestSlot } = props;
+  const { t } = useLocale();
+
+  return (
+    <Row
+      flex
+      align="space-between"
+      innerHorizontal={Spacing.tiny}
+      innerVertical={Spacing.micro}
+      top={Spacing.tiny}>
+      <If condition={!!showCrestSlot}>
+        <Cell width={16} />
+      </If>
+      <Cell flex={2}>
+        <SmallerText color={Colors.darkGrey}>{t("forecastScreen.timeHeader")}</SmallerText>
+      </Cell>
+      <Cell flex align="center">
+        <SmallerText align="center" color={Colors.darkGrey}>
+          {t("forecastScreen.heightHeader")}
+        </SmallerText>
+      </Cell>
+      <Cell flex>
+        <SmallerText align="center" color={Colors.darkGrey}>
+          {t("forecastScreen.flowHeader")}
+        </SmallerText>
+      </Cell>
+    </Row>
+  );
+}
+
 const MaxReading = observer(function MaxReading(props: { forecast: Forecast }) {
   const { t } = useLocale();
   const { forecast } = props;
