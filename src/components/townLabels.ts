@@ -1,4 +1,5 @@
 import type { FeatureCollection, Point } from "geojson";
+import type { SymbolLayerSpecification } from "@maplibre/maplibre-gl-style-spec";
 
 export interface TownLabelInfo {
   name: string;
@@ -42,3 +43,21 @@ export function getTownLabelsGeoJson(
     })),
   };
 }
+
+export const TOWN_LABELS_LAYER_PROPS: Omit<SymbolLayerSpecification, "source"> = {
+  id: "region-towns-labels",
+  type: "symbol",
+  maxzoom: 9,
+  layout: {
+    "text-field": ["get", "name"],
+    "text-font": ["Noto Sans Regular"],
+    "text-anchor": "center",
+    "text-max-width": 6,
+    "text-size": ["interpolate", ["linear"], ["zoom"], 6, 12, 9, 14],
+  },
+  paint: {
+    "text-color": "hsl(0, 0%, 8%)",
+    "text-halo-color": "white",
+    "text-halo-width": 2,
+  },
+};

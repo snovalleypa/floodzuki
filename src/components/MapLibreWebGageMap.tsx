@@ -4,7 +4,8 @@ import { InternalGageMapProps } from "@models/MapModels";
 import { StyleSheet } from "react-native";
 import "maplibre-gl/dist/maplibre-gl.css";
 import TrendIcon, { TREND_ICON_TYPES } from "./TrendIcon";
-import { getTownLabelsGeoJson } from "./townLabels";
+import { getTownLabelsGeoJson, TOWN_LABELS_LAYER_PROPS } from "./townLabels";
+import { getRiverOverlaysGeoJson, RIVER_OVERLAY_LAYER_PROPS } from "./riverOverlays";
 import Config from "../config/config";
 import Constants from "expo-constants";
 import floodzillaLocalStyle from "./mapStyles/floodzilla-webstyles.json";
@@ -62,6 +63,7 @@ const MapLibreWebGageWebMap = ({
   const { current: map } = useMap();
 
   const townLabelsGeoJson = useMemo(() => getTownLabelsGeoJson(region?.id), [region]);
+  const riverOverlaysGeoJson = useMemo(() => getRiverOverlaysGeoJson(region?.id), [region]);
 
   const markers = useMemo(() => {
     return gages.map(
@@ -124,24 +126,11 @@ const MapLibreWebGageWebMap = ({
       mapStyle={mapStyle}
       attributionControl={{ compact: true }}
       style={styles.map}>
+      <Source id="region-rivers" type="geojson" data={riverOverlaysGeoJson}>
+        <Layer {...RIVER_OVERLAY_LAYER_PROPS} />
+      </Source>
       <Source id="region-towns" type="geojson" data={townLabelsGeoJson}>
-        <Layer
-          id="region-towns-labels"
-          type="symbol"
-          maxzoom={9}
-          layout={{
-            "text-field": ["get", "name"],
-            "text-font": ["Noto Sans Regular"],
-            "text-anchor": "center",
-            "text-max-width": 6,
-            "text-size": ["interpolate", ["linear"], ["zoom"], 6, 12, 9, 14],
-          }}
-          paint={{
-            "text-color": "hsl(0, 0%, 8%)",
-            "text-halo-color": "white",
-            "text-halo-width": 2,
-          }}
-        />
+        <Layer {...TOWN_LABELS_LAYER_PROPS} />
       </Source>
       {markers}
     </Map>

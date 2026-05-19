@@ -5,7 +5,8 @@ import { Camera, GeoJSONSource, Layer, Map, Marker } from "@maplibre/maplibre-re
 import { StyleSheet, ViewStyle } from "react-native";
 import { Spacing } from "../common-ui/constants/spacing";
 import TrendIcon, { TREND_ICON_TYPES } from "./TrendIcon";
-import { getTownLabelsGeoJson } from "./townLabels";
+import { getTownLabelsGeoJson, TOWN_LABELS_LAYER_PROPS } from "./townLabels";
+import { getRiverOverlaysGeoJson, RIVER_OVERLAY_LAYER_PROPS } from "./riverOverlays";
 import Config from "../config/config";
 import Constants from "expo-constants";
 import floodzillaLocalStyle from "./mapStyles/floodzilla-webstyles.json";
@@ -83,6 +84,7 @@ const MapLibreMobileGageMap = ({
   }, [mapRef, gages]);
 
   const townLabelsGeoJson = useMemo(() => getTownLabelsGeoJson(region?.id), [region]);
+  const riverOverlaysGeoJson = useMemo(() => getRiverOverlaysGeoJson(region?.id), [region]);
 
   const regionBounds: [number, number, number, number] = useMemo(() => {
     if (region && region.regionBounds) {
@@ -119,24 +121,11 @@ const MapLibreMobileGageMap = ({
   return (
     <Map ref={mapRef} style={styles.map} mapStyle={mapStyle} touchRotate={false}>
       <Camera maxBounds={regionBounds} bounds={startBounds} />
+      <GeoJSONSource id="region-rivers" data={riverOverlaysGeoJson}>
+        <Layer {...RIVER_OVERLAY_LAYER_PROPS} />
+      </GeoJSONSource>
       <GeoJSONSource id="region-towns" data={townLabelsGeoJson}>
-        <Layer
-          id="region-towns-labels"
-          type="symbol"
-          maxzoom={9}
-          layout={{
-            "text-field": ["get", "name"],
-            "text-font": ["Noto Sans Regular"],
-            "text-anchor": "center",
-            "text-max-width": 6,
-            "text-size": ["interpolate", ["linear"], ["zoom"], 6, 14, 9, 16],
-          }}
-          paint={{
-            "text-color": "hsl(0, 0%, 8%)",
-            "text-halo-color": "white",
-            "text-halo-width": 2,
-          }}
-        />
+        <Layer {...TOWN_LABELS_LAYER_PROPS} />
       </GeoJSONSource>
       {markers}
     </Map>
