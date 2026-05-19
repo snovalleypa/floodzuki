@@ -10,6 +10,7 @@ import { DataPoint, Forecast } from "@models/Forecasts";
 import { useStores } from "@models/helpers/useStores";
 import { GageSummary } from "@models/RootStore";
 
+import { buildCrestTimestampSet } from "@utils/crestUtils";
 import { formatDateTime } from "@utils/useTimeFormat";
 import { useUtils } from "@utils/utils";
 import { Spacing } from "@common-ui/constants/spacing";
@@ -221,30 +222,36 @@ export const ExtendedGageSummaryCard = observer(function ExtendedGageSummaryCard
   const { gage } = props;
 
   const { t } = useLocale();
-  const { isMobile } = useResponsive();
   const { forecastsStore } = useStores();
 
   const forecast = forecastsStore.getForecast(gage?.id);
+  const crestTimestamps = buildCrestTimestampSet(forecast?.peaks);
 
   return (
-    <Card>
-      <Row align="space-between">
-        <SmallTitle color={Colors.primary}>{t("forecastScreen.details")}</SmallTitle>
-      </Row>
-      <RowOrCell flex justify="flex-start" align="space-between">
-        <Cell flex top={Spacing.small}>
-          <LabelText color={Colors.success}>{t("forecastScreen.lastReadings")}:</LabelText>
+    <RowOrCell flex justify="flex-start" align="flex-start" innerHorizontal={Spacing.medium}>
+      <Cell flex maxWidth={480}>
+        <Card>
+          <SmallTitle color={Colors.primary}>{t("forecastScreen.currentlyForecasted")}</SmallTitle>
+          <ColumnHeaderRow showCrestSlot />
+          {forecast?.last100ForecastReadings?.map((reading) => (
+            <ReadingRow
+              key={reading.timestamp}
+              reading={reading}
+              isCrest={crestTimestamps.has(reading.timestampMs)}
+              showCrestSlot
+            />
+          ))}
+        </Card>
+      </Cell>
+      <Cell flex maxWidth={480}>
+        <Card>
+          <SmallTitle color={Colors.primary}>{t("forecastScreen.lastReadings")}</SmallTitle>
+          <ColumnHeaderRow />
           {forecast?.last100Readings?.map((reading) => (
             <ReadingRow key={reading.timestamp} reading={reading} />
           ))}
-        </Cell>
-        <Cell flex={isMobile ? 0 : 1} top={Spacing.small}>
-          <LabelText color={Colors.success}>{t("forecastScreen.currentlyForecasted")}:</LabelText>
-          {forecast?.last100ForecastReadings?.map((reading) => (
-            <ReadingRow key={reading.timestamp} reading={reading} />
-          ))}
-        </Cell>
-      </RowOrCell>
-    </Card>
+        </Card>
+      </Cell>
+    </RowOrCell>
   );
 });
