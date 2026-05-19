@@ -54,7 +54,7 @@ function ReadingRow(props: {
       top={Spacing.tiny}>
       <If condition={!!showCrestSlot}>
         <Cell width={16}>
-          <SmallerText>{isCrest ? "▲" : ""}</SmallerText>
+          <SmallerText color={Colors.primary}>{isCrest ? "▲" : ""}</SmallerText>
         </Cell>
       </If>
       <Cell flex={2}>
@@ -189,7 +189,7 @@ export const GageSummaryCard = observer(function GageSummaryCard(props: GageSumm
         </Ternary>
         <Cell top={Spacing.small}>
           <LabelText color={Colors.success}>
-            {"▲ "}
+            <LabelText color={Colors.primary}>{"▲ "}</LabelText>
             {t("forecastScreen.forecastedCrests")}:
             <SmallText muted>
               {" "}
@@ -202,7 +202,7 @@ export const GageSummaryCard = observer(function GageSummaryCard(props: GageSumm
         </Cell>
       </Cell>
       <If condition={!gage?.isMetagage && noDetails}>
-        <CardFooter>
+        <CardFooter innerBottom={Spacing.small}>
           <Cell flex align="center">
             <LinkButton
               selfAlign="center"
@@ -228,7 +228,7 @@ export const ExtendedGageSummaryCard = observer(function ExtendedGageSummaryCard
   const crestTimestamps = buildCrestTimestampSet(forecast?.peaks);
 
   return (
-    <RowOrCell flex justify="flex-start" align="flex-start" innerHorizontal={Spacing.medium}>
+    <RowOrCell flex justify="flex-start" align="flex-start" gap={Spacing.medium}>
       <Cell flex maxWidth={480}>
         <Card>
           <SmallTitle color={Colors.primary}>{t("forecastScreen.currentlyForecasted")}</SmallTitle>
