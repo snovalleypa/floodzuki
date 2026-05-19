@@ -235,6 +235,7 @@ const en = {
     fullRangeTitle: "Full",
     rangeDays: "{{days}} days",
     rangeDay: "day",
+    live: "Live",
   },
   gageChart: {
     discharge: "Discharge",
@@ -266,6 +267,7 @@ const en = {
     historicalEvents: "Historical Events",
     rateOfChange: "Rate of Change",
     roadLevel: "Road Level",
+    rangeWarning: "Range adjusted to {{maxRange}} days — the maximum this chart supports.",
   },
   gageInfoCard: {
     gageInfo: "Gauge Info",
@@ -307,6 +309,9 @@ const en = {
     day: "Day",
     month: "Month",
     year: "Year",
+    cancel: "Cancel",
+    clear: "Clear",
+    set: "Set",
   },
   privacyPolicyScreen: {},
   termsOfServiceScreen: {},

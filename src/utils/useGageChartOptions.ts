@@ -24,6 +24,7 @@ declare module "highcharts" {
 interface Range {
   chartStartDate: dayjs.Dayjs;
   chartEndDate: dayjs.Dayjs;
+  isNow?: boolean;
 }
 
 interface BuildOptionsProps {
@@ -35,7 +36,7 @@ interface BuildOptionsProps {
 const DEBUGGING_TIMESPAN_MARGIN = 0; // 300;
 const PREDICTION_WINDOW_MINUTES = 60 * 6; // 6 hours of predictions
 
-const CHART_OPTIONS = {
+export const CHART_OPTIONS = {
   dashboardOptions: (options: Highcharts.Options, gage: Gage, range: Range, t) => {
     const xAxis = options.xAxis as Highcharts.XAxisOptions;
     const yAxis = options.yAxis as Highcharts.YAxisOptions;
@@ -80,7 +81,7 @@ const CHART_OPTIONS = {
 
     let predictionWindow = 0;
 
-    if (gage?.predictedPoints) {
+    if (gage?.predictedPoints && range.isNow !== false) {
       predictionWindow = PREDICTION_WINDOW_MINUTES;
     }
 
@@ -156,7 +157,7 @@ function calculateCrest(
   return null;
 }
 
-function dataPointPopup(gage: Gage, t) {
+function dataPointPopup(gage: Gage, t, tz: string) {
   return function (this: Highcharts.TooltipFormatterContextObject) {
     const roadStatus = gage?.getCalculatedRoadStatus(this.y);
 
@@ -178,7 +179,7 @@ function dataPointPopup(gage: Gage, t) {
         </span>
         <br />
         <span class="data-point-content">
-          ${localDayJs.tz(this.x, gage?.timeZoneName).format("ddd, MMM D, h:mm A")}
+          ${localDayJs(this.x).tz(tz).format("ddd, MMM D, h:mm A")}
         </span>
         ${roadDesc}
       </div>`;
@@ -455,7 +456,7 @@ const buildBasicOptions = (props: BuildOptionsProps, t) => {
     },
     tooltip: {
       useHTML: true,
-      formatter: dataPointPopup(gage, t),
+      formatter: dataPointPopup(gage, t, props.timezone),
     },
     xAxis: {
       type: "datetime",

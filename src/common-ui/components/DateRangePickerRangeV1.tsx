@@ -1,0 +1,487 @@
+import React, { useCallback, useMemo, useRef, useState } from "react";
+import { Modal, Platform, Pressable, View, ViewStyle } from "react-native";
+import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
+import DateTimePicker, { DateType, useDefaultStyles } from "react-native-ui-datepicker";
+import { Dayjs } from "dayjs";
+import localDayJs from "@services/localDayJs";
+import {
+  applyFirstTap,
+  applySecondTap,
+  FirstTapResult,
+} from "@common-ui/utils/applyRangeRulesRangeV1";
+import { useDatePicker } from "@common-ui/contexts/DatePickerContext";
+import { useLocale, useLocaleContext } from "@common-ui/contexts/LocaleContext";
+import Icon from "@common-ui/components/Icon";
+import { RegularText } from "@common-ui/components/Text";
+import { Cell, Row } from "@common-ui/components/Common";
+import { SolidButton, OutlinedButton } from "@common-ui/components/Button";
+import { Colors } from "@common-ui/constants/colors";
+import { Spacing } from "@common-ui/constants/spacing";
+import Config from "@config/config";
+
+export type DateRangePickerRangeV1Props = {
+  startDate: Dayjs;
+  endDate: Dayjs;
+  maxRange?: number;
+  minDate?: Dayjs;
+  maxDate?: Dayjs;
+  timezone: string;
+  onChange: (startDate: Dayjs, endDate: Dayjs) => void;
+  onRangeRestricted?: () => void;
+};
+
+type PickerState = {
+  selectionPhase: "idle" | "awaitingEnd";
+  tentativeStart: Dayjs | null;
+  proposedStart: Dayjs | null;
+  proposedEnd: Dayjs | null;
+  dynamicMaxDate: Dayjs | null;
+  wasRestricted: boolean;
+};
+
+const isNative = Platform.OS !== "web";
+
+// ---------------------------------------------------------------------------
+// Calendar content (shared across all modal surfaces)
+// ---------------------------------------------------------------------------
+type RangeCalendarSheetProps = {
+  calendarKey: number;
+  pickerState: PickerState;
+  resolvedMinDate: Dayjs;
+  effectiveMaxDate: Dayjs;
+  timezone: string;
+  locale: string;
+  onPickerChange: (params: { startDate: DateType; endDate: DateType }) => void;
+  onSet: () => void;
+  onCancel: () => void;
+  onClear: () => void;
+};
+
+const RangeCalendarSheet = ({
+  calendarKey,
+  pickerState,
+  resolvedMinDate,
+  effectiveMaxDate,
+  timezone,
+  locale,
+  onPickerChange,
+  onSet,
+  onCancel,
+  onClear,
+}: RangeCalendarSheetProps) => {
+  const { t } = useLocale();
+  const setDisabled = pickerState.proposedStart === null || pickerState.proposedEnd === null;
+  const defaultStyles = useDefaultStyles("light");
+  const calendarStyles = useMemo(
+    () => ({
+      ...defaultStyles,
+      button_prev_image: { tintColor: Colors.darkGrey },
+      button_next_image: { tintColor: Colors.darkGrey },
+      month_selector: {
+        backgroundColor: Colors.lightGrey,
+        borderRadius: Spacing.tiny,
+        paddingHorizontal: Spacing.small,
+        paddingVertical: Spacing.tiny,
+      },
+      year_selector: {
+        backgroundColor: Colors.lightGrey,
+        borderRadius: Spacing.tiny,
+        paddingHorizontal: Spacing.small,
+        paddingVertical: Spacing.tiny,
+      },
+    }),
+    [defaultStyles]
+  );
+
+  return (
+    <Cell horizontal={Spacing.small} top={Spacing.medium} bottom={Spacing.extraLarge}>
+      <DateTimePicker
+        key={calendarKey}
+        mode="range"
+        locale={locale}
+        timeZone={timezone}
+        startDate={pickerState.proposedStart?.format("YYYY-MM-DD")}
+        endDate={pickerState.proposedEnd?.format("YYYY-MM-DD")}
+        minDate={resolvedMinDate.format("YYYY-MM-DD")}
+        maxDate={effectiveMaxDate.format("YYYY-MM-DD")}
+        showOutsideDays
+        onChange={onPickerChange}
+        styles={calendarStyles}
+        // Library bug: an internal timezone-change effect dispatches currentDate=today
+        // on every mount (its usePrevious is undefined on the first run, so the
+        // !== check always fires). Passing month/year — which the library treats
+        // as controlled "snap-to" effects firing after the timezone reset — restores
+        // the calendar to the start date's month.
+        month={pickerState.proposedStart?.month()}
+        year={pickerState.proposedStart?.year()}
+      />
+      <Row align="center" top={Spacing.small}>
+        <Cell flex>
+          <OutlinedButton
+            title={t("datePicker.cancel")}
+            onPress={onCancel}
+            testID="range-v1-cancel-button"
+            fullWidth
+          />
+        </Cell>
+        <Cell flex left={Spacing.small}>
+          <OutlinedButton
+            title={t("datePicker.clear")}
+            onPress={onClear}
+            testID="range-v1-clear-button"
+            fullWidth
+          />
+        </Cell>
+        <Cell flex left={Spacing.small}>
+          <SolidButton
+            title={t("datePicker.set")}
+            onPress={onSet}
+            disabled={setDisabled}
+            testID="range-v1-set-button"
+            fullWidth
+          />
+        </Cell>
+      </Row>
+    </Cell>
+  );
+};
+
+// ---------------------------------------------------------------------------
+// Main component
+// ---------------------------------------------------------------------------
+export const DateRangePickerRangeV1 = ({
+  startDate,
+  endDate,
+  maxRange = Config.MAX_DATE_PICKER_RANGE,
+  minDate,
+  maxDate,
+  timezone,
+  onChange,
+  onRangeRestricted,
+}: DateRangePickerRangeV1Props) => {
+  const { hidePicker } = useDatePicker();
+  const { locale } = useLocaleContext();
+  const bottomSheetRef = useRef<BottomSheetModal>(null);
+  const [webModalVisible, setWebModalVisible] = useState(false);
+  const [calendarKey, setCalendarKey] = useState(0);
+
+  const resolvedMinDate = useMemo(
+    () => minDate ?? localDayJs.tz("2019-10-01", "YYYY-MM-DD", timezone).startOf("day"),
+    [minDate, timezone]
+  );
+  const resolvedMaxDate = useMemo(
+    () => maxDate ?? localDayJs().tz(timezone).endOf("day"),
+    [maxDate, timezone]
+  );
+
+  // Classification anchor: set on open, then re-anchored after every completed proposed range.
+  // Do NOT derive from props mid-session — props only reflect the committed chart range.
+  const capturedPrevRef = useRef({ prevStart: startDate, prevEnd: endDate, prevSpanDays: 0 });
+
+  const toGageDay = (d: Date): Dayjs => {
+    const dayString = localDayJs(d).format("YYYY-MM-DD");
+    return localDayJs.tz(dayString, "YYYY-MM-DD", timezone).startOf("day");
+  };
+
+  const [pickerState, setPickerState] = useState<PickerState>({
+    selectionPhase: "idle",
+    tentativeStart: null,
+    proposedStart: startDate,
+    proposedEnd: endDate,
+    dynamicMaxDate: null,
+    wasRestricted: false,
+  });
+  const pickerStateRef = useRef(pickerState);
+  pickerStateRef.current = pickerState;
+
+  const effectiveMaxDate = (() => {
+    if (!pickerState.dynamicMaxDate) {
+      return resolvedMaxDate;
+    }
+    return pickerState.dynamicMaxDate.isBefore(resolvedMaxDate)
+      ? pickerState.dynamicMaxDate
+      : resolvedMaxDate;
+  })();
+
+  const handleOpen = () => {
+    const prevStart = startDate;
+    const prevEnd = endDate;
+    const prevSpanDays = Math.min(prevEnd.diff(prevStart, "day"), maxRange);
+    capturedPrevRef.current = { prevStart, prevEnd, prevSpanDays };
+
+    setCalendarKey((k) => k + 1);
+    setPickerState({
+      selectionPhase: "idle",
+      tentativeStart: null,
+      proposedStart: prevStart,
+      proposedEnd: prevEnd,
+      dynamicMaxDate: null,
+      wasRestricted: false,
+    });
+
+    if (isNative) {
+      bottomSheetRef.current?.present();
+    } else {
+      setWebModalVisible(true);
+    }
+  };
+
+  // Stable reference so the library's stale onSelectDate closure always invokes
+  // the current handler. pickerStateRef.current is read at call time (not captured).
+  const handlePickerChange = useCallback(
+    ({
+      startDate: pickedStart,
+      endDate: pickedEnd,
+    }: {
+      startDate: DateType;
+      endDate: DateType;
+    }) => {
+      const state = pickerStateRef.current;
+      const newStart = pickedStart ? toGageDay(pickedStart as Date) : null;
+      const newEnd = pickedEnd ? toGageDay(pickedEnd as Date) : null;
+
+      // Awaiting-end branch: completing a Case 2a selection.
+      // The library may give us an ordered {startDate, endDate} pair (including reversing the order
+      // when the second tap is before the anchor), or it may restart the selection and only emit
+      // startDate. In the restart case we reconstruct the ordered pair against tentativeStart.
+      // Either way we never fall through to the first-tap branch while awaiting an end date.
+      if (state.selectionPhase === "awaitingEnd") {
+        let orderedStart: Dayjs | null = null;
+        let orderedEnd: Dayjs | null = null;
+
+        if (newStart && newEnd) {
+          // Library gave a complete ordered pair — accept as-is.
+          [orderedStart, orderedEnd] = [newStart, newEnd];
+        } else if (newStart && state.tentativeStart) {
+          // Library restarted selection (only startDate emitted) — order against tentativeStart.
+          if (newStart.isBefore(state.tentativeStart)) {
+            [orderedStart, orderedEnd] = [newStart, state.tentativeStart];
+          } else {
+            [orderedStart, orderedEnd] = [state.tentativeStart, newStart];
+          }
+        }
+
+        if (orderedStart && orderedEnd) {
+          const result = applySecondTap(orderedStart, orderedEnd);
+          capturedPrevRef.current = {
+            prevStart: result.proposedStart,
+            prevEnd: result.proposedEnd,
+            prevSpanDays: Math.min(result.proposedEnd.diff(result.proposedStart, "day"), maxRange),
+          };
+          setPickerState((prev) => ({
+            ...prev,
+            selectionPhase: "idle",
+            tentativeStart: null,
+            proposedStart: result.proposedStart,
+            proposedEnd: result.proposedEnd,
+            dynamicMaxDate: null,
+            wasRestricted: false,
+          }));
+        }
+        return;
+      }
+
+      // Post-Clear: no prior range to classify against. Anchor on the tap and
+      // wait for the second tap (same state shape as Case 2a).
+      if (state.proposedStart === null) {
+        const tapped = newStart ?? newEnd;
+        if (!tapped) {
+          return;
+        }
+        setPickerState((prev) => ({
+          ...prev,
+          selectionPhase: "awaitingEnd",
+          tentativeStart: tapped,
+          proposedStart: tapped,
+          proposedEnd: null,
+          dynamicMaxDate: tapped.add(maxRange, "day"),
+        }));
+        return;
+      }
+
+      // First-tap branch. The library reports the user's click in whichever of (startDate, endDate)
+      // differs from our prior proposed state — when the user clicks within the existing range,
+      // the library keeps the existing start and reports the click as endDate.
+      const proposedStartStr = state.proposedStart.format("YYYY-MM-DD");
+      const proposedEndStr = state.proposedEnd?.format("YYYY-MM-DD") ?? null;
+      let tapped: Dayjs | null = null;
+      if (newStart && newStart.format("YYYY-MM-DD") !== proposedStartStr) {
+        tapped = newStart;
+      } else if (newEnd && newEnd.format("YYYY-MM-DD") !== proposedEndStr) {
+        tapped = newEnd;
+      } else if (newStart && !state.proposedEnd) {
+        // Awaiting-end fallback: only one date returned, treat as the tap
+        tapped = newStart;
+      }
+
+      if (!tapped) {
+        return;
+      }
+
+      const { prevStart, prevEnd, prevSpanDays } = capturedPrevRef.current;
+      const result: FirstTapResult = applyFirstTap({
+        tapped,
+        prevStart,
+        prevEnd,
+        prevSpanDays,
+        maxRange,
+        minDate: resolvedMinDate,
+        maxDate: resolvedMaxDate,
+      });
+
+      if (result.phase === "awaitingEnd") {
+        // Do NOT re-anchor during Case 2a — anchor updates only when the range is complete
+        setPickerState((prev) => ({
+          ...prev,
+          selectionPhase: "awaitingEnd",
+          tentativeStart: result.tentativeStart,
+          proposedStart: result.proposedStart,
+          proposedEnd: null,
+          dynamicMaxDate: result.maxDate,
+        }));
+      } else {
+        // Re-anchor so any subsequent tap classifies against the new proposed range
+        capturedPrevRef.current = {
+          prevStart: result.proposedStart,
+          prevEnd: result.proposedEnd,
+          prevSpanDays: Math.min(result.proposedEnd.diff(result.proposedStart, "day"), maxRange),
+        };
+        setPickerState((prev) => ({
+          ...prev,
+          selectionPhase: "idle",
+          tentativeStart: null,
+          proposedStart: result.proposedStart,
+          proposedEnd: result.proposedEnd,
+          dynamicMaxDate: null,
+          wasRestricted: result.wasRestricted,
+        }));
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [timezone, maxRange, resolvedMinDate, resolvedMaxDate]
+  );
+
+  const handleClose = () => {
+    if (isNative) {
+      bottomSheetRef.current?.dismiss();
+    } else {
+      setWebModalVisible(false);
+      hidePicker();
+    }
+  };
+
+  const handleSet = () => {
+    if (!pickerState.proposedStart || !pickerState.proposedEnd) {
+      return;
+    }
+    if (pickerState.wasRestricted) {
+      onRangeRestricted?.();
+    }
+    onChange(pickerState.proposedStart, pickerState.proposedEnd);
+    handleClose();
+  };
+
+  const handleCancel = () => {
+    handleClose();
+  };
+
+  const handleClear = () => {
+    setPickerState({
+      selectionPhase: "idle",
+      tentativeStart: null,
+      proposedStart: null,
+      proposedEnd: null,
+      dynamicMaxDate: null,
+      wasRestricted: false,
+    });
+  };
+
+  const formattedStart = startDate.tz(timezone).format("MM/DD/YYYY");
+  const formattedEnd = endDate.tz(timezone).format("MM/DD/YYYY");
+
+  const sheetProps: RangeCalendarSheetProps = {
+    calendarKey,
+    pickerState,
+    resolvedMinDate,
+    effectiveMaxDate,
+    timezone,
+    locale,
+    onPickerChange: handlePickerChange,
+    onSet: handleSet,
+    onCancel: handleCancel,
+    onClear: handleClear,
+  };
+
+  return (
+    <>
+      <Pressable testID="range-v1-trigger" onPress={handleOpen} style={$pillStyle}>
+        <Icon
+          name="calendar"
+          color={Colors.darkGrey}
+          size={Spacing.medium}
+          right={Spacing.extraSmall}
+        />
+        <RegularText text={`${formattedStart} – ${formattedEnd}`} numberOfLines={1} />
+      </Pressable>
+
+      {isNative && (
+        <BottomSheetModal
+          ref={bottomSheetRef}
+          index={0}
+          snapPoints={["80%"]}
+          style={$bottomSheetStyle}>
+          <BottomSheetView>
+            <RangeCalendarSheet {...sheetProps} />
+          </BottomSheetView>
+        </BottomSheetModal>
+      )}
+
+      {!isNative && webModalVisible && (
+        <Modal
+          visible={webModalVisible}
+          transparent
+          animationType="fade"
+          onRequestClose={handleCancel}>
+          <View style={$webOverlayStyle}>
+            <View style={$webCardStyle}>
+              <RangeCalendarSheet {...sheetProps} />
+            </View>
+          </View>
+        </Modal>
+      )}
+    </>
+  );
+};
+
+// ---------------------------------------------------------------------------
+// Styles
+// ---------------------------------------------------------------------------
+const $pillStyle: ViewStyle = {
+  flexDirection: "row",
+  alignItems: "center",
+  borderWidth: 1,
+  borderRadius: Spacing.tiny,
+  borderColor: Colors.lightGrey,
+  paddingVertical: Spacing.extraSmall,
+  paddingHorizontal: Spacing.small,
+};
+
+const $bottomSheetStyle: ViewStyle = {
+  paddingHorizontal: Spacing.medium,
+};
+
+const $webOverlayStyle: ViewStyle = {
+  flex: 1,
+  backgroundColor: "rgba(0,0,0,0.4)",
+  justifyContent: "center",
+  alignItems: "center",
+};
+
+const $webCardStyle: ViewStyle = {
+  backgroundColor: Colors.white,
+  borderRadius: Spacing.small,
+  maxWidth: 360,
+  width: "90%",
+};
+
+export default DateRangePickerRangeV1;

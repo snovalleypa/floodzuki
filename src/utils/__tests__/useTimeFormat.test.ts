@@ -17,26 +17,36 @@ describe("formatDateTime", () => {
 });
 
 describe("formatReadingTime", () => {
+  // The suite runs under TZ=UTC (set in package.json), so picking a non-UTC
+  // gauge tz here proves the function uses the explicit tz, not the system tz.
+  const TZ = "America/New_York";
+
   it("returns empty string for empty input", () => {
-    expect(formatReadingTime("")).toBe("");
+    expect(formatReadingTime("", TZ)).toBe("");
+  });
+
+  it("uses gauge-tz elapsed time to choose format bucket, not system tz", () => {
+    // A reading 11 hours ago in NY is in the "h:mm a" bucket (< 12h).
+    // Under TZ=UTC, an impl that parses the naive string as system-tz wall
+    // clock will see this moment as 15 hours ago (11h + the EDT→UTC offset
+    // shift) and bucket it as "ddd MM/DD h:mm a" instead. This is the
+    // user-visible cross-tz bug.
+    const timestamp = localDayJs().tz(TZ).subtract(11, "hours").format("YYYY-MM-DDTHH:mm:ss");
+    expect(formatReadingTime(timestamp, TZ)).toMatch(/^\d{1,2}:\d{2} (am|pm)$/);
   });
 
   it("shows time only for timestamps less than 12 hours ago", () => {
-    // Timestamps arrive without timezone (already local), so subtract from localDayJs()
-    const timestamp = localDayJs().subtract(2, "hours").format("YYYY-MM-DDTHH:mm:ss");
-    // Format: h:mm a — e.g. "2:30 pm"
-    expect(formatReadingTime(timestamp)).toMatch(/^\d{1,2}:\d{2} (am|pm)$/);
+    const timestamp = localDayJs().tz(TZ).subtract(2, "hours").format("YYYY-MM-DDTHH:mm:ss");
+    expect(formatReadingTime(timestamp, TZ)).toMatch(/^\d{1,2}:\d{2} (am|pm)$/);
   });
 
   it("shows day and date for timestamps between 12 hours and 2 months ago", () => {
-    const timestamp = localDayJs().subtract(3, "days").format("YYYY-MM-DDTHH:mm:ss");
-    // Format: ddd MM/DD h:mm a — e.g. "Mon 04/19 2:30 pm"
-    expect(formatReadingTime(timestamp)).toMatch(/^\w{3} \d{2}\/\d{2} \d{1,2}:\d{2} (am|pm)$/);
+    const timestamp = localDayJs().tz(TZ).subtract(3, "days").format("YYYY-MM-DDTHH:mm:ss");
+    expect(formatReadingTime(timestamp, TZ)).toMatch(/^\w{3} \d{2}\/\d{2} \d{1,2}:\d{2} (am|pm)$/);
   });
 
   it("shows full date for timestamps more than 2 months ago", () => {
-    const timestamp = localDayJs().subtract(6, "months").format("YYYY-MM-DDTHH:mm:ss");
-    // Format: YYYY/MM/DD h:mm a — e.g. "2023/10/15 2:30 pm"
-    expect(formatReadingTime(timestamp)).toMatch(/^\d{4}\/\d{2}\/\d{2} \d{1,2}:\d{2} (am|pm)$/);
+    const timestamp = localDayJs().tz(TZ).subtract(6, "months").format("YYYY-MM-DDTHH:mm:ss");
+    expect(formatReadingTime(timestamp, TZ)).toMatch(/^\d{4}\/\d{2}\/\d{2} \d{1,2}:\d{2} (am|pm)$/);
   });
 });

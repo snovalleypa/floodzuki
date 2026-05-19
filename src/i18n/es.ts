@@ -239,6 +239,7 @@ const es = {
     fullRangeTitle: "Completo",
     rangeDays: "{{days}} días",
     rangeDay: "día",
+    live: "En vivo",
   },
   gageChart: {
     discharge: "Caudal",
@@ -270,6 +271,7 @@ const es = {
     historicalEvents: "Eventos históricos",
     rateOfChange: "Tasa de cambio",
     roadLevel: "Nivel de la carretera",
+    rangeWarning: "Rango ajustado a {{maxRange}} días — el máximo que admite este gráfico.",
   },
   gageInfoCard: {
     gageInfo: "Información del medidor",
@@ -311,6 +313,9 @@ const es = {
     day: "Día",
     month: "Mes",
     year: "Año",
+    cancel: "Cancelar",
+    clear: "Limpiar",
+    set: "Aplicar",
   },
   privacyPolicyScreen: {},
   termsOfServiceScreen: {},

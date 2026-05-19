@@ -3,6 +3,7 @@ import { Dayjs } from "dayjs";
 import DatePicker from "./DatePicker";
 import Icon from "./Icon";
 import { Colors } from "@common-ui/constants/colors";
+import Config from "@config/config";
 import { RegularText } from "./Text";
 import { Pressable, View, ViewStyle } from "react-native";
 import { Spacing } from "@common-ui/constants/spacing";
@@ -13,6 +14,7 @@ import { useLocale } from "@common-ui/contexts/LocaleContext";
 type DateRangePickerProps = {
   startDate: Dayjs;
   endDate: Dayjs;
+  timezone: string;
   maxRange?: number; // in days
   minYear?: number;
   maxYear?: number;
@@ -23,9 +25,10 @@ const DateRangePicker = (props: DateRangePickerProps) => {
   const {
     startDate,
     endDate,
-    maxRange = 90,
+    timezone,
+    maxRange = Config.MAX_DATE_PICKER_RANGE,
     minYear = 2001,
-    maxYear = new Date().getFullYear(),
+    maxYear = localDayJs().tz(timezone).year(),
     onChange,
   } = props;
 
@@ -34,9 +37,17 @@ const DateRangePicker = (props: DateRangePickerProps) => {
   const startRef = useRef(null);
   const endRef = useRef(null);
 
-  const start = useRef(startDate);
-  const end = useRef(endDate);
+  const [start, setStart] = useState<Dayjs>(startDate);
+  const [end, setEnd] = useState<Dayjs>(endDate);
   const mode = useRef<"start" | "end">("start");
+
+  useEffect(() => {
+    setStart(startDate);
+  }, [startDate.valueOf()]);
+
+  useEffect(() => {
+    setEnd(endDate);
+  }, [endDate.valueOf()]);
 
   const [pickedStart, setPickedStart] = useState<boolean>(false);
 
@@ -57,7 +68,7 @@ const DateRangePicker = (props: DateRangePickerProps) => {
   };
 
   const handleStartDateChange = (date: Dayjs) => {
-    const today = localDayJs().endOf("day");
+    const today = localDayJs().tz(timezone).endOf("day");
     let dateStart = date;
 
     mode.current = "end";
@@ -67,12 +78,12 @@ const DateRangePicker = (props: DateRangePickerProps) => {
       dateStart = today.subtract(1, "day");
     }
 
-    start.current = dateStart;
+    setStart(dateStart);
     openDateSelector();
   };
 
   const handleEndDateChange = (date: Dayjs) => {
-    const today = localDayJs().endOf("day");
+    const today = localDayJs().tz(timezone).endOf("day");
 
     let dateEnd = date;
 
@@ -80,17 +91,17 @@ const DateRangePicker = (props: DateRangePickerProps) => {
       dateEnd = today;
     }
 
-    const daysDiff = Math.abs(dateEnd.clone().diff(start.current, "day"));
+    const daysDiff = Math.abs(dateEnd.clone().diff(start, "day"));
 
     mode.current = "start";
 
     if (daysDiff > maxRange) {
-      dateEnd = start.current.clone().add(maxRange, "day");
+      dateEnd = start.clone().add(maxRange, "day");
     }
 
-    end.current = dateEnd;
+    setEnd(dateEnd);
 
-    onChange(start.current, dateEnd);
+    onChange(start, dateEnd);
   };
 
   return (
@@ -104,7 +115,7 @@ const DateRangePicker = (props: DateRangePickerProps) => {
       <DatePicker
         title={t("datePicker.startDate")}
         ref={startRef}
-        selectedDate={start.current}
+        selectedDate={start}
         minYear={minYear}
         maxYear={maxYear}
         onChange={handleStartDateChange}
@@ -115,7 +126,7 @@ const DateRangePicker = (props: DateRangePickerProps) => {
       <DatePicker
         title={t("datePicker.endDate")}
         ref={endRef}
-        selectedDate={end.current}
+        selectedDate={end}
         minYear={minYear}
         maxYear={maxYear}
         onChange={handleEndDateChange}

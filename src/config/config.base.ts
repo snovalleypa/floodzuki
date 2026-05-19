@@ -70,6 +70,7 @@ const BaseConfig: {
   GAGE_CLIENT_CACHE_TIME: number;
   DASHBOARD_DATA_REFRESH_RATE: number;
   LIVE_CHART_DATA_REFRESH_INTERVAL: number;
+  MAX_DATE_PICKER_RANGE: number;
 
   FRONT_PAGE_CHART_DURATION_NUMBER: number;
   FRONT_PAGE_CHART_DURATION_UNIT: dayjs.ManipulateType;
@@ -80,6 +81,10 @@ const BaseConfig: {
 
   FORECAST_GAGE_IDS: string[];
   GAGES_WITHOUT_DISHCARGE: string[];
+  DATE_PICKER_VARIANT: {
+    default: "legacy" | "split-v1" | "range-v1" | "range-v2";
+    byLocationId: Record<string, "legacy" | "split-v1" | "range-v1" | "range-v2">;
+  };
 } = {
   BASE_URL: "https://floodzilla.com",
   AUTH_BASE_URL: "https://floodzilla.com",
@@ -98,6 +103,7 @@ const BaseConfig: {
   GAGE_CLIENT_CACHE_TIME: 9000, // ms
   DASHBOARD_DATA_REFRESH_RATE: 30 * 1000, // ms
   LIVE_CHART_DATA_REFRESH_INTERVAL: 60 * 1000, // ms
+  MAX_DATE_PICKER_RANGE: 90, //days
 
   FRONT_PAGE_CHART_DURATION_NUMBER: 2,
   FRONT_PAGE_CHART_DURATION_UNIT: "day",
@@ -108,6 +114,10 @@ const BaseConfig: {
 
   FORECAST_GAGE_IDS: ["USGS-SF17/USGS-NF10/USGS-MF11", "USGS-38", "USGS-22"],
   GAGES_WITHOUT_DISHCARGE: ["USGS-9"],
+  DATE_PICKER_VARIANT: {
+    default: "range-v1",
+    byLocationId: {},
+  },
 };
 
 export default BaseConfig;

@@ -15,7 +15,8 @@ import { Spacing } from "@common-ui/constants/spacing";
 import { Cell, Row } from "@common-ui/components/Common";
 import { SegmentControl } from "@common-ui/components/SegmentControl";
 import useGageChartOptions from "@utils/useGageChartOptions";
-import useChartRange from "@utils/useChartRange";
+import { UTC_ISO_FORMAT, formatUrlDate } from "@utils/urlDates";
+import { CHART_DEFAULT_RANGE_DAYS, deriveRange, NOW_LITERAL } from "@utils/deriveRange";
 import localDayJs from "@services/localDayJs";
 import { useStores } from "@models/helpers/useStores";
 import { useInterval } from "@utils/useTimeout";
@@ -28,11 +29,13 @@ import { FloodEvent } from "@models/LocationInfo";
 import { DataPoint } from "@models/Forecasts";
 import { formatReadingTime } from "@utils/useTimeFormat";
 import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Icon from "@common-ui/components/Icon";
-import DateRangePicker from "@common-ui/components/DateRangePicker";
+import DatePickerVariantSwitch from "./DatePickerVariantSwitch";
 import { Dayjs } from "dayjs";
 import { normalizeSearchParams } from "@utils/navigation";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
+import { useDatePicker } from "@common-ui/contexts/DatePickerContext";
 
 interface GageDetailsChartProps {
   gage: Gage;
@@ -44,7 +47,7 @@ interface ChartsProps {
 }
 
 // Ranges available for selection
-const RANGES = (t) => [
+const RANGES = (t, showLive: boolean) => [
   {
     key: "14",
     title: t("forecastChart.rangeDays", { days: 14 }),
@@ -61,6 +64,14 @@ const RANGES = (t) => [
     key: "1",
     title: `1 ${t("forecastChart.rangeDay")}`,
   },
+  ...(showLive
+    ? [
+        {
+          key: "live",
+          title: t("forecastChart.live"),
+        },
+      ]
+    : []),
 ];
 
 // Possible chart data types
@@ -104,7 +115,7 @@ const PickerSelector = ({
 
   return (
     <Picker
-      selectedValue={eventId}
+      selectedValue={eventId ?? SELECT_EVENT}
       onValueChange={onHistoricEventSelected}
       style={[$pickerStyle, width]}>
       <Picker.Item label={t(SELECT_EVENT)} value={SELECT_EVENT} />
@@ -124,9 +135,22 @@ const HistoricEvents = observer(function HistoricEvents({
   const router = useRouter();
   const { t } = useLocale();
   const { historicEventId } = useLocalSearchParams();
+  const { hidePicker } = useDatePicker();
+  const { getTimezone } = useStores();
+  const tz = getTimezone();
+  const insets = useSafeAreaInsets();
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
-  const [selectedEvent, setSelectedEvent] = useState<string | undefined>();
+  const urlEventId = Array.isArray(historicEventId) ? historicEventId[0] : historicEventId;
+
+  const [selectedEvent, setSelectedEvent] = useState<string | undefined>(urlEventId);
+
+  // Keep the iOS bottom-sheet's pending selection in sync with the URL.
+  // Without this, clearing `historicEventId` via a range change leaves the
+  // sheet showing the previously-selected event the next time it opens.
+  useEffect(() => {
+    setSelectedEvent(urlEventId);
+  }, [urlEventId]);
 
   // Update chart when historic event selected
   const onHistoricEventSelected = (historicEventId: string) => {
@@ -141,6 +165,7 @@ const HistoricEvents = observer(function HistoricEvents({
         from: undefined,
         to: undefined,
       });
+      hidePicker();
       return;
     }
 
@@ -153,10 +178,11 @@ const HistoricEvents = observer(function HistoricEvents({
 
     router.setParams({
       historicEventId,
-      from: localDayJs.tz(event.fromDate).format("YYYY-MM-DD"),
-      to: localDayJs.tz(event.toDate).format("YYYY-MM-DD"),
+      from: formatUrlDate(localDayJs(event.fromDate), tz),
+      to: formatUrlDate(localDayJs(event.toDate), tz),
     });
 
+    hidePicker();
     bottomSheetModalRef.current?.dismiss();
   };
 
@@ -164,9 +190,7 @@ const HistoricEvents = observer(function HistoricEvents({
     bottomSheetModalRef.current?.present();
   };
 
-  const historicEventIdNum = Array.isArray(historicEventId)
-    ? parseInt(historicEventId[0])
-    : parseInt(historicEventId);
+  const historicEventIdNum = parseInt(urlEventId);
   const title =
     floodEvents.find((e) => e.id === historicEventIdNum)?.eventName ??
     t("gageDetailsChart.selectEvent");
@@ -187,9 +211,9 @@ const HistoricEvents = observer(function HistoricEvents({
               index={0}
               detached={true}
               ref={bottomSheetModalRef}
-              snapPoints={["40%"]}
+              snapPoints={["50%"]}
               style={$bottomSheetStyle}>
-              <BottomSheetView>
+              <BottomSheetView style={{ paddingBottom: insets.bottom + Spacing.medium }}>
                 <PickerSelector
                   historicEventId={selectedEvent ?? historicEventId}
                   floodEvents={floodEvents}
@@ -219,6 +243,8 @@ const HistoricEvents = observer(function HistoricEvents({
 /** Water level rate of change */
 const RateOfChange = observer(function RateOfChange({ gage }: { gage: Gage }) {
   const { t } = useLocale();
+  const { getTimezone } = useStores();
+  const tz = getTimezone();
 
   // set rate of change
   let rate = gage?.predictedFeetPerHour;
@@ -233,12 +259,14 @@ const RateOfChange = observer(function RateOfChange({ gage }: { gage: Gage }) {
       return null;
     }
 
+    const toGaugeTime = (s: string) => localDayJs.tz(s, "YYYY-MM-DDTHH:mm:ss", tz);
+
     for (let i = 0; i < gage.predictions?.length - 1; i++) {
       let p = gage.predictions[i];
       let pNext = gage.predictions[i + 1];
 
       if (pNext.waterHeight === gage.roadSaddleHeight) {
-        crossingTime = localDayJs.tz(pNext.timestamp);
+        crossingTime = toGaugeTime(pNext.timestamp);
         break;
       }
 
@@ -248,14 +276,14 @@ const RateOfChange = observer(function RateOfChange({ gage }: { gage: Gage }) {
       ) {
         let waterDelta =
           (gage.roadSaddleHeight - p.waterHeight) / (pNext.waterHeight - p.waterHeight);
-        let msec = localDayJs.tz(pNext.timestamp).diff(localDayJs.tz(p.timestamp)) * waterDelta;
-        crossingTime = localDayJs.tz(p.timestamp).add(msec, "milliseconds");
+        let msec = toGaugeTime(pNext.timestamp).diff(toGaugeTime(p.timestamp)) * waterDelta;
+        crossingTime = toGaugeTime(p.timestamp).add(msec, "milliseconds");
         break;
       }
     }
 
     return crossingTime;
-  }, [gage?.locationId, gage?.roadSaddleHeight]);
+  }, [gage?.locationId, gage?.roadSaddleHeight, tz]);
 
   if (!gage?.locationId) {
     return null;
@@ -287,6 +315,8 @@ const RateOfChange = observer(function RateOfChange({ gage }: { gage: Gage }) {
 /** Crest Info */
 const CrestInfo = observer(function CrestInfo({ crest }: { crest: DataPoint }) {
   const { t } = useLocale();
+  const { getTimezone } = useStores();
+  const tz = getTimezone();
 
   if (!crest) {
     return null;
@@ -296,7 +326,7 @@ const CrestInfo = observer(function CrestInfo({ crest }: { crest: DataPoint }) {
     <Row align="center" bottom={Spacing.extraSmall}>
       <MediumText muted>{t("measure.max")}: </MediumText>
       <RegularText muted>
-        {crest?.reading?.toFixed(2)} {t("measure.ft")}. / {formatReadingTime(crest?.timestamp)}
+        {crest?.reading?.toFixed(2)} {t("measure.ft")}. / {formatReadingTime(crest?.timestamp, tz)}
       </RegularText>
     </Row>
   );
@@ -308,129 +338,165 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
   const router = useRouter();
   const { t } = useLocale();
   const { from, to } = useLocalSearchParams();
-  const { gagesStore, isDataFetched } = useStores();
+  const { gagesStore, isDataFetched, getTimezone } = useStores();
+  const { hidePicker } = useDatePicker();
 
   const { isMobile } = useResponsive();
 
-  const [dateRange, setDateRange] = useState({
-    from: normalizeSearchParams(from),
-    to: normalizeSearchParams(to),
-  });
+  const tz = getTimezone();
+  const fromStr = normalizeSearchParams(from);
+  const toStr = normalizeSearchParams(to);
 
-  useEffect(() => {
-    setDateRange({
-      from: normalizeSearchParams(from),
-      to: normalizeSearchParams(to),
-    });
-  }, [from, to]);
+  const range = useMemo(() => deriveRange(fromStr, toStr, tz), [fromStr, toStr, tz]);
 
-  const chartRange = useChartRange(dateRange.from, dateRange.to);
+  const rangeOption = useMemo(() => {
+    const diff = Math.round(range.chartEndDate.diff(range.chartStartDate, "day", true));
+    return (["1", "2", "7", "14"] as const).find((k) => parseInt(k) === diff) ?? "";
+  }, [range]);
 
-  const [rangeOption, setRangeOption] = useState("2");
+  const [showRangeWarning, setShowRangeWarning] = useState(false);
   const [chartDataType, setChartDataType] = useState<GageChartDataType>(GageChartDataType.LEVEL);
-  const [range, setRange] = useState({
-    chartStartDate: chartRange.chartStartDate,
-    chartEndDate: chartRange.chartEndDate,
-  });
 
-  // Fetch data periodically
+  // Single fetch effect: re-runs whenever the gage, data-readiness, or the
+  // derived range changes. Replaces the previous mount-effect + dateRange-effect split.
+  // includeLastReading=false → REPLACE readings array; the polling tick below
+  // is the only call that appends incrementally.
+  useEffect(() => {
+    if (!gage?.locationId || !isDataFetched) {
+      return;
+    }
+    gagesStore.fetchDataForGage(
+      gage.locationId,
+      range.chartStartDate.utc().format(UTC_ISO_FORMAT),
+      range.chartEndDate.utc().format(UTC_ISO_FORMAT),
+      range.isNow,
+      false
+    );
+  }, [gage?.locationId, isDataFetched, range]);
+
+  // Live polling while in "now" mode.
+  // Each tick re-anchors the window to the current moment so the chart's
+  // visible range advances with wall time. The window width is the gap
+  // captured in `range` at memo time; the end is recomputed as `now()` on
+  // every tick.
   useInterval(
     () => {
-      if (chartRange.isNow) {
-        gagesStore.fetchDataForGage(
-          gage?.locationId,
-          range.chartStartDate.utc().format(),
-          range.chartEndDate.utc().format(),
-          chartRange.isNow,
-          true
-        );
+      if (!gage?.locationId) {
+        return;
       }
+      const now = localDayJs();
+      const windowMs = range.chartEndDate.diff(range.chartStartDate);
+      const start = now.subtract(windowMs, "millisecond");
+      gagesStore.fetchDataForGage(
+        gage.locationId,
+        start.utc().format(UTC_ISO_FORMAT),
+        now.utc().format(UTC_ISO_FORMAT),
+        true,
+        true
+      );
     },
-    gage?.locationId && isDataFetched && chartRange.isNow
+    gage?.locationId && isDataFetched && range.isNow
       ? Config.LIVE_CHART_DATA_REFRESH_INTERVAL
       : null
   );
 
-  // Fetch data on mount but first wait for main data to be fetched
+  // Auto-dismiss the range-too-wide warning after 10 seconds.
   useEffect(() => {
-    if (gage?.locationId && isDataFetched) {
-      gagesStore.fetchDataForGage(
-        gage?.locationId,
-        chartRange.chartStartDate.utc().format(),
-        chartRange.chartEndDate.utc().format(),
-        chartRange.isNow,
-        false
-      );
+    if (!showRangeWarning) {
+      return undefined;
     }
-  }, [gage?.locationId, isDataFetched]);
+    const id = setTimeout(() => setShowRangeWarning(false), 10_000);
+    return () => clearTimeout(id);
+  }, [showRangeWarning]);
 
-  useEffect(() => {
-    if (dateRange.from && dateRange.to) {
-      // Convert to Dayjs objects
-      // @ts-ignore
-      const fromDayjs = localDayJs.tz(dateRange.from).startOf("day");
-      // @ts-ignore
-      const toDayjs = localDayJs.tz(dateRange.to).endOf("day");
-
-      // Update chart range
-      chartRange.changeDates(fromDayjs, toDayjs);
-
-      setRange({
-        chartStartDate: chartRange.chartStartDate,
-        chartEndDate: chartRange.chartEndDate,
-      });
-
-      refreshData(chartRange.chartStartDate.utc().format(), chartRange.chartEndDate.utc().format());
-    }
-  }, [dateRange.from, dateRange.to]);
-
+  // Manual refresh button. In live mode, re-anchor to the current moment
+  // so "refresh" actually advances the window (matching polling behavior).
+  // In historic mode, refetch the same bounds.
   const refetchData = () => {
-    refreshData();
-  };
-
-  const refreshData = (from?: string, to?: string) => {
+    if (!gage?.locationId) {
+      return;
+    }
+    let start = range.chartStartDate;
+    let end = range.chartEndDate;
+    if (range.isNow) {
+      const now = localDayJs();
+      const windowMs = end.diff(start);
+      start = now.subtract(windowMs, "millisecond");
+      end = now;
+    }
     gagesStore.fetchDataForGage(
-      gage?.locationId,
-      from ?? range.chartStartDate.utc().format(),
-      to ?? range.chartEndDate.utc().format(),
-      chartRange.isNow,
-      !from && chartRange.isNow
+      gage.locationId,
+      start.utc().format(UTC_ISO_FORMAT),
+      end.utc().format(UTC_ISO_FORMAT),
+      range.isNow,
+      false
     );
   };
 
+  // Segment shortcut.
+  //   Live mode  → write the relative live form (`from=-N&to=now`).
+  //   Historic   → rebuild an N-day absolute-date window centered on the
+  //                current range's center day, later-biased when N or the
+  //                current span is even. If the new window extends past
+  //                today in gauge tz, flip to live mode instead.
   const onRangeChange = (key: string) => {
-    chartRange.changeDays(parseInt(key));
+    hidePicker();
 
-    setRange({
-      chartStartDate: chartRange.chartStartDate,
-      chartEndDate: chartRange.chartEndDate,
-    });
+    if (key === "live") {
+      router.setParams({
+        historicEventId: undefined,
+        from: `-${CHART_DEFAULT_RANGE_DAYS}`,
+        to: NOW_LITERAL,
+      });
+      return;
+    }
+
+    const days = parseInt(key, 10);
+
+    if (range.isNow) {
+      router.setParams({
+        historicEventId: undefined,
+        from: `-${key}`,
+        to: NOW_LITERAL,
+      });
+      return;
+    }
+
+    const startDay = range.chartStartDate.tz(tz).startOf("day");
+    const endDay = range.chartEndDate.tz(tz).startOf("day");
+    const totalDays = endDay.diff(startDay, "day") + 1;
+    const centerDay = startDay.add(Math.floor(totalDays / 2), "day");
+
+    const before = Math.floor(days / 2);
+    const after = Math.floor((days - 1) / 2);
+    const newStart = centerDay.subtract(before, "day");
+    const newEnd = centerDay.add(after, "day");
+
+    const todayStart = localDayJs().tz(tz).startOf("day");
+    if (newEnd.valueOf() >= todayStart.valueOf()) {
+      router.setParams({
+        historicEventId: undefined,
+        from: `-${key}`,
+        to: NOW_LITERAL,
+      });
+      return;
+    }
 
     router.setParams({
       historicEventId: undefined,
-      from: chartRange.chartStartDate.utc().format(),
-      to: chartRange.chartEndDate.utc().format(),
+      from: formatUrlDate(newStart, tz),
+      to: formatUrlDate(newEnd, tz),
     });
-
-    setRangeOption(key);
-    refreshData(chartRange.chartStartDate.utc().format(), chartRange.chartEndDate.utc().format());
   };
 
-  const onDateRangeChange = (from: Dayjs, to: Dayjs) => {
-    chartRange.changeDates(from, to);
-
-    setRange({
-      chartStartDate: chartRange.chartStartDate,
-      chartEndDate: chartRange.chartEndDate,
-    });
-
+  // Custom range from the date picker.
+  const onDateRangeChange = (pickedFrom: Dayjs, pickedTo: Dayjs) => {
+    hidePicker();
     router.setParams({
       historicEventId: undefined,
-      from: from.format("YYYY-MM-DD"),
-      to: to.format("YYYY-MM-DD"),
+      from: formatUrlDate(pickedFrom, tz),
+      to: formatUrlDate(pickedTo, tz),
     });
-
-    refreshData(chartRange.chartStartDate.utc().format(), chartRange.chartEndDate.utc().format());
   };
 
   const onChartDataTypeChange = (key: GageChartDataType) => {
@@ -463,31 +529,51 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
           <Cell flex>
             <SegmentControl
               bottom={Spacing.zero}
-              segments={RANGES(t)}
+              segments={RANGES(t, !range.isNow)}
               selectedSegment={rangeOption}
               onChange={onRangeChange}
             />
-            <If condition={isMobile}>
-              <Cell flex align="center" top={Spacing.tiny}>
-                <DateRangePicker
-                  startDate={range.chartStartDate}
-                  endDate={range.chartEndDate}
-                  onChange={onDateRangeChange}
-                />
-              </Cell>
-            </If>
           </Cell>
           <Cell flex align="flex-end">
             <If condition={!isMobile}>
-              <DateRangePicker
+              <DatePickerVariantSwitch
+                locationId={gage?.locationId}
                 startDate={range.chartStartDate}
                 endDate={range.chartEndDate}
+                timezone={tz}
                 onChange={onDateRangeChange}
+                onRangeRestricted={() => setShowRangeWarning(true)}
               />
             </If>
           </Cell>
         </Row>
+        <If condition={isMobile}>
+          <Cell align="center" top={Spacing.tiny}>
+            <DatePickerVariantSwitch
+              locationId={gage?.locationId}
+              startDate={range.chartStartDate}
+              endDate={range.chartEndDate}
+              timezone={tz}
+              onChange={onDateRangeChange}
+              onRangeRestricted={() => setShowRangeWarning(true)}
+            />
+          </Cell>
+        </If>
       </CardHeader>
+      {showRangeWarning && (
+        <View
+          style={{
+            backgroundColor: Colors.softYellow,
+            borderRadius: Spacing.tiny,
+            paddingHorizontal: Spacing.extraSmall,
+            paddingVertical: Spacing.extraSmall,
+            alignItems: "center",
+          }}>
+          <RegularText style={{ textAlign: "center" }}>
+            {t("gageDetailsChart.rangeWarning", { maxRange: Config.MAX_DATE_PICKER_RANGE })}
+          </RegularText>
+        </View>
+      )}
       <Ternary condition={!Object.keys(chartOptions).length || hideChart}>
         <Cell height={320} flex>
           <ActivityIndicator animating />

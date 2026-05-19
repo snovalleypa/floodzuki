@@ -20,13 +20,14 @@ import { useLocale } from "@common-ui/contexts/LocaleContext";
 import { TxKeyPath } from "@i18n/i18n";
 
 const CalloutReading = observer(function CalloutReadingCard({ gage }: { gage: Gage }) {
-  const { gagesStore } = useStores();
+  const { gagesStore, getTimezone } = useStores();
+  const tz = getTimezone();
   const { t } = useLocale();
   const { from, to } = useLocalSearchParams();
 
   const { formatFlow, formatHeight, formatTrend } = useUtils();
 
-  const isNow = !!from && !!to ? to === localDayJs().format("YYYY-MM-DD") : true;
+  const isNow = !!from && !!to ? to === localDayJs().tz(tz).format("YYYY-MM-DD") : true;
 
   const status = isNow ? gage?.status : gage?.peakStatus;
   const reading = status?.lastReading;
@@ -34,7 +35,10 @@ const CalloutReading = observer(function CalloutReadingCard({ gage }: { gage: Ga
 
   const roadStatus = gage?.getCalculatedRoadStatus(gage?.waterLevel);
 
-  const timeAgo = isNow && reading?.timestamp ? localDayJs.tz(reading?.timestamp).fromNow() : null;
+  const timeAgo =
+    isNow && reading?.timestamp
+      ? localDayJs.tz(reading.timestamp, "YYYY-MM-DDTHH:mm:ss", tz).fromNow()
+      : null;
 
   const hasTrendInfo =
     !!status?.levelTrend && !!status?.waterTrend && !isNullish(status?.waterTrend?.trendValue);
@@ -54,7 +58,7 @@ const CalloutReading = observer(function CalloutReadingCard({ gage }: { gage: Ga
             {timeAgo}
             {" / "}
           </If>
-          {formatReadingTime(reading?.timestamp)}
+          {formatReadingTime(reading?.timestamp, tz)}
         </LabelText>
       </CardHeader>
       <Cell flex>
