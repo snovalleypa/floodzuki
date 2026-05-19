@@ -1,6 +1,5 @@
 import React from "react";
 import { observer } from "mobx-react-lite";
-import { View } from "react-native";
 
 import { Card, CardFooter } from "@common-ui/components/Card";
 import { Cell, Row, RowOrCell } from "@common-ui/components/Common";
@@ -53,9 +52,9 @@ function ReadingRow(props: {
       innerVertical={Spacing.micro}
       top={Spacing.tiny}>
       <If condition={!!showCrestSlot}>
-        <View style={{ width: 16 }}>
+        <Cell width={16}>
           <SmallerText>{isCrest ? "▲" : ""}</SmallerText>
-        </View>
+        </Cell>
       </If>
       <Cell flex={2}>
         <SmallerText>{formatDateTime(reading.timestamp, getTimezone())}</SmallerText>
