@@ -237,7 +237,7 @@ export const ExtendedGageSummaryCard = observer(function ExtendedGageSummaryCard
             <ReadingRow
               key={reading.timestamp}
               reading={reading}
-              isCrest={crestTimestamps.has(reading.timestampMs)}
+              isCrest={reading.timestampMs != null && crestTimestamps.has(reading.timestampMs)}
               showCrestSlot
             />
           ))}
