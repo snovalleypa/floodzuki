@@ -1,9 +1,10 @@
-import { Map, Marker, useMap } from "@vis.gl/react-maplibre";
+import { Map, Marker, Source, Layer, useMap } from "@vis.gl/react-maplibre";
 import { useMemo } from "react";
 import { InternalGageMapProps } from "@models/MapModels";
 import { StyleSheet } from "react-native";
 import "maplibre-gl/dist/maplibre-gl.css";
 import TrendIcon, { TREND_ICON_TYPES } from "./TrendIcon";
+import { getTownLabelsGeoJson } from "./townLabels";
 import Config from "../config/config";
 import Constants from "expo-constants";
 import floodzillaLocalStyle from "./mapStyles/floodzilla-webstyles.json";
@@ -59,6 +60,8 @@ const MapLibreWebGageWebMap = ({
   }, [region]);
 
   const { current: map } = useMap();
+
+  const townLabelsGeoJson = useMemo(() => getTownLabelsGeoJson(region?.id), [region]);
 
   const markers = useMemo(() => {
     return gages.map(
@@ -119,7 +122,27 @@ const MapLibreWebGageWebMap = ({
       }}
       maxBounds={regionBounds}
       mapStyle={mapStyle}
+      attributionControl={{ compact: true }}
       style={styles.map}>
+      <Source id="region-towns" type="geojson" data={townLabelsGeoJson}>
+        <Layer
+          id="region-towns-labels"
+          type="symbol"
+          maxzoom={9}
+          layout={{
+            "text-field": ["get", "name"],
+            "text-font": ["Noto Sans Regular"],
+            "text-anchor": "center",
+            "text-max-width": 6,
+            "text-size": ["interpolate", ["linear"], ["zoom"], 6, 12, 9, 14],
+          }}
+          paint={{
+            "text-color": "hsl(0, 0%, 8%)",
+            "text-halo-color": "white",
+            "text-halo-width": 2,
+          }}
+        />
+      </Source>
       {markers}
     </Map>
   );
