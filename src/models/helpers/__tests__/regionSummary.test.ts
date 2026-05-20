@@ -1,4 +1,9 @@
-import { computeForecastSeverity, computeBucketCounts } from "../regionSummary";
+import {
+  computeForecastSeverity,
+  computeBucketCounts,
+  computeStubChanges,
+  makeStubSnapshot,
+} from "../regionSummary";
 
 describe("computeForecastSeverity", () => {
   it("returns 'none' for an empty input", () => {
@@ -125,5 +130,79 @@ describe("computeBucketCounts", () => {
         locationInfos: [loc("A"), loc("META/AGE", true)],
       })
     ).toEqual({ active: 1, visibleOffline: 0, hidden: 0, flooding: 0, nearFlooding: 0 });
+  });
+});
+
+describe("computeStubChanges", () => {
+  const loc = (id: string, isMetagage = false) => ({ id, isMetagage });
+  const real = (locationId: string) => ({ locationId, _isStub: false });
+  const stub = (locationId: string) => ({ locationId, _isStub: true });
+
+  it("removes all stubs when showHidden is false", () => {
+    expect(
+      computeStubChanges({
+        gages: [real("A"), stub("B"), stub("C")],
+        locationInfos: [loc("A"), loc("B"), loc("C")],
+        showHidden: false,
+      })
+    ).toEqual({ toAdd: [], toRemove: ["B", "C"] });
+  });
+
+  it("adds stubs for hidden locations when showHidden is true", () => {
+    expect(
+      computeStubChanges({
+        gages: [real("A")],
+        locationInfos: [loc("A"), loc("B"), loc("C")],
+        showHidden: true,
+      })
+    ).toEqual({ toAdd: ["B", "C"], toRemove: [] });
+  });
+
+  it("removes stale stubs whose locationId is now in real gages", () => {
+    expect(
+      computeStubChanges({
+        gages: [real("A"), stub("A")],
+        locationInfos: [loc("A")],
+        showHidden: true,
+      })
+    ).toEqual({ toAdd: [], toRemove: ["A"] });
+  });
+
+  it("skips metagage locations when building stubs", () => {
+    expect(
+      computeStubChanges({
+        gages: [],
+        locationInfos: [loc("A"), loc("META/AGE", true)],
+        showHidden: true,
+      })
+    ).toEqual({ toAdd: ["A"], toRemove: [] });
+  });
+
+  it("is idempotent — second call with the synced result produces no changes", () => {
+    const first = computeStubChanges({
+      gages: [real("A")],
+      locationInfos: [loc("A"), loc("B")],
+      showHidden: true,
+    });
+    expect(first).toEqual({ toAdd: ["B"], toRemove: [] });
+
+    const synced = [real("A"), stub("B")];
+    const second = computeStubChanges({
+      gages: synced,
+      locationInfos: [loc("A"), loc("B")],
+      showHidden: true,
+    });
+    expect(second).toEqual({ toAdd: [], toRemove: [] });
+  });
+});
+
+describe("makeStubSnapshot", () => {
+  it("returns a minimal snapshot suitable for GageStore.gages.push", () => {
+    expect(makeStubSnapshot("USGS-23")).toEqual({
+      locationId: "USGS-23",
+      locationInfo: "USGS-23",
+      isOffline: true,
+      _isStub: true,
+    });
   });
 });
