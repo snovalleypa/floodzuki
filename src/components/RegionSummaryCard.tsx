@@ -1,5 +1,5 @@
 import React from "react";
-import { Switch } from "react-native";
+import { Switch, View } from "react-native";
 import { Link } from "expo-router";
 import { observer } from "mobx-react-lite";
 
@@ -50,14 +50,21 @@ const RegionSummaryCard = observer(function RegionSummaryCard() {
 
   const ForecastPill = (
     <Link href={ROUTES.Forecast} asChild>
-      <Cell
-        bgColor={forecastBg}
-        innerHorizontal={Spacing.small}
-        innerVertical={Spacing.tiny}
-        top={Spacing.small}
-        style={{ borderLeftWidth: 3, borderLeftColor: forecastColor, borderRadius: 4 }}>
-        <SmallerText color={forecastColor}>{forecastCopy}</SmallerText>
-      </Cell>
+      <View
+        style={{
+          marginTop: Spacing.small,
+          borderLeftWidth: 3,
+          borderLeftColor: forecastColor,
+          borderRadius: 4,
+        }}>
+        <Cell
+          bgColor={forecastBg}
+          innerHorizontal={Spacing.small}
+          innerVertical={Spacing.tiny}
+          borderRadius={4}>
+          <SmallerText color={forecastColor}>{forecastCopy}</SmallerText>
+        </Cell>
+      </View>
     </Link>
   );
 
