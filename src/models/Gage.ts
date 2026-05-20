@@ -363,6 +363,11 @@ export const GageStoreModel = types
         store.setError(response.kind);
       }
 
+      const root = getRoot<any>(store);
+      if (root.showHiddenOffline) {
+        syncHiddenStubs(true, root.locationInfoStore.locationInfos);
+      }
+
       store.setIsFetching(false);
     });
 

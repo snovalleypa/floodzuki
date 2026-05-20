@@ -26,6 +26,11 @@ export const RootStoreModel = types
       store.isFetched = isFetching;
     };
 
+    const setShowHiddenOffline = (value: boolean) => {
+      store.showHiddenOffline = value;
+      store.gagesStore.syncHiddenStubs(value, store.locationInfoStore.locationInfos);
+    };
+
     const fetchMainData = flow(function* () {
       setIsFetched(false);
 
@@ -39,6 +44,7 @@ export const RootStoreModel = types
 
     return {
       fetchMainData,
+      setShowHiddenOffline,
     };
   })
   .views((store) => {
