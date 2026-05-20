@@ -100,6 +100,7 @@ export const GageModel = types
     locationName: types.maybe(types.string),
     locationId: types.identifier,
     isOffline: types.maybe(types.boolean),
+    _isStub: types.optional(types.boolean, false),
     rank: types.maybe(types.number),
     deviceTypeName: types.maybe(types.string),
     timeZoneName: types.maybe(types.string),

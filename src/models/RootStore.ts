@@ -13,6 +13,7 @@ export const RootStoreModel = types
   .model("RootStore")
   .props({
     isFetched: types.optional(types.boolean, false),
+    showHiddenOffline: types.optional(types.boolean, false),
     gagesStore: types.optional(GageStoreModel, {}),
     gageReadingsStore: types.optional(GageReadingStoreModel, {}),
     regionStore: types.optional(RegionModelStore, {}),
