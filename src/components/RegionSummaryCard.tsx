@@ -1,5 +1,5 @@
 import React from "react";
-import { Switch, View } from "react-native";
+import { Switch, TouchableOpacity } from "react-native";
 import { Link } from "expo-router";
 import { observer } from "mobx-react-lite";
 
@@ -50,7 +50,8 @@ const RegionSummaryCard = observer(function RegionSummaryCard() {
 
   const ForecastPill = (
     <Link href={ROUTES.Forecast} asChild>
-      <View
+      <TouchableOpacity
+        activeOpacity={0.7}
         style={{
           marginTop: Spacing.small,
           borderLeftWidth: 3,
@@ -64,7 +65,7 @@ const RegionSummaryCard = observer(function RegionSummaryCard() {
           borderRadius={4}>
           <SmallerText color={forecastColor}>{forecastCopy}</SmallerText>
         </Cell>
-      </View>
+      </TouchableOpacity>
     </Link>
   );
 
