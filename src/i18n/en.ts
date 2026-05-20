@@ -69,6 +69,21 @@ const en = {
   homeScreen: {
     title: "Snoqualmie River / SVPA",
   },
+  regionSummary: {
+    allNormal: "All gauges normal",
+    flooding: "{{count}} flooding",
+    nearFlooding: "{{count}} near flooding",
+    noFloodingPredicted: "No flooding predicted",
+    nearFloodPredicted: "Near-flood predicted",
+    floodingPredicted: "Flooding predicted",
+    active: "active",
+    offline: "offline",
+    hidden: "hidden",
+    showHidden: "Show hidden",
+    noRecentData: "No recent data",
+    offlineGauge: "OFFLINE",
+    offlineBanner: "Gauge offline — pick a historical event below to see past readings",
+  },
   forecastScreen: {
     title: "Forecast",
     details: "Details",
