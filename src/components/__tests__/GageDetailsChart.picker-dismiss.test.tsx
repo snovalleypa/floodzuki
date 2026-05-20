@@ -35,7 +35,6 @@ jest.mock("expo-router", () => ({
 // --- UI mocks ---
 jest.mock("@services/highcharts/LocalHighchartsReact", () => () => null);
 jest.mock("@services/highcharts/HighchartsReactNative", () => () => null);
-jest.mock("../GageDetailsChartNative", () => ({ GageDetailsChartNative: () => null }));
 jest.mock("@utils/useGageChartOptions", () => ({ __esModule: true, default: () => [{}, null] }));
 jest.mock("@utils/useTimeout", () => ({ useTimeout: jest.fn(), useInterval: jest.fn() }));
 jest.mock("@common-ui/contexts/LocaleContext", () => ({
