@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import { Pressable, useColorScheme } from "react-native";
 import { usePathname, Slot, Link, Tabs } from "expo-router";
 import { Image } from "expo-image";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import "@expo/match-media";
 
@@ -14,6 +13,7 @@ import { useStores } from "@models/helpers/useStores";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   LabelText,
+  MediumText,
   LargeTitle,
   RegularLargeText,
   SmallerText,
@@ -86,7 +86,7 @@ function HeaderLink({ href, children }) {
 
   const $color = isActive ? Colors.primary : Colors.lightDark;
 
-  const Title = isMobile ? LabelText : LargeTitle;
+  const Title = isMobile ? MediumText : LargeTitle;
   const spacing = isMobile ? Spacing.small : Spacing.large;
 
   return (

@@ -1,15 +1,20 @@
 import { InternalGageMapProps } from "@models/MapModels";
 import { useRouter } from "expo-router";
 import { useMemo, useRef } from "react";
-import { Camera, Map, Marker } from "@maplibre/maplibre-react-native";
+import { Camera, GeoJSONSource, Layer, Map, Marker } from "@maplibre/maplibre-react-native";
 import { StyleSheet, ViewStyle } from "react-native";
 import { Spacing } from "../common-ui/constants/spacing";
 import TrendIcon, { TREND_ICON_TYPES } from "./TrendIcon";
+import { getTownLabelsGeoJson, TOWN_LABELS_LAYER_PROPS } from "./townLabels";
+import { getRiverOverlaysGeoJson, RIVER_OVERLAY_LAYER_PROPS } from "./riverOverlays";
 import Config from "../config/config";
 import Constants from "expo-constants";
+import floodzillaLocalStyle from "./mapStyles/floodzilla-webstyles.json";
 
 const mapStyleBaseUrl =
   Constants.expoConfig!.extra!.mapTileUrlBase || Config.DEFAULT_MAP_TILE_BASE_URL;
+
+const useLocalMapStyle = Boolean(Constants.expoConfig!.extra!.mapStyleLocal);
 
 const styles = StyleSheet.create({
   map: {
@@ -47,7 +52,10 @@ const MapLibreMobileGageMap = ({
   const router = useRouter();
   const mapRef = useRef(null);
 
-  const mapStyleUrl = useMemo(() => {
+  const mapStyle = useMemo(() => {
+    if (useLocalMapStyle) {
+      return floodzillaLocalStyle as never;
+    }
     if (!region) {
       return "";
     }
@@ -74,6 +82,9 @@ const MapLibreMobileGageMap = ({
       </Marker>
     ));
   }, [mapRef, gages]);
+
+  const townLabelsGeoJson = useMemo(() => getTownLabelsGeoJson(region?.id), [region]);
+  const riverOverlaysGeoJson = useMemo(() => getRiverOverlaysGeoJson(region?.id), [region]);
 
   const regionBounds: [number, number, number, number] = useMemo(() => {
     if (region && region.regionBounds) {
@@ -108,8 +119,14 @@ const MapLibreMobileGageMap = ({
   }, [region, singleGage]);
 
   return (
-    <Map ref={mapRef} style={styles.map} mapStyle={mapStyleUrl} touchRotate={false}>
+    <Map ref={mapRef} style={styles.map} mapStyle={mapStyle} touchRotate={false}>
       <Camera maxBounds={regionBounds} bounds={startBounds} />
+      <GeoJSONSource id="region-rivers" data={riverOverlaysGeoJson}>
+        <Layer {...RIVER_OVERLAY_LAYER_PROPS} />
+      </GeoJSONSource>
+      <GeoJSONSource id="region-towns" data={townLabelsGeoJson}>
+        <Layer {...TOWN_LABELS_LAYER_PROPS} />
+      </GeoJSONSource>
       {markers}
     </Map>
   );

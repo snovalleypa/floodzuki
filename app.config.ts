@@ -144,6 +144,7 @@ export default {
       projectId: "0f52b777-109a-423d-a18b-1ccfb5dea8e0",
     },
     mapTileUrlBase: process.env.MAP_TILE_URL_BASE,
+    mapStyleLocal: process.env.MAP_STYLE_LOCAL === "1" || process.env.MAP_STYLE_LOCAL === "true",
     recaptchaKey: process.env.GOOGLE_RECAPTCH_SITE_KEY,
     googleMapsWebApiKey: process.env.GOOGLE_MAPS_WEB_API_KEY,
     googleOAuthWebClientId: process.env.GOOGLE_AUTH_WEB_ID,

@@ -157,6 +157,8 @@ All user-visible strings go through the `useLocale()` hook (`t("key")`). Transla
 
 Maps use MapLibre with tile URLs from `Config.DEFAULT_MAP_TILE_BASE_URL`. The `MAP_TILE_URL_BASE` env var overrides the tile source at build time (exposed via `app.config.ts` extra). Maps are not supported in standalone dev builds — only Expo Go and browser.
 
+The map _style_ (layer colors, label sizes, zoom rules) is normally fetched from `https://floodzilla.com/maps/{regionId}/webstyles`. To iterate locally on the style JSON, set `MAP_STYLE_LOCAL=1` — the app will use the checked-in copy at `src/components/mapStyles/floodzilla-webstyles.json` instead. Save the file and reload to see changes. Hand the file off to the backend developer to deploy (same content goes into both the `WebStyles` and `MobileStyles` DB records).
+
 ### OTA Updates
 
 The app uses `expo-updates` with channel `production`. OTA updates are published with `eas update --channel production`. All environment variables must be passed at update time since EAS secrets are not available locally.

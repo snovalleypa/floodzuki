@@ -1,14 +1,19 @@
-import { Map, Marker, useMap } from "@vis.gl/react-maplibre";
+import { Map, Marker, Source, Layer, useMap } from "@vis.gl/react-maplibre";
 import { useMemo } from "react";
 import { InternalGageMapProps } from "@models/MapModels";
 import { StyleSheet } from "react-native";
 import "maplibre-gl/dist/maplibre-gl.css";
 import TrendIcon, { TREND_ICON_TYPES } from "./TrendIcon";
+import { getTownLabelsGeoJson, TOWN_LABELS_LAYER_PROPS } from "./townLabels";
+import { getRiverOverlaysGeoJson, RIVER_OVERLAY_LAYER_PROPS } from "./riverOverlays";
 import Config from "../config/config";
 import Constants from "expo-constants";
+import floodzillaLocalStyle from "./mapStyles/floodzilla-webstyles.json";
 
 const mapStyleBaseUrl =
   Constants.expoConfig.extra.mapTileUrlBase || Config.DEFAULT_MAP_TILE_BASE_URL;
+
+const useLocalMapStyle = Boolean(Constants.expoConfig.extra.mapStyleLocal);
 
 const styles = StyleSheet.create({
   map: {
@@ -41,7 +46,10 @@ const MapLibreWebGageWebMap = ({
   onGagePress,
   singleGage,
 }: InternalGageMapProps) => {
-  const mapStyleUrl = useMemo(() => {
+  const mapStyle = useMemo(() => {
+    if (useLocalMapStyle) {
+      return floodzillaLocalStyle as never;
+    }
     if (!region) {
       return "";
     }
@@ -53,6 +61,9 @@ const MapLibreWebGageWebMap = ({
   }, [region]);
 
   const { current: map } = useMap();
+
+  const townLabelsGeoJson = useMemo(() => getTownLabelsGeoJson(region?.id), [region]);
+  const riverOverlaysGeoJson = useMemo(() => getRiverOverlaysGeoJson(region?.id), [region]);
 
   const markers = useMemo(() => {
     return gages.map(
@@ -112,8 +123,29 @@ const MapLibreWebGageWebMap = ({
         bounds: startBounds,
       }}
       maxBounds={regionBounds}
-      mapStyle={mapStyleUrl}
+      mapStyle={mapStyle}
+      attributionControl={{ compact: true }}
+      onLoad={(e) => {
+        const container = e.target.getContainer();
+        setTimeout(() => {
+          const expanded = container.querySelector(
+            ".maplibregl-ctrl-attrib.maplibregl-compact-show"
+          );
+          if (expanded) {
+            const button = container.querySelector(
+              ".maplibregl-ctrl-attrib-button"
+            ) as HTMLButtonElement | null;
+            button?.click();
+          }
+        }, 1000);
+      }}
       style={styles.map}>
+      <Source id="region-rivers" type="geojson" data={riverOverlaysGeoJson}>
+        <Layer {...RIVER_OVERLAY_LAYER_PROPS} />
+      </Source>
+      <Source id="region-towns" type="geojson" data={townLabelsGeoJson}>
+        <Layer {...TOWN_LABELS_LAYER_PROPS} />
+      </Source>
       {markers}
     </Map>
   );
