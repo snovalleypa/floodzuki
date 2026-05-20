@@ -5,6 +5,7 @@ import { GageReadingStoreModel } from "./GageReading";
 import { LocationInfoModelStore } from "./LocationInfo";
 import { RegionModelStore } from "./Region";
 import { AuthSessionStoreModel } from "./AuthSession";
+import { computeBucketCounts } from "./helpers/regionSummary";
 
 /**
  * A RootStore model.
@@ -97,15 +98,34 @@ export const RootStoreModel = types
         .map((location) => location.id);
     };
 
+    const realLocations = () => store.locationInfoStore.locationInfos.filter((l) => !l.isMetagage);
+
+    const hiddenLocations = () => {
+      const realGageIds = new Set(
+        store.gagesStore.gages.filter((g) => !g._isStub).map((g) => g.locationId)
+      );
+      return realLocations().filter((l) => !realGageIds.has(l.id));
+    };
+
+    const getBucketCounts = () =>
+      computeBucketCounts({
+        gages: store.gagesStore.gages,
+        locationInfos: store.locationInfoStore.locationInfos,
+      });
+
+    const navLocations = () => {
+      if (store.showHiddenOffline) {
+        return realLocations();
+      }
+      return filterLocationsWithGages();
+    };
+
     const getUpstreamGageLocation = (locationId: string) => {
       if (!locationId) {
         return null;
       }
-
-      const locations = filterLocationsWithGages();
-
+      const locations = navLocations();
       const gageIndex = locations.findIndex((location) => location.id === locationId);
-
       return gageIndex > 0 && locations[gageIndex - 1];
     };
 
@@ -113,11 +133,8 @@ export const RootStoreModel = types
       if (!locationId) {
         return null;
       }
-
-      const locations = filterLocationsWithGages();
-
+      const locations = navLocations();
       const gageIndex = locations.findIndex((location) => location.id === locationId);
-
       return gageIndex >= 0 && gageIndex + 1 < locations.length && locations[gageIndex + 1];
     };
 
@@ -130,6 +147,9 @@ export const RootStoreModel = types
       getLocationWithGagesIds,
       getUpstreamGageLocation,
       getDownstreamGageLocation,
+      realLocations,
+      hiddenLocations,
+      getBucketCounts,
 
       get isDataFetched() {
         return store.isFetched;
