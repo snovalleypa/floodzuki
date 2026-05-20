@@ -132,9 +132,9 @@
         ["!=", ["get", "intermittent"], 1]
       ],
       "paint": {
-        "line-color": "hsl(205,65%,50%)",
+        "line-color": "hsl(205,56%,73%)",
         "line-opacity": 1,
-        "line-width": ["interpolate", ["exponential", 1.4], ["zoom"], 6, 1, 10, 2.5, 14, 5, 20, 10]
+        "line-width": ["interpolate", ["exponential", 1.4], ["zoom"], 8, 1, 20, 8]
       }
     },
     {
@@ -180,9 +180,9 @@
         ["==", ["get", "intermittent"], 1]
       ],
       "paint": {
-        "line-color": "hsl(205,65%,50%)",
+        "line-color": "hsl(205,56%,73%)",
         "line-opacity": 1,
-        "line-width": ["interpolate", ["exponential", 1.4], ["zoom"], 6, 1, 10, 2.5, 14, 5, 20, 10],
+        "line-width": ["interpolate", ["exponential", 1.4], ["zoom"], 8, 1, 20, 8],
         "line-dasharray": [2, 1]
       }
     },
@@ -414,8 +414,8 @@
       ],
       "layout": { "line-cap": "round", "line-join": "round" },
       "paint": {
-        "line-color": "hsl(205,65%,50%)",
-        "line-width": ["interpolate", ["exponential", 1.55], ["zoom"], 6, 1, 10, 2.5, 14, 5, 20, 10]
+        "line-color": "hsl(205,56%,73%)",
+        "line-width": ["interpolate", ["exponential", 1.55], ["zoom"], 4, 0.25, 20, 30]
       }
     },
     {
@@ -548,31 +548,6 @@
       },
       "paint": {
         "text-color": "#000",
-        "text-halo-color": "hsl(0,0%,100%)",
-        "text-halo-width": 2
-      }
-    },
-    {
-      "id": "place_label_town",
-      "type": "symbol",
-      "source": "openmaptiles",
-      "source-layer": "place",
-      "minzoom": 9,
-      "filter": [
-        "all",
-        ["==", ["geometry-type"], "Point"],
-        ["match", ["get", "class"], ["town", "village"], true, false]
-      ],
-      "layout": {
-        "text-anchor": "center",
-        "text-field": ["to-string", ["get", "name"]],
-        "text-font": ["Noto Sans Regular"],
-        "text-max-width": 6,
-        "text-size": ["interpolate", ["linear"], ["zoom"], 9, 12, 14, 16]
-      },
-      "paint": {
-        "text-color": "hsl(0,0%,15%)",
-        "text-halo-blur": 0,
         "text-halo-color": "hsl(0,0%,100%)",
         "text-halo-width": 2
       }
