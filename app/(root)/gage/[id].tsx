@@ -186,6 +186,18 @@ const GageDetailsScreen = observer(function GageDetailsScreen({ gage }: { gage: 
       </MobileScreen>
       {/* Content */}
       <Content scrollable onRefresh={() => gagesStore.fetchData}>
+        <If
+          condition={
+            !!gage?._isStub || (gage?.gageStatus?.floodLevel === "Offline" && !gage?.hasData)
+          }>
+          <Card
+            bottom={Spacing.small}
+            innerHorizontal={Spacing.medium}
+            innerVertical={Spacing.small}
+            backgroundColor={Colors.softYellow}>
+            <RegularText color={Colors.warning}>{t("regionSummary.offlineBanner")}</RegularText>
+          </Card>
+        </If>
         <GageDetailsChart gage={gage} />
         <Row>
           <If condition={!isMobile}>
