@@ -1,4 +1,4 @@
-import { computeForecastSeverity } from "../regionSummary";
+import { computeForecastSeverity, computeBucketCounts } from "../regionSummary";
 
 describe("computeForecastSeverity", () => {
   it("returns 'none' for an empty input", () => {
@@ -57,5 +57,73 @@ describe("computeForecastSeverity", () => {
         { peaks: [{ waterDischarge: 9999 }], dischargeStageOne: 0, dischargeStageTwo: 0 },
       ])
     ).toBe("none");
+  });
+});
+
+describe("computeBucketCounts", () => {
+  const loc = (id: string, isMetagage = false) => ({ id, isMetagage });
+  const gage = (locationId: string, floodLevel = "Normal", isStub = false) => ({
+    locationId,
+    _isStub: isStub,
+    gageStatus: { floodLevel },
+  });
+
+  it("counts a fleet of all-normal gauges as fully active", () => {
+    expect(
+      computeBucketCounts({
+        gages: [gage("A"), gage("B")],
+        locationInfos: [loc("A"), loc("B")],
+      })
+    ).toEqual({ active: 2, visibleOffline: 0, hidden: 0, flooding: 0, nearFlooding: 0 });
+  });
+
+  it("separates active / visible-offline by floodLevel", () => {
+    expect(
+      computeBucketCounts({
+        gages: [gage("A", "Normal"), gage("B", "Offline"), gage("C", "Flooding")],
+        locationInfos: [loc("A"), loc("B"), loc("C")],
+      })
+    ).toEqual({ active: 2, visibleOffline: 1, hidden: 0, flooding: 1, nearFlooding: 0 });
+  });
+
+  it("counts flooding and nearFlooding levels", () => {
+    expect(
+      computeBucketCounts({
+        gages: [
+          gage("A", "Flooding"),
+          gage("B", "Flooding"),
+          gage("C", "NearFlooding"),
+          gage("D", "Normal"),
+        ],
+        locationInfos: [loc("A"), loc("B"), loc("C"), loc("D")],
+      })
+    ).toEqual({ active: 4, visibleOffline: 0, hidden: 0, flooding: 2, nearFlooding: 1 });
+  });
+
+  it("counts hidden locations (in locationInfos but not in gages)", () => {
+    expect(
+      computeBucketCounts({
+        gages: [gage("A")],
+        locationInfos: [loc("A"), loc("B"), loc("C")],
+      })
+    ).toEqual({ active: 1, visibleOffline: 0, hidden: 2, flooding: 0, nearFlooding: 0 });
+  });
+
+  it("excludes stubs from active / visible-offline / flood counts", () => {
+    expect(
+      computeBucketCounts({
+        gages: [gage("A", "Normal"), gage("B", "Flooding", /* isStub */ true)],
+        locationInfos: [loc("A"), loc("B")],
+      })
+    ).toEqual({ active: 1, visibleOffline: 0, hidden: 1, flooding: 0, nearFlooding: 0 });
+  });
+
+  it("excludes metagages from the hidden count", () => {
+    expect(
+      computeBucketCounts({
+        gages: [gage("A")],
+        locationInfos: [loc("A"), loc("META/AGE", true)],
+      })
+    ).toEqual({ active: 1, visibleOffline: 0, hidden: 0, flooding: 0, nearFlooding: 0 });
   });
 });
