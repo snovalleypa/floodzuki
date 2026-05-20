@@ -125,6 +125,18 @@ const MapLibreWebGageWebMap = ({
       maxBounds={regionBounds}
       mapStyle={mapStyle}
       attributionControl={{ compact: true }}
+      onLoad={(e) => {
+        const container = e.target.getContainer();
+        const expanded = container.querySelector(".maplibregl-ctrl-attrib.maplibregl-compact-show");
+        if (expanded) {
+          const button = container.querySelector(
+            ".maplibregl-ctrl-attrib-button"
+          ) as HTMLButtonElement | null;
+          setTimeout(() => {
+            button?.click();
+          }, 1000);
+        }
+      }}
       style={styles.map}>
       <Source id="region-rivers" type="geojson" data={riverOverlaysGeoJson}>
         <Layer {...RIVER_OVERLAY_LAYER_PROPS} />
