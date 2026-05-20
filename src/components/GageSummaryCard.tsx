@@ -24,6 +24,8 @@ import { IconButton, LinkButton } from "@common-ui/components/Button";
 import { openLinkInBrowser } from "@utils/navigation";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 
+const CREST_ARROW = "▲";
+
 interface GageSummaryProps {
   gage: GageSummary;
   firstItem?: boolean;
@@ -54,7 +56,7 @@ function ReadingRow(props: {
       top={Spacing.tiny}>
       <If condition={!!showCrestSlot}>
         <Cell width={16}>
-          <SmallerText color={Colors.primary}>{isCrest ? "▲" : ""}</SmallerText>
+          <SmallerText color={Colors.primary}>{isCrest ? CREST_ARROW : ""}</SmallerText>
         </Cell>
       </If>
       <Cell flex={2}>
@@ -192,7 +194,7 @@ export const GageSummaryCard = observer(function GageSummaryCard(props: GageSumm
         </Ternary>
         <Cell top={Spacing.small}>
           <LabelText color={Colors.success}>
-            <LabelText color={Colors.primary}>{"▲ "}</LabelText>
+            <LabelText color={Colors.primary}>{`${CREST_ARROW} `}</LabelText>
             {t("forecastScreen.forecastedCrests")}:
             <SmallText muted>
               {" "}
