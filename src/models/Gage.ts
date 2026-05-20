@@ -10,6 +10,7 @@ import { LocationInfoModel } from "./LocationInfo";
 import localDayJs from "@services/localDayJs";
 import { DataPoint, NOAAForecastModel } from "./Forecasts";
 import USGS_INFO from "@utils/usgsInfo";
+import { computeStubChanges, makeStubSnapshot } from "./helpers/regionSummary";
 
 // Gage data from https://waterservices.usgs.gov/rest/IV-Service.html
 // id: "USGS-38",
@@ -433,9 +434,32 @@ export const GageStoreModel = types
       store.setIsFetching(false);
     });
 
+    const syncHiddenStubs = (
+      showHidden: boolean,
+      locationInfos: readonly { id: string; isMetagage?: boolean }[]
+    ) => {
+      const { toAdd, toRemove } = computeStubChanges({
+        gages: store.gages,
+        locationInfos,
+        showHidden,
+      });
+
+      for (const id of toRemove) {
+        const existing = store.gages.find((g) => g.locationId === id && g._isStub);
+        if (existing) {
+          store.gages.remove(existing);
+        }
+      }
+
+      for (const id of toAdd) {
+        store.gages.push(makeStubSnapshot(id) as any);
+      }
+    };
+
     return {
       fetchData,
       fetchDataForGage,
+      syncHiddenStubs,
     };
   })
   .views((store) => ({
