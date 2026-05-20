@@ -244,7 +244,7 @@ const es = {
   gageChart: {
     discharge: "Caudal",
     waterLevel: "Nivel del agua",
-    flow: "Flujo",
+    flow: "Caudal",
     Now: "Ahora",
     dashboardDurationLabel: "hace 48 horas",
   },
@@ -258,7 +258,7 @@ const es = {
     lastReading: "Última medición",
     peak: "Máximo",
     waterLevel: "Nivel del agua",
-    waterFlow: "Flujo del agua",
+    waterFlow: "Caudal",
     status: "Estado",
     trend: "Tendencia",
     road: "Carretera",

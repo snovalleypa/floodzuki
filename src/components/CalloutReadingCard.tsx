@@ -17,7 +17,6 @@ import { LargeLabel } from "@common-ui/components/Label";
 import TrendIcon, { TREND_ICON_TYPES } from "@components/TrendIcon";
 import { Spacing } from "@common-ui/constants/spacing";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
-import { TxKeyPath } from "@i18n/i18n";
 
 const CalloutReading = observer(function CalloutReadingCard({ gage }: { gage: Gage }) {
   const { gagesStore, getTimezone } = useStores();
@@ -94,7 +93,7 @@ const CalloutReading = observer(function CalloutReadingCard({ gage }: { gage: Ga
             <RegularText>{t("calloutReading.road")}</RegularText>
             <MediumText>
               {roadStatus?.delta?.toFixed(1)} {t("measure.ft")}{" "}
-              {t(`statusLevelsCard.${roadStatus?.preposition}` as TxKeyPath)}
+              {roadStatus && t(`${roadStatus.preposition}`)}
               {t("calloutReading.roadSmall")}
             </MediumText>
           </CardItem>

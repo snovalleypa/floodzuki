@@ -309,7 +309,8 @@ export const GageModel = types
 
       const baseLevel = waterLevel || store.waterLevel;
       const level = baseLevel - store.roadSaddleHeight;
-      const preposition = store.roadSaddleHeight - baseLevel > 0 ? "below" : "over";
+      const preposition: "statusLevelsCard.below" | "statusLevelsCard.over" =
+        store.roadSaddleHeight - baseLevel > 0 ? "statusLevelsCard.below" : "statusLevelsCard.over";
       const delta = Math.abs(level);
 
       return {

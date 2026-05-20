@@ -44,7 +44,7 @@ describe("buildGageTooltipHtml", () => {
 
   it("includes the road status when getCalculatedRoadStatus returns one", () => {
     const html = buildGageTooltipHtml({
-      gage: makeGage({ delta: 1.5, preposition: "above" }),
+      gage: makeGage({ delta: 1.5, preposition: "statusLevelsCard.above" }),
       t,
       tz: TZ,
       x: new Date("2026-05-17T15:15:00Z").valueOf(),
@@ -123,7 +123,7 @@ describe("buildGageTooltipHtml", () => {
   it("uses waterLevel (not waterDischarge) to compute road status", () => {
     const getCalculatedRoadStatus = jest.fn(() => ({
       delta: 1.0,
-      preposition: "above",
+      preposition: "statusLevelsCard.above",
     }));
     const gage: any = { getCalculatedRoadStatus };
 
