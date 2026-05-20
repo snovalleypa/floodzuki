@@ -127,15 +127,17 @@ const MapLibreWebGageWebMap = ({
       attributionControl={{ compact: true }}
       onLoad={(e) => {
         const container = e.target.getContainer();
-        const expanded = container.querySelector(".maplibregl-ctrl-attrib.maplibregl-compact-show");
-        if (expanded) {
-          const button = container.querySelector(
-            ".maplibregl-ctrl-attrib-button"
-          ) as HTMLButtonElement | null;
-          setTimeout(() => {
+        setTimeout(() => {
+          const expanded = container.querySelector(
+            ".maplibregl-ctrl-attrib.maplibregl-compact-show"
+          );
+          if (expanded) {
+            const button = container.querySelector(
+              ".maplibregl-ctrl-attrib-button"
+            ) as HTMLButtonElement | null;
             button?.click();
-          }, 1000);
-        }
+          }
+        }, 1000);
       }}
       style={styles.map}>
       <Source id="region-rivers" type="geojson" data={riverOverlaysGeoJson}>
