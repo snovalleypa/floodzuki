@@ -387,7 +387,12 @@ export const GageStoreModel = types
           .subtract(Config.FRONT_PAGE_CHART_DURATION_NUMBER, Config.FRONT_PAGE_CHART_DURATION_UNIT)
           .utc()
           .format();
-      const gage = store.gages.find((gage) => gage?.locationId === locationId);
+      let gage = store.gages.find((g) => g?.locationId === locationId);
+
+      if (!gage) {
+        store.gages.push(makeStubSnapshot(locationId) as any);
+        gage = store.gages.find((g) => g?.locationId === locationId);
+      }
 
       if (!gage) {
         store.setIsFetching(false);
