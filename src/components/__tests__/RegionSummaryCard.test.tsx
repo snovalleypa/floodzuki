@@ -85,8 +85,8 @@ describe("RegionSummaryCard", () => {
       forecastsStore: { severity: "flood" },
     });
     const { getByText } = render(<RegionSummaryCard />);
-    expect(getByText("3 flooding")).toBeTruthy();
-    expect(getByText("2 near flooding")).toBeTruthy();
+    expect(getByText(/3 flooding/)).toBeTruthy();
+    expect(getByText(/2 near flooding/)).toBeTruthy();
     expect(getByText("Flooding predicted")).toBeTruthy();
   });
 

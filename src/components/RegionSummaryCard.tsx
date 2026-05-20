@@ -20,13 +20,15 @@ const RegionSummaryCard = observer(function RegionSummaryCard() {
 
   const counts = getBucketCounts();
 
-  const floodingText =
-    counts.flooding > 0 ? t("regionSummary.flooding", { count: counts.flooding }) : null;
-  const nearFloodingText =
-    counts.nearFlooding > 0
-      ? t("regionSummary.nearFlooding", { count: counts.nearFlooding })
-      : null;
-  const isCalm = !floodingText && !nearFloodingText;
+  const statusParts: string[] = [];
+  if (counts.flooding > 0) {
+    statusParts.push(t("regionSummary.flooding", { count: counts.flooding }));
+  }
+  if (counts.nearFlooding > 0) {
+    statusParts.push(t("regionSummary.nearFlooding", { count: counts.nearFlooding }));
+  }
+  const statusText =
+    statusParts.length === 0 ? t("regionSummary.allNormal") : statusParts.join(" · ");
   const statusColor =
     counts.flooding > 0 ? Colors.danger : counts.nearFlooding > 0 ? Colors.warning : Colors.success;
 
@@ -63,16 +65,7 @@ const RegionSummaryCard = observer(function RegionSummaryCard() {
     <Card bottom={Spacing.medium} innerHorizontal={Spacing.medium} innerVertical={Spacing.medium}>
       <RowOrCell flex justify="flex-start" align="space-between">
         <Cell flex>
-          {isCalm ? (
-            <SmallTitle color={statusColor}>{t("regionSummary.allNormal")}</SmallTitle>
-          ) : (
-            <>
-              {floodingText ? <SmallTitle color={statusColor}>{floodingText}</SmallTitle> : null}
-              {nearFloodingText ? (
-                <SmallTitle color={statusColor}>{nearFloodingText}</SmallTitle>
-              ) : null}
-            </>
-          )}
+          <SmallTitle color={statusColor}>{statusText}</SmallTitle>
           {ForecastPill}
         </Cell>
         <Cell
