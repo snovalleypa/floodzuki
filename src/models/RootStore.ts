@@ -73,17 +73,25 @@ export const RootStoreModel = types
       return store.regionStore?.region?.timezone || "America/Los_Angeles";
     };
 
-    const filterLocationsWithGages = () => {
+    /**
+     * Returns gages eligible for display / nav. When the toggle is off, stubs are
+     * filtered out — they remain in the MST tree but are invisible. When on, both
+     * real gages and stubs are returned.
+     */
+    const visibleGages = () => {
       const gages = store.gagesStore.gages;
-      const gageIds = gages.map((gage) => gage.locationId);
+      return store.showHiddenOffline ? gages : gages.filter((g) => !g._isStub);
+    };
 
+    const filterLocationsWithGages = () => {
+      const gageIds = visibleGages().map((gage) => gage.locationId);
       return store.locationInfoStore.locationInfos.filter((location) =>
         gageIds.includes(location.id)
       );
     };
 
     const getLocationsWithGages = () => {
-      const gages = store.gagesStore.gages;
+      const gages = visibleGages();
       const gageIds = gages.map((gage) => gage.locationId);
 
       return store.locationInfoStore.locationInfos
@@ -92,7 +100,7 @@ export const RootStoreModel = types
     };
 
     const getLocationWithGagesIds = () => {
-      const gages = store.gagesStore.gages.map((gage) => gage.locationId);
+      const gages = visibleGages().map((gage) => gage.locationId);
       return store.locationInfoStore.locationInfos
         .filter((location) => gages.includes(location.id))
         .map((location) => location.id);

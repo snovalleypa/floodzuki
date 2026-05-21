@@ -444,23 +444,28 @@ export const GageStoreModel = types
       store.setIsFetching(false);
     });
 
+    /**
+     * Idempotently adds hidden-location stubs to store.gages when showHidden is true.
+     *
+     * IMPORTANT: this action never *removes* stubs. The display layer hides them when
+     * the toggle is off (see RootStore.getDisplayItems). Removing nodes from an MST
+     * array detaches them; React DevTools then introspects the detached props during
+     * the commit phase and trips MST's "Path upon death" / "initializing phase" errors.
+     * Keeping stubs in the tree permanently sidesteps both issues, and stubs hydrated
+     * with readings via fetchDataForGage retain their data across toggle cycles.
+     */
     const syncHiddenStubs = (
       showHidden: boolean,
       locationInfos: readonly { id: string; isMetagage?: boolean }[]
     ) => {
-      const { toAdd, toRemove } = computeStubChanges({
+      if (!showHidden) {
+        return;
+      }
+      const { toAdd } = computeStubChanges({
         gages: store.gages,
         locationInfos,
         showHidden,
       });
-
-      for (const id of toRemove) {
-        const existing = store.gages.find((g) => g.locationId === id && g._isStub);
-        if (existing) {
-          store.gages.remove(existing);
-        }
-      }
-
       for (const id of toAdd) {
         store.gages.push(makeStubSnapshot(id) as any);
       }

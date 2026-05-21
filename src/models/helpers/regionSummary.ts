@@ -138,12 +138,23 @@ export function computeStubChanges({
   return { toAdd, toRemove };
 }
 
-/** Snapshot shape used to push a stub gage into GageStore.gages. */
+/**
+ * Snapshot shape used to push a stub gage into GageStore.gages.
+ *
+ * The explicit empty arrays for readings/actualReadings/predictions force MST to
+ * materialize the backing MobX observables during the action's init phase. Without
+ * them, the first read of `stub.readings` (typically by React DevTools during the
+ * commit phase) tries to lazy-init outside an action context and throws
+ * "the creation of the observable instance must be done on the initializing phase".
+ */
 export function makeStubSnapshot(locationId: string) {
   return {
     locationId,
     locationInfo: locationId,
     isOffline: true,
     _isStub: true,
+    readings: [],
+    actualReadings: [],
+    predictions: [],
   };
 }

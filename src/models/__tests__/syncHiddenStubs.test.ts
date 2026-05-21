@@ -36,12 +36,29 @@ describe("GageStore.syncHiddenStubs", () => {
     expect(stub?.isOffline).toBe(true);
   });
 
-  it("removes all stubs when called with showHidden=false", () => {
+  it("is a no-op when called with showHidden=false — stubs persist in the tree (display layer hides them)", () => {
     const store = buildStore();
     store.syncHiddenStubs(true, locations);
+    const beforeIds = store.gages.map((g) => g.locationId).sort();
     store.syncHiddenStubs(false, locations);
-    expect(store.gages.map((g) => g.locationId).sort()).toEqual(["A", "B"]);
-    expect(store.gages.every((g) => !g._isStub)).toBe(true);
+    // Stubs must NOT be removed: removing detaches MST nodes, and React DevTools'
+    // commit-phase prop introspection then trips "Path upon death" /
+    // "initializing phase" errors. The toggle filters at the display layer instead.
+    const afterIds = store.gages.map((g) => g.locationId).sort();
+    expect(afterIds).toEqual(beforeIds);
+    const stubC = store.gages.find((g) => g.locationId === "C");
+    expect(stubC?._isStub).toBe(true);
+  });
+
+  it("materializes lazy MST arrays on the stub so devtools reads don't trip 'initializing phase'", () => {
+    const store = buildStore();
+    store.syncHiddenStubs(true, locations);
+    const stub = store.gages.find((g) => g.locationId === "C");
+    // Reading these properties from outside an action must not throw — these are the
+    // exact reads React DevTools performs when logging component props post-commit.
+    expect(() => stub?.readings.length).not.toThrow();
+    expect(() => stub?.actualReadings.length).not.toThrow();
+    expect(() => stub?.predictions.length).not.toThrow();
   });
 
   it("preserves the MST identity of real gauges across repeated sync calls", () => {
