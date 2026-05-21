@@ -174,3 +174,14 @@ This applies in three directions:
 - **Construction:** when building a Dayjs from a date string in code (in components, stores, tests), construct it in gauge tz from the start: `localDayJs.tz("2026-05-01", "YYYY-MM-DD", timezone)`. A bare `dayjs("2026-05-01")` is midnight in the _system_ tz and will silently produce the wrong day when system tz != gauge tz.
 
 **Testing:** the Jest suite runs with `TZ=UTC` so any code that silently relies on system tz matching gauge tz will fail in tests. When writing tz-sensitive tests, never construct dates with bare `dayjs(string)` or `new Date(string)` — always specify the tz explicitly.
+
+### Localization
+
+All user-visible strings go through the `useLocale()` hook (`t("key")`). Translation files live in `src/i18n/`. `LocaleContext.tsx` wraps the app at the root level.
+
+- +**Spanish (`es.ts`) conventions** — see [docs/spanish-translation-review.md](docs/spanish-translation-review.md) for the full review and rationale:
+  +- Audience is the local Latino community (predominantly Mexican-origin) → use **Latin American Spanish, informal `tú` register**. Avoid peninsular forms (`vale`, `vosotros`) and `usted` imperatives. Don't mix registers within a screen.
+  +- For hydrology, river flow/discharge is **`caudal`**, not `descarga` (which means "download" in everyday Spanish) or `flujo` (flow).
+  +- For OS-style labels (login, about, settings), match Apple/Google Spanish localizations (e.g. `Iniciar sesión`, `Acerca de`).
+  +- Spanish requires paired punctuation: `¡...!` and `¿...?` — both marks, not just the closing one.
+  +- UI labels omit leading definite articles (`Medidor río arriba`, not `El medidor río arriba`).
