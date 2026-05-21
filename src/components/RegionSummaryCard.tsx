@@ -85,7 +85,9 @@ const RegionSummaryCard = observer(function RegionSummaryCard() {
             {t("regionSummary.active")}
           </SmallerText>
           <SmallerText>
-            <SmallerText color={Colors.lightDark}>{counts.visibleOffline}</SmallerText>{" "}
+            <SmallerText color={Colors.lightDark}>
+              {counts.visibleOffline + counts.hidden}
+            </SmallerText>{" "}
             {t("regionSummary.offline")}
           </SmallerText>
           <SmallerText>

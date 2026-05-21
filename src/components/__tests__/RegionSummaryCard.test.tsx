@@ -110,4 +110,21 @@ describe("RegionSummaryCard", () => {
     fireEvent(getByTestId("region-summary-toggle"), "valueChange", true);
     expect(mockStores.setShowHiddenOffline).toHaveBeenCalledWith(true);
   });
+
+  it("rolls hidden gauges into the offline count (hidden gauges are also offline)", () => {
+    setup({
+      getBucketCounts: () => ({
+        active: 9,
+        visibleOffline: 2,
+        hidden: 3,
+        flooding: 0,
+        nearFlooding: 0,
+      }),
+    });
+    const { getByText } = render(<RegionSummaryCard />);
+    expect(getByText("9")).toBeTruthy(); // active
+    expect(getByText("3")).toBeTruthy(); // hidden
+    // 2 visibleOffline + 3 hidden = 5 offline
+    expect(getByText("5")).toBeTruthy();
+  });
 });
