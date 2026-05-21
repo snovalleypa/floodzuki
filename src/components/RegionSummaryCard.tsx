@@ -6,7 +6,7 @@ import { observer } from "mobx-react-lite";
 import { Card } from "@common-ui/components/Card";
 import { Cell, Row, RowOrCell } from "@common-ui/components/Common";
 import { LARGE_LABEL_COLORS } from "@common-ui/components/Label";
-import { LabelText, SmallerText, SmallTitle } from "@common-ui/components/Text";
+import { SmallerText, SmallTitle } from "@common-ui/components/Text";
 import { Colors } from "@common-ui/constants/colors";
 import { Spacing } from "@common-ui/constants/spacing";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
@@ -51,7 +51,7 @@ const RegionSummaryCard = observer(function RegionSummaryCard() {
       <TouchableOpacity
         activeOpacity={0.7}
         style={{
-          marginTop: Spacing.small,
+          marginTop: isMobile ? Spacing.small : 0,
           borderLeftWidth: 3,
           borderLeftColor: forecastColor,
           borderRadius: 4,
@@ -68,52 +68,55 @@ const RegionSummaryCard = observer(function RegionSummaryCard() {
   );
 
   return (
-    <Card bottom={Spacing.medium} innerHorizontal={Spacing.medium} innerVertical={Spacing.medium}>
-      <RowOrCell flex justify="flex-start" align="space-between">
+    <Cell
+      bottom={Spacing.extraSmall}
+      innerHorizontal={Spacing.medium}
+      innerVertical={Spacing.extraSmall}>
+      <RowOrCell justify="center" align="space-between">
         <Cell flex>
           <SmallTitle color={statusColor}>{statusText}</SmallTitle>
+        </Cell>
+        <Cell left={isMobile ? 0 : Spacing.medium} align={isMobile ? "flex-start" : "flex-end"}>
           {ForecastPill}
         </Cell>
-        <Cell
-          left={isMobile ? 0 : Spacing.medium}
-          top={isMobile ? Spacing.medium : 0}
-          align={isMobile ? "flex-start" : "flex-end"}>
+      </RowOrCell>
+      <Row top={Spacing.medium} align="space-between" justify="center" wrap>
+        <Row>
           <SmallerText>
             <SmallerText color={Colors.lightDark}>{counts.active}</SmallerText>{" "}
             {t("regionSummary.active")}
-          </SmallerText>
-          <SmallerText>
+            {", "}
             <SmallerText color={Colors.lightDark}>
               {counts.visibleOffline + counts.hidden}
             </SmallerText>{" "}
             {t("regionSummary.offline")}
-          </SmallerText>
-          <SmallerText>
+            {" ("}
             <SmallerText color={Colors.lightDark}>{counts.hidden}</SmallerText>{" "}
             {t("regionSummary.hidden")}
+            {")"}
           </SmallerText>
-          <Row top={Spacing.tiny} align="flex-end">
-            <SmallerText>{t("regionSummary.showHidden")}</SmallerText>
-            <Cell left={Spacing.tiny}>
-              <Switch
-                testID="region-summary-toggle"
-                value={showHiddenOffline}
-                disabled={counts.hidden === 0}
-                onValueChange={setShowHiddenOffline}
-                trackColor={{ false: Colors.lightGrey, true: Colors.primary }}
-                thumbColor={Colors.white}
-                ios_backgroundColor={Colors.lightGrey}
-                // react-native-web extends Switch with activeThumbColor (the on-state
-                // thumb color on web); the prop isn't in react-native's SwitchProps so
-                // TS rejects it on native typings.
-                // @ts-expect-error — web-only prop, see https://necolas.github.io/react-native-web/docs/switch/
-                activeThumbColor={Colors.white}
-              />
-            </Cell>
-          </Row>
-        </Cell>
-      </RowOrCell>
-    </Card>
+        </Row>
+        <Row>
+          <SmallerText>{t("regionSummary.showHidden")}</SmallerText>
+          <Cell left={Spacing.tiny}>
+            <Switch
+              testID="region-summary-toggle"
+              value={showHiddenOffline}
+              disabled={counts.hidden === 0}
+              onValueChange={setShowHiddenOffline}
+              trackColor={{ false: Colors.lightGrey, true: Colors.primary }}
+              thumbColor={Colors.white}
+              ios_backgroundColor={Colors.lightGrey}
+              // react-native-web extends Switch with activeThumbColor (the on-state
+              // thumb color on web); the prop isn't in react-native's SwitchProps so
+              // TS rejects it on native typings.
+              // @ts-expect-error — web-only prop, see https://necolas.github.io/react-native-web/docs/switch/
+              activeThumbColor={Colors.white}
+            />
+          </Cell>
+        </Row>
+      </Row>
+    </Cell>
   );
 });
 
