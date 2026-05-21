@@ -90,7 +90,7 @@ describe("RegionSummaryCard", () => {
     expect(getByText("Flooding predicted")).toBeTruthy();
   });
 
-  it("disables the toggle when hidden count is zero", () => {
+  it("omits the toggle and hidden parenthetical when hidden count is zero", () => {
     setup({
       getBucketCounts: () => ({
         active: 9,
@@ -100,8 +100,10 @@ describe("RegionSummaryCard", () => {
         nearFlooding: 0,
       }),
     });
-    const { getByTestId } = render(<RegionSummaryCard />);
-    expect(getByTestId("region-summary-toggle").props.disabled).toBe(true);
+    const { queryByTestId, queryByText } = render(<RegionSummaryCard />);
+    expect(queryByTestId("region-summary-toggle")).toBeNull();
+    expect(queryByText("Show hidden")).toBeNull();
+    expect(queryByText("hidden")).toBeNull();
   });
 
   it("calls setShowHiddenOffline when the toggle is flipped", () => {

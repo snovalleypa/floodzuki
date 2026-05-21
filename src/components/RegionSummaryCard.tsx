@@ -3,20 +3,17 @@ import { Switch, TouchableOpacity } from "react-native";
 import { Link } from "expo-router";
 import { observer } from "mobx-react-lite";
 
-import { Card } from "@common-ui/components/Card";
-import { Cell, Row, RowOrCell } from "@common-ui/components/Common";
+import { Cell, Row } from "@common-ui/components/Common";
 import { LARGE_LABEL_COLORS } from "@common-ui/components/Label";
 import { SmallerText, SmallTitle } from "@common-ui/components/Text";
 import { Colors } from "@common-ui/constants/colors";
 import { Spacing } from "@common-ui/constants/spacing";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
-import { useResponsive } from "@common-ui/utils/responsive";
 import { useStores } from "@models/helpers/useStores";
 import { ROUTES } from "app/_layout";
 
 const RegionSummaryCard = observer(function RegionSummaryCard() {
   const { t } = useLocale();
-  const { isMobile } = useResponsive();
   const { showHiddenOffline, setShowHiddenOffline, getBucketCounts, forecastsStore } = useStores();
 
   const counts = getBucketCounts();
@@ -51,7 +48,6 @@ const RegionSummaryCard = observer(function RegionSummaryCard() {
       <TouchableOpacity
         activeOpacity={0.7}
         style={{
-          marginTop: isMobile ? Spacing.small : 0,
           borderLeftWidth: 3,
           borderLeftColor: forecastColor,
           borderRadius: 4,
@@ -72,14 +68,14 @@ const RegionSummaryCard = observer(function RegionSummaryCard() {
       bottom={Spacing.extraSmall}
       innerHorizontal={Spacing.medium}
       innerVertical={Spacing.extraSmall}>
-      <RowOrCell justify="center" align="space-between">
+      <Row justify="center" align="space-between">
         <Cell flex>
           <SmallTitle color={statusColor}>{statusText}</SmallTitle>
         </Cell>
-        <Cell left={isMobile ? 0 : Spacing.medium} align={isMobile ? "flex-start" : "flex-end"}>
+        <Cell left={Spacing.medium} align="flex-end">
           {ForecastPill}
         </Cell>
-      </RowOrCell>
+      </Row>
       <Row top={Spacing.medium} align="space-between" justify="center" wrap>
         <Row>
           <SmallerText>
@@ -90,31 +86,36 @@ const RegionSummaryCard = observer(function RegionSummaryCard() {
               {counts.visibleOffline + counts.hidden}
             </SmallerText>{" "}
             {t("regionSummary.offline")}
-            {" ("}
-            <SmallerText color={Colors.lightDark}>{counts.hidden}</SmallerText>{" "}
-            {t("regionSummary.hidden")}
-            {")"}
+            {counts.hidden > 0 && (
+              <>
+                {" ("}
+                <SmallerText color={Colors.lightDark}>{counts.hidden}</SmallerText>{" "}
+                {t("regionSummary.hidden")}
+                {")"}
+              </>
+            )}
           </SmallerText>
         </Row>
-        <Row>
-          <SmallerText>{t("regionSummary.showHidden")}</SmallerText>
-          <Cell left={Spacing.tiny}>
-            <Switch
-              testID="region-summary-toggle"
-              value={showHiddenOffline}
-              disabled={counts.hidden === 0}
-              onValueChange={setShowHiddenOffline}
-              trackColor={{ false: Colors.lightGrey, true: Colors.primary }}
-              thumbColor={Colors.white}
-              ios_backgroundColor={Colors.lightGrey}
-              // react-native-web extends Switch with activeThumbColor (the on-state
-              // thumb color on web); the prop isn't in react-native's SwitchProps so
-              // TS rejects it on native typings.
-              // @ts-expect-error — web-only prop, see https://necolas.github.io/react-native-web/docs/switch/
-              activeThumbColor={Colors.white}
-            />
-          </Cell>
-        </Row>
+        {counts.hidden > 0 && (
+          <Row>
+            <SmallerText>{t("regionSummary.showHidden")}</SmallerText>
+            <Cell left={Spacing.tiny}>
+              <Switch
+                testID="region-summary-toggle"
+                value={showHiddenOffline}
+                onValueChange={setShowHiddenOffline}
+                trackColor={{ false: Colors.lightGrey, true: Colors.primary }}
+                thumbColor={Colors.white}
+                ios_backgroundColor={Colors.lightGrey}
+                // react-native-web extends Switch with activeThumbColor (the on-state
+                // thumb color on web); the prop isn't in react-native's SwitchProps so
+                // TS rejects it on native typings.
+                // @ts-expect-error — web-only prop, see https://necolas.github.io/react-native-web/docs/switch/
+                activeThumbColor={Colors.white}
+              />
+            </Cell>
+          </Row>
+        )}
       </Row>
     </Cell>
   );
