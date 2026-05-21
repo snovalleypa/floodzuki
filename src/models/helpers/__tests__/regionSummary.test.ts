@@ -197,15 +197,12 @@ describe("computeStubChanges", () => {
 });
 
 describe("makeStubSnapshot", () => {
-  it("returns a snapshot with explicit empty arrays so MST materializes them in init phase", () => {
+  it("returns the minimal snapshot shape for a stub gauge", () => {
     expect(makeStubSnapshot("USGS-23")).toEqual({
       locationId: "USGS-23",
       locationInfo: "USGS-23",
       isOffline: true,
       _isStub: true,
-      readings: [],
-      actualReadings: [],
-      predictions: [],
     });
   });
 });

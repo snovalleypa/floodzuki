@@ -341,14 +341,11 @@ export const GageStoreModel = types
     gages: types.array(GageModel),
     ...dataFetchingProps,
   })
-  /**
-   * Strip stub gages from snapshots in both directions. Stubs are session-scoped —
-   * they're re-added on the next fetch when `showHiddenOffline` is true (see fetchData
-   * below). Persisting them caused MST to lazy-wrap their child arrays on rehydration
-   * outside any action context, tripping "initializing phase" errors during React
-   * DevTools' commit-phase prop introspection. preProcessSnapshot also cleans up any
-   * stub residue from previously-cached state in AsyncStorage.
-   */
+  // Stub gauges are session-scoped — they're re-added on the next fetch when
+  // `showHiddenOffline` is true (see fetchData below). Filtering them out of the
+  // persisted snapshot keeps AsyncStorage lean and avoids carrying stale stub data
+  // across sessions. setupRootStore.ts also strips stubs on load as belt-and-suspenders
+  // for state cached by older builds that didn't have postProcessSnapshot.
   .preProcessSnapshot((snapshot) => ({
     ...snapshot,
     gages: (snapshot?.gages ?? []).filter((g: any) => !g?._isStub),
