@@ -82,7 +82,6 @@ const en = {
     showHidden: "Show hidden",
     noRecentData: "No recent data",
     offlineGauge: "OFFLINE",
-    offlineBanner: "Gauge offline — pick a historical event below to see past readings",
   },
   forecastScreen: {
     title: "Forecast",
@@ -283,6 +282,7 @@ const en = {
     rateOfChange: "Rate of Change",
     roadLevel: "Road Level",
     rangeWarning: "Range adjusted to {{maxRange}} days — the maximum this chart supports.",
+    noDataInRange: "No data in selected range",
   },
   gageInfoCard: {
     gageInfo: "Gauge Info",

@@ -84,8 +84,6 @@ const es = {
     showHidden: "Mostrar ocultos",
     noRecentData: "Sin datos recientes",
     offlineGauge: "DESCONECTADO",
-    offlineBanner:
-      "Medidor desconectado — selecciona un evento histórico abajo para ver las lecturas anteriores.",
   },
   forecastScreen: {
     title: "Pronóstico",
@@ -288,6 +286,7 @@ const es = {
     rateOfChange: "Tasa de cambio",
     roadLevel: "Nivel de la carretera",
     rangeWarning: "Rango ajustado a {{maxRange}} días — el máximo que admite este gráfico.",
+    noDataInRange: "Sin datos en el rango seleccionado",
   },
   gageInfoCard: {
     gageInfo: "Información del medidor",
