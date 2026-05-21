@@ -6,10 +6,6 @@ import { render } from "@testing-library/react-native";
 
 import HiddenGageItem from "../HiddenGageItem";
 
-jest.mock("mobx-react-lite", () => ({
-  observer: (fn: any) => fn,
-}));
-
 jest.mock("expo-router", () => ({
   Link: ({ children }: any) => children,
   useRouter: () => ({ push: jest.fn() }),
@@ -33,18 +29,13 @@ jest.mock("@common-ui/contexts/LocaleContext", () => ({
   }),
 }));
 
-const makeStub = (overrides: Record<string, unknown> = {}) =>
-  ({
-    locationId: "USGS-23",
-    _isStub: true,
-    isOffline: true,
-    locationInfo: { locationName: "Tolt River — Above Carnation" },
-    ...overrides,
-  } as any);
-
 describe("HiddenGageItem", () => {
   it("renders the location name, location id, OFFLINE pill, and 'No recent data'", () => {
-    const { getByText } = render(<HiddenGageItem item={makeStub()} />);
+    const { getByText } = render(
+      <HiddenGageItem
+        item={{ locationId: "USGS-23", locationName: "Tolt River — Above Carnation" }}
+      />
+    );
     expect(getByText("Tolt River — Above Carnation")).toBeTruthy();
     expect(getByText("USGS-23")).toBeTruthy();
     expect(getByText("OFFLINE")).toBeTruthy();

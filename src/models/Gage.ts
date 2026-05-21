@@ -1,4 +1,12 @@
-import { Instance, SnapshotIn, SnapshotOut, types, flow, getRoot } from "mobx-state-tree";
+import {
+  Instance,
+  SnapshotIn,
+  SnapshotOut,
+  types,
+  flow,
+  getRoot,
+  getSnapshot,
+} from "mobx-state-tree";
 import { api } from "@services/api";
 import dayjs from "dayjs";
 
@@ -333,6 +341,22 @@ export const GageStoreModel = types
     gages: types.array(GageModel),
     ...dataFetchingProps,
   })
+  /**
+   * Strip stub gages from snapshots in both directions. Stubs are session-scoped —
+   * they're re-added on the next fetch when `showHiddenOffline` is true (see fetchData
+   * below). Persisting them caused MST to lazy-wrap their child arrays on rehydration
+   * outside any action context, tripping "initializing phase" errors during React
+   * DevTools' commit-phase prop introspection. preProcessSnapshot also cleans up any
+   * stub residue from previously-cached state in AsyncStorage.
+   */
+  .preProcessSnapshot((snapshot) => ({
+    ...snapshot,
+    gages: (snapshot?.gages ?? []).filter((g: any) => !g?._isStub),
+  }))
+  .postProcessSnapshot((snapshot) => ({
+    ...snapshot,
+    gages: snapshot.gages.filter((g) => !g._isStub),
+  }))
   .actions(withDataFetchingActions)
   .actions(withSetPropAction)
   .actions((store) => {
@@ -358,7 +382,14 @@ export const GageStoreModel = types
             locationInfo: gage.locationId,
           })) || [];
 
-        store.gages = gages;
+        // Preserve existing stub gauges across the reassignment. MST's identifier
+        // reconciliation will keep stubs alive when they appear in the new array
+        // (matched by locationId). Without this, fetchData destroys the stubs and
+        // syncHiddenStubs recreates them — leaving dead old MST nodes that React 19's
+        // dev-mode commit-phase prop diff still references, firing thousands of
+        // non-fatal "Path upon death" warnings (MST liveliness checking).
+        const stubSnapshots = store.gages.filter((g) => g._isStub).map((g) => getSnapshot(g));
+        store.gages = [...gages, ...stubSnapshots] as any;
       } else {
         store.setError(response.kind);
       }
@@ -468,6 +499,19 @@ export const GageStoreModel = types
       });
       for (const id of toAdd) {
         store.gages.push(makeStubSnapshot(id) as any);
+      }
+      // MST 7 bug github.com/mobxjs/mobx-state-tree#2279: empty types.array(...)
+      // child observables aren't materialized when their parent is created. React 19's
+      // dev-mode `logComponentRender` profiler (NOT the React DevTools browser
+      // extension — this fires even without it) is then the first reader of those
+      // children and trips MST's "initializing phase" assertion, poisoning the commit.
+      // Touching each lazy array INSIDE this action context forces materialization
+      // while it's legal. We do it for every gauge (not just new stubs) because real
+      // gauges also have empty `actualReadings`/`predictions` arrays.
+      for (const g of store.gages) {
+        void g.readings.length;
+        void g.actualReadings.length;
+        void g.predictions.length;
       }
     };
 

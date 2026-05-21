@@ -5,6 +5,7 @@ import { observer } from "mobx-react-lite";
 
 import { Card } from "@common-ui/components/Card";
 import { Cell, Row, RowOrCell } from "@common-ui/components/Common";
+import { LARGE_LABEL_COLORS } from "@common-ui/components/Label";
 import { LabelText, SmallerText, SmallTitle } from "@common-ui/components/Text";
 import { Colors } from "@common-ui/constants/colors";
 import { Spacing } from "@common-ui/constants/spacing";
@@ -29,24 +30,21 @@ const RegionSummaryCard = observer(function RegionSummaryCard() {
   }
   const statusText =
     statusParts.length === 0 ? t("regionSummary.allNormal") : statusParts.join(" · ");
-  const statusColor =
-    counts.flooding > 0 ? Colors.danger : counts.nearFlooding > 0 ? Colors.warning : Colors.success;
+  const statusLabelType =
+    counts.flooding > 0 ? "danger" : counts.nearFlooding > 0 ? "warning" : "success";
+  const statusColor = LARGE_LABEL_COLORS[statusLabelType].textColor;
 
   const severity = forecastsStore.severity as "none" | "near" | "flood";
+  const forecastLabelType =
+    severity === "flood" ? "danger" : severity === "near" ? "warning" : "success";
   const forecastCopy =
     severity === "flood"
       ? t("regionSummary.floodingPredicted")
       : severity === "near"
       ? t("regionSummary.nearFloodPredicted")
       : t("regionSummary.noFloodingPredicted");
-  const forecastColor =
-    severity === "flood" ? Colors.danger : severity === "near" ? Colors.warning : Colors.success;
-  const forecastBg =
-    severity === "flood"
-      ? Colors.softRed
-      : severity === "near"
-      ? Colors.softYellow
-      : Colors.softGreen;
+  const forecastColor = LARGE_LABEL_COLORS[forecastLabelType].textColor;
+  const forecastBg = LARGE_LABEL_COLORS[forecastLabelType].backgroundColor;
 
   const ForecastPill = (
     <Link href={ROUTES.Forecast} asChild>
@@ -95,13 +93,21 @@ const RegionSummaryCard = observer(function RegionSummaryCard() {
             {t("regionSummary.hidden")}
           </SmallerText>
           <Row top={Spacing.tiny} align="flex-end">
-            <LabelText>{t("regionSummary.showHidden")}</LabelText>
+            <SmallerText>{t("regionSummary.showHidden")}</SmallerText>
             <Cell left={Spacing.tiny}>
               <Switch
                 testID="region-summary-toggle"
                 value={showHiddenOffline}
                 disabled={counts.hidden === 0}
                 onValueChange={setShowHiddenOffline}
+                trackColor={{ false: Colors.lightGrey, true: Colors.primary }}
+                thumbColor={Colors.white}
+                ios_backgroundColor={Colors.lightGrey}
+                // react-native-web extends Switch with activeThumbColor (the on-state
+                // thumb color on web); the prop isn't in react-native's SwitchProps so
+                // TS rejects it on native typings.
+                // @ts-expect-error — web-only prop, see https://necolas.github.io/react-native-web/docs/switch/
+                activeThumbColor={Colors.white}
               />
             </Cell>
           </Row>

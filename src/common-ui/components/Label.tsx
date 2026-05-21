@@ -6,7 +6,7 @@ import { OffsetProps, useOffsetStyles } from "@common-ui/utils/useOffset";
 import { LargeTitle, SmallText, SmallTitle } from "./Text";
 import { useResponsive } from "@common-ui/utils/responsive";
 
-const LARGE_LABEL_COLORS = {
+export const LARGE_LABEL_COLORS = {
   success: {
     backgroundColor: "#e8f4d1",
     textColor: "#9fd140",
