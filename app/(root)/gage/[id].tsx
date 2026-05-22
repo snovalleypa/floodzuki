@@ -18,6 +18,7 @@ import { MobileScreen, WideScreen, isMobile, useResponsive } from "@common-ui/ut
 import { useStores } from "@models/helpers/useStores";
 import { Gage } from "@models/Gage";
 
+import { ChainPager } from "@components/ChainPager";
 import { ErrorDetails } from "@components/ErrorDetails";
 import { GageDetailsChart } from "@components/GageDetailsChart";
 import CalloutReadingCard from "@components/CalloutReadingCard";
@@ -247,6 +248,8 @@ const GageDetailsBody = observer(function GageDetailsBody({ gageId }: { gageId: 
 
 const GageScreen = observer(function GageScreen() {
   const { id } = useLocalSearchParams();
+  const { t } = useLocale();
+  const store = useStores();
 
   const gageId = Array.isArray(id) ? id.join("/") : id;
 
@@ -260,7 +263,35 @@ const GageScreen = observer(function GageScreen() {
     return null;
   }
 
-  return <GageDetailsBody gageId={gageId} />;
+  const locationIds = store.getLocationWithGagesIds();
+
+  const pages = locationIds.map((locationId) => ({
+    key: locationId,
+    route: { pathname: ROUTES.GageDetails, params: { id: locationId } },
+    render: () => <GageDetailsBody gageId={locationId} />,
+  }));
+
+  const initialIndex = pages.findIndex((p) => p.key === gageId);
+
+  if (initialIndex === -1) {
+    return (
+      <>
+        <Head>
+          <title>
+            {t("common.title")} - {t("homeScreen.title")}
+          </title>
+        </Head>
+        <EmptyComponent />
+      </>
+    );
+  }
+
+  return (
+    <>
+      <Stack.Screen options={{ gestureEnabled: false, animation: "none" }} />
+      <ChainPager pages={pages} initialIndex={initialIndex} />
+    </>
+  );
 });
 
 export default GageScreen;
