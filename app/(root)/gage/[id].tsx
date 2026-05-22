@@ -67,9 +67,13 @@ const UpstreamGageLink = observer(function UpstreamGageLink({ gage, simple }: Ga
   const title = simple ? t("gageScreen.upstreamGage") : t("gageScreen.goToUpstreamGage");
   const iconSize = isMobile && simple ? 16 : 24;
   const Text = isMobile && simple ? LabelText : RegularText;
+  // Mobile: claim half the row so the inner Card and Cell have width to expand
+  // into. Wide: leave undefined so React Native Web doesn't collapse the
+  // TouchableOpacity to zero width via CSS `flex: 0` shorthand semantics.
+  const touchableStyle = isMobile ? { flex: 1 } : undefined;
 
   const innerCard = (
-    <Card flex={isMobile ? 1 : 0}>
+    <Card>
       <Row>
         <Icon name="arrow-left" size={iconSize} color={Colors.green} />
         <Cell flex left={Spacing.extraSmall}>
@@ -88,13 +92,15 @@ const UpstreamGageLink = observer(function UpstreamGageLink({ gage, simple }: Ga
         href={{ pathname: ROUTES.GageDetails, params: { id: upstreamGageLocation?.id } }}
         replace
         asChild>
-        <TouchableOpacity>{innerCard}</TouchableOpacity>
+        <TouchableOpacity style={touchableStyle}>{innerCard}</TouchableOpacity>
       </Link>
     );
   }
 
   return (
-    <TouchableOpacity onPress={() => pager.goToIndex(pager.currentIndex - 1)}>
+    <TouchableOpacity
+      style={touchableStyle}
+      onPress={() => pager.goToIndex(pager.currentIndex - 1)}>
       {innerCard}
     </TouchableOpacity>
   );
@@ -115,9 +121,10 @@ const DownstreamGageLink = observer(function DownstreamGageLink({ gage, simple }
   const title = simple ? t("gageScreen.downstreamGage") : t("gageScreen.goToDownstreamGage");
   const iconSize = isMobile && simple ? 16 : 24;
   const Text = isMobile && simple ? LabelText : RegularText;
+  const touchableStyle = isMobile ? { flex: 1 } : undefined;
 
   const innerCard = (
-    <Card flex={isMobile ? 1 : 0}>
+    <Card>
       <Row>
         <Cell flex right={Spacing.extraSmall}>
           <Text>{title}</Text>
@@ -136,13 +143,15 @@ const DownstreamGageLink = observer(function DownstreamGageLink({ gage, simple }
         href={{ pathname: ROUTES.GageDetails, params: { id: downstreamGageLocation?.id } }}
         replace
         asChild>
-        <TouchableOpacity>{innerCard}</TouchableOpacity>
+        <TouchableOpacity style={touchableStyle}>{innerCard}</TouchableOpacity>
       </Link>
     );
   }
 
   return (
-    <TouchableOpacity onPress={() => pager.goToIndex(pager.currentIndex + 1)}>
+    <TouchableOpacity
+      style={touchableStyle}
+      onPress={() => pager.goToIndex(pager.currentIndex + 1)}>
       {innerCard}
     </TouchableOpacity>
   );

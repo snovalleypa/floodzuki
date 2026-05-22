@@ -114,7 +114,7 @@ export const GageSummaryCard = observer(function GageSummaryCard(props: GageSumm
     <>
       <Row align="space-between">
         <SmallTitle color={Colors.primary}>{gageTitle}</SmallTitle>
-        <If condition={!noDetails && !onPress}>
+        <Ternary condition={!noDetails}>
           <Link href={{ pathname: ROUTES.ForecastDetails, params: { id: [gage?.id] } }} asChild>
             <IconButton
               title={t("forecastScreen.details")}
@@ -122,16 +122,16 @@ export const GageSummaryCard = observer(function GageSummaryCard(props: GageSumm
               textColor={Colors.blue}
             />
           </Link>
-        </If>
-        <If condition={!noDetails && !gage?.isMetagage}>
-          <Link href={{ pathname: ROUTES.GageDetails, params: { id: gage?.id } }} asChild>
-            <IconButton
-              title={t("forecastScreen.viewGage")}
-              rightIcon="chevron-right"
-              textColor={Colors.blue}
-            />
-          </Link>
-        </If>
+          <If condition={!gage?.isMetagage}>
+            <Link href={{ pathname: ROUTES.GageDetails, params: { id: gage?.id } }} asChild>
+              <IconButton
+                title={t("forecastScreen.viewGage")}
+                rightIcon="chevron-right"
+                textColor={Colors.blue}
+              />
+            </Link>
+          </If>
+        </Ternary>
       </Row>
       <Cell top={Spacing.small}>
         <LabelText color={Colors.success}>{t("forecastScreen.latestReading")}:</LabelText>
