@@ -117,17 +117,20 @@ const DownstreamGageLink = observer(function DownstreamGageLink({ gage, simple }
   );
 });
 
-const GageDetailsScreen = observer(function GageDetailsScreen({ gage }: { gage: Gage }) {
+const GageDetailsBody = observer(function GageDetailsBody({ gageId }: { gageId: string }) {
   const { gagesStore, regionStore } = useStores();
   const { t } = useLocale();
 
-  const { id } = useLocalSearchParams();
-
-  const gageId = Array.isArray(id) ? id.join("/") : id;
+  const gage = gagesStore.getGageByLocationId(gageId);
 
   const { isMobile } = useResponsive();
 
   const goBack = useGoBack(ROUTES.Home);
+
+  if (!gage) {
+    return null;
+  }
+
   return (
     <Screen>
       <Head>
@@ -244,8 +247,6 @@ const GageDetailsScreen = observer(function GageDetailsScreen({ gage }: { gage: 
 
 const GageScreen = observer(function GageScreen() {
   const { id } = useLocalSearchParams();
-  const { gagesStore } = useStores();
-  const { t } = useLocale();
 
   const gageId = Array.isArray(id) ? id.join("/") : id;
 
@@ -255,22 +256,11 @@ const GageScreen = observer(function GageScreen() {
     setHidden(false);
   }, Timing.zero);
 
-  const gage = hidden ? undefined : gagesStore.getGageByLocationId(gageId);
-
-  if (!!gage && !gage?.locationId) {
-    return (
-      <>
-        <Head>
-          <title>
-            {t("common.title")} - {t("homeScreen.title")}
-          </title>
-        </Head>
-        <EmptyComponent />
-      </>
-    );
+  if (hidden) {
+    return null;
   }
 
-  return <GageDetailsScreen gage={gage} />;
+  return <GageDetailsBody gageId={gageId} />;
 });
 
 export default GageScreen;
