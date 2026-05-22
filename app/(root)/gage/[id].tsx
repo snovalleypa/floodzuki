@@ -57,6 +57,10 @@ const UpstreamGageLink = observer(function UpstreamGageLink({ gage, simple }: Ga
   const { t } = useLocale();
   const { isMobile } = useResponsive();
   const pager = useContext(ChainPagerContext);
+  // Carry forward date-range / event params so navigating to a neighboring
+  // gauge keeps the user's selected view (matches the native pager behavior,
+  // where router.setParams merges into the existing route).
+  const currentParams = useLocalSearchParams();
 
   const upstreamGageLocation = getUpstreamGageLocation(gage?.locationId);
 
@@ -89,7 +93,10 @@ const UpstreamGageLink = observer(function UpstreamGageLink({ gage, simple }: Ga
   if (isWeb || !pager) {
     return (
       <Link
-        href={{ pathname: ROUTES.GageDetails, params: { id: upstreamGageLocation?.id } }}
+        href={{
+          pathname: ROUTES.GageDetails,
+          params: { ...currentParams, id: upstreamGageLocation?.id },
+        }}
         replace
         asChild>
         <TouchableOpacity style={touchableStyle}>{innerCard}</TouchableOpacity>
@@ -111,6 +118,7 @@ const DownstreamGageLink = observer(function DownstreamGageLink({ gage, simple }
   const { t } = useLocale();
   const { isMobile } = useResponsive();
   const pager = useContext(ChainPagerContext);
+  const currentParams = useLocalSearchParams();
 
   const downstreamGageLocation = getDownstreamGageLocation(gage?.locationId);
 
@@ -140,7 +148,10 @@ const DownstreamGageLink = observer(function DownstreamGageLink({ gage, simple }
   if (isWeb || !pager) {
     return (
       <Link
-        href={{ pathname: ROUTES.GageDetails, params: { id: downstreamGageLocation?.id } }}
+        href={{
+          pathname: ROUTES.GageDetails,
+          params: { ...currentParams, id: downstreamGageLocation?.id },
+        }}
         replace
         asChild>
         <TouchableOpacity style={touchableStyle}>{innerCard}</TouchableOpacity>
