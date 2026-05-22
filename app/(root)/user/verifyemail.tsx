@@ -46,7 +46,7 @@ const VerifyEmailScreen = observer(function VerifyEmailScreen() {
     verifyEmail();
   }, []);
 
-  const goBack = useGoBack(ROUTES.Home);
+  const goBack = useGoBack(ROUTES.UserAlerts);
 
   const goHome = () => {
     router.push({ pathname: ROUTES.Home });

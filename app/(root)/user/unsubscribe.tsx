@@ -51,7 +51,7 @@ const UnsubscribeScreen = observer(function UnsubscribeScreen() {
     }
   }, [router]);
 
-  const goBack = useGoBack(ROUTES.Home);
+  const goBack = useGoBack(ROUTES.UserAlerts);
 
   const goHome = () => {
     router.push({ pathname: ROUTES.Home });

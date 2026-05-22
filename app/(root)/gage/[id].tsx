@@ -315,6 +315,12 @@ const GageScreen = observer(function GageScreen() {
 
   const locationIds = store.getLocationWithGagesIds();
 
+  // Locations haven't loaded yet — render nothing rather than flashing the
+  // empty-state component for an id we can't yet evaluate.
+  if (locationIds.length === 0) {
+    return null;
+  }
+
   const pages = locationIds.map((locationId) => ({
     key: locationId,
     route: { pathname: ROUTES.GageDetails, params: { id: locationId } },

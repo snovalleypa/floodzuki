@@ -69,6 +69,10 @@ export function ChainPager({ pages, initialIndex }: ChainPagerProps) {
   // synchronously when a snap target is determined, so back-to-back swipes
   // (started before React re-renders the gesture) still see the latest index
   // and page count instead of stale captured values.
+  //
+  // Invariant: anyone changing `currentIndex` must also set
+  // `currentIndexSV.value` first (see advanceTo / goToIndex / pan.onEnd).
+  // `pagesLengthSV` is synced by a useEffect since it follows a prop.
   const currentIndexSV = useSharedValue(currentIndex);
   const pagesLengthSV = useSharedValue(pages.length);
 
