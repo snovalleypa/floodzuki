@@ -1,4 +1,5 @@
 import React from "react";
+import { Pressable } from "react-native";
 import { observer } from "mobx-react-lite";
 
 import { Card, CardFooter } from "@common-ui/components/Card";
@@ -27,6 +28,7 @@ interface GageSummaryProps {
   gage: GageSummary;
   firstItem?: boolean;
   noDetails?: boolean;
+  onPress?: () => void;
 }
 
 function ReadingRow(props: { reading?: DataPoint; delta?: number }) {
@@ -79,7 +81,7 @@ const MaxReading = observer(function MaxReading(props: { forecast: Forecast }) {
 });
 
 export const GageSummaryCard = observer(function GageSummaryCard(props: GageSummaryProps) {
-  const { gage, firstItem, noDetails } = props;
+  const { gage, firstItem, noDetails, onPress } = props;
 
   const { t } = useLocale();
   const { forecastsStore, getTimezone } = useStores();
@@ -108,11 +110,11 @@ export const GageSummaryCard = observer(function GageSummaryCard(props: GageSumm
   const $offsetLeft = !firstItem && isWideScreen ? Spacing.medium : 0;
   const $offsetTop = !isWideScreen && firstItem ? 0 : Spacing.medium;
 
-  return (
-    <Card flex left={$offsetLeft} top={$offsetTop}>
+  const cardContents = (
+    <>
       <Row align="space-between">
         <SmallTitle color={Colors.primary}>{gageTitle}</SmallTitle>
-        <Ternary condition={!noDetails}>
+        <If condition={!noDetails && !onPress}>
           <Link href={{ pathname: ROUTES.ForecastDetails, params: { id: [gage?.id] } }} asChild>
             <IconButton
               title={t("forecastScreen.details")}
@@ -120,16 +122,16 @@ export const GageSummaryCard = observer(function GageSummaryCard(props: GageSumm
               textColor={Colors.blue}
             />
           </Link>
-          <If condition={!gage?.isMetagage}>
-            <Link href={{ pathname: ROUTES.GageDetails, params: { id: gage?.id } }} asChild>
-              <IconButton
-                title={t("forecastScreen.viewGage")}
-                rightIcon="chevron-right"
-                textColor={Colors.blue}
-              />
-            </Link>
-          </If>
-        </Ternary>
+        </If>
+        <If condition={!noDetails && !gage?.isMetagage}>
+          <Link href={{ pathname: ROUTES.GageDetails, params: { id: gage?.id } }} asChild>
+            <IconButton
+              title={t("forecastScreen.viewGage")}
+              rightIcon="chevron-right"
+              textColor={Colors.blue}
+            />
+          </Link>
+        </If>
       </Row>
       <Cell top={Spacing.small}>
         <LabelText color={Colors.success}>{t("forecastScreen.latestReading")}:</LabelText>
@@ -166,6 +168,22 @@ export const GageSummaryCard = observer(function GageSummaryCard(props: GageSumm
           </Cell>
         </CardFooter>
       </If>
+    </>
+  );
+
+  if (onPress) {
+    return (
+      <Pressable
+        onPress={onPress}
+        style={{ flex: 1, marginLeft: $offsetLeft, marginTop: $offsetTop }}>
+        <Card flex>{cardContents}</Card>
+      </Pressable>
+    );
+  }
+
+  return (
+    <Card flex left={$offsetLeft} top={$offsetTop}>
+      {cardContents}
     </Card>
   );
 });
