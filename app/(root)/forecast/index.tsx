@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { ErrorBoundaryProps, Stack } from "expo-router";
+import { ErrorBoundaryProps, Stack, useRouter } from "expo-router";
 import Head from "expo-router/head";
 
 import { observer } from "mobx-react-lite";
@@ -18,6 +18,7 @@ import { Timing } from "@common-ui/constants/timing";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import ForecastFooter from "@components/ForecastFooter";
 import { isMobile } from "@common-ui/utils/responsive";
+import { ROUTES } from "app/_layout";
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -27,6 +28,7 @@ export function ErrorBoundary(props: ErrorBoundaryProps) {
 const ForecastScreen = observer(function ForecastScreen() {
   const store = useStores();
   const { t } = useLocale();
+  const router = useRouter();
 
   const [hidden, setHidden] = React.useState(isMobile ? true : false);
 
@@ -71,7 +73,17 @@ const ForecastScreen = observer(function ForecastScreen() {
         <ForecastChart gages={forecastGages} />
         <RowOrCell flex align="flex-start" justify="stretch" top={Spacing.mediumXL}>
           {forecastGages.map((gage, i) => (
-            <GageSummaryCard firstItem={i === 0} key={gage.id} gage={gage} />
+            <GageSummaryCard
+              firstItem={i === 0}
+              key={gage.id}
+              gage={gage}
+              onPress={() =>
+                router.push({
+                  pathname: ROUTES.ForecastDetails,
+                  params: { id: [gage.id] },
+                })
+              }
+            />
           ))}
         </RowOrCell>
         <ForecastFooter />
