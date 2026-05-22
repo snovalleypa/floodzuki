@@ -31,8 +31,8 @@ jest.mock("../TrendIcon", () => ({
   TREND_ICON_TYPES: { Map: "Map" },
 }));
 
-const MockMap = MapLibre.Map as jest.Mock;
-const MockMarker = MapLibre.Marker as jest.Mock;
+const MockMap = MapLibre.Map as unknown as jest.Mock;
+const MockMarker = MapLibre.Marker as unknown as jest.Mock;
 
 const makeGage = (overrides: Record<string, unknown> = {}) =>
   ({ locationId: "test", latitude: 47.5, longitude: -121.8, ...overrides } as any);
