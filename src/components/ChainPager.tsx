@@ -40,17 +40,18 @@ export function useChainPager(): ChainPagerContextValue {
   return ctx;
 }
 
-// initialIndex is consumed only at first mount. Every snap fires
-// router.setParams, which re-renders the parent screen with new URL params
-// and a fresh initialIndex prop — if we honored it, the user's
-// freshly-settled position would be clobbered on every swipe. Deliberate.
+// initialIndex is consumed only at first mount. Every snap updates URL
+// params via router.setParams, which re-renders the parent screen with a
+// fresh initialIndex prop — if we honored it, the user's freshly-settled
+// position would be clobbered on every swipe. Deliberate.
 //
-// We use router.setParams (not router.replace) so the URL updates without
-// triggering a navigation event. On native, router.replace was tearing down
-// and re-mounting the route, which destroyed ChainPager's state, rubber-
-// banded the in-flight spring, and played the Stack push animation.
-// setParams keeps the screen instance alive and just re-renders with new
-// params.
+// State + URL updates fire at the START of the spring animation (from the
+// gesture worklet via runOnJS, and synchronously from goToIndex), not after
+// it. The currentIndex change causes the newly-adjacent page to mount during
+// the spring, so by the time the animation settles the next swipe target is
+// already rendered. Updating after the spring instead would leave a window
+// where the next slot was still empty and a fast follow-up swipe would see
+// stale state.
 export function ChainPager({ pages, initialIndex }: ChainPagerProps) {
   const router = useRouter();
   const { width: screenWidth } = useWindowDimensions();
@@ -60,20 +61,31 @@ export function ChainPager({ pages, initialIndex }: ChainPagerProps) {
 
   const offsetX = useSharedValue(-currentIndex * screenWidth);
   const restOffsetX = useSharedValue(-currentIndex * screenWidth);
+  // Live mirrors of JS state used inside the gesture worklets. Updated
+  // synchronously when a snap target is determined, so back-to-back swipes
+  // (started before React re-renders the gesture) still see the latest index
+  // and page count instead of stale captured values.
+  const currentIndexSV = useSharedValue(currentIndex);
+  const pagesLengthSV = useSharedValue(pages.length);
 
   useEffect(() => {
     restOffsetX.value = -currentIndex * screenWidth;
   }, [currentIndex, restOffsetX, screenWidth]);
 
-  const handleSnapComplete = useCallback(
+  useEffect(() => {
+    pagesLengthSV.value = pages.length;
+  }, [pages.length, pagesLengthSV]);
+
+  // Apply the React-state and URL changes for a new page. Called via runOnJS
+  // from the gesture worklet (and directly from goToIndex) AT THE START of the
+  // spring animation, not after — so the newly-adjacent page mounts during the
+  // animation and the next swipe doesn't see an empty slot.
+  const advanceTo = useCallback(
     (target: number) => {
-      if (target === currentIndex) {
-        return;
-      }
       setCurrentIndex(target);
       router.setParams(pages[target].route.params as any);
     },
-    [currentIndex, pages, router]
+    [pages, router]
   );
 
   const goToIndex = useCallback(
@@ -84,13 +96,11 @@ export function ChainPager({ pages, initialIndex }: ChainPagerProps) {
       }
       const settle = -clamped * screenWidth;
       restOffsetX.value = settle;
-      offsetX.value = withSpring(settle, { damping: 20, stiffness: 200 }, (finished) => {
-        if (finished) {
-          runOnJS(handleSnapComplete)(clamped);
-        }
-      });
+      currentIndexSV.value = clamped;
+      advanceTo(clamped);
+      offsetX.value = withSpring(settle, { damping: 60, stiffness: 400 });
     },
-    [currentIndex, pages.length, screenWidth, offsetX, restOffsetX, handleSnapComplete]
+    [currentIndex, pages.length, screenWidth, offsetX, restOffsetX, currentIndexSV, advanceTo]
   );
 
   const contextValue = useMemo<ChainPagerContextValue>(
@@ -103,7 +113,7 @@ export function ChainPager({ pages, initialIndex }: ChainPagerProps) {
     .failOffsetY([-15, 15])
     .onUpdate((e) => {
       "worklet";
-      const minOffset = -(pages.length - 1) * screenWidth;
+      const minOffset = -(pagesLengthSV.value - 1) * screenWidth;
       const maxOffset = 0;
       const raw = restOffsetX.value + e.translationX;
       if (raw > maxOffset) {
@@ -117,19 +127,19 @@ export function ChainPager({ pages, initialIndex }: ChainPagerProps) {
     .onEnd((e) => {
       "worklet";
       const target = computeSnapTarget(
-        currentIndex,
+        currentIndexSV.value,
         e.translationX,
         e.velocityX,
         screenWidth,
-        pages.length
+        pagesLengthSV.value
       );
       const settle = -target * screenWidth;
       restOffsetX.value = settle;
-      offsetX.value = withSpring(settle, { damping: 20, stiffness: 200 }, (finished) => {
-        if (finished) {
-          runOnJS(handleSnapComplete)(target);
-        }
-      });
+      if (target !== currentIndexSV.value) {
+        currentIndexSV.value = target;
+        runOnJS(advanceTo)(target);
+      }
+      offsetX.value = withSpring(settle, { damping: 60, stiffness: 400 });
     });
 
   // Keep static layout out of useAnimatedStyle — it should only carry the
