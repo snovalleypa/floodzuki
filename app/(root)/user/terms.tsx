@@ -50,7 +50,6 @@ export const PrivacyLink = () => {
 };
 
 const TermsOfUseScreen = () => {
-  const router = useRouter();
   const { t } = useLocale();
 
   const goBack = useGoBack(ROUTES.About);
