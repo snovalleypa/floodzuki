@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { ErrorBoundaryProps, Stack, useLocalSearchParams, useRouter } from "expo-router";
 
+import { useGoBack } from "@utils/useGoBack";
 import { Screen, Content } from "@common-ui/components/Screen";
 import { MediumText, RegularText } from "@common-ui/components/Text";
 import { ErrorDetails } from "@components/ErrorDetails";
@@ -50,9 +51,7 @@ const UnsubscribeScreen = observer(function UnsubscribeScreen() {
     }
   }, [router]);
 
-  const goBack = () => {
-    router.push({ pathname: ROUTES.UserAlerts });
-  };
+  const goBack = useGoBack(ROUTES.Home);
 
   const goHome = () => {
     router.push({ pathname: ROUTES.Home });
