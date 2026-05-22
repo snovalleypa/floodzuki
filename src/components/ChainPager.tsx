@@ -12,6 +12,10 @@ import Animated, {
 import { isWeb } from "@common-ui/utils/responsive";
 
 import { computeSnapTarget } from "./ChainPager.helpers";
+import { ChainPagerSlotContext } from "./ChainPagerSlot";
+
+export { ChainPagerSlotContext, useChainPagerSlot } from "./ChainPagerSlot";
+export type { ChainPagerSlotValue } from "./ChainPagerSlot";
 
 export type PageEntry = {
   key: string;
@@ -169,9 +173,14 @@ export function ChainPager({ pages, initialIndex }: ChainPagerProps) {
           <Animated.View style={[staticRowStyle, animatedStyle]}>
             {pages.map((page, i) => {
               const isAdjacent = Math.abs(i - currentIndex) <= 1;
+              const isCurrent = i === currentIndex;
               return (
                 <View key={page.key} style={{ width: screenWidth, height: "100%" }}>
-                  {isAdjacent ? page.render() : null}
+                  {isAdjacent ? (
+                    <ChainPagerSlotContext.Provider value={{ isCurrent }}>
+                      {page.render()}
+                    </ChainPagerSlotContext.Provider>
+                  ) : null}
                 </View>
               );
             })}
