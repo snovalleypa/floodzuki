@@ -40,10 +40,17 @@ export function useChainPager(): ChainPagerContextValue {
   return ctx;
 }
 
-// initialIndex is consumed only at first mount. Every snap fires router.replace,
-// which re-renders the parent screen with new URL params and a fresh
-// initialIndex prop — if we honored it, the user's freshly-settled position
-// would be clobbered on every swipe. Deliberate.
+// initialIndex is consumed only at first mount. Every snap fires
+// router.setParams, which re-renders the parent screen with new URL params
+// and a fresh initialIndex prop — if we honored it, the user's
+// freshly-settled position would be clobbered on every swipe. Deliberate.
+//
+// We use router.setParams (not router.replace) so the URL updates without
+// triggering a navigation event. On native, router.replace was tearing down
+// and re-mounting the route, which destroyed ChainPager's state, rubber-
+// banded the in-flight spring, and played the Stack push animation.
+// setParams keeps the screen instance alive and just re-renders with new
+// params.
 export function ChainPager({ pages, initialIndex }: ChainPagerProps) {
   const router = useRouter();
   const { width: screenWidth } = useWindowDimensions();
@@ -64,7 +71,7 @@ export function ChainPager({ pages, initialIndex }: ChainPagerProps) {
         return;
       }
       setCurrentIndex(target);
-      router.replace(pages[target].route as any);
+      router.setParams(pages[target].route.params as any);
     },
     [currentIndex, pages, router]
   );
