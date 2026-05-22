@@ -1,6 +1,7 @@
 import React from "react";
 import { ErrorBoundaryProps, Stack, useRouter } from "expo-router";
 
+import { useGoBack } from "@utils/useGoBack";
 import { Screen, Content } from "@common-ui/components/Screen";
 import {
   ExtraLargeTitle,
@@ -49,12 +50,9 @@ export const PrivacyLink = () => {
 };
 
 const TermsOfUseScreen = () => {
-  const router = useRouter();
   const { t } = useLocale();
 
-  const goBack = () => {
-    router.push({ pathname: ROUTES.About });
-  };
+  const goBack = useGoBack(ROUTES.About);
 
   return (
     <Screen>
