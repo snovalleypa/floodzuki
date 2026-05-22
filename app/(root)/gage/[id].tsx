@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { TouchableOpacity } from "react-native";
 import { ErrorBoundaryProps, Link, Stack, useLocalSearchParams } from "expo-router";
 import Head from "expo-router/head";
@@ -13,12 +13,18 @@ import { Content, Screen } from "@common-ui/components/Screen";
 import { LabelText, LargeTitle, MediumTitle, RegularText } from "@common-ui/components/Text";
 import { Colors } from "@common-ui/constants/colors";
 import { Spacing } from "@common-ui/constants/spacing";
-import { MobileScreen, WideScreen, isMobile, useResponsive } from "@common-ui/utils/responsive";
+import {
+  MobileScreen,
+  WideScreen,
+  isMobile,
+  isWeb,
+  useResponsive,
+} from "@common-ui/utils/responsive";
 
 import { useStores } from "@models/helpers/useStores";
 import { Gage } from "@models/Gage";
 
-import { ChainPager } from "@components/ChainPager";
+import { ChainPager, ChainPagerContext } from "@components/ChainPager";
 import { ErrorDetails } from "@components/ErrorDetails";
 import { GageDetailsChart } from "@components/GageDetailsChart";
 import CalloutReadingCard from "@components/CalloutReadingCard";
@@ -50,6 +56,7 @@ const UpstreamGageLink = observer(function UpstreamGageLink({ gage, simple }: Ga
   const { getUpstreamGageLocation } = useStores();
   const { t } = useLocale();
   const { isMobile } = useResponsive();
+  const pager = useContext(ChainPagerContext);
 
   const upstreamGageLocation = getUpstreamGageLocation(gage?.locationId);
 
@@ -61,24 +68,35 @@ const UpstreamGageLink = observer(function UpstreamGageLink({ gage, simple }: Ga
   const iconSize = isMobile && simple ? 16 : 24;
   const Text = isMobile && simple ? LabelText : RegularText;
 
-  return (
+  const innerCard = (
     <Card flex={isMobile ? 1 : 0}>
+      <Row>
+        <Icon name="arrow-left" size={iconSize} color={Colors.green} />
+        <Cell flex left={Spacing.extraSmall}>
+          <Text>{title}</Text>
+          <If condition={!simple}>
+            <MediumTitle>{upstreamGageLocation?.locationName}</MediumTitle>
+          </If>
+        </Cell>
+      </Row>
+    </Card>
+  );
+
+  if (isWeb || !pager) {
+    return (
       <Link
         href={{ pathname: ROUTES.GageDetails, params: { id: upstreamGageLocation?.id } }}
+        replace
         asChild>
-        <TouchableOpacity>
-          <Row>
-            <Icon name="arrow-left" size={iconSize} color={Colors.green} />
-            <Cell flex left={Spacing.extraSmall}>
-              <Text>{title}</Text>
-              <If condition={!simple}>
-                <MediumTitle>{upstreamGageLocation?.locationName}</MediumTitle>
-              </If>
-            </Cell>
-          </Row>
-        </TouchableOpacity>
+        <TouchableOpacity>{innerCard}</TouchableOpacity>
       </Link>
-    </Card>
+    );
+  }
+
+  return (
+    <TouchableOpacity onPress={() => pager.goToIndex(pager.currentIndex - 1)}>
+      {innerCard}
+    </TouchableOpacity>
   );
 });
 
@@ -86,6 +104,7 @@ const DownstreamGageLink = observer(function DownstreamGageLink({ gage, simple }
   const { getDownstreamGageLocation } = useStores();
   const { t } = useLocale();
   const { isMobile } = useResponsive();
+  const pager = useContext(ChainPagerContext);
 
   const downstreamGageLocation = getDownstreamGageLocation(gage?.locationId);
 
@@ -97,24 +116,35 @@ const DownstreamGageLink = observer(function DownstreamGageLink({ gage, simple }
   const iconSize = isMobile && simple ? 16 : 24;
   const Text = isMobile && simple ? LabelText : RegularText;
 
-  return (
+  const innerCard = (
     <Card flex={isMobile ? 1 : 0}>
+      <Row>
+        <Cell flex right={Spacing.extraSmall}>
+          <Text>{title}</Text>
+          <If condition={!simple}>
+            <MediumTitle>{downstreamGageLocation?.locationName}</MediumTitle>
+          </If>
+        </Cell>
+        <Icon name="arrow-right" size={iconSize} color={Colors.green} />
+      </Row>
+    </Card>
+  );
+
+  if (isWeb || !pager) {
+    return (
       <Link
         href={{ pathname: ROUTES.GageDetails, params: { id: downstreamGageLocation?.id } }}
+        replace
         asChild>
-        <TouchableOpacity>
-          <Row>
-            <Cell flex right={Spacing.extraSmall}>
-              <Text>{title}</Text>
-              <If condition={!simple}>
-                <MediumTitle>{downstreamGageLocation?.locationName}</MediumTitle>
-              </If>
-            </Cell>
-            <Icon name="arrow-right" size={iconSize} color={Colors.green} />
-          </Row>
-        </TouchableOpacity>
+        <TouchableOpacity>{innerCard}</TouchableOpacity>
       </Link>
-    </Card>
+    );
+  }
+
+  return (
+    <TouchableOpacity onPress={() => pager.goToIndex(pager.currentIndex + 1)}>
+      {innerCard}
+    </TouchableOpacity>
   );
 });
 
