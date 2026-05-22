@@ -23,6 +23,8 @@ import { ROUTES } from "app/_layout";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import ForecastFooter from "@components/ForecastFooter";
 import { Timing } from "@common-ui/constants/timing";
+import Config from "@config/config";
+import { ChainPager } from "@components/ChainPager";
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -111,7 +113,24 @@ const ForecastDetailsScreen = observer(function ForecastDetailsScreen() {
     return null;
   }
 
-  return <ForecastDetailsBody gageId={gageId} />;
+  const pages = Config.FORECAST_GAGE_IDS.map((forecastId) => ({
+    key: forecastId,
+    route: { pathname: ROUTES.ForecastDetails, params: { id: forecastId.split("/") } },
+    render: () => <ForecastDetailsBody gageId={forecastId} />,
+  }));
+
+  const initialIndex = pages.findIndex((p) => p.key === gageId);
+
+  if (initialIndex === -1) {
+    return <ForecastDetailsBody gageId={gageId} />;
+  }
+
+  return (
+    <>
+      <Stack.Screen options={{ gestureEnabled: false, animation: "none" }} />
+      <ChainPager pages={pages} initialIndex={initialIndex} />
+    </>
+  );
 });
 
 export default ForecastDetailsScreen;
