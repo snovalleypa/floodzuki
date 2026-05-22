@@ -51,23 +51,6 @@ export function ChainPager({ pages, initialIndex }: ChainPagerProps) {
     Math.max(0, Math.min(pages.length - 1, initialIndex))
   );
 
-  const goToIndex = useCallback(
-    (target: number) => {
-      const clamped = Math.max(0, Math.min(pages.length - 1, target));
-      if (clamped === currentIndex) {
-        return;
-      }
-      setCurrentIndex(clamped);
-      router.replace(pages[clamped].route as any);
-    },
-    [currentIndex, pages, router]
-  );
-
-  const contextValue = useMemo<ChainPagerContextValue>(
-    () => ({ currentIndex, pagesLength: pages.length, goToIndex }),
-    [currentIndex, pages.length, goToIndex]
-  );
-
   const offsetX = useSharedValue(-currentIndex * screenWidth);
   const restOffsetX = useSharedValue(-currentIndex * screenWidth);
 
@@ -84,6 +67,28 @@ export function ChainPager({ pages, initialIndex }: ChainPagerProps) {
       router.replace(pages[target].route as any);
     },
     [currentIndex, pages, router]
+  );
+
+  const goToIndex = useCallback(
+    (target: number) => {
+      const clamped = Math.max(0, Math.min(pages.length - 1, target));
+      if (clamped === currentIndex) {
+        return;
+      }
+      const settle = -clamped * screenWidth;
+      restOffsetX.value = settle;
+      offsetX.value = withSpring(settle, { damping: 20, stiffness: 200 }, (finished) => {
+        if (finished) {
+          runOnJS(handleSnapComplete)(clamped);
+        }
+      });
+    },
+    [currentIndex, pages.length, screenWidth, offsetX, restOffsetX, handleSnapComplete]
+  );
+
+  const contextValue = useMemo<ChainPagerContextValue>(
+    () => ({ currentIndex, pagesLength: pages.length, goToIndex }),
+    [currentIndex, pages.length, goToIndex]
   );
 
   const pan = Gesture.Pan()
