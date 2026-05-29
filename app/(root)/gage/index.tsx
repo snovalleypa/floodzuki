@@ -28,11 +28,13 @@ import { useUtils } from "@utils/utils";
 import { formatReadingTime } from "@utils/useTimeFormat";
 import { ROUTES } from "app/_layout";
 import TrendIcon, { TREND_ICON_TYPES } from "@components/TrendIcon";
-import { useInterval, useTimeout } from "@utils/useTimeout";
+import { useInterval } from "@utils/useTimeout";
 import EmptyComponent from "@common-ui/components/EmptyComponent";
 import { GageChart } from "@components/GageChart";
 import GageMap from "@components/GageMap";
 import GageListItemChart from "@components/GageListItemChart";
+import RegionSummaryCard from "@components/RegionSummaryCard";
+import HiddenGageItem from "@components/HiddenGageItem";
 import WebFooter from "@components/WebFooter";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import { TxKeyPath } from "@i18n/i18n";
@@ -142,27 +144,47 @@ const HeaderComponent = ({ gages, region }: { gages: Gage[]; region: Region }) =
   const router = useRouter();
 
   return (
-    <If condition={isMobile}>
-      <Card
-        height={300}
-        innerHorizontal={Spacing.tiny}
-        innerVertical={Spacing.tiny}
-        bottom={Spacing.small}>
-        <GageMap
-          gages={gages || []}
-          region={region}
-          onGagePress={(gage) => {
-            if (gage && router) {
-              router.push({ pathname: ROUTES.GageDetails, params: { id: gage.locationId } });
-            }
-          }}
-        />
-      </Card>
-    </If>
+    <>
+      <If condition={isMobile}>
+        <Card
+          height={300}
+          innerHorizontal={Spacing.tiny}
+          innerVertical={Spacing.tiny}
+          bottom={Spacing.small}>
+          <GageMap
+            gages={gages || []}
+            region={region}
+            onGagePress={(gage) => {
+              if (gage && router) {
+                router.push({ pathname: ROUTES.GageDetails, params: { id: gage.locationId } });
+              }
+            }}
+          />
+        </Card>
+      </If>
+      <RegionSummaryCard />
+    </>
   );
 };
 
 const keyExtractor = (item: Gage) => item?.locationId;
+const renderGageItem = ({ item }: { item: Gage }) => {
+  if (item?._isStub) {
+    // Pass a plain-JS POJO to HiddenGageItem so React DevTools' commit-phase prop
+    // traversal never sees an MST proxy (which can trip MST 7's "initializing phase"
+    // assertion on lazy empty-array children). See mobx-state-tree#2279 and the comment
+    // on the HiddenStubItem type for the full story.
+    return (
+      <HiddenGageItem
+        item={{
+          locationId: item.locationId,
+          locationName: item.locationInfo?.locationName,
+        }}
+      />
+    );
+  }
+  return <GageItem item={item} />;
+};
 const getItemLayout = (data: Gage[], index: number) => ({
   length: ITEM_HEIGHT,
   offset: ITEM_HEIGHT * index,
@@ -176,7 +198,6 @@ const HomeScreen = observer(function HomeScreen() {
 
   const { height } = useWindowDimensions();
 
-  const [hidden, setHidden] = React.useState(isMobile ? true : false);
   const [refreshing, setRefreshing] = React.useState(false);
 
   // Fetch data on mount
@@ -191,10 +212,6 @@ const HomeScreen = observer(function HomeScreen() {
     gagesStore.fetchData();
   }, Timing.fiveMinutes);
 
-  useTimeout(() => {
-    setHidden(false);
-  }, Timing.zero);
-
   const handleOnRefresh = React.useCallback(() => {
     setRefreshing(true);
 
@@ -206,7 +223,7 @@ const HomeScreen = observer(function HomeScreen() {
   }, [gagesStore.fetchData]);
 
   const router = useRouter();
-  const locations = hidden ? [] : getLocationsWithGages();
+  const locations = getLocationsWithGages();
 
   const mapCardHeight = height - HEADER_HEIGHT - Spacing.button;
 
@@ -246,7 +263,7 @@ const HomeScreen = observer(function HomeScreen() {
             initialNumToRender={4}
             keyExtractor={keyExtractor}
             getItemLayout={getItemLayout}
-            renderItem={({ item }) => <GageItem item={item} />}
+            renderItem={renderGageItem}
             ListEmptyComponent={<EmptyComponent />}
             ListHeaderComponent={<HeaderComponent gages={locations} region={regionStore.region} />}
           />

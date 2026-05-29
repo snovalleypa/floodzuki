@@ -69,6 +69,20 @@ const en = {
   homeScreen: {
     title: "Snoqualmie River / SVPA",
   },
+  regionSummary: {
+    allNormal: "All gauges normal",
+    flooding: "{{count}} flooding",
+    nearFlooding: "{{count}} near flooding",
+    noFloodingPredicted: "No flooding predicted",
+    nearFloodPredicted: "Near-flood predicted",
+    floodingPredicted: "Flooding predicted",
+    active: "active",
+    offline: "offline",
+    hidden: "hidden",
+    showHidden: "Show hidden",
+    noRecentData: "No recent data",
+    offlineGauge: "OFFLINE",
+  },
   forecastScreen: {
     title: "Forecast",
     details: "Details",
@@ -271,6 +285,7 @@ const en = {
     rateOfChange: "Rate of Change",
     roadLevel: "Road Level",
     rangeWarning: "Range adjusted to {{maxRange}} days — the maximum this chart supports.",
+    noDataInRange: "No data in selected range",
   },
   gageInfoCard: {
     gageInfo: "Gauge Info",

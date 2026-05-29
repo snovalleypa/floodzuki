@@ -37,11 +37,22 @@ export async function setupRootStore(rootStore: RootStore) {
     const loadedState: RootStore =
       (await storage.load(ROOT_STATE_STORAGE_KEY)) || ROOT_STORE_DEFAULT;
 
+    // Strip any stub gauges from the cached state. Stubs are session-scoped and
+    // get re-added by syncHiddenStubs after fetch. Persisting stubs causes a destroy/
+    // recreate cycle when fetchData replaces the array (MST destroys unmatched
+    // identifiers), and React DevTools' commit-phase diff then walks the dead old
+    // stub references, spamming "Path upon death" warnings (non-fatal but noisy).
+    const cachedGagesStore = (loadedState as any)?.gagesStore;
+    const cachedGages: any[] = cachedGagesStore?.gages ?? [];
     restoredState = {
       ...loadedState,
       forecastsStore: {
         ...loadedState.forecastsStore,
         maxReadingId: null,
+      },
+      gagesStore: {
+        ...(cachedGagesStore ?? {}),
+        gages: cachedGages.filter((g) => !g?._isStub),
       },
       isFetched: false,
     };

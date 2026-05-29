@@ -71,6 +71,20 @@ const es = {
   homeScreen: {
     title: "Río Snoqualmie / SVPA",
   },
+  regionSummary: {
+    allNormal: "Todos los medidores normales",
+    flooding: "{{count}} en inundación",
+    nearFlooding: "{{count}} en inundación inminente",
+    noFloodingPredicted: "Sin inundación pronosticada",
+    nearFloodPredicted: "Inundación inminente pronosticada",
+    floodingPredicted: "Inundación pronosticada",
+    active: "activos",
+    offline: "desconectados",
+    hidden: "ocultos",
+    showHidden: "Mostrar ocultos",
+    noRecentData: "Sin datos recientes",
+    offlineGauge: "DESCONECTADO",
+  },
   forecastScreen: {
     title: "Pronóstico",
     details: "Detalles",
@@ -275,6 +289,7 @@ const es = {
     rateOfChange: "Tasa de cambio",
     roadLevel: "Nivel de la carretera",
     rangeWarning: "Rango ajustado a {{maxRange}} días — el máximo que admite este gráfico.",
+    noDataInRange: "Sin datos en el rango seleccionado",
   },
   gageInfoCard: {
     gageInfo: "Información del medidor",
