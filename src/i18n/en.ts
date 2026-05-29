@@ -82,6 +82,9 @@ const en = {
     noaaGage: "NOAA Gauge",
     dataSuppliedBy: "Flood gauge data supplied by the",
     noaaTitle: "National Weather Service Northwest River Forecast Center",
+    timeHeader: "Local Time",
+    heightHeader: "Height",
+    flowHeader: "Flow",
   },
   profileScreen: {
     title: "Profile",
@@ -230,7 +233,7 @@ const en = {
     observed: "Observed",
     forecast: "Forecast",
     floodStage: "Flood Stage",
-    discharge: "Discharge",
+    discharge: "Flow",
     now: "now",
     fullRangeTitle: "Full",
     rangeDays: "{{days}} days",
@@ -238,7 +241,7 @@ const en = {
     live: "Live",
   },
   gageChart: {
-    discharge: "Discharge",
+    discharge: "Flow",
     waterLevel: "Water Level",
     Now: "Now",
     dashboardDurationLabel: "48 hrs. ago",
@@ -260,7 +263,7 @@ const en = {
     roadSmall: " road",
   },
   gageDetailsChart: {
-    discharge: "Discharge",
+    discharge: "Flow",
     waterLevel: "Water Level",
     _selectEvent: "- select event -",
     selectEvent: "Select Event",
