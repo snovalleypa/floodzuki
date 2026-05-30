@@ -1,8 +1,16 @@
 import localDayJs from "@services/localDayJs";
+import type { Dayjs } from "dayjs";
 import { CHART_OPTIONS } from "../useGageChartOptions";
 
 const t = (key: string) => key;
 const PREDICTION_WINDOW_MINUTES = 60 * 6;
+
+type GageDetailsOptionsArgs = Parameters<typeof CHART_OPTIONS.gageDetailsOptions>;
+type TestOptions = GageDetailsOptionsArgs[0] & {
+  _now: Dayjs;
+  xAxis: Highcharts.XAxisOptions;
+};
+type TestGage = GageDetailsOptionsArgs[1];
 
 function makeRange(isNow: boolean) {
   const end = localDayJs("2024-01-15T10:00:00.000Z");
@@ -13,19 +21,19 @@ function makeRange(isNow: boolean) {
   };
 }
 
-function makeOptions() {
-  return { xAxis: {}, _now: localDayJs() } as any;
+function makeOptions(): TestOptions {
+  return { xAxis: {}, _now: localDayJs() };
 }
 
-const mockGageWithPredictions: any = {
+const mockGageWithPredictions = {
   predictedPoints: [{ timestamp: localDayJs(), reading: 5 }],
   dataPoints: [],
-};
+} as TestGage;
 
-const mockGageNoPredictions: any = {
+const mockGageNoPredictions = {
   predictedPoints: undefined,
   dataPoints: [],
-};
+} as TestGage;
 
 describe("gageDetailsOptions — x-axis prediction window padding", () => {
   it("extends xAxis.max by 6 hours when isNow=true and predictedPoints exist", () => {
@@ -36,7 +44,7 @@ describe("gageDetailsOptions — x-axis prediction window padding", () => {
       range,
       t
     );
-    const xAxis = result.xAxis as any;
+    const xAxis = result.xAxis as Highcharts.XAxisOptions;
     expect(xAxis.max).toBe(range.chartEndDate.add(PREDICTION_WINDOW_MINUTES, "m").valueOf());
   });
 
@@ -48,7 +56,7 @@ describe("gageDetailsOptions — x-axis prediction window padding", () => {
       range,
       t
     );
-    const xAxis = result.xAxis as any;
+    const xAxis = result.xAxis as Highcharts.XAxisOptions;
     expect(xAxis.max).toBe(range.chartEndDate.valueOf());
   });
 
@@ -60,7 +68,7 @@ describe("gageDetailsOptions — x-axis prediction window padding", () => {
       range,
       t
     );
-    const xAxis = result.xAxis as any;
+    const xAxis = result.xAxis as Highcharts.XAxisOptions;
     expect(xAxis.max).toBe(range.chartEndDate.valueOf());
   });
 });

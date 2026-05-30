@@ -1,7 +1,19 @@
-import React from "react";
-import { render, act } from "@testing-library/react-native";
+import { act, render } from "@testing-library/react-native";
 import dayjs, { Dayjs } from "dayjs";
+import React from "react";
 import DateRangePicker from "../DateRangePicker";
+
+type DatePickerHandle = {
+  open: jest.Mock;
+  close: jest.Mock;
+  isPickerOpen: jest.Mock<boolean, []>;
+};
+
+type MockDatePickerProps = {
+  title?: string;
+  selectedDate?: Dayjs;
+  onChange: (date: Dayjs) => void;
+};
 
 jest.mock("@common-ui/contexts/LocaleContext", () => ({
   useLocale: () => ({ t: (key: string) => key }),
@@ -16,7 +28,8 @@ jest.mock("../Text", () => ({
 jest.mock("../Common", () => {
   const React = require("react");
   return {
-    Cell: ({ children }: any) => React.createElement(React.Fragment, null, children),
+    Cell: ({ children }: React.PropsWithChildren) =>
+      React.createElement(React.Fragment, null, children),
   };
 });
 
@@ -24,8 +37,8 @@ jest.mock("../Common", () => {
 const pickerRegistry: Record<string, (date: Dayjs) => void> = {};
 
 jest.mock("../DatePicker", () => {
-  const React = require("react");
-  const MockDatePicker = React.forwardRef((props: any, ref: any) => {
+  const React = require("react") as typeof import("react");
+  const MockDatePicker = React.forwardRef<DatePickerHandle, MockDatePickerProps>((props, ref) => {
     const key = props.title ?? "unknown";
     pickerRegistry[key] = props.onChange;
     React.useImperativeHandle(ref, () => ({

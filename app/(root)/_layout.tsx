@@ -1,17 +1,13 @@
-import React, { useEffect } from "react";
-import { Pressable, useColorScheme } from "react-native";
-import { usePathname, Slot, Link, Tabs } from "expo-router";
 import { Image } from "expo-image";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { Link, Slot, Tabs, usePathname } from "expo-router";
+import React, { useEffect, useState } from "react";
+import { Pressable } from "react-native";
 
 import "@expo/match-media";
 
+import { Cell, Row, RowOrCell, Separator } from "@common-ui/components/Common";
 import { If, Ternary } from "@common-ui/components/Conditional";
-import { Colors } from "@common-ui/constants/colors";
-import { Spacing } from "@common-ui/constants/spacing";
-import { MainRoute, ROUTES, routes } from "app/_layout";
-import { useStores } from "@models/helpers/useStores";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Icon from "@common-ui/components/Icon";
 import {
   LabelText,
   LargeTitle,
@@ -20,17 +16,20 @@ import {
   SmallText,
   TinyText,
 } from "@common-ui/components/Text";
-import { Cell, Row, RowOrCell, Separator } from "@common-ui/components/Common";
-import Icon from "@common-ui/components/Icon";
-import { isWeb, useResponsive } from "@common-ui/utils/responsive";
-import { openLinkInBrowser } from "@utils/navigation";
+import { Colors } from "@common-ui/constants/colors";
+import { Spacing } from "@common-ui/constants/spacing";
 import { useAppAssets } from "@common-ui/contexts/AssetsContext";
-import { useRegisterPushNotificationsListener } from "@services/usePushNotificationsListener";
-import { useCheckForUpdates } from "@services/expoUpdates";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
+import { isWeb, useResponsive } from "@common-ui/utils/responsive";
+import AppStoreBanner from "@components/AppStoreBanner";
 import LocaleChange from "@components/LocaleChange";
 import TasteOfTheValleyBanner from "@components/TasteOfTheValleyBanner";
-import AppStoreBanner from "@components/AppStoreBanner";
+import { useStores } from "@models/helpers/useStores";
+import { useCheckForUpdates } from "@services/expoUpdates";
+import { useRegisterPushNotificationsListener } from "@services/usePushNotificationsListener";
+import { openLinkInBrowser } from "@utils/navigation";
+import { MainRoute, ROUTES, routes } from "app/_layout";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const GAGE_ICONS = {
   active: require("@assets/images/floodzuki.png"),
@@ -80,9 +79,10 @@ const useIsLinkActive = (path: string) => {
   return pathname.includes(path);
 };
 
-function HeaderLink({ href, children }) {
+function HeaderLink({ href, children }: { href: string; children: React.ReactNode }) {
   const { isMobile } = useResponsive();
   const isActive = useIsLinkActive(href);
+  const [isHovered, setIsHovered] = useState(false);
 
   const $color = isActive ? Colors.primary : Colors.lightDark;
 
@@ -91,12 +91,10 @@ function HeaderLink({ href, children }) {
 
   return (
     <Link href={href} asChild>
-      <Pressable>
-        {({ pressed, hovered }) => (
-          <Cell horizontal={spacing} vertical={Spacing.extraSmall}>
-            <Title color={hovered ? Colors.primary : $color}>{children}</Title>
-          </Cell>
-        )}
+      <Pressable onHoverIn={() => setIsHovered(true)} onHoverOut={() => setIsHovered(false)}>
+        <Cell horizontal={spacing} vertical={Spacing.extraSmall}>
+          <Title color={isHovered ? Colors.primary : $color}>{children}</Title>
+        </Cell>
       </Pressable>
     </Link>
   );

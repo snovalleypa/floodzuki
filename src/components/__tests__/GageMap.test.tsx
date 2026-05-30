@@ -1,10 +1,15 @@
 /**
  * @jest-environment jsdom
  */
-import React from "react";
 import { render } from "@testing-library/react-native";
+import React from "react";
 
 import GageMap from "../GageMap";
+
+type GageMapProps = React.ComponentProps<typeof GageMap>;
+type TestGage = GageMapProps["gages"][number];
+type TestRegion = GageMapProps["region"];
+type GageOverrides = Partial<Pick<TestGage, "latitude" | "longitude">>;
 
 // Must be mocked before GageMap is imported so Platform.select picks up the mock.
 jest.mock("../MapLibreWebGageMap", () => ({
@@ -18,7 +23,7 @@ jest.mock("../MapLibreMobileGageMap", () => ({
 }));
 
 jest.mock("mobx-react-lite", () => ({
-  observer: (fn: any) => fn,
+  observer: <T,>(fn: T) => fn,
 }));
 
 // With __esModule: true + default export mock, the default import IS the jest.fn().
@@ -33,10 +38,10 @@ function getRenderedMock(): jest.Mock {
 }
 
 // Plain objects cast to `any` — avoids instantiating MST models in tests.
-const makeGage = (id: string, overrides: Record<string, unknown> = {}) =>
-  ({ locationId: id, latitude: 47.5, longitude: -121.8, ...overrides } as any);
+const makeGage = (id: string, overrides: GageOverrides = {}) =>
+  ({ locationId: id, latitude: 47.5, longitude: -121.8, ...overrides } as TestGage);
 
-const region = { id: 1 } as any;
+const region = { id: 1 } as TestRegion;
 const onGagePress = jest.fn();
 
 beforeEach(() => {
@@ -51,7 +56,7 @@ describe("GageMap — reverseGages", () => {
     const gages = [makeGage("a"), makeGage("b"), makeGage("c")];
     render(<GageMap gages={gages} region={region} onGagePress={onGagePress} />);
     const mock = getRenderedMock();
-    const receivedIds = mock.mock.calls[0][0].gages.map((g: any) => g.locationId);
+    const receivedIds = (mock.mock.calls[0][0].gages as TestGage[]).map((gage) => gage.locationId);
     expect(receivedIds).toEqual(["c", "b", "a"]);
   });
 

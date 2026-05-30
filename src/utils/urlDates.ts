@@ -1,5 +1,5 @@
-import { Dayjs } from "dayjs";
 import localDayJs from "@services/localDayJs";
+import { Dayjs } from "dayjs";
 
 // Explicit ISO-8601 formats. We can't rely on dayjs default format strings
 // because react-native-ui-datepicker globally extends dayjs with the
@@ -32,7 +32,7 @@ export const parseUrlDate = (str: string, tz: string): Dayjs => {
   // Anything else is malformed — return an invalid Dayjs so callers can
   // detect it via .isValid(). dayjs's default parser is too permissive
   // (e.g. "7" parses as a valid date).
-  return localDayJs(null as unknown as string);
+  return localDayJs(new Date(Number.NaN));
 };
 
 /** Format a Dayjs as YYYY-MM-DD in the gauge timezone (URL-safe, day-precision). */

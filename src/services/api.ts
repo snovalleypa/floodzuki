@@ -5,8 +5,8 @@
  * See the [Backend API Integration](https://github.com/infinitered/ignite/blob/master/docs/Backend-API-Integration.md)
  * documentation for more details.
  */
-import { ApiResponse, ApisauceInstance, create } from "apisauce";
 import Config from "@config/config";
+import { ApiResponse, ApisauceInstance, create } from "apisauce";
 import { GeneralApiProblem, getGeneralApiProblem } from "./apiProblem";
 
 interface ApiConfig {
@@ -104,6 +104,10 @@ export type GetGageReadingsParams = {
   prevMaxReadingId?: number;
 };
 
+type RequestParamValue = string | number | boolean | null | undefined;
+type RequestParams = Record<string, RequestParamValue>;
+type RequestBody = RequestParams | string;
+
 /**
  * Configuring the apisauce instance.
  */
@@ -116,7 +120,7 @@ async function genericRequest<T>(
   requestType: "get" | "post" | "put" | "delete",
   api: ApisauceInstance,
   url: string,
-  params?: { [key: string]: any } | string
+  params?: RequestBody
 ): Promise<{ kind: "ok"; data: T } | GeneralApiProblem> {
   const response: ApiResponse<T> = await api[requestType](url, params);
 
@@ -142,27 +146,17 @@ async function genericRequest<T>(
   }
 }
 
-async function genericGetRequest<T>(
-  api: ApisauceInstance,
-  url: string,
-  params?: { [key: string]: any }
-) {
+async function genericGetRequest<T>(api: ApisauceInstance, url: string, params?: RequestParams) {
   return await genericRequest<T>("get", api, url, params);
 }
 
-async function genericPostRequest<T>(
-  api: ApisauceInstance,
-  url: string,
-  params?: { [key: string]: any } | string
-) {
-  return await genericRequest<T>("post", api, url, JSON.stringify(params));
+async function genericPostRequest<T>(api: ApisauceInstance, url: string, params?: RequestBody) {
+  const requestBody = params === undefined ? undefined : JSON.stringify(params);
+
+  return await genericRequest<T>("post", api, url, requestBody);
 }
 
-async function genericPutRequest<T>(
-  api: ApisauceInstance,
-  url: string,
-  params?: { [key: string]: any } | string
-) {
+async function genericPutRequest<T>(api: ApisauceInstance, url: string, params?: RequestBody) {
   return await genericRequest<T>("put", api, url, params);
 }
 
@@ -240,7 +234,7 @@ export class Api {
   ) {
     this.apisauce.setBaseURL(Config.READING_BASE_URL);
 
-    const params = {
+    const params: RequestParams = {
       regionId: this.regionId,
       id: gageId,
     };
@@ -273,7 +267,7 @@ export class Api {
   async getForecastsUTC<T>(gageIds: string, fromDateTime?: string, toDateTime?: string) {
     this.apisauce.setBaseURL(Config.READING_BASE_URL);
 
-    const params = {
+    const params: RequestParams = {
       regionId: this.regionId,
       includePredictions: true,
       gageIds,
@@ -293,7 +287,7 @@ export class Api {
   async getReadings<T>(params: GetGageReadingsParams) {
     this.apisauce.setBaseURL(Config.BASE_URL);
 
-    const props = {
+    const props: RequestParams = {
       regionId: this.regionId,
       gaugeIds: params.gageIds,
     };
@@ -307,7 +301,7 @@ export class Api {
   async getForecasts<T>(gageIds: string, fromDateTime?: string) {
     this.apisauce.setBaseURL(Config.BASE_URL);
 
-    const params = {
+    const params: RequestParams = {
       regionId: this.regionId,
       gaugeIds: gageIds,
     };

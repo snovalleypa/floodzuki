@@ -1,15 +1,19 @@
-import { Instance, SnapshotIn, SnapshotOut, types, flow, getRoot } from "mobx-state-tree";
 import { api } from "@services/api";
 import dayjs from "dayjs";
+import { flow, getRoot, Instance, SnapshotIn, SnapshotOut, types } from "mobx-state-tree";
 
+import Config from "@config/config";
+import localDayJs from "@services/localDayJs";
+import USGS_INFO from "@utils/usgsInfo";
+import { DataPoint, NOAAForecastModel } from "./Forecasts";
 import { GageReadingModel } from "./GageReading";
 import { dataFetchingProps, withDataFetchingActions } from "./helpers/withDataFetchingProps";
 import { withSetPropAction } from "./helpers/withSetPropsAction";
-import Config from "@config/config";
 import { LocationInfoModel } from "./LocationInfo";
-import localDayJs from "@services/localDayJs";
-import { DataPoint, NOAAForecastModel } from "./Forecasts";
-import USGS_INFO from "@utils/usgsInfo";
+
+interface GageRootStore {
+  getTimezone(): string;
+}
 
 // Gage data from https://waterservices.usgs.gov/rest/IV-Service.html
 // id: "USGS-38",
@@ -197,133 +201,134 @@ export const GageModel = types
       };
     },
   }))
-  .views((store) => ({
-    get roads() {
-      return [
-        {
-          elevation: store.roadSaddleHeight,
+  .views((store) => {
+    const getTimezone = () => getRoot<GageRootStore>(store).getTimezone();
+
+    return {
+      get roads() {
+        return [
+          {
+            elevation: store.roadSaddleHeight,
+            name: store.roadDisplayName,
+          },
+        ];
+      },
+
+      get hasRoads() {
+        return !!store.roadSaddleHeight && !!store.roadDisplayName;
+      },
+
+      get dataPoints() {
+        if (!store.hasData) {
+          return [];
+        }
+
+        return mapAndAdjustTimestampsForDisplay(store.readings, getTimezone());
+      },
+
+      get chartReadings() {
+        if (!store.hasData) {
+          return [];
+        }
+
+        const tz = getTimezone();
+        return store.readings
+          .filter((reading) => !reading.isDeleted)
+          .map((reading) => ({
+            date: localDayJs.tz(reading.timestamp, "YYYY-MM-DDTHH:mm:ss", tz).toDate(),
+            value: reading.waterHeight,
+          }));
+      },
+
+      get predictedPoints() {
+        let points = [];
+
+        const predictions = store?.predictions;
+
+        if (predictions && predictions.length) {
+          let predWithNoGap = [...predictions];
+          predWithNoGap.unshift(store.readings[0]);
+
+          points = mapAndAdjustTimestampsForDisplay(predWithNoGap, getTimezone());
+        }
+
+        return points;
+      },
+
+      get opearatorName() {
+        return store.isUSGS ? "USGS" : "SVPA";
+      },
+
+      get usgsInfo() {
+        return store.isUSGS ? USGS_INFO[store.locationId] : null;
+      },
+
+      get actualPoints() {
+        return mapAndAdjustTimestampsForDisplay(store.actualReadings || [], getTimezone());
+      },
+
+      get noaaForecastData() {
+        return mapAndAdjustForecastTimestampsForDisplay(
+          store.noaaForecast?.data || [],
+          getTimezone()
+        );
+      },
+
+      get roadToYellowStage() {
+        if (!store.yellowStage && !store.redStage) {
+          return null;
+        }
+
+        if (
+          store.yellowStage &&
+          store.roadSaddleHeight &&
+          store.yellowStage.toFixed(2) !== store.redStage.toFixed(2)
+        ) {
+          return store.roadSaddleHeight - store.yellowStage;
+        }
+
+        return null;
+      },
+
+      get roadToRedStage() {
+        if (!store.yellowStage && !store.redStage) {
+          return null;
+        }
+
+        if (
+          store.redStage &&
+          store.roadSaddleHeight &&
+          store.yellowStage.toFixed(2) !== store.redStage.toFixed(2)
+        ) {
+          return store.roadSaddleHeight - store.redStage;
+        }
+
+        return null;
+      },
+
+      getCalculatedRoadStatus(waterLevel: number) {
+        if (!store.roadSaddleHeight || !store.roadDisplayName) {
+          return null;
+        }
+
+        const baseLevel = waterLevel || store.waterLevel;
+        const level = baseLevel - store.roadSaddleHeight;
+        const preposition = store.roadSaddleHeight - baseLevel > 0 ? "below" : "over";
+        const deltaFormatted = Math.abs(level).toFixed(1) + " ft.";
+
+        return {
           name: store.roadDisplayName,
-        },
-      ];
-    },
+          level,
+          preposition,
+          deltaFormatted,
+        };
+      },
 
-    get hasRoads() {
-      return !!store.roadSaddleHeight && !!store.roadDisplayName;
-    },
-
-    get dataPoints() {
-      if (!store.hasData) {
-        return [];
-      }
-
-      return mapAndAdjustTimestampsForDisplay(store.readings, getRoot<any>(store).getTimezone());
-    },
-
-    get chartReadings() {
-      if (!store.hasData) {
-        return [];
-      }
-
-      const tz = getRoot<any>(store).getTimezone();
-      return store.readings
-        .filter((reading) => !reading.isDeleted)
-        .map((reading) => ({
-          date: localDayJs.tz(reading.timestamp, "YYYY-MM-DDTHH:mm:ss", tz).toDate(),
-          value: reading.waterHeight,
-        }));
-    },
-
-    get predictedPoints() {
-      let points = [];
-
-      const predictions = store?.predictions;
-
-      if (predictions && predictions.length) {
-        let predWithNoGap = [...predictions];
-        predWithNoGap.unshift(store.readings[0]);
-
-        points = mapAndAdjustTimestampsForDisplay(predWithNoGap, getRoot<any>(store).getTimezone());
-      }
-
-      return points;
-    },
-
-    get opearatorName() {
-      return store.isUSGS ? "USGS" : "SVPA";
-    },
-
-    get usgsInfo() {
-      return store.isUSGS ? USGS_INFO[store.locationId] : null;
-    },
-
-    get actualPoints() {
-      return mapAndAdjustTimestampsForDisplay(
-        store.actualReadings || [],
-        getRoot<any>(store).getTimezone()
-      );
-    },
-
-    get noaaForecastData() {
-      return mapAndAdjustForecastTimestampsForDisplay(
-        store.noaaForecast?.data || [],
-        getRoot<any>(store).getTimezone()
-      );
-    },
-
-    get roadToYellowStage() {
-      if (!store.yellowStage && !store.redStage) {
-        return null;
-      }
-
-      if (
-        store.yellowStage &&
-        store.roadSaddleHeight &&
-        store.yellowStage.toFixed(2) !== store.redStage.toFixed(2)
-      ) {
-        return store.roadSaddleHeight - store.yellowStage;
-      }
-
-      return null;
-    },
-
-    get roadToRedStage() {
-      if (!store.yellowStage && !store.redStage) {
-        return null;
-      }
-
-      if (
-        store.redStage &&
-        store.roadSaddleHeight &&
-        store.yellowStage.toFixed(2) !== store.redStage.toFixed(2)
-      ) {
-        return store.roadSaddleHeight - store.redStage;
-      }
-
-      return null;
-    },
-
-    getCalculatedRoadStatus(waterLevel: number) {
-      if (!store.roadSaddleHeight || !store.roadDisplayName) {
-        return null;
-      }
-
-      const baseLevel = waterLevel || store.waterLevel;
-      const level = baseLevel - store.roadSaddleHeight;
-      const preposition = store.roadSaddleHeight - baseLevel > 0 ? "below" : "over";
-      const deltaFormatted = Math.abs(level).toFixed(1) + " ft.";
-
-      return {
-        name: store.roadDisplayName,
-        level,
-        preposition,
-        deltaFormatted,
-      };
-    },
-
-    clearLastReading() {
-      store.lastReadingId = undefined;
-    },
-  }));
+      clearLastReading() {
+        store.lastReadingId = undefined;
+      },
+    };
+  });
 
 export const GageStoreModel = types
   .model("GageStore")

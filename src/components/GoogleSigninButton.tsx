@@ -1,25 +1,26 @@
-import React, { useEffect } from "react";
-import { observer } from "mobx-react-lite";
 import { useRouter } from "expo-router";
+import { observer } from "mobx-react-lite";
+import React, { useEffect, useState } from "react";
 
 import { Cell } from "@common-ui/components/Common";
-import { useStores } from "@models/helpers/useStores";
-import { ROUTES } from "app/_layout";
 import { If } from "@common-ui/components/Conditional";
 import ErrorMessage from "@common-ui/components/ErrorMessage";
-import { useGoogleAuth } from "@common-ui/contexts/GoogleAuthContext";
-import { useLocale } from "@common-ui/contexts/LocaleContext";
-import { ActivityIndicator, Pressable, ViewStyle } from "react-native";
 import { MediumText } from "@common-ui/components/Text";
 import { Colors } from "@common-ui/constants/colors";
 import { Spacing } from "@common-ui/constants/spacing";
+import { useGoogleAuth } from "@common-ui/contexts/GoogleAuthContext";
+import { useLocale } from "@common-ui/contexts/LocaleContext";
+import { useStores } from "@models/helpers/useStores";
+import { ROUTES } from "app/_layout";
 import { Image } from "expo-image";
+import { ActivityIndicator, Pressable, ViewStyle } from "react-native";
 
 const GoogleSigninButton = observer(function GoogleSigninButton() {
   const { authSessionStore } = useStores();
   const { t } = useLocale();
   const router = useRouter();
   const googleAuth = useGoogleAuth();
+  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     if (!!googleAuth.idToken) {
@@ -50,10 +51,11 @@ const GoogleSigninButton = observer(function GoogleSigninButton() {
         accessibilityLabel={buttonText}
         disabled={isButtonDisabled}
         onPress={googleAuth.authorize}
+        onHoverIn={() => setIsHovered(true)}
+        onHoverOut={() => setIsHovered(false)}
         style={(state) => [
           $button,
-          !isButtonDisabled && state.pressed && $buttonHovered,
-          !isButtonDisabled && state.hovered && $buttonHovered,
+          !isButtonDisabled && (state.pressed || isHovered) && $buttonHovered,
           isButtonDisabled && $buttonDisabled,
         ]}>
         <Image

@@ -35,3 +35,11 @@ docs
 
 expo-env.d.ts
 # @end expo-cli
+
+.github/agents
+.github/instructions
+.github/skills
+.github/template.md
+.github/copilot-instructions.md
+DELEGATION_PROTOCOL.md
+AGENTS.md

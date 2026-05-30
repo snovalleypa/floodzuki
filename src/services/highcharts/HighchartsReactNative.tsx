@@ -5,7 +5,7 @@ import { View, ViewStyle } from "react-native";
 import { WebView, WebViewMessageEvent, WebViewProps } from "react-native-webview";
 import { buildLayoutHtml } from "./HighchartsLayout";
 
-interface HighchartsReactNativeProps {
+export interface HighchartsReactNativeProps {
   options: Highcharts.Options;
   modules?: string[];
   styles?: ViewStyle;
@@ -13,8 +13,12 @@ interface HighchartsReactNativeProps {
   onMessage?: (data: string) => void;
   startInLoadingState?: boolean;
   webviewStyles?: ViewStyle;
-  setOptions?: Record<string, unknown>;
+  setOptions?: Highcharts.Options;
 }
+
+const androidCompatibilityProps = {
+  androidHardwareAccelerationDisabled: true,
+};
 
 // Serialize Highcharts options to a JSON string, converting functions to
 // string representations so they survive the RN→WebView boundary.
@@ -108,7 +112,7 @@ const HighchartsReactNative = React.memo((props: HighchartsReactNativeProps) => 
         allowFileAccessFromFileURLs={true}
         startInLoadingState={startInLoadingState}
         style={webviewStyles}
-        {...({ androidHardwareAccelerationDisabled: true } as any)}
+        {...androidCompatibilityProps}
         {...webviewProps}
       />
     </View>

@@ -1,19 +1,19 @@
-import React, { forwardRef } from "react";
+import React, { forwardRef, useState } from "react";
 import {
+  ActivityIndicator,
   ColorValue,
+  Pressable,
+  TextStyle,
   TouchableOpacityProps,
   ViewStyle,
-  TextStyle,
-  ActivityIndicator,
-  Pressable,
 } from "react-native";
 
 import { Feather } from "@expo/vector-icons";
 import { MediumText, RegularText } from "./Text";
 
+import { If } from "@common-ui/components/Conditional";
 import { Colors, ColorTypes } from "@common-ui/constants/colors";
 import { Spacing } from "@common-ui/constants/spacing";
-import { If } from "@common-ui/components/Conditional";
 import { OffsetProps, useOffsetStyles } from "@common-ui/utils/useOffset";
 
 type SimpleLinkProps = {
@@ -90,6 +90,7 @@ function BaseButton(props: BaseButtonProps) {
   const buttonText = isLoading ? loadingText : title;
 
   const isButtonDisabled = disabled || isLoading;
+  const [isHovered, setIsHovered] = useState(false);
 
   let buttonStyle: ViewStyle[] = [$button];
   const textStyle: TextStyle[] = [$buttonText];
@@ -161,14 +162,15 @@ function BaseButton(props: BaseButtonProps) {
       accessibilityLabel={buttonText}
       disabled={isButtonDisabled}
       onPress={onPress}
+      onHoverIn={() => setIsHovered(true)}
+      onHoverOut={() => setIsHovered(false)}
       style={(state) => [
         buttonStyle,
-        !isButtonDisabled && state.pressed && $buttonHovered,
-        !isButtonDisabled && state.hovered && $buttonHovered,
+        !isButtonDisabled && (state.pressed || isHovered) && $buttonHovered,
         isButtonDisabled && $buttonDisabled,
       ]}>
       <If condition={!!leftIcon}>
-        <Feather size={leftIconSize} name={leftIcon} color={textColor} style={$leftIcon as any} />
+        <Feather size={leftIconSize} name={leftIcon} color={textColor} style={$leftIcon} />
       </If>
       <If condition={!!isLoading}>
         <ActivityIndicator size="small" color={textColor} style={$activityIndicator} />
@@ -180,12 +182,7 @@ function BaseButton(props: BaseButtonProps) {
         <Feather size={iconSize} name={icon} color={textColor} textStyle={$icon} />
       </If>
       <If condition={!!rightIcon}>
-        <Feather
-          size={rightIconSize}
-          name={rightIcon}
-          color={textColor}
-          style={$rightIcon as any}
-        />
+        <Feather size={rightIconSize} name={rightIcon} color={textColor} style={$rightIcon} />
       </If>
     </Pressable>
   );
@@ -321,6 +318,7 @@ export function LinkButton(props: ButtonProps) {
 
 export function SimpleLinkButton(props: SimpleLinkProps) {
   const { text, color, lineHeight, onPress } = props;
+  const [isHovered, setIsHovered] = useState(false);
 
   const $basicStyle = [$simpleLinkButton];
 
@@ -329,12 +327,15 @@ export function SimpleLinkButton(props: SimpleLinkProps) {
   }
 
   return (
-    <Pressable onPress={onPress}>
-      {({ pressed, hovered }) => (
+    <Pressable
+      onPress={onPress}
+      onHoverIn={() => setIsHovered(true)}
+      onHoverOut={() => setIsHovered(false)}>
+      {({ pressed }) => (
         <RegularText
           text={text}
           lineHeight={lineHeight}
-          style={[hovered || pressed ? $simpleLinkButtonHovered : $basicStyle]}
+          style={[isHovered || pressed ? $simpleLinkButtonHovered : $basicStyle]}
         />
       )}
     </Pressable>
@@ -429,12 +430,12 @@ const $icon: TextStyle = {
   color: Colors.white,
 };
 
-const $leftIcon: ViewStyle = {
+const $leftIcon: TextStyle = {
   marginLeft: Spacing.small,
   marginRight: Spacing.tiny,
 };
 
-const $rightIcon: ViewStyle = {
+const $rightIcon: TextStyle = {
   marginLeft: Spacing.tiny,
   marginRight: Spacing.small,
 };

@@ -1,8 +1,13 @@
 // src/components/__tests__/GageDetailsChart.historical.test.tsx
-import React from "react";
-import { render, act } from "@testing-library/react-native";
 import localDayJs from "@services/localDayJs";
+import { act, render } from "@testing-library/react-native";
+import React from "react";
 import { GageDetailsChart } from "../GageDetailsChart";
+
+type ConditionalProps = React.PropsWithChildren<{ condition: boolean }>;
+type TestGage = React.ComponentProps<typeof GageDetailsChart>["gage"];
+
+const missingGage = undefined as never;
 
 const GAUGE_TZ = "Asia/Tokyo";
 
@@ -68,7 +73,7 @@ jest.mock("react-native-safe-area-context", () => ({
 }));
 jest.mock("@gorhom/bottom-sheet", () => ({
   BottomSheetModal: () => null,
-  BottomSheetView: ({ children }: any) => children,
+  BottomSheetView: ({ children }: React.PropsWithChildren) => children,
 }));
 
 jest.mock("@react-native-picker/picker", () => ({
@@ -85,22 +90,24 @@ jest.mock("@common-ui/components/Icon", () => () => null);
 
 jest.mock("@common-ui/components/Card", () => {
   const React = require("react");
-  const Pass = ({ children }: any) => React.createElement(React.Fragment, null, children ?? null);
+  const Pass = ({ children }: React.PropsWithChildren) =>
+    React.createElement(React.Fragment, null, children ?? null);
   return { Card: Pass, CardHeader: Pass, CardFooter: Pass };
 });
 
 jest.mock("@common-ui/components/Common", () => {
   const React = require("react");
-  const Pass = ({ children }: any) => React.createElement(React.Fragment, null, children ?? null);
+  const Pass = ({ children }: React.PropsWithChildren) =>
+    React.createElement(React.Fragment, null, children ?? null);
   return { Row: Pass, Cell: Pass, RowOrCell: Pass };
 });
 
 jest.mock("@common-ui/components/Conditional", () => {
   const React = require("react");
   return {
-    If: ({ condition, children }: any) =>
+    If: ({ condition, children }: ConditionalProps) =>
       condition ? React.createElement(React.Fragment, null, children) : null,
-    Ternary: ({ condition, children }: any) => {
+    Ternary: ({ condition, children }: ConditionalProps) => {
       const arr = React.Children.toArray(children);
       return condition ? arr[0] ?? null : arr[1] ?? null;
     },
@@ -135,7 +142,7 @@ jest.mock("@config/config", () => ({
 }));
 
 // --- Minimal mock gage ---
-const mockGage: any = {
+const mockGage = {
   locationId: "USGS-NF10",
   locationInfo: {
     floodEvents: [],
@@ -156,7 +163,7 @@ const mockGage: any = {
   predictedPoints: [],
   noaaForecastData: [],
   hasData: false,
-};
+} as TestGage;
 
 describe("GageDetailsChart — historical data fetch on page load", () => {
   beforeEach(() => {
@@ -175,7 +182,7 @@ describe("GageDetailsChart — historical data fetch on page load", () => {
 
   it("does not fetch with the correct locationId when gage is undefined on mount (real page-refresh start state)", () => {
     // Real page-refresh: store is empty, gage is not yet available
-    render(<GageDetailsChart gage={undefined as any} />);
+    render(<GageDetailsChart gage={missingGage} />);
 
     // The broken code calls fetchDataForGage(undefined, ...) — a silent no-op in the real
     // store but still a call. Verify the correct locationId was never used.
@@ -193,7 +200,7 @@ describe("GageDetailsChart — historical data fetch on page load", () => {
 
     // Start with gage=undefined: real page-refresh, store is initially empty.
     // Broken code fires the effect immediately but with gage.locationId=undefined (no-op in real store).
-    const { rerender } = render(<GageDetailsChart gage={undefined as any} />);
+    const { rerender } = render(<GageDetailsChart gage={missingGage} />);
 
     // Clear any spurious calls made with undefined locationId before the store is ready.
     mockFetchDataForGage.mockClear();

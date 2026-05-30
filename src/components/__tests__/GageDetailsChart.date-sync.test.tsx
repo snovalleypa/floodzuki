@@ -1,20 +1,37 @@
 // src/components/__tests__/GageDetailsChart.date-sync.test.tsx
-import React from "react";
-import { render, act } from "@testing-library/react-native";
-import { GageDetailsChart } from "../GageDetailsChart";
 import localDayJs from "@services/localDayJs";
+import { act, render } from "@testing-library/react-native";
+import type { Dayjs } from "dayjs";
+import React from "react";
+import { GageDetailsChart } from "../GageDetailsChart";
 
-let capturedOnChange: ((start: any, end: any) => void) | undefined;
-let latestStartDate: any;
+type QueryParams = {
+  from?: string;
+  to?: string;
+  historicEventId?: string;
+};
 
-const mockParamsBox: { current: { from?: string; to?: string; historicEventId?: string } } = {
+type RangeChangeHandler = (start: Dayjs, end: Dayjs) => void;
+
+type DatePickerVariantSwitchProps = {
+  onChange: RangeChangeHandler;
+  startDate?: Dayjs;
+};
+
+type ConditionalProps = React.PropsWithChildren<{ condition: boolean }>;
+type TestGage = React.ComponentProps<typeof GageDetailsChart>["gage"];
+
+let capturedOnChange: RangeChangeHandler | undefined;
+let latestStartDate: Dayjs | undefined;
+
+const mockParamsBox: { current: QueryParams } = {
   current: {},
 };
-const mockSetParams = jest.fn((patch: Record<string, string | undefined>) => {
-  const next = { ...mockParamsBox.current, ...patch };
-  Object.keys(patch).forEach((k) => {
-    if (patch[k] === undefined) {
-      delete (next as any)[k];
+const mockSetParams = jest.fn((patch: Partial<QueryParams>) => {
+  const next: QueryParams = { ...mockParamsBox.current, ...patch };
+  (Object.keys(patch) as (keyof QueryParams)[]).forEach((key) => {
+    if (patch[key] === undefined) {
+      delete next[key];
     }
   });
   mockParamsBox.current = next;
@@ -22,7 +39,7 @@ const mockSetParams = jest.fn((patch: Record<string, string | undefined>) => {
 
 jest.mock("../DatePickerVariantSwitch", () => ({
   __esModule: true,
-  default: (props: any) => {
+  default: (props: DatePickerVariantSwitchProps) => {
     capturedOnChange = props.onChange;
     latestStartDate = props.startDate;
     return null;
@@ -65,7 +82,7 @@ jest.mock("react-native-safe-area-context", () => ({
 }));
 jest.mock("@gorhom/bottom-sheet", () => ({
   BottomSheetModal: () => null,
-  BottomSheetView: ({ children }: any) => children,
+  BottomSheetView: ({ children }: React.PropsWithChildren) => children,
 }));
 jest.mock("@react-native-picker/picker", () => ({ Picker: () => null }));
 jest.mock("@common-ui/components/SegmentControl", () => ({
@@ -74,20 +91,22 @@ jest.mock("@common-ui/components/SegmentControl", () => ({
 jest.mock("@common-ui/components/Icon", () => () => null);
 jest.mock("@common-ui/components/Card", () => {
   const React = require("react");
-  const Pass = ({ children }: any) => React.createElement(React.Fragment, null, children ?? null);
+  const Pass = ({ children }: React.PropsWithChildren) =>
+    React.createElement(React.Fragment, null, children ?? null);
   return { Card: Pass, CardHeader: Pass, CardFooter: Pass };
 });
 jest.mock("@common-ui/components/Common", () => {
   const React = require("react");
-  const Pass = ({ children }: any) => React.createElement(React.Fragment, null, children ?? null);
+  const Pass = ({ children }: React.PropsWithChildren) =>
+    React.createElement(React.Fragment, null, children ?? null);
   return { Row: Pass, Cell: Pass, RowOrCell: Pass };
 });
 jest.mock("@common-ui/components/Conditional", () => {
   const React = require("react");
   return {
-    If: ({ condition, children }: any) =>
+    If: ({ condition, children }: ConditionalProps) =>
       condition ? React.createElement(React.Fragment, null, children) : null,
-    Ternary: ({ condition, children }: any) => {
+    Ternary: ({ condition, children }: ConditionalProps) => {
       const arr = React.Children.toArray(children);
       return condition ? arr[0] ?? null : arr[1] ?? null;
     },
@@ -111,7 +130,7 @@ jest.mock("@config/config", () => ({
   default: { LIVE_CHART_DATA_REFRESH_INTERVAL: 60000, GAGES_WITHOUT_DISHCARGE: [] },
 }));
 
-const mockGage: any = {
+const mockGage = {
   locationId: "USGS-NF10",
   locationInfo: {
     floodEvents: [],
@@ -132,7 +151,7 @@ const mockGage: any = {
   predictedPoints: [],
   noaaForecastData: [],
   hasData: false,
-};
+} as TestGage;
 
 describe("GageDetailsChart — split picker date sync", () => {
   beforeEach(() => {

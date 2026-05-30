@@ -1,9 +1,38 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 // src/common-ui/components/__tests__/SingleDatePickerNative.test.tsx
-import React from "react";
-import { render, fireEvent, act } from "@testing-library/react-native";
+import { act, fireEvent, render } from "@testing-library/react-native";
 import dayjs from "dayjs";
+import React from "react";
 import { SingleDatePickerNative } from "../SingleDatePickerNative";
+
+type MockBottomSheetHandle = {
+  present: () => void;
+  dismiss: () => void;
+};
+
+type PickerEvent = {
+  type: string;
+  nativeEvent?: object;
+};
+
+type PickerChangeHandler = (event: PickerEvent, date?: Date) => void;
+
+type AndroidOpenParams = {
+  value: Date;
+  minimumDate?: Date;
+  maximumDate?: Date;
+  mode: string;
+  onChange: PickerChangeHandler;
+};
+
+type TriggerTextProps = {
+  text: string;
+};
+
+type ButtonProps = {
+  title: string;
+  onPress?: () => void;
+};
 
 // ---------------------------------------------------------------------------
 // @services/localDayJs mock — extend dayjs with the timezone plugin so that
@@ -27,8 +56,11 @@ const mockPresent = jest.fn();
 const mockDismiss = jest.fn();
 
 jest.mock("@gorhom/bottom-sheet", () => {
-  const ReactModule = require("react");
-  const MockBottomSheetModal = ReactModule.forwardRef(({ children }: any, ref: any) => {
+  const ReactModule = require("react") as typeof React;
+  const MockBottomSheetModal = ReactModule.forwardRef<
+    MockBottomSheetHandle,
+    React.PropsWithChildren
+  >(({ children }, ref) => {
     ReactModule.useImperativeHandle(ref, () => ({
       present: mockPresent,
       dismiss: mockDismiss,
@@ -36,7 +68,7 @@ jest.mock("@gorhom/bottom-sheet", () => {
     return ReactModule.createElement(ReactModule.Fragment, null, children);
   });
   MockBottomSheetModal.displayName = "MockBottomSheetModal";
-  const MockBottomSheetView = ({ children }: any) =>
+  const MockBottomSheetView = ({ children }: React.PropsWithChildren) =>
     ReactModule.createElement(ReactModule.Fragment, null, children);
   return {
     BottomSheetModal: MockBottomSheetModal,
@@ -52,14 +84,14 @@ jest.mock("@gorhom/bottom-sheet", () => {
 // DateTimePickerAndroid.open: delegated through mockAndroidOpenFn so the
 // reference is stable across jest-mock hoisting.
 // ---------------------------------------------------------------------------
-const mockAndroidOpenFn: jest.Mock & {
-  _capturePickerOnChange?: (event: any, date?: Date) => void;
-} = jest.fn();
+const mockAndroidOpenFn = Object.assign(jest.fn<void, [AndroidOpenParams]>(), {
+  _capturePickerOnChange: undefined as PickerChangeHandler | undefined,
+});
 
 jest.mock("@react-native-community/datetimepicker", () => {
-  const ReactModule = require("react");
+  const ReactModule = require("react") as typeof React;
 
-  const MockDateTimePicker = ({ onChange }: any) => {
+  const MockDateTimePicker = ({ onChange }: { onChange: PickerChangeHandler }) => {
     // Store the onChange via a module-level setter so tests can trigger changes.
     // We can't reference the outer let directly (not a `mock`-prefixed name),
     // but we CAN call a mock-prefixed function as a side channel.
@@ -72,7 +104,7 @@ jest.mock("@react-native-community/datetimepicker", () => {
     __esModule: true,
     default: MockDateTimePicker,
     DateTimePickerAndroid: {
-      open: (...args: any[]) => mockAndroidOpenFn(...args),
+      open: (...args: [AndroidOpenParams]) => mockAndroidOpenFn(...args),
     },
   };
 });
@@ -81,17 +113,17 @@ jest.mock("@react-native-community/datetimepicker", () => {
 // Stub heavy UI dependencies
 // ---------------------------------------------------------------------------
 jest.mock("@common-ui/components/Text", () => ({
-  RegularText: ({ text }: any) => {
-    const ReactModule = require("react");
-    const { Text } = require("react-native");
+  RegularText: ({ text }: TriggerTextProps) => {
+    const ReactModule = require("react") as typeof React;
+    const { Text } = require("react-native") as typeof import("react-native");
     return ReactModule.createElement(Text, { testID: "date-text" }, text);
   },
 }));
 
 jest.mock("@common-ui/components/Button", () => ({
-  SolidButton: ({ title, onPress }: any) => {
-    const ReactModule = require("react");
-    const { TouchableOpacity, Text } = require("react-native");
+  SolidButton: ({ title, onPress }: ButtonProps) => {
+    const ReactModule = require("react") as typeof React;
+    const { TouchableOpacity, Text } = require("react-native") as typeof import("react-native");
     return ReactModule.createElement(
       TouchableOpacity,
       { testID: "done-button", onPress },
@@ -101,8 +133,8 @@ jest.mock("@common-ui/components/Button", () => ({
 }));
 
 jest.mock("@common-ui/components/Common", () => {
-  const ReactModule = require("react");
-  const Pass = ({ children }: any) =>
+  const ReactModule = require("react") as typeof React;
+  const Pass = ({ children }: React.PropsWithChildren) =>
     ReactModule.createElement(ReactModule.Fragment, null, children ?? null);
   return { Cell: Pass, Row: Pass };
 });
@@ -118,12 +150,12 @@ jest.mock("react-native-gesture-handler", () => {
 jest.mock("react-native-reanimated", () => ({
   measure: jest.fn(() => null),
   useAnimatedRef: () => ({ current: null }),
-  default: { createAnimatedComponent: (c: any) => c },
+  default: { createAnimatedComponent: <T,>(component: T) => component },
 }));
 
 // Helper to get the captured onChange from the inline DateTimePicker mock.
 // The mock stores it as a property on mockAndroidOpenFn as a side channel.
-function getPickerOnChange(): ((event: any, date?: Date) => void) | null {
+function getPickerOnChange(): PickerChangeHandler | null {
   return mockAndroidOpenFn._capturePickerOnChange ?? null;
 }
 
@@ -134,14 +166,16 @@ const GAUGE_TZ = "America/Los_Angeles";
 // faithful regardless of the system tz the suite runs under, build picker-
 // emitted dates as midnight in the gauge tz.
 const MOCK_PICKER_DATE = dayjs.tz("2026-05-15", "YYYY-MM-DD", GAUGE_TZ).toDate();
-const MOCK_PICKER_EVENT = { type: "set", nativeEvent: {} };
+const MOCK_PICKER_EVENT: PickerEvent = { type: "set", nativeEvent: {} };
+
+const baseOnChange = jest.fn();
 
 const BASE_PROPS = {
   selectedDate: dayjs.tz("2026-04-01", "YYYY-MM-DD", GAUGE_TZ),
   minDate: dayjs.tz("2026-01-01", "YYYY-MM-DD", GAUGE_TZ),
   maxDate: dayjs.tz("2026-12-31", "YYYY-MM-DD", GAUGE_TZ),
   timezone: GAUGE_TZ,
-  onChange: jest.fn(),
+  onChange: baseOnChange,
 };
 
 // ===========================================================================
@@ -157,7 +191,7 @@ describe("SingleDatePickerNative — iOS", () => {
     mockDismiss.mockClear();
     mockAndroidOpenFn.mockClear();
     delete mockAndroidOpenFn._capturePickerOnChange;
-    BASE_PROPS.onChange.mockClear();
+    baseOnChange.mockClear();
   });
 
   it("smoke: renders without crashing", () => {
@@ -248,7 +282,7 @@ describe("SingleDatePickerNative — Android", () => {
 
   beforeEach(() => {
     mockAndroidOpenFn.mockClear();
-    BASE_PROPS.onChange.mockClear();
+    baseOnChange.mockClear();
   });
 
   it("calls onChange when event.type === 'set' with a date", () => {

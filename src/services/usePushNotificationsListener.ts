@@ -1,8 +1,8 @@
-import { useEffect } from "react";
-import { useRouter } from "expo-router";
-import * as Notifications from "expo-notifications";
-import { isWeb } from "@common-ui/utils/responsive";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
+import { isWeb } from "@common-ui/utils/responsive";
+import * as Notifications from "expo-notifications";
+import { useRouter, type Href } from "expo-router";
+import { useEffect } from "react";
 import { registerForPushNotificationsAsync } from "./pushNotifications";
 
 export function useRegisterPushNotificationsListener(requestPermissions: boolean) {
@@ -23,8 +23,8 @@ export function useRegisterPushNotificationsListener(requestPermissions: boolean
 
     function redirect(notification: Notifications.Notification) {
       const url = notification.request.content.data?.url || notification.request.content.data?.path;
-      if (url) {
-        router.push(url as any);
+      if (typeof url === "string") {
+        router.push(url as Href);
       }
     }
 

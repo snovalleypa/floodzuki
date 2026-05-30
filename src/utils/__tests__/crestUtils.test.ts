@@ -1,4 +1,4 @@
-import { buildCrestTimestampSet } from "../crestUtils";
+import { buildCrestTimestampSet, type PeakLike } from "../crestUtils";
 
 describe("buildCrestTimestampSet", () => {
   it("returns an empty set when peaks is null or undefined", () => {
@@ -20,13 +20,13 @@ describe("buildCrestTimestampSet", () => {
   });
 
   it("skips peaks without a numeric timestampMs", () => {
-    const peaks = [
+    const peaks: PeakLike[] = [
       { timestampMs: 1000 },
       { timestampMs: undefined },
-      { timestampMs: null as unknown as number },
+      { timestampMs: null },
       {},
       { timestampMs: 2000 },
-    ] as { timestampMs?: number | null }[];
+    ];
     const set = buildCrestTimestampSet(peaks);
     expect(set.size).toBe(2);
     expect(set.has(1000)).toBe(true);

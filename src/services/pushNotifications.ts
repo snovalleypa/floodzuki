@@ -1,9 +1,9 @@
-import { Alert } from "react-native";
-import * as Device from "expo-device";
-import * as Notifications from "expo-notifications";
 import { Colors } from "@common-ui/constants/colors";
 import { isAndroid, isWeb } from "@common-ui/utils/responsive";
 import { openAppSettings } from "@utils/navigation";
+import * as Device from "expo-device";
+import * as Notifications from "expo-notifications";
+import { Alert } from "react-native";
 
 // This is for foreground notifications
 Notifications.setNotificationHandler({
@@ -16,9 +16,34 @@ Notifications.setNotificationHandler({
   }),
 });
 
+type NotificationPermissionsLike =
+  | Notifications.NotificationPermissionsStatus
+  | {
+      granted?: boolean;
+      status?: Notifications.PermissionStatus;
+      ios?: Notifications.NotificationPermissionsStatus["ios"];
+    };
+
+function hasGrantedNotificationPermissions(permissions: NotificationPermissionsLike) {
+  if ("granted" in permissions && permissions.granted) {
+    return true;
+  }
+
+  if ("status" in permissions && permissions.status != null) {
+    return permissions.status === Notifications.PermissionStatus.GRANTED;
+  }
+
+  const iosStatus = permissions.ios?.status;
+  if (iosStatus == null) {
+    return false;
+  }
+
+  return iosStatus === Notifications.IosAuthorizationStatus.AUTHORIZED;
+}
+
 export async function isPushNotificationsEnabledAsync() {
   const permissions = await Notifications.getPermissionsAsync();
-  return (permissions as any).granted ?? false;
+  return hasGrantedNotificationPermissions(permissions);
 }
 
 export async function registerForPushNotificationsAsync(
@@ -43,11 +68,11 @@ export async function registerForPushNotificationsAsync(
 
   if (Device.isDevice) {
     const existingPermissions = await Notifications.getPermissionsAsync();
-    let isGranted: boolean = (existingPermissions as any).granted ?? false;
+    let isGranted = hasGrantedNotificationPermissions(existingPermissions);
 
     if (requestPermissions && !isGranted) {
       const permResponse = await Notifications.requestPermissionsAsync();
-      isGranted = (permResponse as any).granted ?? false;
+      isGranted = hasGrantedNotificationPermissions(permResponse);
     }
 
     if (requestPermissions && !isGranted) {

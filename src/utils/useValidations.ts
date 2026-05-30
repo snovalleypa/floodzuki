@@ -1,18 +1,20 @@
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import { useEffect, useState } from "react";
 
+type ValidationValues = Record<string, string>;
+
 const VALIDATIONS = {
   presence: (fieldName: string, value: string, t) => {
     return value.length > 0 ? true : t("validations.presence", { fieldName });
   },
 };
 
-export const useValidations = (values: Record<string, any>) => {
+export const useValidations = (values: ValidationValues) => {
   const { t } = useLocale();
   const [isValid, setIsValid] = useState(false);
   const [errors, setErrorMessages] = useState<string>();
 
-  const validate = (values: Record<string, any>) => {
+  const validate = (values: ValidationValues) => {
     const errors: Record<string, string> = {};
 
     Object.keys(values).forEach((key) => {

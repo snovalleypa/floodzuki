@@ -6,6 +6,20 @@ module.exports = defineConfig([
   expo,
   eslintConfigPrettier,
   {
+    files: ["app/**/*.{ts,tsx}", "src/**/*.{ts,tsx}"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "error",
+      "@typescript-eslint/no-restricted-types": [
+        "error",
+        {
+          types: {
+            unknown: "Use a more specific type than unknown.",
+          },
+        },
+      ],
+    },
+  },
+  {
     rules: {
       // Warn instead of error on missing hook deps — codebase predates this rule
       "react-hooks/exhaustive-deps": "warn",

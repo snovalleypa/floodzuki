@@ -5,8 +5,8 @@ import { MediumTitle, SmallTitle } from "./Text";
 
 import { Colors } from "@common-ui/constants/colors";
 import { Spacing } from "@common-ui/constants/spacing";
-import { OffsetProps, useOffsetStyles } from "@common-ui/utils/useOffset";
 import { useResponsive } from "@common-ui/utils/responsive";
+import { OffsetProps, useOffsetStyles } from "@common-ui/utils/useOffset";
 
 type Segment = {
   key: string;
@@ -63,6 +63,7 @@ const SegmentItem = React.memo(function SegmentItem({
   onPress: (segmentKey: string) => void;
 }) {
   const key = segment.key;
+  const [isHovered, setIsHovered] = React.useState(false);
 
   const { isMobile } = useResponsive();
 
@@ -78,10 +79,12 @@ const SegmentItem = React.memo(function SegmentItem({
     <Pressable
       key={key}
       onPress={handlePress}
+      onHoverIn={() => setIsHovered(true)}
+      onHoverOut={() => setIsHovered(false)}
       style={(state) => [
         $segmentStyle,
         state.pressed && $segmentPressed,
-        state.hovered && $segmentHovered,
+        isHovered && $segmentHovered,
       ]}>
       <TextComponent color={$textColor} align="center">
         {segment.title}

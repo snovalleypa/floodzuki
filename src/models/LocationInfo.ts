@@ -1,9 +1,8 @@
-import { Instance, SnapshotIn, SnapshotOut, types, flow } from "mobx-state-tree";
 import { api } from "@services/api";
+import { cast, flow, Instance, SnapshotIn, SnapshotOut, types } from "mobx-state-tree";
 
-import { withDataFetchingActions, dataFetchingProps } from "./helpers/withDataFetchingProps";
+import { dataFetchingProps, withDataFetchingActions } from "./helpers/withDataFetchingProps";
 import { withSetPropAction } from "./helpers/withSetPropsAction";
-import { GageModel } from "./Gage";
 
 // "LocationInfo" Example data
 // id: "USGS-SF17"
@@ -101,10 +100,10 @@ export const LocationInfoModelStore = types
 
       if (response.kind === "ok") {
         const metagageLocation = store.locationInfos.find((l) => l.isMetagage);
-        store.locationInfos = [
-          ...response.data?.filter((l) => !!l.id),
+        store.locationInfos = cast([
+          ...(response.data || []).filter((l) => !!l.id),
           ...(metagageLocation ? [metagageLocation] : []),
-        ] as any;
+        ]);
       } else {
         store.setError(response.kind);
       }

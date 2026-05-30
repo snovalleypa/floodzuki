@@ -1,11 +1,27 @@
 /**
  * @jest-environment jsdom
  */
-import React from "react";
 import { render } from "@testing-library/react-native";
+import React from "react";
 
-import MapLibreWebGageWebMap from "../MapLibreWebGageMap";
 import * as MapLibre from "@vis.gl/react-maplibre";
+import MapLibreWebGageWebMap from "../MapLibreWebGageMap";
+
+type WebMapProps = React.ComponentProps<typeof MapLibreWebGageWebMap>;
+type TestGage = WebMapProps["gages"][number];
+type TestRegion = WebMapProps["region"];
+type GageOverrides = Partial<Pick<TestGage, "locationId" | "latitude" | "longitude">>;
+type BoundsOverride = number[];
+type RegionOverrides = Partial<Pick<TestRegion, "id">> & {
+  defaultWebMapBounds?: BoundsOverride;
+  regionBounds?: BoundsOverride;
+};
+
+const asDefaultWebMapBounds = (bounds: BoundsOverride): TestRegion["defaultWebMapBounds"] =>
+  bounds as TestRegion["defaultWebMapBounds"];
+
+const asRegionBounds = (bounds: BoundsOverride): TestRegion["regionBounds"] =>
+  bounds as TestRegion["regionBounds"];
 
 jest.mock("maplibre-gl/dist/maplibre-gl.css", () => {});
 
@@ -31,13 +47,24 @@ jest.mock("../TrendIcon", () => ({
   TREND_ICON_TYPES: { Map: "Map" },
 }));
 
-const MockMap = MapLibre.Map as jest.Mock;
-const MockMarker = MapLibre.Marker as jest.Mock;
+const MockMap = MapLibre.Map as jest.MockedFunction<typeof MapLibre.Map>;
+const MockMarker = MapLibre.Marker as jest.MockedFunction<typeof MapLibre.Marker>;
 
-const makeGage = (overrides: Record<string, unknown> = {}) =>
-  ({ locationId: "test", latitude: 47.5, longitude: -121.8, ...overrides } as any);
+const makeGage = (overrides: GageOverrides = {}) =>
+  ({ locationId: "test", latitude: 47.5, longitude: -121.8, ...overrides } as TestGage);
 
-const makeRegion = (overrides: Record<string, unknown> = {}) => ({ id: 1, ...overrides } as any);
+const makeRegion = (overrides: RegionOverrides = {}) => {
+  const { defaultWebMapBounds, regionBounds, ...rest } = overrides;
+
+  return {
+    id: 1,
+    ...rest,
+    ...(defaultWebMapBounds !== undefined
+      ? { defaultWebMapBounds: asDefaultWebMapBounds(defaultWebMapBounds) }
+      : {}),
+    ...(regionBounds !== undefined ? { regionBounds: asRegionBounds(regionBounds) } : {}),
+  } as TestRegion;
+};
 
 beforeEach(() => {
   MockMap.mockClear();
