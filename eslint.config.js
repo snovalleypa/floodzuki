@@ -15,6 +15,19 @@ module.exports = defineConfig([
     },
   },
   {
+    files: ["**/*.ts", "**/*.tsx"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "warn",
+      "no-restricted-syntax": [
+        "warn",
+        {
+          selector: "TSUnknownKeyword",
+          message: "Prefer a more specific type instead of `unknown`.",
+        },
+      ],
+    },
+  },
+  {
     ignores: ["node_modules/", "dist/", ".expo/", "ios/", "android/", "patches/"],
   },
 ]);
