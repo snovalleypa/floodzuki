@@ -1,7 +1,7 @@
 import { buildGageTooltipHtml, buildForecastTooltipHtml } from "../chartTooltipHtml";
 
 const t = (key: string) => key;
-const TZ = "America/Los_Angeles";
+const TZ = "America/New_York";
 
 function makeGage(roadStatus: any = null): any {
   return {
@@ -69,7 +69,7 @@ describe("buildGageTooltipHtml", () => {
       isPrediction: false,
     });
 
-    expect(html).toContain("8:15 AM");
+    expect(html).toContain("11:15 AM");
     expect(html).toContain("Sun, May 17");
   });
 
@@ -174,12 +174,12 @@ describe("buildForecastTooltipHtml", () => {
   it("formats the timestamp in the given timezone", () => {
     const html = buildForecastTooltipHtml({
       tz: TZ,
-      seriesName: "Observed: Carnation",
+      seriesName: "Observed: Boston",
       x: new Date("2026-05-17T15:15:00Z").valueOf(),
       y: 100,
     });
 
     expect(html).toContain("May 17");
-    expect(html).toContain("8:15 AM");
+    expect(html).toContain("11:15 AM");
   });
 });
