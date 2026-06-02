@@ -28,23 +28,25 @@ const RegionSummaryCard = observer(function RegionSummaryCard() {
   }
   const statusText =
     statusParts.length === 0 ? t("regionSummary.allNormal") : statusParts.join(" · ");
-  const statusLabelType =
-    counts.flooding > 0 ? "danger" : counts.nearFlooding > 0 ? "warning" : "success";
+
+  let statusLabelType: keyof typeof LARGE_LABEL_COLORS = "success";
+  if (counts.flooding > 0) {
+    statusLabelType = "danger";
+  } else if (counts.nearFlooding > 0) {
+    statusLabelType = "warning";
+  }
   const statusColor = LARGE_LABEL_COLORS[statusLabelType].textColor;
 
   const severity = forecastsStore.severity as ForecastSeverity;
-  const forecastLabelType =
-    severity === ForecastSeverity.Flood
-      ? "danger"
-      : severity === ForecastSeverity.Near
-      ? "warning"
-      : "success";
-  const forecastCopy =
-    severity === ForecastSeverity.Flood
-      ? t("regionSummary.floodingPredicted")
-      : severity === ForecastSeverity.Near
-      ? t("regionSummary.nearFloodPredicted")
-      : t("regionSummary.noFloodingPredicted");
+  let forecastLabelType: keyof typeof LARGE_LABEL_COLORS = "success";
+  let forecastCopy = t("regionSummary.noFloodingPredicted");
+  if (severity === ForecastSeverity.Flood) {
+    forecastLabelType = "danger";
+    forecastCopy = t("regionSummary.floodingPredicted");
+  } else if (severity === ForecastSeverity.Near) {
+    forecastLabelType = "warning";
+    forecastCopy = t("regionSummary.nearFloodPredicted");
+  }
   const forecastColor = LARGE_LABEL_COLORS[forecastLabelType].textColor;
   const forecastBg = LARGE_LABEL_COLORS[forecastLabelType].backgroundColor;
 
