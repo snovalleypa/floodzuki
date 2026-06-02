@@ -3,6 +3,7 @@ import { api } from "@services/api";
 import dayjs from "dayjs";
 
 import { dataFetchingProps, withDataFetchingActions } from "./helpers/withDataFetchingProps";
+import { computeForecastSeverity } from "./helpers/regionSummary";
 import Config from "@config/config";
 import { LocationInfoModel } from "./LocationInfo";
 import { GageSummary } from "./RootStore";
@@ -415,6 +416,15 @@ export const ForecastStoreModel = types
   .views((store) => ({
     getForecast(gageId: string) {
       return store.forecasts.get(gageId);
+    },
+
+    get severity() {
+      const inputs = Array.from(store.forecasts.values()).map((f) => ({
+        peaks: f.peaks,
+        dischargeStageOne: f.dischargeStageOne,
+        dischargeStageTwo: f.dischargeStageTwo,
+      }));
+      return computeForecastSeverity(inputs);
     },
   }));
 

@@ -5,6 +5,7 @@ import { GageReadingStoreModel } from "./GageReading";
 import { LocationInfoModelStore } from "./LocationInfo";
 import { RegionModelStore } from "./Region";
 import { AuthSessionStoreModel } from "./AuthSession";
+import { computeBucketCounts } from "./helpers/regionSummary";
 
 /**
  * A RootStore model.
@@ -13,6 +14,7 @@ export const RootStoreModel = types
   .model("RootStore")
   .props({
     isFetched: types.optional(types.boolean, false),
+    showHiddenOffline: types.optional(types.boolean, false),
     gagesStore: types.optional(GageStoreModel, {}),
     gageReadingsStore: types.optional(GageReadingStoreModel, {}),
     regionStore: types.optional(RegionModelStore, {}),
@@ -23,6 +25,11 @@ export const RootStoreModel = types
   .actions((store) => {
     const setIsFetched = (isFetching: boolean) => {
       store.isFetched = isFetching;
+    };
+
+    const setShowHiddenOffline = (value: boolean) => {
+      store.showHiddenOffline = value;
+      store.gagesStore.syncHiddenStubs(value, store.locationInfoStore.locationInfos);
     };
 
     const fetchMainData = flow(function* () {
@@ -38,6 +45,7 @@ export const RootStoreModel = types
 
     return {
       fetchMainData,
+      setShowHiddenOffline,
     };
   })
   .views((store) => {
@@ -65,17 +73,25 @@ export const RootStoreModel = types
       return store.regionStore?.region?.timezone || "America/Los_Angeles";
     };
 
-    const filterLocationsWithGages = () => {
+    /**
+     * Returns gages eligible for display / nav. When the toggle is off, stubs are
+     * filtered out — they remain in the MST tree but are invisible. When on, both
+     * real gages and stubs are returned.
+     */
+    const visibleGages = () => {
       const gages = store.gagesStore.gages;
-      const gageIds = gages.map((gage) => gage.locationId);
+      return store.showHiddenOffline ? gages : gages.filter((g) => !g._isStub);
+    };
 
+    const filterLocationsWithGages = () => {
+      const gageIds = visibleGages().map((gage) => gage.locationId);
       return store.locationInfoStore.locationInfos.filter((location) =>
         gageIds.includes(location.id)
       );
     };
 
     const getLocationsWithGages = () => {
-      const gages = store.gagesStore.gages;
+      const gages = visibleGages();
       const gageIds = gages.map((gage) => gage.locationId);
 
       return store.locationInfoStore.locationInfos
@@ -84,21 +100,40 @@ export const RootStoreModel = types
     };
 
     const getLocationWithGagesIds = () => {
-      const gages = store.gagesStore.gages.map((gage) => gage.locationId);
+      const gages = visibleGages().map((gage) => gage.locationId);
       return store.locationInfoStore.locationInfos
         .filter((location) => gages.includes(location.id))
         .map((location) => location.id);
+    };
+
+    const realLocations = () => store.locationInfoStore.locationInfos.filter((l) => !l.isMetagage);
+
+    const hiddenLocations = () => {
+      const realGageIds = new Set(
+        store.gagesStore.gages.filter((g) => !g._isStub).map((g) => g.locationId)
+      );
+      return realLocations().filter((l) => !realGageIds.has(l.id));
+    };
+
+    const getBucketCounts = () =>
+      computeBucketCounts({
+        gages: store.gagesStore.gages,
+        locationInfos: store.locationInfoStore.locationInfos,
+      });
+
+    const navLocations = () => {
+      if (store.showHiddenOffline) {
+        return realLocations();
+      }
+      return filterLocationsWithGages();
     };
 
     const getUpstreamGageLocation = (locationId: string) => {
       if (!locationId) {
         return null;
       }
-
-      const locations = filterLocationsWithGages();
-
+      const locations = navLocations();
       const gageIndex = locations.findIndex((location) => location.id === locationId);
-
       return gageIndex > 0 && locations[gageIndex - 1];
     };
 
@@ -106,11 +141,8 @@ export const RootStoreModel = types
       if (!locationId) {
         return null;
       }
-
-      const locations = filterLocationsWithGages();
-
+      const locations = navLocations();
       const gageIndex = locations.findIndex((location) => location.id === locationId);
-
       return gageIndex >= 0 && gageIndex + 1 < locations.length && locations[gageIndex + 1];
     };
 
@@ -123,6 +155,9 @@ export const RootStoreModel = types
       getLocationWithGagesIds,
       getUpstreamGageLocation,
       getDownstreamGageLocation,
+      realLocations,
+      hiddenLocations,
+      getBucketCounts,
 
       get isDataFetched() {
         return store.isFetched;

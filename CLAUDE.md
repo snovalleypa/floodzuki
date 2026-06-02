@@ -72,6 +72,10 @@ EXPO_TUNNEL_SUBDOMAIN="floodzuki" npx expo start --tunnel --web
 - **Highcharts** (web) and **Victory Native** (mobile) for charts — the chart components are split by platform
 - **i18n-js** for localization with `dayjs` for date/time
 
+### TypeScript conventions
+
+- For closed sets of string values, prefer **string enums** (`enum Severity { None = "none", ... }`) over string-literal union types (`type Severity = "none" | ...`). Enables `Severity.None` comparisons and a single source of truth across stores, components, and tests.
+
 ### Directory structure
 
 ```
@@ -157,6 +161,8 @@ All user-visible strings go through the `useLocale()` hook (`t("key")`). Transla
 
 Maps use MapLibre with tile URLs from `Config.DEFAULT_MAP_TILE_BASE_URL`. The `MAP_TILE_URL_BASE` env var overrides the tile source at build time (exposed via `app.config.ts` extra). Maps are not supported in standalone dev builds — only Expo Go and browser.
 
+The map _style_ (layer colors, label sizes, zoom rules) is normally fetched from `https://floodzilla.com/maps/{regionId}/webstyles`. To iterate locally on the style JSON, set `MAP_STYLE_LOCAL=1` — the app will use the checked-in copy at `src/components/mapStyles/floodzilla-webstyles.json` instead. Save the file and reload to see changes. Hand the file off to the backend developer to deploy (same content goes into both the `WebStyles` and `MobileStyles` DB records).
+
 ### OTA Updates
 
 The app uses `expo-updates` with channel `production`. OTA updates are published with `eas update --channel production`. All environment variables must be passed at update time since EAS secrets are not available locally.
@@ -174,3 +180,14 @@ This applies in three directions:
 - **Construction:** when building a Dayjs from a date string in code (in components, stores, tests), construct it in gauge tz from the start: `localDayJs.tz("2026-05-01", "YYYY-MM-DD", timezone)`. A bare `dayjs("2026-05-01")` is midnight in the _system_ tz and will silently produce the wrong day when system tz != gauge tz.
 
 **Testing:** the Jest suite runs with `TZ=UTC` so any code that silently relies on system tz matching gauge tz will fail in tests. When writing tz-sensitive tests, never construct dates with bare `dayjs(string)` or `new Date(string)` — always specify the tz explicitly.
+
+### Localization
+
+All user-visible strings go through the `useLocale()` hook (`t("key")`). Translation files live in `src/i18n/`. `LocaleContext.tsx` wraps the app at the root level.
+
+- +**Spanish (`es.ts`) conventions** — see [docs/spanish-translation-review.md](docs/spanish-translation-review.md) for the full review and rationale:
+  +- Audience is the local Latino community (predominantly Mexican-origin) → use **Latin American Spanish, informal `tú` register**. Avoid peninsular forms (`vale`, `vosotros`) and `usted` imperatives. Don't mix registers within a screen.
+  +- For hydrology, river flow/discharge is **`caudal`**, not `descarga` (which means "download" in everyday Spanish) or `flujo` (flow).
+  +- For OS-style labels (login, about, settings), match Apple/Google Spanish localizations (e.g. `Iniciar sesión`, `Acerca de`).
+  +- Spanish requires paired punctuation: `¡...!` and `¿...?` — both marks, not just the closing one.
+  +- UI labels omit leading definite articles (`Medidor río arriba`, not `El medidor río arriba`).

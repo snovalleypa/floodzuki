@@ -1,4 +1,12 @@
-import { Instance, SnapshotIn, SnapshotOut, types, flow, getRoot } from "mobx-state-tree";
+import {
+  Instance,
+  SnapshotIn,
+  SnapshotOut,
+  types,
+  flow,
+  getRoot,
+  getSnapshot,
+} from "mobx-state-tree";
 import { api } from "@services/api";
 import dayjs from "dayjs";
 
@@ -10,6 +18,7 @@ import { LocationInfoModel } from "./LocationInfo";
 import localDayJs from "@services/localDayJs";
 import { DataPoint, NOAAForecastModel } from "./Forecasts";
 import USGS_INFO from "@utils/usgsInfo";
+import { computeStubChanges, makeStubSnapshot } from "./helpers/regionSummary";
 
 // Gage data from https://waterservices.usgs.gov/rest/IV-Service.html
 // id: "USGS-38",
@@ -100,6 +109,7 @@ export const GageModel = types
     locationName: types.maybe(types.string),
     locationId: types.identifier,
     isOffline: types.maybe(types.boolean),
+    _isStub: types.optional(types.boolean, false),
     rank: types.maybe(types.number),
     deviceTypeName: types.maybe(types.string),
     timeZoneName: types.maybe(types.string),
@@ -309,14 +319,15 @@ export const GageModel = types
 
       const baseLevel = waterLevel || store.waterLevel;
       const level = baseLevel - store.roadSaddleHeight;
-      const preposition = store.roadSaddleHeight - baseLevel > 0 ? "below" : "over";
-      const deltaFormatted = Math.abs(level).toFixed(1) + " ft.";
+      const preposition: "statusLevelsCard.below" | "statusLevelsCard.over" =
+        store.roadSaddleHeight - baseLevel > 0 ? "statusLevelsCard.below" : "statusLevelsCard.over";
+      const delta = Math.abs(level);
 
       return {
         name: store.roadDisplayName,
         level,
         preposition,
-        deltaFormatted,
+        delta,
       };
     },
 
@@ -331,6 +342,19 @@ export const GageStoreModel = types
     gages: types.array(GageModel),
     ...dataFetchingProps,
   })
+  // Stub gauges are session-scoped — they're re-added on the next fetch when
+  // `showHiddenOffline` is true (see fetchData below). Filtering them out of the
+  // persisted snapshot keeps AsyncStorage lean and avoids carrying stale stub data
+  // across sessions. setupRootStore.ts also strips stubs on load as belt-and-suspenders
+  // for state cached by older builds that didn't have postProcessSnapshot.
+  .preProcessSnapshot((snapshot) => ({
+    ...snapshot,
+    gages: (snapshot?.gages ?? []).filter((g: any) => !g?._isStub),
+  }))
+  .postProcessSnapshot((snapshot) => ({
+    ...snapshot,
+    gages: snapshot.gages.filter((g) => !g._isStub),
+  }))
   .actions(withDataFetchingActions)
   .actions(withSetPropAction)
   .actions((store) => {
@@ -356,9 +380,21 @@ export const GageStoreModel = types
             locationInfo: gage.locationId,
           })) || [];
 
-        store.gages = gages;
+        // Preserve existing stub gauges across the reassignment. MST's identifier
+        // reconciliation will keep stubs alive when they appear in the new array
+        // (matched by locationId). Without this, fetchData destroys the stubs and
+        // syncHiddenStubs recreates them — leaving dead old MST nodes that React 19's
+        // dev-mode commit-phase prop diff still references, firing thousands of
+        // non-fatal "Path upon death" warnings (MST liveliness checking).
+        const stubSnapshots = store.gages.filter((g) => g._isStub).map((g) => getSnapshot(g));
+        store.gages = [...gages, ...stubSnapshots] as any;
       } else {
         store.setError(response.kind);
+      }
+
+      const root = getRoot<any>(store);
+      if (root.showHiddenOffline) {
+        syncHiddenStubs(true, root.locationInfoStore.locationInfos);
       }
 
       store.setIsFetching(false);
@@ -380,7 +416,12 @@ export const GageStoreModel = types
           .subtract(Config.FRONT_PAGE_CHART_DURATION_NUMBER, Config.FRONT_PAGE_CHART_DURATION_UNIT)
           .utc()
           .format();
-      const gage = store.gages.find((gage) => gage?.locationId === locationId);
+      let gage = store.gages.find((g) => g?.locationId === locationId);
+
+      if (!gage) {
+        store.gages.push(makeStubSnapshot(locationId) as any);
+        gage = store.gages.find((g) => g?.locationId === locationId);
+      }
 
       if (!gage) {
         store.setIsFetching(false);
@@ -432,9 +473,37 @@ export const GageStoreModel = types
       store.setIsFetching(false);
     });
 
+    /**
+     * Idempotently adds hidden-location stubs to store.gages when showHidden is true.
+     *
+     * IMPORTANT: this action never *removes* stubs. The display layer hides them when
+     * the toggle is off (see RootStore.getDisplayItems). Removing nodes from an MST
+     * array detaches them; React DevTools then introspects the detached props during
+     * the commit phase and trips MST's "Path upon death" / "initializing phase" errors.
+     * Keeping stubs in the tree permanently sidesteps both issues, and stubs hydrated
+     * with readings via fetchDataForGage retain their data across toggle cycles.
+     */
+    const syncHiddenStubs = (
+      showHidden: boolean,
+      locationInfos: readonly { id: string; isMetagage?: boolean }[]
+    ) => {
+      if (!showHidden) {
+        return;
+      }
+      const { toAdd } = computeStubChanges({
+        gages: store.gages,
+        locationInfos,
+        showHidden,
+      });
+      for (const id of toAdd) {
+        store.gages.push(makeStubSnapshot(id) as any);
+      }
+    };
+
     return {
       fetchData,
       fetchDataForGage,
+      syncHiddenStubs,
     };
   })
   .views((store) => ({

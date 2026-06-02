@@ -71,6 +71,19 @@ const es = {
   homeScreen: {
     title: "Río Snoqualmie / SVPA",
   },
+  regionSummary: {
+    allNormal: "Todos los medidores normales",
+    flooding: "{{count}} en inundación",
+    nearFlooding: "{{count}} en inundación inminente",
+    noFloodingPredicted: "Sin inundación pronosticada",
+    nearFloodPredicted: "Inundación inminente pronosticada",
+    floodingPredicted: "Inundación pronosticada",
+    active: "activos",
+    offline: "desconectados",
+    hidden: "ocultos",
+    showHidden: "Mostrar ocultos",
+    noRecentData: "Sin datos recientes",
+  },
   forecastScreen: {
     title: "Pronóstico",
     details: "Detalles",
@@ -82,8 +95,11 @@ const es = {
     currentlyForecasted: "Pronóstico actual",
     published: "publicado",
     noaaGage: "Medidor NOAA",
-    dataSuppliedBy: "Datos de medidores de inundación proporcionados por",
-    noaaTitle: "el Centro de Pronóstico de Ríos del Noroeste del Servicio Meteorológico Nacional",
+    dataSuppliedBy: "Datos de medidores de inundaciones proporcionados por",
+    noaaTitle: "El centro de pronóstico de ríos del noroeste del Servicio Meteorológico Nacional",
+    timeHeader: "Hora Local",
+    heightHeader: "Altura",
+    flowHeader: "Caudal",
   },
   profileScreen: {
     title: "Perfil",
@@ -244,6 +260,7 @@ const es = {
   gageChart: {
     discharge: "Caudal",
     waterLevel: "Nivel del agua",
+    flow: "Caudal",
     Now: "Ahora",
     dashboardDurationLabel: "hace 48 horas",
   },
@@ -257,7 +274,7 @@ const es = {
     lastReading: "Última medición",
     peak: "Máximo",
     waterLevel: "Nivel del agua",
-    waterFlow: "Flujo del agua",
+    waterFlow: "Caudal",
     status: "Estado",
     trend: "Tendencia",
     road: "Carretera",
@@ -272,6 +289,7 @@ const es = {
     rateOfChange: "Tasa de cambio",
     roadLevel: "Nivel de la carretera",
     rangeWarning: "Rango ajustado a {{maxRange}} días — el máximo que admite este gráfico.",
+    noDataInRange: "Sin datos en el rango seleccionado",
   },
   gageInfoCard: {
     gageInfo: "Información del medidor",

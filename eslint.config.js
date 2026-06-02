@@ -12,6 +12,20 @@ module.exports = defineConfig([
       // Warn instead of error on unescaped entities — legacy legal text files
       "react/no-unescaped-entities": "warn",
       curly: "error",
+      "no-nested-ternary": "error",
+    },
+  },
+  {
+    files: ["**/*.ts", "**/*.tsx"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "warn",
+      "no-restricted-syntax": [
+        "warn",
+        {
+          selector: "TSUnknownKeyword",
+          message: "Prefer a more specific type instead of `unknown`.",
+        },
+      ],
     },
   },
   {

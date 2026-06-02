@@ -76,8 +76,7 @@
     "react-native-web": "~0.21.0",
     "react-native-webview": "13.16.0",
     "react-native-worklets": "0.7.2",
-    "react-responsive": "^10.0.1",
-    "victory-native": "^36.6.11"
+    "react-responsive": "^10.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.19.3",
@@ -123,6 +122,7 @@
     ],
     "moduleNameMapper": {
       "^@sentry/react-native$": "<rootDir>/__mocks__/@sentry/react-native.js",
+      "^expo-notifications$": "<rootDir>/__mocks__/expo-notifications.js",
       "^@react-native-async-storage/async-storage$": "@react-native-async-storage/async-storage/jest/async-storage-mock",
       "^@assets/(.*)$": "<rootDir>/assets/$1",
       "^@utils/(.*)$": "<rootDir>/src/utils/$1",

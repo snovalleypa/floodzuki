@@ -8,7 +8,7 @@ import { Colors, lightenHexColor } from "@common-ui/constants/colors";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import { isMobile } from "@common-ui/utils/responsive";
 import dayjs from "dayjs";
-import localDayJs from "../services/localDayJs";
+import { buildForecastTooltipHtml } from "./chartTooltipHtml";
 
 declare module "highcharts" {
   interface PointOptionsObject {
@@ -49,7 +49,13 @@ const getFloodStageLabel = (forecast: Forecast, isCombinedForecast: boolean) => 
   }
 };
 
-const buildSeries = (forecasts: Forecast[], gages: GageSummary[], softMax: number, t) => {
+const buildSeries = (
+  forecasts: Forecast[],
+  gages: GageSummary[],
+  softMax: number,
+  t,
+  tz: string
+) => {
   const series = [];
   let maxValue = softMax;
 
@@ -69,10 +75,16 @@ const buildSeries = (forecasts: Forecast[], gages: GageSummary[], softMax: numbe
         ...p,
         name: seriesName,
         shortName: gage?.title,
+        tooltipHtml: buildForecastTooltipHtml({
+          tz,
+          seriesName,
+          x: p.x,
+          y: p.y,
+          stage: p.stage,
+        }),
       };
     });
 
-    // Data Points
     series.push({
       animation: false,
       name: seriesName,
@@ -81,26 +93,15 @@ const buildSeries = (forecasts: Forecast[], gages: GageSummary[], softMax: numbe
       fillOpacity: 0.5,
       threshold: 0,
       lineWidth: 2,
-      states: {
-        hover: {
-          lineWidth: 3,
-        },
-      },
-
-      //$ todo
+      states: { hover: { lineWidth: 3 } },
       marker: {
         enabled: false,
         radius: 2,
-        states: {
-          hover: {
-            enabled: true,
-          },
-        },
+        states: { hover: { enabled: true } },
       },
     });
 
     const forecastDataPoints = forecast.chartForecastReadings;
-
     const forecastName = `${t("forecastChart.forecast")}: ${gage?.title}`;
 
     const noramlizedForecastDataPoints = forecastDataPoints.map((p) => {
@@ -112,10 +113,16 @@ const buildSeries = (forecasts: Forecast[], gages: GageSummary[], softMax: numbe
         ...p,
         name: forecastName,
         shortName: gage?.title,
+        tooltipHtml: buildForecastTooltipHtml({
+          tz,
+          seriesName: forecastName,
+          x: p.x,
+          y: p.y,
+          stage: p.stage,
+        }),
       };
     });
 
-    // Forecast Data Points
     series.push({
       animation: false,
       name: `${t("forecastChart.forecast")}: ${gage?.title}`,
@@ -124,14 +131,8 @@ const buildSeries = (forecasts: Forecast[], gages: GageSummary[], softMax: numbe
       color: isMobile ? lightenHexColor(gage?.color) : gage?.color,
       threshold: 0,
       lineWidth: 2,
-      states: {
-        hover: {
-          lineWidth: 3,
-        },
-      },
-      marker: {
-        symbol: "circle",
-      },
+      states: { hover: { lineWidth: 3 } },
+      marker: { symbol: "circle" },
     });
   });
 
@@ -187,7 +188,7 @@ const buildOptions = (props: BuildOptionsProps, t) => {
     },
   ];
 
-  const [series, chartMax] = buildSeries(forecasts, gages, stageTwo, t);
+  const [series, chartMax] = buildSeries(forecasts, gages, stageTwo, t, timezone);
 
   const options: Highcharts.Options = {
     chart: {
@@ -212,16 +213,7 @@ const buildOptions = (props: BuildOptionsProps, t) => {
       },
     },
     tooltip: {
-      formatter: function (this: Highcharts.TooltipFormatterContextObject) {
-        let stageDisplay = "";
-
-        if (this.point?.options?.stage) {
-          stageDisplay = `/ ${this.point?.options?.stage} ft`;
-        }
-        const timeLabel = localDayJs.tz(this.x, timezone).format("MMM D, h:mm A");
-
-        return `<b>${this.series.name}</b><br/>${timeLabel}: ${this.y} cfs ${stageDisplay}`;
-      },
+      useHTML: true,
     },
     xAxis: {
       type: "datetime",

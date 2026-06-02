@@ -69,6 +69,19 @@ const en = {
   homeScreen: {
     title: "Snoqualmie River / SVPA",
   },
+  regionSummary: {
+    allNormal: "All gauges normal",
+    flooding: "{{count}} flooding",
+    nearFlooding: "{{count}} near flooding",
+    noFloodingPredicted: "No flooding predicted",
+    nearFloodPredicted: "Near-flood predicted",
+    floodingPredicted: "Flooding predicted",
+    active: "active",
+    offline: "offline",
+    hidden: "hidden",
+    showHidden: "Show hidden",
+    noRecentData: "No recent data",
+  },
   forecastScreen: {
     title: "Forecast",
     details: "Details",
@@ -82,6 +95,9 @@ const en = {
     noaaGage: "NOAA Gauge",
     dataSuppliedBy: "Flood gauge data supplied by the",
     noaaTitle: "National Weather Service Northwest River Forecast Center",
+    timeHeader: "Local Time",
+    heightHeader: "Height",
+    flowHeader: "Flow",
   },
   profileScreen: {
     title: "Profile",
@@ -230,7 +246,7 @@ const en = {
     observed: "Observed",
     forecast: "Forecast",
     floodStage: "Flood Stage",
-    discharge: "Discharge",
+    discharge: "Flow",
     now: "now",
     fullRangeTitle: "Full",
     rangeDays: "{{days}} days",
@@ -238,8 +254,9 @@ const en = {
     live: "Live",
   },
   gageChart: {
-    discharge: "Discharge",
+    discharge: "Flow",
     waterLevel: "Water Level",
+    flow: "Flow",
     Now: "Now",
     dashboardDurationLabel: "48 hrs. ago",
   },
@@ -260,7 +277,7 @@ const en = {
     roadSmall: " road",
   },
   gageDetailsChart: {
-    discharge: "Discharge",
+    discharge: "Flow",
     waterLevel: "Water Level",
     _selectEvent: "- select event -",
     selectEvent: "Select Event",
@@ -268,6 +285,7 @@ const en = {
     rateOfChange: "Rate of Change",
     roadLevel: "Road Level",
     rangeWarning: "Range adjusted to {{maxRange}} days — the maximum this chart supports.",
+    noDataInRange: "No data in selected range",
   },
   gageInfoCard: {
     gageInfo: "Gauge Info",
