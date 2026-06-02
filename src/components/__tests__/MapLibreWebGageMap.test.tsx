@@ -13,6 +13,8 @@ jest.mock("@vis.gl/react-maplibre", () => ({
   Map: jest.fn(({ children }) => children ?? null),
   Marker: jest.fn().mockReturnValue(null),
   useMap: jest.fn().mockReturnValue({ current: null }),
+  Source: jest.fn(({ children }) => children ?? null),
+  Layer: jest.fn().mockReturnValue(null),
 }));
 
 jest.mock("expo-constants", () => ({
