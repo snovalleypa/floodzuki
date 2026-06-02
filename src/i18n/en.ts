@@ -81,7 +81,6 @@ const en = {
     hidden: "hidden",
     showHidden: "Show hidden",
     noRecentData: "No recent data",
-    offlineGauge: "OFFLINE",
   },
   forecastScreen: {
     title: "Forecast",

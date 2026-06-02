@@ -83,7 +83,6 @@ const es = {
     hidden: "ocultos",
     showHidden: "Mostrar ocultos",
     noRecentData: "Sin datos recientes",
-    offlineGauge: "DESCONECTADO",
   },
   forecastScreen: {
     title: "Pronóstico",

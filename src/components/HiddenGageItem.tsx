@@ -56,7 +56,7 @@ const HiddenGageItem = function HiddenGageItem({ item }: HiddenGageItemProps) {
               </Cell>
             </Row>
             <Row wrap align="space-between" top={Spacing.small}>
-              <LargeLabel type="offline" text={t("regionSummary.offlineGauge")} />
+              <LargeLabel type="offline" text={t("statuses.Offline")} />
               <SmallerText muted>{t("regionSummary.noRecentData")}</SmallerText>
             </Row>
           </Cell>

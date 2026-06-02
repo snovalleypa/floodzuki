@@ -21,7 +21,7 @@ jest.mock("@common-ui/contexts/LocaleContext", () => ({
   useLocale: () => ({
     t: (key: string) => {
       const map: Record<string, string> = {
-        "regionSummary.offlineGauge": "OFFLINE",
+        "statuses.Offline": "Offline",
         "regionSummary.noRecentData": "No recent data",
       };
       return map[key] ?? key;
@@ -30,7 +30,7 @@ jest.mock("@common-ui/contexts/LocaleContext", () => ({
 }));
 
 describe("HiddenGageItem", () => {
-  it("renders the location name, location id, OFFLINE pill, and 'No recent data'", () => {
+  it("renders the location name, location id, Offline pill, and 'No recent data'", () => {
     const { getByText } = render(
       <HiddenGageItem
         item={{ locationId: "USGS-23", locationName: "Tolt River — Above Carnation" }}
@@ -38,7 +38,7 @@ describe("HiddenGageItem", () => {
     );
     expect(getByText("Tolt River — Above Carnation")).toBeTruthy();
     expect(getByText("USGS-23")).toBeTruthy();
-    expect(getByText("OFFLINE")).toBeTruthy();
+    expect(getByText("Offline")).toBeTruthy();
     expect(getByText("No recent data")).toBeTruthy();
   });
 });
