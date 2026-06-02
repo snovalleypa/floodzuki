@@ -10,6 +10,7 @@ import { Colors } from "@common-ui/constants/colors";
 import { Spacing } from "@common-ui/constants/spacing";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import { useStores } from "@models/helpers/useStores";
+import { ForecastSeverity } from "@models/helpers/regionSummary";
 import { ROUTES } from "app/_layout";
 
 const RegionSummaryCard = observer(function RegionSummaryCard() {
@@ -31,13 +32,17 @@ const RegionSummaryCard = observer(function RegionSummaryCard() {
     counts.flooding > 0 ? "danger" : counts.nearFlooding > 0 ? "warning" : "success";
   const statusColor = LARGE_LABEL_COLORS[statusLabelType].textColor;
 
-  const severity = forecastsStore.severity as "none" | "near" | "flood";
+  const severity = forecastsStore.severity as ForecastSeverity;
   const forecastLabelType =
-    severity === "flood" ? "danger" : severity === "near" ? "warning" : "success";
+    severity === ForecastSeverity.Flood
+      ? "danger"
+      : severity === ForecastSeverity.Near
+      ? "warning"
+      : "success";
   const forecastCopy =
-    severity === "flood"
+    severity === ForecastSeverity.Flood
       ? t("regionSummary.floodingPredicted")
-      : severity === "near"
+      : severity === ForecastSeverity.Near
       ? t("regionSummary.nearFloodPredicted")
       : t("regionSummary.noFloodingPredicted");
   const forecastColor = LARGE_LABEL_COLORS[forecastLabelType].textColor;

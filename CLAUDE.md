@@ -72,6 +72,10 @@ EXPO_TUNNEL_SUBDOMAIN="floodzuki" npx expo start --tunnel --web
 - **Highcharts** (web) and **Victory Native** (mobile) for charts — the chart components are split by platform
 - **i18n-js** for localization with `dayjs` for date/time
 
+### TypeScript conventions
+
+- For closed sets of string values, prefer **string enums** (`enum Severity { None = "none", ... }`) over string-literal union types (`type Severity = "none" | ...`). Enables `Severity.None` comparisons and a single source of truth across stores, components, and tests.
+
 ### Directory structure
 
 ```

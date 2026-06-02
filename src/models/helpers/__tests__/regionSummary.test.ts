@@ -3,44 +3,45 @@ import {
   computeBucketCounts,
   computeStubChanges,
   makeStubSnapshot,
+  ForecastSeverity,
 } from "../regionSummary";
 
 describe("computeForecastSeverity", () => {
-  it("returns 'none' for an empty input", () => {
-    expect(computeForecastSeverity([])).toBe("none");
+  it("returns None for an empty input", () => {
+    expect(computeForecastSeverity([])).toBe(ForecastSeverity.None);
   });
 
-  it("returns 'none' when all peaks are below stageOne", () => {
+  it("returns None when all peaks are below stageOne", () => {
     expect(
       computeForecastSeverity([
         { peaks: [{ waterDischarge: 100 }], dischargeStageOne: 500, dischargeStageTwo: 1000 },
       ])
-    ).toBe("none");
+    ).toBe(ForecastSeverity.None);
   });
 
-  it("returns 'near' when a peak is at or above stageOne but below stageTwo", () => {
+  it("returns Near when a peak is at or above stageOne but below stageTwo", () => {
     expect(
       computeForecastSeverity([
         { peaks: [{ waterDischarge: 500 }], dischargeStageOne: 500, dischargeStageTwo: 1000 },
       ])
-    ).toBe("near");
+    ).toBe(ForecastSeverity.Near);
   });
 
-  it("returns 'flood' when any peak is at or above stageTwo", () => {
+  it("returns Flood when any peak is at or above stageTwo", () => {
     expect(
       computeForecastSeverity([
         { peaks: [{ waterDischarge: 1000 }], dischargeStageOne: 500, dischargeStageTwo: 1000 },
       ])
-    ).toBe("flood");
+    ).toBe(ForecastSeverity.Flood);
   });
 
-  it("returns 'flood' when one forecast is near and another is flood", () => {
+  it("returns Flood when one forecast is near and another is flood", () => {
     expect(
       computeForecastSeverity([
         { peaks: [{ waterDischarge: 600 }], dischargeStageOne: 500, dischargeStageTwo: 1000 },
         { peaks: [{ waterDischarge: 1500 }], dischargeStageOne: 500, dischargeStageTwo: 1000 },
       ])
-    ).toBe("flood");
+    ).toBe(ForecastSeverity.Flood);
   });
 
   it("skips peaks with null waterDischarge", () => {
@@ -52,16 +53,18 @@ describe("computeForecastSeverity", () => {
           dischargeStageTwo: 1000,
         },
       ])
-    ).toBe("flood");
+    ).toBe(ForecastSeverity.Flood);
   });
 
-  it("returns 'none' when thresholds are missing or zero", () => {
-    expect(computeForecastSeverity([{ peaks: [{ waterDischarge: 9999 }] }])).toBe("none");
+  it("returns None when thresholds are missing or zero", () => {
+    expect(computeForecastSeverity([{ peaks: [{ waterDischarge: 9999 }] }])).toBe(
+      ForecastSeverity.None
+    );
     expect(
       computeForecastSeverity([
         { peaks: [{ waterDischarge: 9999 }], dischargeStageOne: 0, dischargeStageTwo: 0 },
       ])
-    ).toBe("none");
+    ).toBe(ForecastSeverity.None);
   });
 });
 

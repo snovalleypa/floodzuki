@@ -1,4 +1,8 @@
-export type ForecastSeverity = "none" | "near" | "flood";
+export enum ForecastSeverity {
+  None = "none",
+  Near = "near",
+  Flood = "flood",
+}
 
 export interface ForecastSeverityInput {
   peaks?: { waterDischarge?: number | null }[];
@@ -16,14 +20,14 @@ export function computeForecastSeverity(forecasts: ForecastSeverityInput[]): For
         continue;
       }
       if (dischargeStageTwo && q >= dischargeStageTwo) {
-        return "flood";
+        return ForecastSeverity.Flood;
       }
       if (dischargeStageOne && q >= dischargeStageOne) {
         hasNear = true;
       }
     }
   }
-  return hasNear ? "near" : "none";
+  return hasNear ? ForecastSeverity.Near : ForecastSeverity.None;
 }
 
 export interface BucketCountsInput {
