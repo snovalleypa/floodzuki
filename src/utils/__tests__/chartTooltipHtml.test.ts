@@ -59,7 +59,7 @@ describe("buildGageTooltipHtml", () => {
   });
 
   it("formats the timestamp in the given timezone, not the system timezone", () => {
-    // 2026-05-17T15:15:00Z is 08:15 in America/Los_Angeles.
+    // 2026-05-17T15:15:00Z is 011:15 in America/New_York.
     const html = buildGageTooltipHtml({
       gage: makeGage(),
       t,
@@ -159,7 +159,7 @@ describe("buildForecastTooltipHtml", () => {
   it("renders a forecast point with stage when provided", () => {
     const html = buildForecastTooltipHtml({
       tz: TZ,
-      seriesName: "Forecast: Carnation",
+      seriesName: "Forecast: Boston",
       x: new Date("2026-05-17T15:15:00Z").valueOf(),
       y: 461.79,
       stage: 44.77,
