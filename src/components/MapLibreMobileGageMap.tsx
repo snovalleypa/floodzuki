@@ -1,5 +1,4 @@
 import { InternalGageMapProps } from "@models/MapModels";
-import { useRouter } from "expo-router";
 import { useMemo, useRef } from "react";
 import { Camera, GeoJSONSource, Layer, Map, Marker } from "@maplibre/maplibre-react-native";
 import { StyleSheet, ViewStyle } from "react-native";
@@ -49,7 +48,6 @@ const MapLibreMobileGageMap = ({
   onGagePress,
   singleGage,
 }: InternalGageMapProps) => {
-  const router = useRouter();
   const mapRef = useRef(null);
 
   const mapStyle = useMemo(() => {
@@ -63,7 +61,7 @@ const MapLibreMobileGageMap = ({
     if (!url.endsWith("/")) {
       url += "/";
     }
-    return url + region.id + "/webstyles";
+    return url + region.id + "/mobilestyles";
   }, [region]);
 
   const markers = useMemo(() => {
