@@ -2,6 +2,7 @@ import React from "react";
 import { View, ViewStyle, ColorValue, TouchableOpacity } from "react-native";
 import { Colors, ColorTypes } from "@common-ui/constants/colors";
 import { OffsetProps, useOffsetStyles } from "@common-ui/utils/useOffset";
+import { FlexProp, resolveFlexValue } from "@common-ui/utils/flex";
 import { Spacing } from "@common-ui/constants/spacing";
 import { Cell, Row, Separator } from "./Common";
 import { If } from "./Conditional";
@@ -15,7 +16,7 @@ type CardProps = {
   outline?: boolean;
   backgroundColor?: ColorValue;
   noPadding?: boolean;
-  flex?: boolean | number | string;
+  flex?: FlexProp;
 } & OffsetProps;
 
 type CardItemProps = {
@@ -58,9 +59,7 @@ const Base = (props: BaseProps): React.ReactElement => {
   }
 
   if (flex) {
-    const flexValue =
-      typeof flex === "boolean" ? 1 : typeof flex === "string" ? parseFloat(flex) : flex;
-    style.push({ flex: flexValue });
+    style.push({ flex: resolveFlexValue(flex) });
   }
 
   if ((type && type !== "default") || backgroundColor) {

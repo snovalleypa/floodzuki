@@ -4,6 +4,7 @@ import { ColorValue, View, ViewStyle } from "react-native";
 import { Colors } from "@common-ui/constants/colors";
 import { Spacing } from "@common-ui/constants/spacing";
 import { OffsetProps, useOffsetStyles } from "@common-ui/utils/useOffset";
+import { FlexProp, resolveFlexValue } from "@common-ui/utils/flex";
 import { If } from "./Conditional";
 import { useResponsive } from "@common-ui/utils/responsive";
 
@@ -11,7 +12,7 @@ type RowProps = {
   children?: React.ReactNode;
   wrap?: boolean;
   reverseColumns?: boolean;
-  flex?: boolean | number | string;
+  flex?: FlexProp;
   gap?: number;
   align?: "center" | "space-between" | "space-around" | "space-evenly" | "flex-start" | "flex-end";
   justify?: "center" | "flex-start" | "flex-end" | "stretch" | "baseline";
@@ -20,7 +21,7 @@ type RowProps = {
 
 type CellProps = {
   children?: React.ReactNode;
-  flex?: boolean | number | string;
+  flex?: FlexProp;
   gap?: number;
   wrap?: boolean;
   align?: "center" | "flex-start" | "flex-end" | "stretch" | "baseline";
@@ -84,9 +85,7 @@ export const Row = ({
   }
 
   if (flex) {
-    const flexValue =
-      typeof flex === "boolean" ? 1 : typeof flex === "string" ? parseFloat(flex) : flex;
-    styles.push({ flex: flexValue });
+    styles.push({ flex: resolveFlexValue(flex) });
   }
 
   if (gap) {
@@ -165,9 +164,7 @@ export const Cell = ({
   }
 
   if (flex) {
-    const flexValue =
-      typeof flex === "boolean" ? 1 : typeof flex === "string" ? parseFloat(flex) : flex;
-    styles.push({ flex: flexValue });
+    styles.push({ flex: resolveFlexValue(flex) });
   }
 
   if (gap) {

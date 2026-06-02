@@ -242,36 +242,37 @@ const CalendarContent = ({
           {/* Calendar day rows */}
           {rows.map((row, rowIdx) => (
             <Row align="space-around" key={rowIdx} bottom={Spacing.tiny}>
-              {row.map((day, colIdx) => (
-                <Cell flex align="center" key={`${rowIdx}-${colIdx}`}>
-                  {day !== null ? (
-                    <Pressable
-                      disabled={isDisabled(day)}
-                      style={(state) => [
-                        ...cellPressableStyle(state),
-                        isSelected(day)
-                          ? {
-                              backgroundColor: Colors.primary,
-                            }
-                          : {},
-                      ]}
-                      onPress={() => onSelectDay(day, viewYear, viewMonth)}>
-                      <RegularText
-                        text={String(day)}
-                        color={
+              {row.map((day, colIdx) => {
+                let dayColor: string | undefined;
+                if (day !== null) {
+                  if (isSelected(day)) {
+                    dayColor = Colors.white;
+                  } else if (isDisabled(day)) {
+                    dayColor = Colors.darkGrey;
+                  }
+                }
+                return (
+                  <Cell flex align="center" key={`${rowIdx}-${colIdx}`}>
+                    {day !== null ? (
+                      <Pressable
+                        disabled={isDisabled(day)}
+                        style={(state) => [
+                          ...cellPressableStyle(state),
                           isSelected(day)
-                            ? Colors.white
-                            : isDisabled(day)
-                            ? Colors.darkGrey
-                            : undefined
-                        }
-                      />
-                    </Pressable>
-                  ) : (
-                    <Cell />
-                  )}
-                </Cell>
-              ))}
+                            ? {
+                                backgroundColor: Colors.primary,
+                              }
+                            : {},
+                        ]}
+                        onPress={() => onSelectDay(day, viewYear, viewMonth)}>
+                        <RegularText text={String(day)} color={dayColor} />
+                      </Pressable>
+                    ) : (
+                      <Cell />
+                    )}
+                  </Cell>
+                );
+              })}
             </Row>
           ))}
         </Cell>
@@ -329,12 +330,14 @@ export const SingleDatePicker = ({
 
     const { pageX, pageY } = pickerLayout.current;
     const offsetLeft = pageX - Spacing.medium;
-    const leftOffset =
-      width < 768
-        ? (width - PICKER_WIDTH) / 2
-        : offsetLeft + PICKER_WIDTH > width
-        ? width - PICKER_WIDTH - Spacing.small
-        : offsetLeft;
+    let leftOffset: number;
+    if (width < 768) {
+      leftOffset = (width - PICKER_WIDTH) / 2;
+    } else if (offsetLeft + PICKER_WIDTH > width) {
+      leftOffset = width - PICKER_WIDTH - Spacing.small;
+    } else {
+      leftOffset = offsetLeft;
+    }
 
     setIsOpen(true);
     datePickerContext.showPicker(

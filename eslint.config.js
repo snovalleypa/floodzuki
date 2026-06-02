@@ -12,6 +12,7 @@ module.exports = defineConfig([
       // Warn instead of error on unescaped entities — legacy legal text files
       "react/no-unescaped-entities": "warn",
       curly: "error",
+      "no-nested-ternary": "error",
     },
   },
   {

@@ -578,7 +578,18 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
         <Cell height={320} flex>
           <ActivityIndicator animating />
         </Cell>
-        <Charts options={chartOptions} />
+        <View style={$chartContainer}>
+          <Charts options={chartOptions} />
+          {!gage?.hasData && (
+            <View pointerEvents="none" style={$noDataOverlay}>
+              <View style={$noDataPill}>
+                <RegularText color={Colors.lightDark}>
+                  {t("gageDetailsChart.noDataInRange")}
+                </RegularText>
+              </View>
+            </View>
+          )}
+        </View>
       </Ternary>
       <CardFooter horizontal={-Spacing.extraSmall}>
         <Row align="space-between">
@@ -628,6 +639,27 @@ const $pickerSelectorStyle: ViewStyle = {
   flexDirection: "row",
   justifyContent: "space-between",
   alignItems: "center",
+};
+
+const $chartContainer: ViewStyle = {
+  position: "relative",
+};
+
+const $noDataOverlay: ViewStyle = {
+  position: "absolute",
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  alignItems: "center",
+  justifyContent: "center",
+};
+
+const $noDataPill: ViewStyle = {
+  backgroundColor: Colors.softYellow,
+  paddingHorizontal: Spacing.medium,
+  paddingVertical: Spacing.small,
+  borderRadius: Spacing.tiny,
 };
 
 const $bottomSheetStyle: ViewStyle = {
