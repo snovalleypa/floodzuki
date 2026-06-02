@@ -170,18 +170,7 @@ const HeaderComponent = ({ gages, region }: { gages: Gage[]; region: Region }) =
 const keyExtractor = (item: Gage) => item?.locationId;
 const renderGageItem = ({ item }: { item: Gage }) => {
   if (item?._isStub) {
-    // Pass a plain-JS POJO to HiddenGageItem so React DevTools' commit-phase prop
-    // traversal never sees an MST proxy (which can trip MST 7's "initializing phase"
-    // assertion on lazy empty-array children). See mobx-state-tree#2279 and the comment
-    // on the HiddenStubItem type for the full story.
-    return (
-      <HiddenGageItem
-        item={{
-          locationId: item.locationId,
-          locationName: item.locationInfo?.locationName,
-        }}
-      />
-    );
+    return <HiddenGageItem item={item} />;
   }
   return <GageItem item={item} />;
 };

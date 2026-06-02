@@ -31,11 +31,11 @@ jest.mock("@common-ui/contexts/LocaleContext", () => ({
 
 describe("HiddenGageItem", () => {
   it("renders the location name, location id, Offline pill, and 'No recent data'", () => {
-    const { getByText } = render(
-      <HiddenGageItem
-        item={{ locationId: "USGS-23", locationName: "Tolt River — Above Carnation" }}
-      />
-    );
+    const item = {
+      locationId: "USGS-23",
+      locationInfo: { locationName: "Tolt River — Above Carnation" },
+    } as any;
+    const { getByText } = render(<HiddenGageItem item={item} />);
     expect(getByText("Tolt River — Above Carnation")).toBeTruthy();
     expect(getByText("USGS-23")).toBeTruthy();
     expect(getByText("Offline")).toBeTruthy();

@@ -142,12 +142,24 @@ export function computeStubChanges({
   return { toAdd, toRemove };
 }
 
-/** Snapshot shape used to push a stub gage into GageStore.gages. */
+/**
+ * Snapshot shape used to push a stub gage into GageStore.gages.
+ *
+ * The empty arrays are intentional: omitting them lets MST defer materialization of
+ * the `types.array(...)` child observables, which trips MST 7 bug
+ * github.com/mobxjs/mobx-state-tree#2279 under React 19's dev-mode profiler. Passing
+ * `[]` forces MST to materialize the array properties during create (in the legal
+ * init phase) so downstream consumers can hand the MST node to React without the
+ * commit-phase prop traversal poisoning the tree.
+ */
 export function makeStubSnapshot(locationId: string) {
   return {
     locationId,
     locationInfo: locationId,
     isOffline: true,
     _isStub: true,
+    readings: [],
+    actualReadings: [],
+    predictions: [],
   };
 }

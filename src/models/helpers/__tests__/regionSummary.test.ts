@@ -206,6 +206,9 @@ describe("makeStubSnapshot", () => {
       locationInfo: "USGS-23",
       isOffline: true,
       _isStub: true,
+      readings: [],
+      actualReadings: [],
+      predictions: [],
     });
   });
 });

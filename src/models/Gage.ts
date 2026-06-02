@@ -497,19 +497,6 @@ export const GageStoreModel = types
       for (const id of toAdd) {
         store.gages.push(makeStubSnapshot(id) as any);
       }
-      // MST 7 bug github.com/mobxjs/mobx-state-tree#2279: empty types.array(...)
-      // child observables aren't materialized when their parent is created. React 19's
-      // dev-mode `logComponentRender` profiler (NOT the React DevTools browser
-      // extension — this fires even without it) is then the first reader of those
-      // children and trips MST's "initializing phase" assertion, poisoning the commit.
-      // Touching each lazy array INSIDE this action context forces materialization
-      // while it's legal. We do it for every gauge (not just new stubs) because real
-      // gauges also have empty `actualReadings`/`predictions` arrays.
-      for (const g of store.gages) {
-        void g.readings.length;
-        void g.actualReadings.length;
-        void g.predictions.length;
-      }
     };
 
     return {
