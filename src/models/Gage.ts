@@ -309,14 +309,15 @@ export const GageModel = types
 
       const baseLevel = waterLevel || store.waterLevel;
       const level = baseLevel - store.roadSaddleHeight;
-      const preposition = store.roadSaddleHeight - baseLevel > 0 ? "below" : "over";
-      const deltaFormatted = Math.abs(level).toFixed(1) + " ft.";
+      const preposition: "statusLevelsCard.below" | "statusLevelsCard.over" =
+        store.roadSaddleHeight - baseLevel > 0 ? "statusLevelsCard.below" : "statusLevelsCard.over";
+      const delta = Math.abs(level);
 
       return {
         name: store.roadDisplayName,
         level,
         preposition,
-        deltaFormatted,
+        delta,
       };
     },
 

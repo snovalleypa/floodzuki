@@ -243,6 +243,7 @@ const en = {
   gageChart: {
     discharge: "Flow",
     waterLevel: "Water Level",
+    flow: "Flow",
     Now: "Now",
     dashboardDurationLabel: "48 hrs. ago",
   },

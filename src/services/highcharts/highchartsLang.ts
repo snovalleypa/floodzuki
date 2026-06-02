@@ -33,7 +33,7 @@ const EN: HighchartsLang = {
 
 const ES: HighchartsLang = {
   weekdays: ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"],
-  shortWeekdays: ["dom.", "lun.", "mar.", "mié.", "jue.", "vie.", "sáb."],
+  shortWeekdays: ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"],
   months: [
     "enero",
     "febrero",
@@ -49,18 +49,18 @@ const ES: HighchartsLang = {
     "diciembre",
   ],
   shortMonths: [
-    "ene.",
-    "feb.",
-    "mar.",
-    "abr.",
-    "may.",
-    "jun.",
-    "jul.",
-    "ago.",
-    "sept.",
-    "oct.",
-    "nov.",
-    "dic.",
+    "ene",
+    "feb",
+    "mar",
+    "abr",
+    "may",
+    "jun",
+    "jul",
+    "ago",
+    "sept",
+    "oct",
+    "nov",
+    "dic",
   ],
 };
 

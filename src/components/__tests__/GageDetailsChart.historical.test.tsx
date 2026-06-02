@@ -36,10 +36,6 @@ jest.mock("expo-router", () => ({
 jest.mock("@services/highcharts/LocalHighchartsReact", () => () => null);
 jest.mock("@services/highcharts/HighchartsReactNative", () => () => null);
 
-jest.mock("../GageDetailsChartNative", () => ({
-  GageDetailsChartNative: () => null,
-}));
-
 jest.mock("@utils/useGageChartOptions", () => ({
   __esModule: true,
   default: () => [{}, null],
