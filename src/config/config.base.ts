@@ -112,6 +112,8 @@ const BaseConfig: {
 
   API: API,
 
+  // Order: upstream → downstream. The first entry is the headwaters metagage
+  // (the three forks combined) and is NOT present in the gauge list.
   FORECAST_GAGE_IDS: ["USGS-SF17/USGS-NF10/USGS-MF11", "USGS-38", "USGS-22"],
   GAGES_WITHOUT_DISHCARGE: ["USGS-9"],
   DATE_PICKER_VARIANT: {

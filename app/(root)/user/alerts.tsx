@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { ErrorBoundaryProps, Link, Stack, useLocalSearchParams, useRouter } from "expo-router";
 
+import { useGoBack } from "@utils/useGoBack";
 import { Screen, Content } from "@common-ui/components/Screen";
 import { LabelText, RegularLargeText, RegularText, SmallTitle } from "@common-ui/components/Text";
 import { ErrorDetails } from "@components/ErrorDetails";
@@ -321,9 +322,7 @@ const AlertsScreen = observer(function AlertsScreen() {
     authSessionStore.getSubscribedGages();
   }, []);
 
-  const goBack = () => {
-    router.push({ pathname: ROUTES.About });
-  };
+  const goBack = useGoBack(ROUTES.About);
 
   const editProfile = () => {
     router.push({ pathname: ROUTES.UserProfile });

@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { ErrorBoundaryProps, Stack, useRouter } from "expo-router";
+import { ErrorBoundaryProps, Stack } from "expo-router";
 
+import { useGoBack } from "@utils/useGoBack";
 import { Screen, Content } from "@common-ui/components/Screen";
 import { MediumText, RegularText } from "@common-ui/components/Text";
 import { ErrorDetails } from "@components/ErrorDetails";
@@ -25,7 +26,6 @@ export function ErrorBoundary(props: ErrorBoundaryProps) {
 }
 
 const PasswordForgotScreen = observer(function PasswordForgotScreen() {
-  const router = useRouter();
   const { t } = useLocale();
   const { authSessionStore } = useStores();
 
@@ -61,9 +61,7 @@ const PasswordForgotScreen = observer(function PasswordForgotScreen() {
     forgotPassword();
   };
 
-  const goBack = () => {
-    router.push({ pathname: ROUTES.UserLogin });
-  };
+  const goBack = useGoBack(ROUTES.UserLogin);
 
   const text =
     emailSent && !authSessionStore.isError

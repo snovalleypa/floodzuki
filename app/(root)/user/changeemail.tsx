@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { ErrorBoundaryProps, Stack, useRouter } from "expo-router";
+import { ErrorBoundaryProps, Stack } from "expo-router";
 
+import { useGoBack } from "@utils/useGoBack";
 import { Screen, Content } from "@common-ui/components/Screen";
 import { MediumText } from "@common-ui/components/Text";
 import { ErrorDetails } from "@components/ErrorDetails";
@@ -25,7 +26,6 @@ export function ErrorBoundary(props: ErrorBoundaryProps) {
 }
 
 const ChangeEmailScreen = observer(function ChangeEmailScreen() {
-  const router = useRouter();
   const { t } = useLocale();
   const { authSessionStore } = useStores();
 
@@ -45,9 +45,7 @@ const ChangeEmailScreen = observer(function ChangeEmailScreen() {
     }
   };
 
-  const goBack = () => {
-    router.push({ pathname: ROUTES.UserProfile });
-  };
+  const goBack = useGoBack(ROUTES.UserProfile);
 
   return (
     <Screen>

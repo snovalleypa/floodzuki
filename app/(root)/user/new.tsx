@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { ErrorBoundaryProps, Redirect, Stack, useRouter } from "expo-router";
 import { observer } from "mobx-react-lite";
 
+import { useGoBack } from "@utils/useGoBack";
 import { Screen, Content } from "@common-ui/components/Screen";
 import { MediumText } from "@common-ui/components/Text";
 import { ErrorDetails } from "@components/ErrorDetails";
@@ -31,6 +32,7 @@ const NewScreen = observer(function NewScreen() {
   const router = useRouter();
   const { t } = useLocale();
   const { authSessionStore } = useStores();
+  const goBack = useGoBack(ROUTES.About);
 
   const recaptcha = useRef(null);
 
@@ -104,10 +106,6 @@ const NewScreen = observer(function NewScreen() {
     }
 
     createAccount();
-  };
-
-  const goBack = () => {
-    router.push({ pathname: ROUTES.About });
   };
 
   const errorMessage = validationError || authSessionStore.errorMessage;

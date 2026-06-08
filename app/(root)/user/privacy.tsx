@@ -1,6 +1,7 @@
 import React from "react";
-import { ErrorBoundaryProps, Stack, useRouter } from "expo-router";
+import { ErrorBoundaryProps, Stack } from "expo-router";
 
+import { useGoBack } from "@utils/useGoBack";
 import { Screen, Content } from "@common-ui/components/Screen";
 import { HugeTitle, MediumTitle, RegularText } from "@common-ui/components/Text";
 import { IconButton, SimpleLinkButton } from "@common-ui/components/Button";
@@ -33,12 +34,9 @@ export const FloodzillaLink = () => {
 };
 
 const PrivacyPolicyScreen = () => {
-  const router = useRouter();
   const { t } = useLocale();
 
-  const goBack = () => {
-    router.push({ pathname: ROUTES.About });
-  };
+  const goBack = useGoBack(ROUTES.About);
 
   return (
     <Screen>

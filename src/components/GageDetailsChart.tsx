@@ -20,6 +20,7 @@ import { CHART_DEFAULT_RANGE_DAYS, deriveRange, NOW_LITERAL } from "@utils/deriv
 import localDayJs from "@services/localDayJs";
 import { useStores } from "@models/helpers/useStores";
 import { useInterval } from "@utils/useTimeout";
+import { useChainPagerSlot } from "@components/ChainPagerSlot";
 import Config from "@config/config";
 import { IconButton, SolidButton } from "@common-ui/components/Button";
 import { Colors } from "@common-ui/constants/colors";
@@ -340,6 +341,9 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
   const { from, to } = useLocalSearchParams();
   const { gagesStore, isDataFetched, getTimezone } = useStores();
   const { hidePicker } = useDatePicker();
+  // When mounted inside a ChainPager, only the visible page should poll for
+  // live updates. Defaults to true outside the pager.
+  const { isCurrent } = useChainPagerSlot();
 
   const { isMobile } = useResponsive();
 
@@ -395,7 +399,7 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
         true
       );
     },
-    gage?.locationId && isDataFetched && range.isNow
+    gage?.locationId && isDataFetched && range.isNow && isCurrent
       ? Config.LIVE_CHART_DATA_REFRESH_INTERVAL
       : null
   );

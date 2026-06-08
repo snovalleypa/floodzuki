@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { ErrorBoundaryProps, Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { observer } from "mobx-react-lite";
 
+import { useGoBack } from "@utils/useGoBack";
 import { Screen, Content } from "@common-ui/components/Screen";
 import { ErrorDetails } from "@components/ErrorDetails";
 import TitleWithBackButton from "@components/TitleWithBackButton";
@@ -45,9 +46,7 @@ const VerifyEmailScreen = observer(function VerifyEmailScreen() {
     verifyEmail();
   }, []);
 
-  const goBack = () => {
-    router.push({ pathname: ROUTES.UserAlerts });
-  };
+  const goBack = useGoBack(ROUTES.UserAlerts);
 
   const goHome = () => {
     router.push({ pathname: ROUTES.Home });

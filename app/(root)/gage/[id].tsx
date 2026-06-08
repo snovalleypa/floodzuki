@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { TouchableOpacity } from "react-native";
 import { ErrorBoundaryProps, Link, Stack, useLocalSearchParams } from "expo-router";
 import Head from "expo-router/head";
@@ -13,11 +13,18 @@ import { Content, Screen } from "@common-ui/components/Screen";
 import { LabelText, LargeTitle, MediumTitle, RegularText } from "@common-ui/components/Text";
 import { Colors } from "@common-ui/constants/colors";
 import { Spacing } from "@common-ui/constants/spacing";
-import { MobileScreen, WideScreen, isMobile, useResponsive } from "@common-ui/utils/responsive";
+import {
+  MobileScreen,
+  WideScreen,
+  isMobile,
+  isWeb,
+  useResponsive,
+} from "@common-ui/utils/responsive";
 
 import { useStores } from "@models/helpers/useStores";
 import { Gage } from "@models/Gage";
 
+import { ChainPager, ChainPagerContext } from "@components/ChainPager";
 import { ErrorDetails } from "@components/ErrorDetails";
 import { GageDetailsChart } from "@components/GageDetailsChart";
 import CalloutReadingCard from "@components/CalloutReadingCard";
@@ -49,6 +56,11 @@ const UpstreamGageLink = observer(function UpstreamGageLink({ gage, simple }: Ga
   const { getUpstreamGageLocation } = useStores();
   const { t } = useLocale();
   const { isMobile } = useResponsive();
+  const pager = useContext(ChainPagerContext);
+  // Carry forward date-range / event params so navigating to a neighboring
+  // gauge keeps the user's selected view (matches the native pager behavior,
+  // where router.setParams merges into the existing route).
+  const currentParams = useLocalSearchParams();
 
   const upstreamGageLocation = getUpstreamGageLocation(gage?.locationId);
 
@@ -59,25 +71,45 @@ const UpstreamGageLink = observer(function UpstreamGageLink({ gage, simple }: Ga
   const title = simple ? t("gageScreen.upstreamGage") : t("gageScreen.goToUpstreamGage");
   const iconSize = isMobile && simple ? 16 : 24;
   const Text = isMobile && simple ? LabelText : RegularText;
+  // Mobile: claim half the row so the inner Card and Cell have width to expand
+  // into. Wide: leave undefined so React Native Web doesn't collapse the
+  // TouchableOpacity to zero width via CSS `flex: 0` shorthand semantics.
+  const touchableStyle = isMobile ? { flex: 1 } : undefined;
+
+  const innerCard = (
+    <Card>
+      <Row>
+        <Icon name="arrow-left" size={iconSize} color={Colors.green} />
+        <Cell flex left={Spacing.extraSmall}>
+          <Text>{title}</Text>
+          <If condition={!simple}>
+            <MediumTitle>{upstreamGageLocation?.locationName}</MediumTitle>
+          </If>
+        </Cell>
+      </Row>
+    </Card>
+  );
+
+  if (isWeb || !pager) {
+    return (
+      <Link
+        href={{
+          pathname: ROUTES.GageDetails,
+          params: { ...currentParams, id: upstreamGageLocation?.id },
+        }}
+        replace
+        asChild>
+        <TouchableOpacity style={touchableStyle}>{innerCard}</TouchableOpacity>
+      </Link>
+    );
+  }
 
   return (
-    <Card flex={isMobile ? 1 : 0}>
-      <Link
-        href={{ pathname: ROUTES.GageDetails, params: { id: upstreamGageLocation?.id } }}
-        asChild>
-        <TouchableOpacity>
-          <Row>
-            <Icon name="arrow-left" size={iconSize} color={Colors.green} />
-            <Cell flex left={Spacing.extraSmall}>
-              <Text>{title}</Text>
-              <If condition={!simple}>
-                <MediumTitle>{upstreamGageLocation?.locationName}</MediumTitle>
-              </If>
-            </Cell>
-          </Row>
-        </TouchableOpacity>
-      </Link>
-    </Card>
+    <TouchableOpacity
+      style={touchableStyle}
+      onPress={() => pager.goToIndex(pager.currentIndex - 1)}>
+      {innerCard}
+    </TouchableOpacity>
   );
 });
 
@@ -85,6 +117,8 @@ const DownstreamGageLink = observer(function DownstreamGageLink({ gage, simple }
   const { getDownstreamGageLocation } = useStores();
   const { t } = useLocale();
   const { isMobile } = useResponsive();
+  const pager = useContext(ChainPagerContext);
+  const currentParams = useLocalSearchParams();
 
   const downstreamGageLocation = getDownstreamGageLocation(gage?.locationId);
 
@@ -95,39 +129,59 @@ const DownstreamGageLink = observer(function DownstreamGageLink({ gage, simple }
   const title = simple ? t("gageScreen.downstreamGage") : t("gageScreen.goToDownstreamGage");
   const iconSize = isMobile && simple ? 16 : 24;
   const Text = isMobile && simple ? LabelText : RegularText;
+  const touchableStyle = isMobile ? { flex: 1 } : undefined;
+
+  const innerCard = (
+    <Card>
+      <Row>
+        <Cell flex right={Spacing.extraSmall}>
+          <Text>{title}</Text>
+          <If condition={!simple}>
+            <MediumTitle>{downstreamGageLocation?.locationName}</MediumTitle>
+          </If>
+        </Cell>
+        <Icon name="arrow-right" size={iconSize} color={Colors.green} />
+      </Row>
+    </Card>
+  );
+
+  if (isWeb || !pager) {
+    return (
+      <Link
+        href={{
+          pathname: ROUTES.GageDetails,
+          params: { ...currentParams, id: downstreamGageLocation?.id },
+        }}
+        replace
+        asChild>
+        <TouchableOpacity style={touchableStyle}>{innerCard}</TouchableOpacity>
+      </Link>
+    );
+  }
 
   return (
-    <Card flex={isMobile ? 1 : 0}>
-      <Link
-        href={{ pathname: ROUTES.GageDetails, params: { id: downstreamGageLocation?.id } }}
-        asChild>
-        <TouchableOpacity>
-          <Row>
-            <Cell flex right={Spacing.extraSmall}>
-              <Text>{title}</Text>
-              <If condition={!simple}>
-                <MediumTitle>{downstreamGageLocation?.locationName}</MediumTitle>
-              </If>
-            </Cell>
-            <Icon name="arrow-right" size={iconSize} color={Colors.green} />
-          </Row>
-        </TouchableOpacity>
-      </Link>
-    </Card>
+    <TouchableOpacity
+      style={touchableStyle}
+      onPress={() => pager.goToIndex(pager.currentIndex + 1)}>
+      {innerCard}
+    </TouchableOpacity>
   );
 });
 
-const GageDetailsScreen = observer(function GageDetailsScreen({ gage }: { gage: Gage }) {
+const GageDetailsBody = observer(function GageDetailsBody({ gageId }: { gageId: string }) {
   const { gagesStore, regionStore } = useStores();
   const { t } = useLocale();
 
-  const { id } = useLocalSearchParams();
-
-  const gageId = Array.isArray(id) ? id.join("/") : id;
+  const gage = gagesStore.getGageByLocationId(gageId);
 
   const { isMobile } = useResponsive();
 
   const goBack = useGoBack(ROUTES.Home);
+
+  if (!gage) {
+    return null;
+  }
+
   return (
     <Screen>
       <Head>
@@ -244,8 +298,8 @@ const GageDetailsScreen = observer(function GageDetailsScreen({ gage }: { gage: 
 
 const GageScreen = observer(function GageScreen() {
   const { id } = useLocalSearchParams();
-  const { gagesStore } = useStores();
   const { t } = useLocale();
+  const store = useStores();
 
   const gageId = Array.isArray(id) ? id.join("/") : id;
 
@@ -255,9 +309,27 @@ const GageScreen = observer(function GageScreen() {
     setHidden(false);
   }, Timing.zero);
 
-  const gage = hidden ? undefined : gagesStore.getGageByLocationId(gageId);
+  if (hidden) {
+    return null;
+  }
 
-  if (!!gage && !gage?.locationId) {
+  const locationIds = store.getLocationWithGagesIds();
+
+  // Locations haven't loaded yet — render nothing rather than flashing the
+  // empty-state component for an id we can't yet evaluate.
+  if (locationIds.length === 0) {
+    return null;
+  }
+
+  const pages = locationIds.map((locationId) => ({
+    key: locationId,
+    route: { pathname: ROUTES.GageDetails, params: { id: locationId } },
+    render: () => <GageDetailsBody gageId={locationId} />,
+  }));
+
+  const initialIndex = pages.findIndex((p) => p.key === gageId);
+
+  if (initialIndex === -1) {
     return (
       <>
         <Head>
@@ -270,7 +342,12 @@ const GageScreen = observer(function GageScreen() {
     );
   }
 
-  return <GageDetailsScreen gage={gage} />;
+  return (
+    <>
+      <Stack.Screen options={{ gestureEnabled: false, animation: "none" }} />
+      <ChainPager pages={pages} initialIndex={initialIndex} />
+    </>
+  );
 });
 
 export default GageScreen;
