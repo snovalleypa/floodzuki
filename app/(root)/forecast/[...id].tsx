@@ -98,9 +98,9 @@ const ForecastDetailsScreen = observer(function ForecastDetailsScreen() {
   const { id } = useGlobalSearchParams();
   const { isMobile } = useResponsive();
 
-  // Pathname id can either be a simple gage like "USGS-38"
-  // or a nested gage like "USGS-SF17/USGS-38-0001" which will be
-  // represented as an array of strings ["USGS-SF17", "USGS-38-0001"]
+  // Pathname id can either be a simple gauge like "USGS-38"
+  // or a metagauge like "USGS-SF17/USGS-NF10/USGS-MF11", which will be
+  // represented as an array of strings ["USGS-SF17", "USGS-NF10", "USGS-MF11"]
   const gageId = Array.isArray(id) ? id.join("/") : id;
 
   const [hidden, setHidden] = React.useState(isMobile ? true : false);
