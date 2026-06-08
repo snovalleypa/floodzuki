@@ -71,6 +71,20 @@ export async function setupRootStore(rootStore: RootStore) {
     }
 
     applySnapshot(rootStore, restoredState);
+
+    // Stubs are stripped from the persisted snapshot (see Gage.ts postProcessSnapshot and
+    // the explicit strip in this file), but `showHiddenOffline` IS persisted. Without
+    // re-syncing, a session that ended with the toggle ON resumes with the toggle ON but
+    // no stubs — `getLocationWithGagesIds()` returns a short list until fetchData re-syncs,
+    // which causes the gauge details ChainPager to mount with an initialIndex that shifts
+    // under it once stubs arrive. Route this through setShowHiddenOffline (the single
+    // toggle↔stubs invariant point) rather than calling syncHiddenStubs directly; the value
+    // is already true, so this is idempotent. This runs before the onSnapshot subscription
+    // below, so the re-added stubs are not persisted (and postProcessSnapshot strips them
+    // regardless).
+    if (rootStore.showHiddenOffline) {
+      rootStore.setShowHiddenOffline(true);
+    }
   } catch (e) {
     // if there's any problems loading, then inform the dev what happened
     if (__DEV__) {
