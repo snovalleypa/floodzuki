@@ -306,7 +306,8 @@ function createSeriesAndReturnMin(
   color,
   setIsPrediction,
   chartDataType,
-  tz: string
+  tz: string,
+  hideLine: boolean = false
 ) {
   let data = null;
   let min = Math.min.apply(
@@ -409,12 +410,12 @@ function createSeriesAndReturnMin(
     color: color,
     fillOpacity: 0.5,
     threshold: gage?.groundHeight,
-    lineWidth: 2,
+    lineWidth: hideLine ? 0 : 2,
     gapUnit: "value",
     gapSize: localDayJs.duration(2, "hours").asMilliseconds(),
     states: {
       hover: {
-        lineWidth: 3,
+        lineWidth: hideLine ? 0 : 3,
       },
     },
     marker: {
@@ -503,13 +504,14 @@ function createDataAndReturnMin(gage: Gage, chartDataType: GageChartDataType, t,
 
   if (deletedReadings.length > 0) {
     const [deletedReadingsSeries, deletedSeriesMin] = createSeriesAndReturnMin(
-      dataPoints,
+      deletedReadings,
       gage,
       t,
       Colors.gageChartDeletedLineColor,
       false,
       chartDataType,
-      tz
+      tz,
+      true
     );
     chartData.push(...deletedReadingsSeries);
     min = Math.min(seriesMin, deletedSeriesMin);

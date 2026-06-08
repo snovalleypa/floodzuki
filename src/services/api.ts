@@ -7,6 +7,7 @@
  */
 import { ApiResponse, ApisauceInstance, create } from "apisauce";
 import Config from "@config/config";
+import { getDebugFlag } from "@utils/debugFlags";
 import { GeneralApiProblem, getGeneralApiProblem } from "./apiProblem";
 
 interface ApiConfig {
@@ -265,6 +266,10 @@ export class Api {
 
     if (includePredictions) {
       params["includePredictions"] = includePredictions;
+    }
+
+    if (getDebugFlag("showDeletedReadings")) {
+      params["showDeletedReadings"] = true;
     }
 
     return await genericGetRequest<T>(this.apisauce, Config.API.reading.GET_READINGS_URL, params);
