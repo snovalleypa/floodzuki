@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { ViewStyle, FlatList, TouchableOpacity, useWindowDimensions } from "react-native";
 import { ErrorBoundaryProps, Link, useRouter } from "expo-router";
-import Head from "expo-router/head";
+import PageTitle from "@common-ui/components/PageTitle";
 
 import { observer } from "mobx-react-lite";
 
@@ -218,11 +218,7 @@ const HomeScreen = observer(function HomeScreen() {
 
   const baseControls = (
     <Screen>
-      <Head>
-        <title>
-          {t("common.title")} - {t("homeScreen.title")}
-        </title>
-      </Head>
+      <PageTitle name={t("pageTitles.gageList")} />
       <Row justify="flex-start">
         <If condition={!isMobile}>
           <Card

@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { TouchableOpacity } from "react-native";
 import { ErrorBoundaryProps, Link, Stack, useLocalSearchParams } from "expo-router";
-import Head from "expo-router/head";
+import PageTitle from "@common-ui/components/PageTitle";
 
 import { observer } from "mobx-react-lite";
 
@@ -184,11 +184,7 @@ const GageDetailsBody = observer(function GageDetailsBody({ gageId }: { gageId: 
 
   return (
     <Screen>
-      <Head>
-        <title>
-          {t("common.title")} - {t("homeScreen.title")}
-        </title>
-      </Head>
+      <PageTitle name={`${gage.locationInfo?.locationName} (${gageId})`} />
       <Stack.Screen
         options={{
           title: `${gage?.locationInfo?.locationName} | ${t("common.title")} - ${t(
@@ -298,7 +294,6 @@ const GageDetailsBody = observer(function GageDetailsBody({ gageId }: { gageId: 
 
 const GageScreen = observer(function GageScreen() {
   const { id } = useLocalSearchParams();
-  const { t } = useLocale();
   const store = useStores();
   const { isHiddenLocation, setShowHiddenOffline, showHiddenOffline } = store;
 
@@ -343,11 +338,7 @@ const GageScreen = observer(function GageScreen() {
   if (initialIndex === -1) {
     return (
       <>
-        <Head>
-          <title>
-            {t("common.title")} - {t("homeScreen.title")}
-          </title>
-        </Head>
+        <PageTitle />
         <EmptyComponent />
       </>
     );
