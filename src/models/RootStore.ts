@@ -115,6 +115,18 @@ export const RootStoreModel = types
       return realLocations().filter((l) => !realGageIds.has(l.id));
     };
 
+    // A location is "hidden" for deep-link purposes only if (a) it is a stub-eligible
+    // hidden location — i.e. a real, non-metagage location with no backing gage, which
+    // `hiddenLocations()` already computes — and (b) it is not currently in the visible
+    // list. Reusing hiddenLocations() (rather than scanning all locationInfos) excludes
+    // the synthetic metagage, for which no stub is ever created; flipping the toggle on
+    // for it would never reveal it. When the toggle is on, the stub is present and the id
+    // appears in getLocationWithGagesIds(), so this correctly returns false.
+    const isHiddenLocation = (locationId: string) =>
+      !!locationId &&
+      hiddenLocations().some((l) => l.id === locationId) &&
+      !getLocationWithGagesIds().includes(locationId);
+
     const getBucketCounts = () =>
       computeBucketCounts({
         gages: store.gagesStore.gages,
@@ -153,6 +165,7 @@ export const RootStoreModel = types
       getTimezone,
       getLocationsWithGages,
       getLocationWithGagesIds,
+      isHiddenLocation,
       getUpstreamGageLocation,
       getDownstreamGageLocation,
       realLocations,

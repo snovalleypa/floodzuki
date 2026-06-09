@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { TouchableOpacity } from "react-native";
 import { ErrorBoundaryProps, Link, Stack, useLocalSearchParams } from "expo-router";
 import Head from "expo-router/head";
@@ -300,8 +300,19 @@ const GageScreen = observer(function GageScreen() {
   const { id } = useLocalSearchParams();
   const { t } = useLocale();
   const store = useStores();
+  const { isHiddenLocation, setShowHiddenOffline, showHiddenOffline } = store;
 
   const gageId = Array.isArray(id) ? id.join("/") : id;
+
+  // Deep-linking to a hidden gauge with the toggle off would otherwise pin the
+  // screen on EmptyComponent forever — the id never appears in
+  // getLocationWithGagesIds(). Flip the toggle on (which syncs stubs) so the next
+  // render resolves an initialIndex.
+  useEffect(() => {
+    if (!showHiddenOffline && gageId && isHiddenLocation(gageId)) {
+      setShowHiddenOffline(true);
+    }
+  }, [gageId, showHiddenOffline, isHiddenLocation, setShowHiddenOffline]);
 
   const [hidden, setHidden] = useState(isMobile ? true : false);
 
