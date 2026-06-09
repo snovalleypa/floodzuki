@@ -18,18 +18,21 @@ const TTL_MS = 24 * 60 * 60 * 1000; // 1 day
 const URL_PARAM = "debug";
 const RESET_TOKEN = "reset";
 
-export type DebugFlagName = "showDeletedReadings";
+export enum DebugFlag {
+  ShowDeletedReadings = "showDeletedReadings",
+}
 
-const VALID_FLAGS: readonly DebugFlagName[] = ["showDeletedReadings"] as const;
+// Derived from the enum — single source of truth for the valid flag set.
+const VALID_FLAGS: readonly string[] = Object.values(DebugFlag);
 
 type StoredShape = {
-  flags: Partial<Record<DebugFlagName, boolean>>;
+  flags: Partial<Record<DebugFlag, boolean>>;
   expiresAt: number;
 };
 
-let cached: Partial<Record<DebugFlagName, boolean>> = {};
+let cached: Partial<Record<DebugFlag, boolean>> = {};
 
-export function getDebugFlag(name: DebugFlagName): boolean {
+export function getDebugFlag(name: DebugFlag): boolean {
   return !!cached[name];
 }
 
@@ -62,8 +65,8 @@ export async function resetDebugFlags(): Promise<void> {
   await storage.remove(STORAGE_KEY);
 }
 
-function isValidFlag(value: string): value is DebugFlagName {
-  return (VALID_FLAGS as readonly string[]).includes(value);
+function isValidFlag(value: string): value is DebugFlag {
+  return VALID_FLAGS.includes(value);
 }
 
 export async function applyDebugFlagsFromParams(

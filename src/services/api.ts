@@ -7,7 +7,7 @@
  */
 import { ApiResponse, ApisauceInstance, create } from "apisauce";
 import Config from "@config/config";
-import { getDebugFlag } from "@utils/debugFlags";
+import { DebugFlag, getDebugFlag } from "@utils/debugFlags";
 import { GeneralApiProblem, getGeneralApiProblem } from "./apiProblem";
 
 interface ApiConfig {
@@ -268,7 +268,7 @@ export class Api {
       params["includePredictions"] = includePredictions;
     }
 
-    if (getDebugFlag("showDeletedReadings")) {
+    if (getDebugFlag(DebugFlag.ShowDeletedReadings)) {
       params["showDeletedReadings"] = true;
     }
 
