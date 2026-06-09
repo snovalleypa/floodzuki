@@ -18,7 +18,7 @@ import ErrorMessage from "@common-ui/components/ErrorMessage";
 import { normalizeSearchParams, openLinkInBrowser } from "@utils/navigation";
 import SuccessMessage from "@common-ui/components/SuccessMessage";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
-import Head from "expo-router/head";
+import PageTitle from "@common-ui/components/PageTitle";
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -63,11 +63,7 @@ const UnsubscribeScreen = observer(function UnsubscribeScreen() {
 
   return (
     <Screen>
-      <Head>
-        <title>
-          {t("common.title")} - {t("homeScreen.title")}
-        </title>
-      </Head>
+      <PageTitle name={t("navigation.unsubscribeScreen")} />
       <TitleWithBackButton title={t("navigation.unsubscribeScreen")} onPress={goBack} />
       <Content maxWidth={Spacing.tabletWidth} scrollable>
         <Card bottom={Spacing.large}>

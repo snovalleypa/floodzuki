@@ -18,7 +18,7 @@ import { If } from "@common-ui/components/Conditional";
 import ErrorMessage from "@common-ui/components/ErrorMessage";
 import { useValidations } from "@utils/useValidations";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
-import Head from "expo-router/head";
+import PageTitle from "@common-ui/components/PageTitle";
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -70,11 +70,7 @@ const PasswordForgotScreen = observer(function PasswordForgotScreen() {
 
   return (
     <Screen>
-      <Head>
-        <title>
-          {t("common.title")} - {t("homeScreen.title")}
-        </title>
-      </Head>
+      <PageTitle name={t("navigation.passwordForgotScreen")} />
       <TitleWithBackButton title={t("navigation.passwordForgotScreen")} onPress={goBack} />
       <Content maxWidth={Spacing.tabletWidth} scrollable>
         <Card bottom={Spacing.large}>
