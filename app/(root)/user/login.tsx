@@ -21,7 +21,7 @@ import { useValidations } from "@utils/useValidations";
 import GoogleSigninButton from "@components/GoogleSigninButton";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import { AppleSigninButton } from "@components/AppleSigninButton";
-import Head from "expo-router/head";
+import PageTitle from "@common-ui/components/PageTitle";
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -83,11 +83,7 @@ const LoginScreen = observer(function LoginScreen() {
 
   return (
     <Screen>
-      <Head>
-        <title>
-          {t("common.title")} - {t("homeScreen.title")}
-        </title>
-      </Head>
+      <PageTitle name={t("navigation.loginScreen")} />
       <TitleWithBackButton title={t("navigation.loginScreen")} onPress={goBack} />
       <Content maxWidth={Spacing.tabletWidth} scrollable>
         <Card bottom={Spacing.large}>

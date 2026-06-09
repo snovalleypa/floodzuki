@@ -29,7 +29,7 @@ import ErrorMessage from "@common-ui/components/ErrorMessage";
 import { Gage } from "@models/Gage";
 import { Switch } from "react-native";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
-import Head from "expo-router/head";
+import PageTitle from "@common-ui/components/PageTitle";
 import { FLink } from "@common-ui/components/FLink";
 
 // We use this to wrap each screen with an error boundary
@@ -346,11 +346,7 @@ const AlertsScreen = observer(function AlertsScreen() {
 
   return (
     <Screen>
-      <Head>
-        <title>
-          {t("common.title")} - {t("homeScreen.title")}
-        </title>
-      </Head>
+      <PageTitle name={t("pageTitles.alerts")} />
       <TitleWithBackButton
         title={t("navigation.alertsScreen")}
         onPress={goBack}

@@ -19,7 +19,7 @@ import { If } from "@common-ui/components/Conditional";
 import ErrorMessage from "@common-ui/components/ErrorMessage";
 import { useValidations } from "@utils/useValidations";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
-import Head from "expo-router/head";
+import PageTitle from "@common-ui/components/PageTitle";
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -73,32 +73,28 @@ const VerifyPhoneNumberScreen = observer(function VerifyPhoneNumberScreen() {
   };
 
   const title = authSessionStore.userPhone
-    ? t("navigation.changePhoneNnumberScreen")
-    : t("navigation.verifyPhoneNnumberScreen");
+    ? t("navigation.changePhoneNumberScreen")
+    : t("navigation.verifyPhoneNumberScreen");
 
   const sendButtonTitle = codeSent
-    ? t("verifyphonenumberScreen.resendVerification")
-    : t("verifyphonenumberScreen.sendVerification");
+    ? t("verifyPhoneNumberScreen.resendVerification")
+    : t("verifyPhoneNumberScreen.sendVerification");
 
   return (
     <Screen>
-      <Head>
-        <title>
-          {t("common.title")} - {t("homeScreen.title")}
-        </title>
-      </Head>
+      <PageTitle name={title} />
       <TitleWithBackButton title={title} onPress={goBack} />
       <Content maxWidth={Spacing.tabletWidth} scrollable>
         <Card bottom={Spacing.large}>
           <CardContent>
             {/* Description */}
             <RegularText lineHeight={Spacing.large}>
-              {t("verifyphonenumberScreen.description")}
+              {t("verifyPhoneNumberScreen.description")}
             </RegularText>
             {/* Phone Number */}
             <RowOrCell vertical={Spacing.small}>
               <Cell flex={1}>
-                <MediumText>{t("verifyphonenumberScreen.phoneNumber")}</MediumText>
+                <MediumText>{t("verifyPhoneNumberScreen.phoneNumber")}</MediumText>
               </Cell>
               <Cell flex={5}>
                 <Input
@@ -127,16 +123,16 @@ const VerifyPhoneNumberScreen = observer(function VerifyPhoneNumberScreen() {
               <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"}>
                 <Spacer />
                 <RegularText>
-                  {t("verifyphonenumberScreen.confirmationText", { phoneNumber: phone })}
+                  {t("verifyPhoneNumberScreen.confirmationText", { phoneNumber: phone })}
                 </RegularText>
                 <RowOrCell vertical={Spacing.small}>
                   <Cell flex={1}>
-                    <MediumText>{t("verifyphonenumberScreen.verificationCode")}</MediumText>
+                    <MediumText>{t("verifyPhoneNumberScreen.verificationCode")}</MediumText>
                   </Cell>
                   <Cell flex={5}>
                     <Input
                       value=""
-                      placeholder={t("verifyphonenumberScreen.verificationCodePlaceholder")}
+                      placeholder={t("verifyPhoneNumberScreen.verificationCodePlaceholder")}
                       onChangeText={setCode}
                       keyboardType="number-pad"
                     />
@@ -148,7 +144,7 @@ const VerifyPhoneNumberScreen = observer(function VerifyPhoneNumberScreen() {
                     isLoading={authSessionStore.isFetching}
                     minWidth={Spacing.extraExtraHuge}
                     selfAlign="center"
-                    title={t("verifyphonenumberScreen.submit")}
+                    title={t("verifyPhoneNumberScreen.submit")}
                     onPress={submitCodeVerification}
                     type="blue"
                   />

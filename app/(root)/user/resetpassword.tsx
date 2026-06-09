@@ -12,7 +12,7 @@ import ChangePasswordForm, { PasswordSubmitActionProps } from "@components/Chang
 import { Spacing } from "@common-ui/constants/spacing";
 import { normalizeSearchParams } from "@utils/navigation";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
-import Head from "expo-router/head";
+import PageTitle from "@common-ui/components/PageTitle";
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -56,11 +56,7 @@ const ResetPasswordScreen = observer(function ResetPasswordScreen() {
 
   return (
     <Screen>
-      <Head>
-        <title>
-          {t("common.title")} - {t("homeScreen.title")}
-        </title>
-      </Head>
+      <PageTitle name={t("navigation.passwordResetScreen")} />
       <TitleWithBackButton title={t("navigation.passwordResetScreen")} onPress={goBack} />
       <Content maxWidth={Spacing.tabletWidth} scrollable>
         <ChangePasswordForm

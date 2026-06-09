@@ -135,9 +135,7 @@ function App() {
             rel="stylesheet"
             href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600,700|Open+Sans:300,400,500,600,700;lang=en"
           />
-          <title>
-            {t("common.title")} - {t("homeScreen.title")}
-          </title>
+          <title>{t("common.title")}</title>
           <meta name="description" content={t("common.metaDescription")} />
           <meta property="expo:handoff" content="true" />
           <meta name="apple-itunes-app" content="app-id=6448645748" />

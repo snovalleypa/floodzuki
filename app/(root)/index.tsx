@@ -2,18 +2,14 @@ import React from "react";
 import { Redirect } from "expo-router";
 import { ROUTES } from "app/_layout";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
-import Head from "expo-router/head";
+import PageTitle from "@common-ui/components/PageTitle";
 
 export default function Index() {
   const { t } = useLocale();
 
   return (
     <>
-      <Head>
-        <title>
-          {t("common.title")} - {t("homeScreen.title")}
-        </title>
-      </Head>
+      <PageTitle name={t("pageTitles.gageList")} />
       <Redirect href={ROUTES.Gages} />
     </>
   );

@@ -56,8 +56,8 @@ const en = {
     passwordResetScreen: "Reset Password",
     passwordSetScreen: "Change Password",
     passwordCreateScreen: "Choose Password",
-    verifyPhoneNnumberScreen: "Verify Phone Number",
-    changePhoneNnumberScreen: "Change Phone Number",
+    verifyPhoneNumberScreen: "Verify Phone Number",
+    changePhoneNumberScreen: "Change Phone Number",
     changeemailScreen: "Change Email Address",
     verifyemailScreen: "Verify Email Address",
     unsubscribeScreen: "Unsubscribe",
@@ -65,6 +65,10 @@ const en = {
     termsOfServiceScreen: "Terms of Service",
     logout: "Logout",
     back: "Go Back",
+  },
+  pageTitles: {
+    gageList: "Snoqualmie River Gauges",
+    alerts: "Flood Alerts",
   },
   homeScreen: {
     title: "Snoqualmie River / SVPA",
@@ -204,7 +208,7 @@ const en = {
     successMessage: "Your email address has been verified.",
     continue: "Continue to Floodzilla",
   },
-  verifyphonenumberScreen: {
+  verifyPhoneNumberScreen: {
     sendVerification: "Send Verification Code",
     resendVerification: "Resend Verification Code",
     description:

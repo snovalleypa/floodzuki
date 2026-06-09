@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { ErrorBoundaryProps, Stack, useGlobalSearchParams } from "expo-router";
-import Head from "expo-router/head";
+import PageTitle from "@common-ui/components/PageTitle";
 
 import { observer } from "mobx-react-lite";
 
@@ -55,11 +55,13 @@ const ForecastDetailsBody = observer(function ForecastDetailsBody({ gageId }: { 
 
   return (
     <Screen>
-      <Head>
-        <title>
-          {t("common.title")} - {t("forecastScreen.title")}
-        </title>
-      </Head>
+      <PageTitle
+        name={
+          forecastGage?.title
+            ? `${forecastGage.title} ${t("navigation.forecastScreen")}`
+            : undefined
+        }
+      />
       <Stack.Screen
         options={{
           title: `${t("common.title")} - ${t("forecastScreen.title")}: ${forecastGage?.title}`,
