@@ -58,8 +58,8 @@ const es = {
     passwordResetScreen: "Restablecer contraseña",
     passwordSetScreen: "Cambiar contraseña",
     passwordCreateScreen: "Elegir contraseña",
-    verifyPhoneNnumberScreen: "Verificar número de teléfono",
-    changePhoneNnumberScreen: "Cambiar número de teléfono",
+    verifyPhoneNumberScreen: "Verificar número de teléfono",
+    changePhoneNumberScreen: "Cambiar número de teléfono",
     changeemailScreen: "Cambiar correo electrónico",
     verifyemailScreen: "Verificar dirección de correo electrónico",
     unsubscribeScreen: "Darse de baja",
@@ -211,7 +211,7 @@ const es = {
     successMessage: "Tu dirección de correo electrónico ha sido verificada.",
     continue: "Continuar a Floodzilla",
   },
-  verifyphonenumberScreen: {
+  verifyPhoneNumberScreen: {
     sendVerification: "Enviar código de verificación",
     resendVerification: "Reenviar código de verificación",
     description:
