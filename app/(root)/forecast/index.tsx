@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { ErrorBoundaryProps, Stack, useRouter } from "expo-router";
-import Head from "expo-router/head";
+import PageTitle from "@common-ui/components/PageTitle";
 
 import { observer } from "mobx-react-lite";
 
@@ -63,12 +63,7 @@ const ForecastScreen = observer(function ForecastScreen() {
 
   return (
     <Screen>
-      {/* This is purely for documentTitle setting */}
-      <Head>
-        <title>
-          {t("common.title")} - {t("forecastScreen.title")}
-        </title>
-      </Head>
+      <PageTitle name={t("navigation.forecastScreen")} />
       <Content scrollable onRefresh={fetchData}>
         <ForecastChart gages={forecastGages} />
         <RowOrCell flex align="flex-start" justify="stretch" top={Spacing.mediumXL}>
