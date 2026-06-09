@@ -22,7 +22,7 @@ export default function PageTitle({ name }: PageTitleProps) {
   }
 
   const brand = t("common.title");
-  const title = name ? `${name} — ${brand}` : brand;
+  const title = name ? `${name} - ${brand}` : brand;
 
   return (
     <Head>

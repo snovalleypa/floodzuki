@@ -20,7 +20,7 @@ jest.mock("@common-ui/utils/responsive", () => ({ isWeb: true }));
 describe("PageTitle", () => {
   it("renders '<name> — <brand>' when a name is provided", () => {
     const tree = JSON.stringify(render(<PageTitle name="Forecast" />).toJSON());
-    expect(tree).toContain("Forecast — Floodzilla Gauge Network");
+    expect(tree).toContain("Forecast - Floodzilla Gauge Network");
   });
 
   it("renders brand only when name is omitted", () => {
