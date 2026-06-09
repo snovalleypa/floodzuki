@@ -66,6 +66,10 @@ const en = {
     logout: "Logout",
     back: "Go Back",
   },
+  pageTitles: {
+    gageList: "Snoqualmie River Gauges",
+    alerts: "Flood Alerts",
+  },
   homeScreen: {
     title: "Snoqualmie River / SVPA",
   },

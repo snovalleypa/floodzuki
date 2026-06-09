@@ -68,6 +68,10 @@ const es = {
     logout: "Cerrar sesión",
     back: "Volver",
   },
+  pageTitles: {
+    gageList: "Medidores del río Snoqualmie",
+    alerts: "Alertas de inundación",
+  },
   homeScreen: {
     title: "Río Snoqualmie / SVPA",
   },
