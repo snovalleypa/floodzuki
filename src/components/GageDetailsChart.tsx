@@ -584,7 +584,7 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
         </Cell>
         <View style={$chartContainer}>
           <Charts options={chartOptions} />
-          {!gage?.hasData && (
+          {!gage?.hasData && !gagesStore.isFetching && (
             <View pointerEvents="none" style={$noDataOverlay}>
               <View style={$noDataPill}>
                 <RegularText color={Colors.lightDark}>

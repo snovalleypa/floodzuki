@@ -33,7 +33,6 @@ jest.mock("@common-ui/contexts/DatePickerContext", () => ({
 
 jest.mock("@services/highcharts/LocalHighchartsReact", () => () => null);
 jest.mock("@services/highcharts/HighchartsReactNative", () => () => null);
-jest.mock("../GageDetailsChartNative", () => ({ GageDetailsChartNative: () => null }));
 jest.mock("@utils/useGageChartOptions", () => ({ __esModule: true, default: () => [{}, null] }));
 
 // Capture useInterval calls so we can assert what delay it was passed.

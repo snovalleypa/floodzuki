@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Slot } from "expo-router";
+import { Slot, useGlobalSearchParams } from "expo-router";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
@@ -15,6 +15,7 @@ import { AssetsProvider, useAppAssets } from "@common-ui/contexts/AssetsContext"
 import { isWeb } from "@common-ui/utils/responsive";
 import { GoogleAuthProvider } from "@common-ui/contexts/GoogleAuthContext";
 import { LocaleProvider, useLocale } from "@common-ui/contexts/LocaleContext";
+import { applyDebugFlagsFromParams } from "@utils/debugFlags";
 import { initSentry } from "@utils/sentry";
 import { If } from "@common-ui/components/Conditional";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -114,6 +115,11 @@ export default function AppLayout() {
 function App() {
   const { getAsset } = useAppAssets();
   const { t } = useLocale();
+  const params = useGlobalSearchParams();
+
+  useEffect(() => {
+    applyDebugFlagsFromParams(params as Record<string, string | string[] | undefined>);
+  }, [params]);
 
   return (
     <>
