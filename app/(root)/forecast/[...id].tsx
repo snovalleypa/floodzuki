@@ -55,7 +55,13 @@ const ForecastDetailsBody = observer(function ForecastDetailsBody({ gageId }: { 
 
   return (
     <Screen>
-      <PageTitle name={forecastGage?.title ? `${forecastGage.title} Forecast` : undefined} />
+      <PageTitle
+        name={
+          forecastGage?.title
+            ? `${forecastGage.title} ${t("navigation.forecastScreen")}`
+            : undefined
+        }
+      />
       <Stack.Screen
         options={{
           title: `${t("common.title")} - ${t("forecastScreen.title")}: ${forecastGage?.title}`,

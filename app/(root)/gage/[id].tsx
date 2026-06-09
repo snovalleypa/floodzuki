@@ -184,7 +184,13 @@ const GageDetailsBody = observer(function GageDetailsBody({ gageId }: { gageId: 
 
   return (
     <Screen>
-      <PageTitle name={`${gage.locationInfo?.locationName} (${gageId})`} />
+      <PageTitle
+        name={
+          gage.locationInfo?.locationName
+            ? `${gage.locationInfo.locationName} (${gageId})`
+            : undefined
+        }
+      />
       <Stack.Screen
         options={{
           title: `${gage?.locationInfo?.locationName} | ${t("common.title")} - ${t(
