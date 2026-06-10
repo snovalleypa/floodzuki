@@ -75,6 +75,12 @@ const BaseConfig: {
   FRONT_PAGE_CHART_DURATION_NUMBER: number;
   FRONT_PAGE_CHART_DURATION_UNIT: dayjs.ManipulateType;
 
+  // Flood-probability prediction inputs (third-party). These may move
+  // server-side later; the data service is the single swap point.
+  NOAA_MAP_QUANTILES_URL: string;
+  USGS_RATING_TABLE_URL: string;
+  MAP_QUANTILES_CACHE_TTL: number;
+
   PASSWORD_MIN_LENGTH: number;
 
   API: typeof API;
@@ -107,6 +113,10 @@ const BaseConfig: {
 
   FRONT_PAGE_CHART_DURATION_NUMBER: 2,
   FRONT_PAGE_CHART_DURATION_UNIT: "day",
+
+  NOAA_MAP_QUANTILES_URL: "https://api.water.noaa.gov/hefs/v1/map-quantiles/",
+  USGS_RATING_TABLE_URL: "https://waterdata.usgs.gov/nwisweb/get_ratings",
+  MAP_QUANTILES_CACHE_TTL: 15 * 60 * 1000, // ms
 
   PASSWORD_MIN_LENGTH: 8,
 
