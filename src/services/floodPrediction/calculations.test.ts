@@ -84,11 +84,11 @@ describe("computeFloodProbability", () => {
   const table = parseRatingTable(SAMPLE);
   const quantiles = parseMapQuantiles(RAW as any);
 
-  it("returns the greater window's probability (tie -> 5-day)", () => {
+  it("returns the greater window's probability (tie -> 10-day)", () => {
     const r = computeFloodProbability({ p99: 44.65, quantiles, ratingTable: table });
     expect(r.probability).toBeCloseTo(0.3, 6);
     expect(r.isLow).toBe(false);
-    expect(r.windowDays).toBe(5);
+    expect(r.windowDays).toBe(10);
   });
 
   it("flags low when p99 is above both 0.1-exceedance heights", () => {
