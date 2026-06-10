@@ -5,6 +5,14 @@ import { setupRootStore } from "../setupRootStore";
 jest.mock("@utils/storage", () => ({
   load: jest.fn(),
   save: jest.fn().mockResolvedValue(true),
+  remove: jest.fn().mockResolvedValue(true),
+}));
+
+// Debug-flag plumbing is unrelated to stub rehydration. setupRootStore awaits
+// loadDebugFlags() first, which would otherwise consume the single mocked
+// storage.load snapshot meant for the root store. Stub it out.
+jest.mock("@utils/debugFlags", () => ({
+  loadDebugFlags: jest.fn().mockResolvedValue(undefined),
 }));
 
 // setupRootStore calls api.setHeader when an auth token is present. Stub it.
