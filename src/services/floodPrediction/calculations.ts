@@ -121,8 +121,9 @@ export function heightToProbability(curve: ExceedancePoint[], height: number): n
 /**
  * Compute the flood probability for a gauge: feed its p99 predictor stage into
  * the 5- and 10-day exceedance curves and report the greater probability with
- * its window. On an exact tie the longer (10-day) window wins. `isLow` is true
- * when both windows fall below the 0.1 exceedance.
+ * its window. On an exact non-null tie the shorter (5-day) window wins; when
+ * both windows are null the result is low and reported against the 10-day
+ * window. `isLow` is true when both windows fall below the 0.1 exceedance.
  */
 export function computeFloodProbability(args: {
   p99: number;
@@ -132,17 +133,19 @@ export function computeFloodProbability(args: {
   const { p99, quantiles, ratingTable } = args;
   const windows: FloodWindow[] = [5, 10];
 
+  // Fallback window is 10-day: it survives only when both windows are null
+  // (the low case). Windows are iterated 5 then 10 with a strict comparison, so
+  // a non-null tie keeps the earlier (5-day) window.
   let best: { windowDays: FloodWindow; probability: number | null } = {
-    windowDays: 5,
+    windowDays: 10,
     probability: null,
   };
 
   for (const windowDays of windows) {
     const curve = buildExceedanceHeightCurve(quantiles, ratingTable, windowDays);
     const probability = heightToProbability(curve, p99);
-    // Prefer a greater-or-equal probability so the longer (later) window wins
-    // ties; null counts as "below 10%" (-1). Windows are iterated 5 then 10.
-    if ((probability ?? -1) >= (best.probability ?? -1)) {
+    // Prefer a strictly greater probability; null counts as "below 10%" (-1).
+    if ((probability ?? -1) > (best.probability ?? -1)) {
       best = { windowDays, probability };
     }
   }
