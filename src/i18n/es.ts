@@ -283,6 +283,8 @@ const es = {
     trend: "Tendencia",
     road: "Carretera",
     roadSmall: " carretera",
+    floodChance: "Probabilidad de inundación (próximos %{days} días)",
+    floodChanceLow: "Baja (<10%)",
   },
   gageDetailsChart: {
     discharge: "Caudal",

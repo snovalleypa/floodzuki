@@ -279,6 +279,8 @@ const en = {
     trend: "Trend",
     road: "Road",
     roadSmall: " road",
+    floodChance: "Chance of flooding (next %{days} days)",
+    floodChanceLow: "Low (<10%)",
   },
   gageDetailsChart: {
     discharge: "Flow",

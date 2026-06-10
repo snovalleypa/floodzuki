@@ -17,6 +17,7 @@ import { LargeLabel } from "@common-ui/components/Label";
 import TrendIcon, { TREND_ICON_TYPES } from "@components/TrendIcon";
 import { Spacing } from "@common-ui/constants/spacing";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
+import { useFloodProbability } from "@utils/useFloodProbability";
 
 const CalloutReading = observer(function CalloutReadingCard({ gage }: { gage: Gage }) {
   const { gagesStore, getTimezone } = useStores();
@@ -42,6 +43,14 @@ const CalloutReading = observer(function CalloutReadingCard({ gage }: { gage: Ga
   const hasTrendInfo =
     !!status?.levelTrend && !!status?.waterTrend && !isNullish(status?.waterTrend?.trendValue);
   const hasRoadInfo = !isNullish(gage?.roadSaddleHeight) && !!gage?.roadDisplayName;
+
+  // Forward-looking flood probability for the current reading only (not historic
+  // peaks). Hidden when the gauge isn't covered by the prediction constants.
+  const { result: floodResult } = useFloodProbability(gage?.locationId);
+  const showFloodChance = isNow && !!floodResult;
+  const floodChanceLabel = floodResult?.isLow
+    ? t("calloutReading.floodChanceLow")
+    : `${Math.round(((floodResult?.probability ?? 0) * 100) / 5) * 5}%`;
 
   return (
     <Card flex>
@@ -71,6 +80,14 @@ const CalloutReading = observer(function CalloutReadingCard({ gage }: { gage: Ga
           <CardItem>
             <RegularText>{t("calloutReading.waterFlow")}</RegularText>
             <MediumText>{formatFlow(reading?.waterDischarge)}</MediumText>
+          </CardItem>
+        </If>
+        <If condition={showFloodChance}>
+          <CardItem>
+            <RegularText>
+              {t("calloutReading.floodChance", { days: floodResult?.windowDays })}
+            </RegularText>
+            <MediumText>{floodChanceLabel}</MediumText>
           </CardItem>
         </If>
         <CardItem noBorder={!hasRoadInfo && !hasTrendInfo}>

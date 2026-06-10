@@ -29,7 +29,7 @@ function mockFetch() {
 describe("getFloodProbability", () => {
   beforeEach(() => {
     __resetFloodPredictionCaches();
-    (global as any).fetch = mockFetch();
+    (globalThis as any).fetch = mockFetch();
   });
 
   it("returns null for a gauge not in the constants", async () => {
@@ -46,7 +46,7 @@ describe("getFloodProbability", () => {
   it("caches the rating table (fetched once across calls)", async () => {
     await getFloodProbability("SVPA-25");
     await getFloodProbability("SVPA-25");
-    const ratingCalls = (global.fetch as jest.Mock).mock.calls.filter((c) =>
+    const ratingCalls = (globalThis.fetch as jest.Mock).mock.calls.filter((c) =>
       String(c[0]).includes("get_ratings")
     );
     expect(ratingCalls.length).toBe(1);
