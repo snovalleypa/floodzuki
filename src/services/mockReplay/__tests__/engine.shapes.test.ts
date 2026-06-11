@@ -44,7 +44,11 @@ describe("engine shape builders", () => {
       .valueOf();
     expect(Math.abs(latestTs - nowMs)).toBeLessThan(2 * HOUR);
     expect(shape.status?.floodLevel).toBeDefined();
-    expect(shape.predictions.length).toBeGreaterThan(0);
+    // predictions = 6h trend nowcast at 15-min steps (excludes the anchor) → 24 points.
+    expect(shape.predictions.length).toBe(24);
+    const p0 = localDayJs.tz(shape.predictions[0].timestamp, "YYYY-MM-DDTHH:mm:ss", TZ).valueOf();
+    const p1 = localDayJs.tz(shape.predictions[1].timestamp, "YYYY-MM-DDTHH:mm:ss", TZ).valueOf();
+    expect(p1 - p0).toBe(15 * 60 * 1000);
   });
 
   it("buildStatusAndRecentReadings returns one entry per location id", async () => {

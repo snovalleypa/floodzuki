@@ -244,6 +244,41 @@ function predictionObjects(c: GaugeCache, cutoffMs: number) {
   return forecastSeries(c, cutoffMs).map(toPredictionObject);
 }
 
+const NOWCAST_STEP_MIN = 15;
+const NOWCAST_WINDOW_MIN = 6 * 60;
+const MIN_MS = 60_000;
+
+/**
+ * The short-term trend nowcast returned by getGageReadings as `predictions`:
+ * the current rate of change extrapolated linearly for 6 hours at 15-minute
+ * steps, from the latest reading. Exists for every gauge (level and/or flow).
+ * Excludes the anchor point — Gage.predictedPoints prepends readings[0].
+ */
+function trendNowcast(c: GaugeCache, cutoffMs: number) {
+  const upTo = readingsUpTo(c, cutoffMs);
+  const latest = upTo[upTo.length - 1];
+  if (!latest) {
+    return [];
+  }
+  const rates = computeTrendRates(upTo.slice(-3));
+  const out = [];
+  for (let m = NOWCAST_STEP_MIN; m <= NOWCAST_WINDOW_MIN; m += NOWCAST_STEP_MIN) {
+    const hours = m / 60;
+    const tMs = cutoffMs + m * MIN_MS;
+    out.push({
+      timestamp: toGaugeLocalString(shiftToDisplay(anchor!, tMs), timezone),
+      waterHeight:
+        latest.waterHeight != null ? latest.waterHeight + rates.feetPerHour * hours : undefined,
+      waterDischarge:
+        latest.waterDischarge != null
+          ? latest.waterDischarge + rates.cfsPerHour * hours
+          : undefined,
+      isDeleted: false,
+    });
+  }
+  return out;
+}
+
 /** The upcoming forecast crest (max discharge at/after the cutoff), shifted. */
 function forecastPeak(c: GaugeCache, cutoffMs: number) {
   const future = forecastSeries(c, cutoffMs).filter((p) => p.timestampMs >= cutoffMs);
@@ -284,7 +319,7 @@ export function buildGageReadings(locationId: string, nowMs: number = Date.now()
     peakStatus: statusBlock(c, cutoff),
     predictedFeetPerHour: rates.feetPerHour,
     predictedCfsPerHour: rates.cfsPerHour,
-    predictions: predictionObjects(c, cutoff),
+    predictions: trendNowcast(c, cutoff),
   };
 }
 
