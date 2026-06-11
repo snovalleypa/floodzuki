@@ -2,6 +2,7 @@ import Config from "@config/config";
 import constants from "@config/floodPredictionConstants.json";
 
 import { computeFloodProbability, parseMapQuantiles, parseRatingTable } from "./calculations";
+import { getMockMapQuantiles } from "./mockForecasts";
 import { FloodPredictionGauge, FloodProbabilityResult, MapQuantiles, RatingPoint } from "./types";
 
 const gauges = (constants as { gauges: FloodPredictionGauge[] }).gauges;
@@ -36,6 +37,14 @@ function fetchRatingTable(usgsSiteId: string): Promise<RatingPoint[]> {
 }
 
 function fetchMapQuantiles(noaaSiteId: string): Promise<MapQuantiles> {
+  // Debug-flag mock injection (out-of-season UX verification). Bypasses the
+  // network and the cache so toggling the flag takes effect immediately and the
+  // real quantile cache is never poisoned.
+  const mock = getMockMapQuantiles(noaaSiteId);
+  if (mock) {
+    return Promise.resolve(mock);
+  }
+
   const entry = quantileCache.get(noaaSiteId);
   if (entry && Date.now() - entry.at < Config.MAP_QUANTILES_CACHE_TTL) {
     return entry.promise;
