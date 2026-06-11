@@ -313,9 +313,11 @@ export class Api {
 
   async getReadings<T>(params: GetGageReadingsParams) {
     if (mockActive()) {
+      // Split on comma only — the metagage id (e.g. the slash-joined "sum of the
+      // 3 forks") must stay intact so its summed readings are keyed correctly.
       return {
         kind: "ok" as const,
-        data: mockReplayEngine.buildV2Readings(params.gageIds.split(/[,/]/)) as T,
+        data: mockReplayEngine.buildV2Readings(params.gageIds.split(",")) as T,
       };
     }
 

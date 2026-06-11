@@ -42,6 +42,17 @@ describe("api mock replay interception", () => {
     expect(mockEngine.buildGageReadings).not.toHaveBeenCalled();
   });
 
+  it("keeps a slash metagage id intact when serving v2 readings", async () => {
+    mockEngine.isActive.mockReturnValue(true);
+    mockEngine.buildV2Readings.mockReturnValue({ readings: {}, maxReadingId: null } as any);
+    await api.getReadings({ gageIds: "USGS-SF17/USGS-NF10/USGS-MF11,USGS-38,USGS-22" });
+    expect(mockEngine.buildV2Readings).toHaveBeenCalledWith([
+      "USGS-SF17/USGS-NF10/USGS-MF11",
+      "USGS-38",
+      "USGS-22",
+    ]);
+  });
+
   it("passes through when inactive", async () => {
     mockEngine.isActive.mockReturnValue(false);
     await api.getStatusAndRecentReadings("from", "to").catch(() => undefined);
