@@ -19,7 +19,7 @@ describe("getMockMapQuantiles", () => {
   });
 
   it("anchors the median (0.5) flow on the observed event peak", () => {
-    mockedGetDebugFlag.mockImplementation((f) => f === DebugFlag.MockFloodJan2022);
+    mockedGetDebugFlag.mockImplementation((f) => f === DebugFlag.MockFloodModerateIn5Days);
     const q = getMockMapQuantiles("CRNW1");
     expect(q).not.toBeNull();
     // EXCEEDANCES index 3 is the 0.5 exceedance = Jan 21 Carnation peak.
@@ -29,12 +29,12 @@ describe("getMockMapQuantiles", () => {
   });
 
   it("returns null for a site that isn't modeled", () => {
-    mockedGetDebugFlag.mockImplementation((f) => f === DebugFlag.MockFloodJan2022);
+    mockedGetDebugFlag.mockImplementation((f) => f === DebugFlag.MockFloodModerateIn5Days);
     expect(getMockMapQuantiles("XXXX")).toBeNull();
   });
 
   it("the March 2022 mock floods a high-threshold gauge (p99 = 55.42)", () => {
-    mockedGetDebugFlag.mockImplementation((f) => f === DebugFlag.MockFloodMarch2022);
+    mockedGetDebugFlag.mockImplementation((f) => f === DebugFlag.MockFloodMajorIn5Days);
     const quantiles = getMockMapQuantiles("CRNW1")!;
     // Minimal Carnation rating bracketing the mock flows; height climbs with flow.
     const ratingTable = [

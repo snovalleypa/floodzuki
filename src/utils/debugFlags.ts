@@ -22,8 +22,8 @@ export enum DebugFlag {
   ShowDeletedReadings = "showDeletedReadings",
   // Inject mock NOAA flood forecasts so the flood-probability UX can be verified
   // out of season. Modeled on real 2022 events (see mockForecasts.ts).
-  MockFloodMarch2022 = "mockFloodMarch2022",
-  MockFloodJan2022 = "mockFloodJan2022",
+  MockFloodMajorIn5Days = "mockFloodMajorIn5Days",
+  MockFloodModerateIn5Days = "mockFloodModerateIn5Days",
 }
 
 // Derived from the enum — single source of truth for the valid flag set.

@@ -2,9 +2,9 @@
  * Mock NOAA HEFS map-quantiles for verifying the flood-probability UX out of
  * season (when live forecasts show no flood risk). Enabled via debug flags:
  *
- *   ?debug=mockFloodMarch2022   major flood — every modeled gauge floods
- *   ?debug=mockFloodJan2022     moderate flood — a gradient across gauges
- *   ?debug=reset                clear
+ *   ?debug=mockFloodMajorIn5Days      major flood — every modeled gauge floods
+ *   ?debug=mockFloodModerateIn5Days   moderate flood — a gradient across gauges
+ *   ?debug=reset                      clear
  *
  * Each scenario is anchored on the observed peak flow of a real 2022 event at
  * the two predictor sites (Carnation/CRNW1, Falls/SQUW1), with a forecast spread
@@ -33,11 +33,11 @@ function flowsFromPeak(peakCfs: number): number[] {
 // Ordered by precedence; the first active flag wins. Keyed by NOAA site id.
 const SCENARIOS: { flag: DebugFlag; peaksBySite: Record<string, number> }[] = [
   {
-    flag: DebugFlag.MockFloodMarch2022,
+    flag: DebugFlag.MockFloodMajorIn5Days,
     peaksBySite: { CRNW1: 46900, SQUW1: 38500 },
   },
   {
-    flag: DebugFlag.MockFloodJan2022,
+    flag: DebugFlag.MockFloodModerateIn5Days,
     peaksBySite: { CRNW1: 20100, SQUW1: 16500 },
   },
 ];
