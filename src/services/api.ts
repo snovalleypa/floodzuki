@@ -8,7 +8,13 @@
 import { ApiResponse, ApisauceInstance, create } from "apisauce";
 import Config from "@config/config";
 import { DebugFlag, getDebugFlag } from "@utils/debugFlags";
+import * as mockReplayEngine from "@services/mockReplay/engine";
 import { GeneralApiProblem, getGeneralApiProblem } from "./apiProblem";
+
+/** True when replay should serve this call (active and not mid-preload). */
+function mockActive(): boolean {
+  return mockReplayEngine.isActive() && !mockReplayEngine.isPreloading();
+}
 
 interface ApiConfig {
   url: string; // The URL of the api.
@@ -222,6 +228,10 @@ export class Api {
   }
 
   async getStatusAndRecentReadings<T>(fromDateTime: string, toDateTime: string) {
+    if (mockActive()) {
+      return { kind: "ok" as const, data: mockReplayEngine.buildStatusAndRecentReadings() as T };
+    }
+
     this.apisauce.setBaseURL(Config.READING_BASE_URL);
 
     return await genericGetRequest<T>(this.apisauce, Config.API.reading.GET_STATUS_URL, {
@@ -239,6 +249,12 @@ export class Api {
     includeStatus?: boolean,
     includePredictions?: boolean
   ) {
+    // Only the live path is mocked; historical date-range / flood-event fetches
+    // (includePredictions === false) pass through to real data.
+    if (mockActive() && includePredictions) {
+      return { kind: "ok" as const, data: mockReplayEngine.buildGageReadings(gageId) as T };
+    }
+
     this.apisauce.setBaseURL(Config.READING_BASE_URL);
 
     const params = {
@@ -296,6 +312,13 @@ export class Api {
   }
 
   async getReadings<T>(params: GetGageReadingsParams) {
+    if (mockActive()) {
+      return {
+        kind: "ok" as const,
+        data: mockReplayEngine.buildV2Readings(params.gageIds.split(/[,/]/)) as T,
+      };
+    }
+
     this.apisauce.setBaseURL(Config.BASE_URL);
 
     const props = {
@@ -310,6 +333,13 @@ export class Api {
   }
 
   async getForecasts<T>(gageIds: string, fromDateTime?: string) {
+    if (mockActive()) {
+      return {
+        kind: "ok" as const,
+        data: mockReplayEngine.buildV2Forecasts(gageIds.split(",")) as T,
+      };
+    }
+
     this.apisauce.setBaseURL(Config.BASE_URL);
 
     const params = {
