@@ -53,18 +53,23 @@ const CalloutReading = observer(function CalloutReadingCard({ gage }: { gage: Ga
     !isNullish(gage?.redStage) &&
     reading.waterHeight >= gage.redStage;
   const shouldPredictFlood = isNow && !isAtOrAboveRedStage;
-  const { result: floodResult } = useFloodProbability(
-    shouldPredictFlood ? gage?.locationId : undefined
-  );
-  const showFloodChance = shouldPredictFlood && !!floodResult;
-  // Probability is clamped to [0.1, 0.9]; the bounds carry "<10%" / ">90%"
-  // labels since the data can't assert beyond them.
-  const floodChancePercent = Math.round(((floodResult?.probability ?? 0) * 100) / 5) * 5;
-  let floodChanceLabel = `${floodChancePercent}%`;
-  if (floodResult?.isLow) {
+  const floodChance = useFloodProbability(shouldPredictFlood ? gage : undefined);
+  const showFloodChance = !!floodChance;
+
+  // Map the combined chance bucket to a label. Forecast tops out at 90% (a lower
+  // bound → ">90%"); the observed path is precise (exact 90/95, ">=99%").
+  const chance = floodChance?.chance;
+  let floodChanceLabel = "";
+  if (chance?.level === "low") {
     floodChanceLabel = t("calloutReading.floodChanceLow");
-  } else if (floodChancePercent >= 90) {
+  } else if (chance?.level === "percent") {
+    floodChanceLabel = `${chance.percent}%`;
+  } else if (chance?.level === "veryHighClamp") {
     floodChanceLabel = t("calloutReading.floodChanceVeryHigh");
+  } else if (chance?.level === "veryHigh") {
+    floodChanceLabel = t("calloutReading.floodChanceVeryHighExact", { percent: chance.percent });
+  } else if (chance?.level === "nearCertain") {
+    floodChanceLabel = t("calloutReading.floodChanceNearCertain");
   }
 
   return (
@@ -100,7 +105,7 @@ const CalloutReading = observer(function CalloutReadingCard({ gage }: { gage: Ga
         <If condition={showFloodChance}>
           <CardItem>
             <RegularText>
-              {t("calloutReading.floodChance", { days: floodResult?.windowDays })}
+              {t("calloutReading.floodChance", { days: floodChance?.windowDays })}
             </RegularText>
             <MediumText>{floodChanceLabel}</MediumText>
           </CardItem>

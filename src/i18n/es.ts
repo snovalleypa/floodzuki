@@ -286,6 +286,8 @@ const es = {
     floodChance: "Probabilidad de inundación (próximos %{days} días)",
     floodChanceLow: "Baja (<10%)",
     floodChanceVeryHigh: "Muy alta (>90%)",
+    floodChanceVeryHighExact: "Muy alta (%{percent}%)",
+    floodChanceNearCertain: "Muy alta (>=99%)",
   },
   gageDetailsChart: {
     discharge: "Caudal",

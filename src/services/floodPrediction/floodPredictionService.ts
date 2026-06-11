@@ -18,6 +18,14 @@ export function __resetFloodPredictionCaches() {
   quantileCache.clear();
 }
 
+/** The prediction constants for a gauge, or null when it isn't covered. */
+export function getGaugeConstants(locationId?: string): FloodPredictionGauge | null {
+  if (!locationId) {
+    return null;
+  }
+  return gauges.find((g) => g.gaugeId === locationId) ?? null;
+}
+
 function fetchRatingTable(usgsSiteId: string): Promise<RatingPoint[]> {
   const cached = ratingCache.get(usgsSiteId);
   if (cached) {

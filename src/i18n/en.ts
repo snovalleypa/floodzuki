@@ -282,6 +282,8 @@ const en = {
     floodChance: "Chance of flooding (next %{days} days)",
     floodChanceLow: "Low (<10%)",
     floodChanceVeryHigh: "Very High (>90%)",
+    floodChanceVeryHighExact: "Very High (%{percent}%)",
+    floodChanceNearCertain: "Very High (>=99%)",
   },
   gageDetailsChart: {
     discharge: "Flow",

@@ -1,41 +1,54 @@
 import { useEffect, useState } from "react";
 
-import { getFloodProbability } from "@services/floodPrediction/floodPredictionService";
-import { FloodProbabilityResult } from "@services/floodPrediction/types";
+import { Gage } from "@models/Gage";
+import { useStores } from "@models/helpers/useStores";
+import {
+  combineFloodChance,
+  derivePredictorStageProbability,
+} from "@services/floodPrediction/calculations";
+import {
+  getFloodProbability,
+  getGaugeConstants,
+} from "@services/floodPrediction/floodPredictionService";
+import { FloodChanceResult, FloodProbabilityResult } from "@services/floodPrediction/types";
+
+import { selectObservedPredictorStage } from "./observedFloodProbability";
 
 /**
- * Fetches and computes the flood probability for a gauge (by locationId).
- * Returns null for gauges not covered by the prediction constants. Kept out of
- * MobX-State-Tree so the bulky rating-table / quantile payloads never enter the
- * persisted RootStore snapshot.
+ * Combined flood chance for a gauge: the greater of the days-out forecast
+ * (network-backed, cached) and the observed/nowcast probability derived from the
+ * predictor's live measured stage. Returns null for gauges not covered by the
+ * constants (or when called with no gauge).
+ *
+ * The observed half reads live MST data during render so the (observer) caller
+ * recomputes reactively as readings update; the forecast half is async. Kept out
+ * of MST so the bulky payloads never enter the persisted snapshot. Someday the
+ * whole computation moves server-side behind this same return shape.
  */
-export function useFloodProbability(locationId?: string) {
-  const [result, setResult] = useState<FloodProbabilityResult | null>(null);
-  const [loading, setLoading] = useState(false);
+export function useFloodProbability(gage?: Gage): FloodChanceResult | null {
+  const { gagesStore, getTimezone } = useStores();
+  const locationId = gage?.locationId;
+  const constants = getGaugeConstants(locationId);
+
+  const [forecast, setForecast] = useState<FloodProbabilityResult | null>(null);
 
   useEffect(() => {
     let active = true;
 
-    if (locationId) {
-      setLoading(true);
+    if (locationId && getGaugeConstants(locationId)) {
       getFloodProbability(locationId)
         .then((r) => {
           if (active) {
-            setResult(r);
+            setForecast(r);
           }
         })
         .catch(() => {
           if (active) {
-            setResult(null);
-          }
-        })
-        .finally(() => {
-          if (active) {
-            setLoading(false);
+            setForecast(null);
           }
         });
     } else {
-      setResult(null);
+      setForecast(null);
     }
 
     return () => {
@@ -43,5 +56,32 @@ export function useFloodProbability(locationId?: string) {
     };
   }, [locationId]);
 
-  return { result, loading };
+  if (!gage || !constants) {
+    return null;
+  }
+
+  // Observed/nowcast: choose a predictor stage from live readings and translate
+  // it through the gauge's p50/p90/p99 constants.
+  const predictor = gagesStore.getGageByLocationId(constants.predictor.floodzillaId);
+  const observedStage = predictor
+    ? selectObservedPredictorStage({
+        gaugeRiverMile: Number(gage.riverMile),
+        gaugeTrendValue: gage.status?.waterTrend?.trendValue ?? null,
+        predictorRiverMile: Number(predictor.riverMile),
+        predictorTrendValue: predictor.status?.waterTrend?.trendValue ?? null,
+        predictorCurrentHeight: predictor.status?.lastReading?.waterHeight ?? null,
+        predictorReadings: predictor.readings.map((r) => ({
+          timestamp: r.timestamp,
+          waterHeight: r.waterHeight,
+        })),
+        timezone: getTimezone(),
+      })
+    : null;
+
+  const observedProbability =
+    observedStage != null
+      ? derivePredictorStageProbability(constants.floodProbability, observedStage)
+      : null;
+
+  return combineFloodChance({ forecast, observedProbability });
 }
