@@ -16,6 +16,7 @@ import { isWeb } from "@common-ui/utils/responsive";
 import { GoogleAuthProvider } from "@common-ui/contexts/GoogleAuthContext";
 import { LocaleProvider, useLocale } from "@common-ui/contexts/LocaleContext";
 import { applyDebugFlagsFromParams } from "@utils/debugFlags";
+import { applyMockReplayFromParams } from "@services/mockReplay/mockReplayState";
 import { initSentry } from "@utils/sentry";
 import { If } from "@common-ui/components/Conditional";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -119,6 +120,7 @@ function App() {
 
   useEffect(() => {
     applyDebugFlagsFromParams(params as Record<string, string | string[] | undefined>);
+    applyMockReplayFromParams(params as Record<string, string | string[] | undefined>);
   }, [params]);
 
   return (

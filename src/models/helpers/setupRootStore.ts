@@ -13,6 +13,7 @@ import { applySnapshot, IDisposer, onSnapshot } from "mobx-state-tree";
 import type { RootStore } from "../RootStore";
 import * as storage from "@utils/storage";
 import { loadDebugFlags } from "@utils/debugFlags";
+import { loadMockReplay } from "@services/mockReplay/mockReplayState";
 import { api } from "@services/api";
 import { changeLocale } from "@i18n/i18n";
 import localDayJs from "@services/localDayJs";
@@ -34,6 +35,7 @@ export async function setupRootStore(rootStore: RootStore) {
   let restoredState: Record<string, unknown> = {};
 
   await loadDebugFlags();
+  await loadMockReplay();
 
   try {
     // load the last known state from AsyncStorage

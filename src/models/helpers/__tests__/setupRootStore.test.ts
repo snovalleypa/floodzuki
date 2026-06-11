@@ -15,6 +15,12 @@ jest.mock("@utils/debugFlags", () => ({
   loadDebugFlags: jest.fn().mockResolvedValue(undefined),
 }));
 
+// Same reasoning as loadDebugFlags: loadMockReplay() also awaits storage.load,
+// which would otherwise consume the single mocked snapshot meant for the root store.
+jest.mock("@services/mockReplay/mockReplayState", () => ({
+  loadMockReplay: jest.fn().mockResolvedValue(undefined),
+}));
+
 // setupRootStore calls api.setHeader when an auth token is present. Stub it.
 jest.mock("@services/api", () => ({
   api: {
