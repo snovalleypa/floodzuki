@@ -8,9 +8,9 @@ import { createAnchor, effectiveMockNow, shiftToDisplay, TimeAnchor } from "./ti
 import { isMockReplayActive } from "./mockReplayState";
 import { toGaugeLocalString } from "./timestamps";
 import { computeStatus, computeTrendRates } from "./status";
-import { synthesizeForecast } from "./forecastSynthesis";
+import { sampleDischargeAt, synthesizeForecast } from "./forecastSynthesis";
 import { synthesizeBands } from "./percentileBands";
-import { MockReplayScenario, RatingCurve, RawReading } from "./types";
+import { ForecastPoint, MockReplayScenario, RatingCurve, RawReading } from "./types";
 
 const DAY_MS = 86_400_000;
 const HOUR_MS = 3_600_000;
@@ -109,11 +109,22 @@ export async function init(ctx: MockReplayContext): Promise<void> {
 
   const fromMs = mockNowMs - PRELOAD_BEHIND_DAYS * DAY_MS;
   const toMs = mockNowMs + PRELOAD_AHEAD_DAYS * DAY_MS;
-  const ids = Array.from(new Set([...ctx.locationIds, ...ctx.forecastGageIds]));
+
+  // Metagages (slash-joined ids, e.g. the "sum of the 3 forks") aren't understood
+  // by the per-gauge reading endpoint — fetch their components and sum the flow.
+  const metagageIds = ctx.forecastGageIds.filter((id) => id.includes("/"));
+  const componentIds = metagageIds.flatMap((id) => id.split("/"));
+  const directIds = Array.from(
+    new Set([
+      ...ctx.locationIds,
+      ...ctx.forecastGageIds.filter((id) => !id.includes("/")),
+      ...componentIds,
+    ])
+  );
 
   preloading = true;
   try {
-    for (const id of ids) {
+    for (const id of directIds) {
       const readings = (await ctx.fetchRawReadings(id, fromMs, toMs))
         .slice()
         .sort((a, b) => a.timestampMs - b.timestampMs);
@@ -124,6 +135,15 @@ export async function init(ctx: MockReplayContext): Promise<void> {
         yellowStage: stages.yellowStage,
         redStage: stages.redStage,
       });
+    }
+    for (const metaId of metagageIds) {
+      const parts = metaId
+        .split("/")
+        .map((cid) => cache.get(cid))
+        .filter((c): c is GaugeCache => !!c);
+      const readings = sumDischargeSeries(parts);
+      // Metagage is flow-only (no stage), so the rating is unused → returns 0.
+      cache.set(metaId, { readings, rating: { flowToHeight: () => 0 } });
     }
     if (ctx.fetchDashboardSkeletons) {
       const skeletons = await ctx.fetchDashboardSkeletons();
@@ -140,11 +160,29 @@ export async function init(ctx: MockReplayContext): Promise<void> {
 
 // --- shape builders ---
 
+/** Sum component gauges' discharge onto a shared timestamp grid (for metagages). */
+function sumDischargeSeries(caches: GaugeCache[]): RawReading[] {
+  if (caches.length === 0) {
+    return [];
+  }
+  const tset = new Set<number>();
+  caches.forEach((c) => c.readings.forEach((r) => tset.add(r.timestampMs)));
+  const grid = Array.from(tset).sort((a, b) => a - b);
+  return grid.map((t) => ({
+    timestampMs: t,
+    waterDischarge: caches.reduce((sum, c) => sum + sampleDischargeAt(c.readings, t), 0),
+  }));
+}
+
 function readingsUpTo(c: GaugeCache, cutoffMs: number): RawReading[] {
   return c.readings.filter((r) => r.timestampMs <= cutoffMs);
 }
 
-/** Shifted, gauge-local GageReading objects for [cutoff - window, cutoff], ascending. */
+/**
+ * Shifted, gauge-local GageReading objects for [cutoff - window, cutoff], ordered
+ * newest-first (descending) to match the real reading API — consumers assume
+ * readings[0] is the latest (latestReading, maxReading, predictedPoints).
+ */
 function shiftedReadingObjects(c: GaugeCache, cutoffMs: number, windowMs: number) {
   const from = cutoffMs - windowMs;
   return c.readings
@@ -155,7 +193,8 @@ function shiftedReadingObjects(c: GaugeCache, cutoffMs: number, windowMs: number
       waterDischarge: r.waterDischarge,
       isDeleted: false,
       isMissing: false,
-    }));
+    }))
+    .reverse();
 }
 
 function statusBlock(c: GaugeCache, cutoffMs: number) {
@@ -178,23 +217,45 @@ function statusBlock(c: GaugeCache, cutoffMs: number) {
   return { ...status, lastReading };
 }
 
-function predictionObjects(c: GaugeCache, cutoffMs: number) {
+/** Raw (epoch-ms) synthesized forecast series for a gauge, issued at now - age. */
+function forecastSeries(c: GaugeCache, cutoffMs: number): ForecastPoint[] {
   if (!scenario) {
     return [];
   }
   const issuanceMs = cutoffMs - scenario.forecastAgeHours * HOUR_MS;
-  const points = synthesizeForecast({
+  return synthesizeForecast({
     actual: c.readings,
     issuanceMs,
     deviationPct: scenario.forecastDeviationPct,
     rating: c.rating,
   });
-  return points.map((p) => ({
+}
+
+function toPredictionObject(p: ForecastPoint) {
+  return {
     timestamp: toGaugeLocalString(shiftToDisplay(anchor!, p.timestampMs), timezone),
     waterHeight: p.stage,
     waterDischarge: p.discharge,
     isDeleted: false,
-  }));
+  };
+}
+
+function predictionObjects(c: GaugeCache, cutoffMs: number) {
+  return forecastSeries(c, cutoffMs).map(toPredictionObject);
+}
+
+/** The upcoming forecast crest (max discharge at/after the cutoff), shifted. */
+function forecastPeak(c: GaugeCache, cutoffMs: number) {
+  const future = forecastSeries(c, cutoffMs).filter((p) => p.timestampMs >= cutoffMs);
+  if (future.length === 0) {
+    return null;
+  }
+  const peak = future.reduce((mx, p) => (p.discharge > mx.discharge ? p : mx), future[0]);
+  return {
+    timestamps: [toGaugeLocalString(shiftToDisplay(anchor!, peak.timestampMs), timezone)],
+    discharges: [peak.discharge],
+    waterHeights: [peak.stage],
+  };
 }
 
 /** Single-gauge shape for api.getGageReadings (live). */
@@ -279,7 +340,7 @@ export function buildV2Forecasts(gageIds?: string[], nowMs: number = Date.now())
       timestamps: preds.map((p) => p.timestamp),
       waterHeights: preds.map((p) => p.waterHeight),
       discharges: preds.map((p) => p.waterDischarge),
-      peaks: null,
+      peaks: forecastPeak(c, cutoff),
     };
   }
   return out;

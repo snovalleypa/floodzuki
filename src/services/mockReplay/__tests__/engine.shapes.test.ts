@@ -38,11 +38,11 @@ describe("engine shape builders", () => {
     const nowMs = mockNowMs; // session start → effectiveMockNow == mockNow
     const shape = engine.buildGageReadings("USGS-22", nowMs);
     expect(shape.noData).toBe(false);
-    // Last reading's display time is within a step of wall-now.
-    const lastTs = localDayJs
-      .tz(shape.readings[shape.readings.length - 1].timestamp, "YYYY-MM-DDTHH:mm:ss", TZ)
+    // Readings are newest-first; readings[0] display time is within a step of wall-now.
+    const latestTs = localDayJs
+      .tz(shape.readings[0].timestamp, "YYYY-MM-DDTHH:mm:ss", TZ)
       .valueOf();
-    expect(Math.abs(lastTs - nowMs)).toBeLessThan(2 * HOUR);
+    expect(Math.abs(latestTs - nowMs)).toBeLessThan(2 * HOUR);
     expect(shape.status?.floodLevel).toBeDefined();
     expect(shape.predictions.length).toBeGreaterThan(0);
   });
@@ -55,11 +55,15 @@ describe("engine shape builders", () => {
     expect(shape.gages[0].status.floodLevel).toBeDefined();
   });
 
-  it("buildV2Forecasts produces a prediction series per gage id", async () => {
+  it("buildV2Forecasts produces a prediction series with a crest peak per gage id", async () => {
     const { mockNowMs } = await setup();
     const shape = engine.buildV2Forecasts(["USGS-22"], mockNowMs);
     expect(shape["USGS-22"].timestamps.length).toBeGreaterThan(0);
     expect(shape["USGS-22"].waterHeights.length).toBe(shape["USGS-22"].timestamps.length);
+    // Forecasted crest is populated (not null) and has one peak point.
+    expect(shape["USGS-22"].peaks).not.toBeNull();
+    expect(shape["USGS-22"].peaks.discharges.length).toBe(1);
+    expect(shape["USGS-22"].peaks.discharges[0]).toBeGreaterThan(0);
   });
 
   it("buildV2Readings produces recent-reading arrays per gage id", async () => {
