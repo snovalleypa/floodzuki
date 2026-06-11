@@ -1,4 +1,11 @@
-import { FloodProbabilityResult, FloodWindow, MapQuantiles, RatingPoint } from "./types";
+import {
+  FloodChanceLevel,
+  FloodChanceResult,
+  FloodProbabilityResult,
+  FloodWindow,
+  MapQuantiles,
+  RatingPoint,
+} from "./types";
 
 /**
  * Parse a USGS "exsa" (expanded, shifted, ascending) rating table into sorted
@@ -155,4 +162,78 @@ export function computeFloodProbability(args: {
     windowDays: best.windowDays,
     isLow: best.probability === null,
   };
+}
+
+/**
+ * Observed/nowcast probability: translate a measured predictor stage directly
+ * into P(flood) using the gauge's p50/p90/p99 constants. p50 bisects the
+ * near-linear p10↔p90 segment, so P10 stage = 2·p50 − p90. The mapping is
+ * piecewise linear: (p10,0.10)→(p90,0.90) below p90, (p90,0.90)→(p99,0.99) at or
+ * above p90 (extended past p99, so stage > p99 yields > 0.99). Can return values
+ * below 0.10 or above 0.99; callers bucket/round at display.
+ */
+export function derivePredictorStageProbability(
+  fp: { p50: number; p90: number; p99: number },
+  stage: number
+): number {
+  if (stage >= fp.p90) {
+    const span = fp.p99 - fp.p90;
+    if (span === 0) {
+      return 0.9;
+    }
+    return 0.9 + ((stage - fp.p90) / span) * 0.09;
+  }
+  const p10Stage = 2 * fp.p50 - fp.p90;
+  const span = fp.p90 - p10Stage;
+  if (span === 0) {
+    return 0.9;
+  }
+  return 0.1 + ((stage - p10Stage) / span) * 0.8;
+}
+
+function roundToFivePercent(probability: number): number {
+  return Math.round((probability * 100) / 5) * 5;
+}
+
+/**
+ * Combine the forecast and observed probabilities into a display bucket, taking
+ * the greater of the two (observed must be strictly greater to win — the
+ * forecast holds ties). The forecast is clamped at 90% so it can only reach the
+ * "veryHighClamp" (>90%) bucket; the precise observed path reaches the exact
+ * "veryHigh" and "nearCertain" (>=99%) buckets. Returns null only when neither a
+ * forecast nor an observed value is available.
+ */
+export function combineFloodChance(args: {
+  forecast: FloodProbabilityResult | null;
+  observedProbability: number | null;
+}): FloodChanceResult | null {
+  const { forecast, observedProbability } = args;
+  const windowDays: FloodWindow = forecast?.windowDays ?? 5;
+
+  const forecastProb = forecast?.probability ?? null;
+  const fVal = forecastProb ?? -Infinity;
+  const oVal = observedProbability ?? -Infinity;
+
+  if (fVal === -Infinity && oVal === -Infinity) {
+    // No numeric probability. A present-but-low forecast still reports "low";
+    // a missing forecast with no observed value reports nothing.
+    return forecast ? { windowDays, chance: { level: "low" } } : null;
+  }
+
+  const source: "forecast" | "observed" = oVal > fVal ? "observed" : "forecast";
+  const pct = roundToFivePercent(Math.max(fVal, oVal));
+
+  let chance: FloodChanceLevel;
+  if (pct < 10) {
+    chance = { level: "low" };
+  } else if (pct >= 100) {
+    chance = { level: "nearCertain" };
+  } else if (pct >= 90) {
+    chance =
+      source === "observed" ? { level: "veryHigh", percent: pct } : { level: "veryHighClamp" };
+  } else {
+    chance = { level: "percent", percent: pct };
+  }
+
+  return { windowDays, chance };
 }

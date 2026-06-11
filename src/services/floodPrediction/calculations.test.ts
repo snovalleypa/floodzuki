@@ -5,7 +5,10 @@ import {
   buildExceedanceHeightCurve,
   heightToProbability,
   computeFloodProbability,
+  derivePredictorStageProbability,
+  combineFloodChance,
 } from "./calculations";
+import { FloodProbabilityResult } from "./types";
 
 const SAMPLE = [
   "# //comment line",
@@ -96,5 +99,67 @@ describe("computeFloodProbability", () => {
     expect(r.probability).toBeNull();
     expect(r.isLow).toBe(true);
     expect(r.windowDays).toBe(10);
+  });
+});
+
+describe("derivePredictorStageProbability", () => {
+  // Tolt Hill Road (SVPA-25) constants; p10 = 2*53.7 - 54.38 = 53.02.
+  const fp = { p50: 53.7, p90: 54.38, p99: 54.94 };
+
+  it("hits the anchor probabilities at p10/p50/p90/p99", () => {
+    expect(derivePredictorStageProbability(fp, 53.02)).toBeCloseTo(0.1, 6);
+    expect(derivePredictorStageProbability(fp, fp.p50)).toBeCloseTo(0.5, 6);
+    expect(derivePredictorStageProbability(fp, fp.p90)).toBeCloseTo(0.9, 6);
+    expect(derivePredictorStageProbability(fp, fp.p99)).toBeCloseTo(0.99, 6);
+  });
+
+  it("exceeds 0.99 above p99 and drops below 0.10 below p10", () => {
+    expect(derivePredictorStageProbability(fp, 55.5)).toBeGreaterThan(0.99);
+    expect(derivePredictorStageProbability(fp, 52)).toBeLessThan(0.1);
+  });
+});
+
+describe("combineFloodChance", () => {
+  const forecast = (
+    probability: number | null,
+    windowDays: 5 | 10 = 5
+  ): FloodProbabilityResult => ({
+    probability,
+    windowDays,
+    isLow: probability === null,
+  });
+
+  it("returns null when there is neither a forecast nor an observed value", () => {
+    expect(combineFloodChance({ forecast: null, observedProbability: null })).toBeNull();
+  });
+
+  it("shows Low when the forecast is low and there is no observed value", () => {
+    const r = combineFloodChance({ forecast: forecast(null, 10), observedProbability: null });
+    expect(r).toEqual({ windowDays: 10, chance: { level: "low" } });
+  });
+
+  it("shows a rounded percentage in the mid range", () => {
+    const r = combineFloodChance({ forecast: forecast(0.5), observedProbability: null });
+    expect(r!.chance).toEqual({ level: "percent", percent: 50 });
+  });
+
+  it("labels the clamped forecast maximum as Very High (>90%)", () => {
+    const r = combineFloodChance({ forecast: forecast(0.9), observedProbability: null });
+    expect(r!.chance).toEqual({ level: "veryHighClamp" });
+  });
+
+  it("uses the observed value when it is higher, with the exact percent", () => {
+    const r = combineFloodChance({ forecast: forecast(0.5), observedProbability: 0.95 });
+    expect(r!.chance).toEqual({ level: "veryHigh", percent: 95 });
+  });
+
+  it("keeps the forecast on a tie (observed must be strictly greater)", () => {
+    const r = combineFloodChance({ forecast: forecast(0.9), observedProbability: 0.9 });
+    expect(r!.chance).toEqual({ level: "veryHighClamp" });
+  });
+
+  it("shows near-certain when the observed value rounds to 100", () => {
+    const r = combineFloodChance({ forecast: forecast(0.5), observedProbability: 0.995 });
+    expect(r!.chance).toEqual({ level: "nearCertain" });
   });
 });

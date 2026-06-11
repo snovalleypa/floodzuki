@@ -46,3 +46,20 @@ export interface FloodProbabilityResult {
   /** True when both windows fall below the least-likely (0.1) exceedance. */
   isLow: boolean;
 }
+
+/**
+ * The display bucket for the combined (forecast + observed) flood chance. The
+ * forecast path is clamped at 90% (a lower bound → "veryHighClamp"); the observed
+ * path is precise (90/95 → "veryHigh", rounds-to-100 / above p99 → "nearCertain").
+ */
+export type FloodChanceLevel =
+  | { level: "low" }
+  | { level: "percent"; percent: number }
+  | { level: "veryHighClamp" }
+  | { level: "veryHigh"; percent: number }
+  | { level: "nearCertain" };
+
+export interface FloodChanceResult {
+  windowDays: FloodWindow;
+  chance: FloodChanceLevel;
+}
