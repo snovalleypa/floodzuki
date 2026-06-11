@@ -48,9 +48,15 @@ const CalloutReading = observer(function CalloutReadingCard({ gage }: { gage: Ga
   // peaks). Hidden when the gauge isn't covered by the prediction constants.
   const { result: floodResult } = useFloodProbability(gage?.locationId);
   const showFloodChance = isNow && !!floodResult;
-  const floodChanceLabel = floodResult?.isLow
-    ? t("calloutReading.floodChanceLow")
-    : `${Math.round(((floodResult?.probability ?? 0) * 100) / 5) * 5}%`;
+  // Probability is clamped to [0.1, 0.9]; the bounds carry "<10%" / ">90%"
+  // labels since the data can't assert beyond them.
+  const floodChancePercent = Math.round(((floodResult?.probability ?? 0) * 100) / 5) * 5;
+  let floodChanceLabel = `${floodChancePercent}%`;
+  if (floodResult?.isLow) {
+    floodChanceLabel = t("calloutReading.floodChanceLow");
+  } else if (floodChancePercent >= 90) {
+    floodChanceLabel = t("calloutReading.floodChanceVeryHigh");
+  }
 
   return (
     <Card flex>

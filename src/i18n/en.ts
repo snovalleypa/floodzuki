@@ -281,6 +281,7 @@ const en = {
     roadSmall: " road",
     floodChance: "Chance of flooding (next %{days} days)",
     floodChanceLow: "Low (<10%)",
+    floodChanceVeryHigh: "Very High (>90%)",
   },
   gageDetailsChart: {
     discharge: "Flow",

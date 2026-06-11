@@ -285,6 +285,7 @@ const es = {
     roadSmall: " carretera",
     floodChance: "Probabilidad de inundación (próximos %{days} días)",
     floodChanceLow: "Baja (<10%)",
+    floodChanceVeryHigh: "Muy alta (>90%)",
   },
   gageDetailsChart: {
     discharge: "Caudal",
