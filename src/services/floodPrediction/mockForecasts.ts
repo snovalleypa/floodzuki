@@ -17,6 +17,7 @@
  * thresholds, so probabilities range from ~90% down to "Low (<10%)".
  */
 import { DebugFlag, getDebugFlag } from "@utils/debugFlags";
+import * as mockReplayEngine from "@services/mockReplay/engine";
 
 import { MapQuantiles } from "./types";
 
@@ -53,9 +54,16 @@ function toMapQuantiles(peakCfs: number): MapQuantiles {
 
 /**
  * Returns mock map-quantiles for a predictor site when a mock-flood debug flag
- * is active, or null otherwise (no flag, or the site isn't modeled).
+ * or a replay scenario is active, or null otherwise (nothing active, or the site
+ * isn't modeled). The replay engine takes precedence when it has data for the site.
  */
 export function getMockMapQuantiles(noaaSiteId: string): MapQuantiles | null {
+  if (mockReplayEngine.isActive()) {
+    const replay = mockReplayEngine.buildMapQuantiles(noaaSiteId);
+    if (replay) {
+      return replay;
+    }
+  }
   for (const { flag, peaksBySite } of SCENARIOS) {
     if (getDebugFlag(flag)) {
       const peak = peaksBySite[noaaSiteId];
