@@ -45,9 +45,18 @@ const CalloutReading = observer(function CalloutReadingCard({ gage }: { gage: Ga
   const hasRoadInfo = !isNullish(gage?.roadSaddleHeight) && !!gage?.roadDisplayName;
 
   // Forward-looking flood probability for the current reading only (not historic
-  // peaks). Hidden when the gauge isn't covered by the prediction constants.
-  const { result: floodResult } = useFloodProbability(gage?.locationId);
-  const showFloodChance = isNow && !!floodResult;
+  // peaks). Hidden when the gauge isn't covered by the prediction constants, or
+  // when the gauge is already at/above red stage (it's flooding now, so a
+  // "chance of flooding" is moot) — in which case we skip the calculation too.
+  const isAtOrAboveRedStage =
+    !isNullish(reading?.waterHeight) &&
+    !isNullish(gage?.redStage) &&
+    reading.waterHeight >= gage.redStage;
+  const shouldPredictFlood = isNow && !isAtOrAboveRedStage;
+  const { result: floodResult } = useFloodProbability(
+    shouldPredictFlood ? gage?.locationId : undefined
+  );
+  const showFloodChance = shouldPredictFlood && !!floodResult;
   // Probability is clamped to [0.1, 0.9]; the bounds carry "<10%" / ">90%"
   // labels since the data can't assert beyond them.
   const floodChancePercent = Math.round(((floodResult?.probability ?? 0) * 100) / 5) * 5;
