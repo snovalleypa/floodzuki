@@ -18,6 +18,8 @@ import TrendIcon, { TREND_ICON_TYPES } from "@components/TrendIcon";
 import { Spacing } from "@common-ui/constants/spacing";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import { useFloodProbability } from "@utils/useFloodProbability";
+import { deriveRange } from "@utils/deriveRange";
+import { normalizeSearchParams } from "@utils/navigation";
 
 const CalloutReading = observer(function CalloutReadingCard({ gage }: { gage: Gage }) {
   const { gagesStore, getTimezone } = useStores();
@@ -27,7 +29,11 @@ const CalloutReading = observer(function CalloutReadingCard({ gage }: { gage: Ga
 
   const { formatFlow, formatHeight, formatTrend } = useUtils();
 
-  const isNow = !!from && !!to ? to === localDayJs().tz(tz).format("YYYY-MM-DD") : true;
+  // Use the same range derivation as the chart so the card agrees on live vs
+  // historic. The ad-hoc check this replaced didn't recognize the `to="now"`
+  // live literal or relative `from="-N"`, so the live shortcuts (and the "live"
+  // button from a historic view) wrongly showed Peak instead of Latest Reading.
+  const { isNow } = deriveRange(normalizeSearchParams(from), normalizeSearchParams(to), tz);
 
   const status = isNow ? gage?.status : gage?.peakStatus;
   const reading = status?.lastReading;

@@ -85,4 +85,17 @@ describe("CalloutReadingCard — road delta source", () => {
 
     expect(getCalculatedRoadStatus).toHaveBeenCalledWith(52);
   });
+
+  it("stays in live mode for the to='now' / from='-N' live shortcut", () => {
+    const { gage, getCalculatedRoadStatus } = buildGage();
+    // The "live" shortcut (and the back-to-live button from a historic view)
+    // sets from="-N" and to="now" — this must be treated as live, not peak.
+    mockUseLocalSearchParams.mockReturnValue({ from: "-2", to: "now" });
+
+    render(<CalloutReadingCard gage={gage} />);
+
+    // Live → uses the live reading (52), not the peak (64).
+    expect(getCalculatedRoadStatus).toHaveBeenCalledWith(52);
+    expect(getCalculatedRoadStatus).not.toHaveBeenCalledWith(64);
+  });
 });
