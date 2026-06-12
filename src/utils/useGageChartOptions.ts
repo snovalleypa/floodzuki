@@ -174,6 +174,10 @@ function makePlotLine({ value, label, color = "#9a9a9a" }): Highcharts.XAxisPlot
       style: { color },
       align: "right",
       x: -5,
+      // Highcharts defaults these rotated (90°) labels to y:10, which clips
+      // their top edge against the chart's top. Nudge them down to stay fully
+      // visible.
+      y: 24,
     },
   };
 }
