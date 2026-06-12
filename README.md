@@ -100,13 +100,7 @@ Enable lightweight power-user flags (for data managers / devs). Comma-separate m
 
 #### `?mock=` — flood replay mode
 
-Replay historical river data as if it were happening live now, for building/debugging flood + forecast features out of season, e.g. `?mock=march-2022-major`. `?mock=reset` clears it. The engine preloads real history once, then time-shifts it forward so the scenario's `mockNow` reads as "now" (auto/manual refresh advances the clock; a full reload restarts at `mockNow`). Historical date-range and flood-event filters intentionally fall through to real data. Scenarios (named `mockNow` + forecast age + deviation) are defined in `src/services/mockReplay/scenarios.ts`:
-
-- `march-2022-major` — March 2022 major flood
-- `jan-2022-moderate` — Jan 2022 moderate flood
-- `march-2022-overforecast` — March 2022 with the forecast running 15% hot
-
-See `docs/dev-mode-flood-mock.md` for details.
+Replay historical river data as if it were happening live now, for building/debugging flood + forecast features out of season, e.g. `?mock=march-2022-major`. `?mock=reset` clears it. The engine preloads real history once, then time-shifts it forward so the scenario's `mockNow` reads as "now" (auto/manual refresh advances the clock; a full reload restarts at `mockNow`). Historical date-range and flood-event filters intentionally fall through to real data. Scenarios (named `mockNow` + forecast age + deviation) are defined in `src/services/mockReplay/scenarios.ts`.
 
 ### Distribution
 
