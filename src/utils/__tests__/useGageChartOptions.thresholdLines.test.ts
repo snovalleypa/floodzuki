@@ -33,20 +33,22 @@ describe("buildThresholdPlotLines", () => {
     expect(lines[0].label.text).toBe("NE Carnation Farm Road");
   });
 
-  it("renders a red Flooding line at the red stage for gauges without a road", () => {
+  it("renders a Flooding line at the red stage for gauges without a road", () => {
     const lines = buildThresholdPlotLines(noRoadGage, t, LEVEL);
     expect(lines).toHaveLength(1);
     expect(lines[0].value).toBe(54.2);
-    expect(lines[0].color).toBe(Colors.red);
+    expect(lines[0].color).toBe(Colors.primary);
     expect(lines[0].label.text).toBe("gageChart.flooding");
   });
 
-  it("styles the flooding line identically to the road line apart from color/label", () => {
+  it("styles the flooding line identically to the road line, color included", () => {
     const [road] = buildThresholdPlotLines(roadGage, t, LEVEL);
     const [flooding] = buildThresholdPlotLines(noRoadGage, t, LEVEL);
+    expect(flooding.color).toBe(road.color);
     expect(flooding.dashStyle).toBe(road.dashStyle);
     expect(flooding.label.align).toBe(road.label.align);
     expect(flooding.label.x).toBe(road.label.x);
+    expect(flooding.label.style.color).toBe(road.label.style.color);
     expect(flooding.label.style.fontSize).toBe(road.label.style.fontSize);
     expect(flooding.label.style.fontFamily).toBe(road.label.style.fontFamily);
   });

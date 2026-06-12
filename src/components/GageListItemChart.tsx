@@ -112,9 +112,9 @@ const GageListItemChart = observer(function GageListItemChart({ gage }: { gage: 
 
   const [areaData, lineData, circleData, thresholdHeight] = useChartData(gage, layout);
 
-  // Road line when the gauge has one; otherwise a red "Flooding" line at the
-  // flood (red) stage, styled the same.
-  const thresholdColor = gage?.hasRoads ? Colors.primary : Colors.red;
+  // Road line when the gauge has one; otherwise a "Flood Level" line at the
+  // flood (red) stage, styled the same (including color).
+  const thresholdColor = Colors.primary;
   const thresholdLabel = gage?.hasRoads ? gage?.roads[0]?.name : t("gageChart.flooding");
 
   return (

@@ -552,7 +552,7 @@ export function buildThresholdPlotLines(
       {
         elevation: gage.redStage,
         name: t("gageChart.flooding"),
-        color: Colors.red,
+        color: Colors.primary,
       },
     ];
   }
