@@ -381,29 +381,10 @@ export function buildV2Forecasts(gageIds?: string[], nowMs: number = Date.now())
   return out;
 }
 
-/**
- * Expand a metagage id into [metagage, ...forks.slice(1)] so the v2 readings
- * response reproduces the original color indexing: forecast colors are assigned
- * by response key order (ChartColorsHex[index]), and historically the metagage's
- * component forks occupied the leading slots. Putting the metagage first (so it
- * keeps index 0 / blue and carries the summed observed series) plus its remaining
- * forks as padding keeps the real gauges at their original indices (e.g. Falls=3
- * purple, Carnation=4 orange).
- */
-function expandReadingIds(ids: string[]): string[] {
-  return ids.flatMap((id) => {
-    if (id.includes("/")) {
-      const forks = id.split("/");
-      return [id, ...forks.slice(1)];
-    }
-    return [id];
-  });
-}
-
 /** V2 recent-readings shape for api.getReadings (ForecastStore). */
 export function buildV2Readings(gageIds?: string[], nowMs: number = Date.now()) {
   const cutoff = effectiveMockNowMs(nowMs);
-  const ids = expandReadingIds(gageIds ?? Array.from(cache.keys()));
+  const ids = gageIds ?? Array.from(cache.keys());
   const readings: Record<string, any> = {};
   for (const id of ids) {
     const c = cache.get(id);
