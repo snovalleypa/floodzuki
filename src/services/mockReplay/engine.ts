@@ -396,8 +396,10 @@ export function buildV2Readings(gageIds?: string[], nowMs: number = Date.now()) 
     readings[id] = {
       readingIds: objs.map((_, i) => i),
       timestamps: objs.map((o) => o.timestamp),
-      waterHeights: objs.map((o) => o.waterHeight),
-      discharges: objs.map((o) => o.waterDischarge),
+      // V2 ReadingModel.waterHeights is a strict number[]; the flow-only metagage
+      // has no stage → coerce to 0. discharges is maybeNull → coerce to null.
+      waterHeights: objs.map((o) => o.waterHeight ?? 0),
+      discharges: objs.map((o) => o.waterDischarge ?? null),
       trendCfsPerHour: rates.cfsPerHour,
       trendFeetPerHour: rates.feetPerHour,
     };

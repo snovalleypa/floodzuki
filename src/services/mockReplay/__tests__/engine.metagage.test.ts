@@ -47,6 +47,10 @@ describe("engine metagage (sum of components)", () => {
     expect(discharges.length).toBeGreaterThan(0);
     // 1000 + 3000 = 4000 at every point.
     expect(discharges[0]).toBeCloseTo(4000, 5);
+    // Flow-only metagage has no stage → heights coerced to numbers (0), never
+    // undefined, so the strict V2 ReadingModel.waterHeights converts cleanly.
+    const heights = v2.readings[METAGAGE].waterHeights;
+    expect(heights.every((h: unknown) => typeof h === "number")).toBe(true);
   });
 
   it("produces a forecast series for the metagage", async () => {
