@@ -4,8 +4,14 @@ import { useLocalSearchParams } from "expo-router";
 import { observer } from "mobx-react-lite";
 
 import { Card, CardHeader, CardItem } from "@common-ui/components/Card";
-import { Cell, Row } from "@common-ui/components/Common";
-import { LabelText, MediumText, RegularText, SmallTitle } from "@common-ui/components/Text";
+import { Cell, Row, Separator } from "@common-ui/components/Common";
+import {
+  LabelText,
+  MediumText,
+  RegularText,
+  SmallerText,
+  SmallTitle,
+} from "@common-ui/components/Text";
 
 import { Gage, STATUSES } from "@models/Gage";
 import localDayJs from "@services/localDayJs";
@@ -20,6 +26,8 @@ import { useLocale } from "@common-ui/contexts/LocaleContext";
 import { useFloodProbability } from "@utils/useFloodProbability";
 import { deriveRange } from "@utils/deriveRange";
 import { normalizeSearchParams } from "@utils/navigation";
+import { computeThresholdCrossing } from "@utils/thresholdCrossing";
+import { Fonts } from "@common-ui/constants/typography";
 
 const CalloutReading = observer(function CalloutReadingCard({ gage }: { gage: Gage }) {
   const { gagesStore, getTimezone } = useStores();
@@ -44,6 +52,11 @@ const CalloutReading = observer(function CalloutReadingCard({ gage }: { gage: Ga
   // live level.
   const roadStatus = gage?.getCalculatedRoadStatus(reading?.waterHeight);
   const floodStatus = gage?.getCalculatedFloodStatus(reading?.waterHeight);
+
+  // Predicted time the live trend crosses the road saddle / flood level. Only
+  // present in live mode (predictions are the live nowcast); shown under the
+  // Trend row.
+  const crossing = computeThresholdCrossing(gage, tz);
 
   const timeAgo =
     isNow && reading?.timestamp
@@ -128,15 +141,37 @@ const CalloutReading = observer(function CalloutReadingCard({ gage }: { gage: Ga
           <LargeLabel type={STATUSES[status?.floodLevel]} text={status?.floodLevel} />
         </CardItem>
         <If condition={hasTrendInfo}>
-          <CardItem noBorder={!hasRoadOrFlood}>
-            <RegularText>{t("calloutReading.trend")}</RegularText>
-            <Row>
-              <MediumText>{formatTrend(status?.waterTrend?.trendValue)}</MediumText>
-              <Cell left={Spacing.tiny}>
-                <TrendIcon gage={gage} iconType={TREND_ICON_TYPES.Trend} />
-              </Cell>
-            </Row>
-          </CardItem>
+          {/* Custom (non-CardItem) layout: the optional crossing line spans both
+              columns, centered, below the label/value row. */}
+          <Cell horizontal={-Spacing.small}>
+            <Cell horizontal={Spacing.small} vertical={Spacing.small}>
+              <Row align="space-between">
+                <RegularText>{t("calloutReading.trend")}</RegularText>
+                <Row>
+                  <MediumText>{formatTrend(status?.waterTrend?.trendValue)}</MediumText>
+                  <Cell left={Spacing.tiny}>
+                    <TrendIcon gage={gage} iconType={TREND_ICON_TYPES.Trend} />
+                  </Cell>
+                </Row>
+              </Row>
+              <If condition={!!crossing}>
+                <Cell top={Spacing.tiny} align="center">
+                  <SmallerText muted align="center">
+                    {crossing?.kind === "road"
+                      ? t("calloutReading.trendIntersectsRoad")
+                      : t("calloutReading.trendIntersectsFlood")}{" "}
+                    <SmallerText
+                      textStyle={[{ fontFamily: Fonts.openSans.bold, fontWeight: "700" }]}>
+                      {crossing?.time.format("llll")}
+                    </SmallerText>
+                  </SmallerText>
+                </Cell>
+              </If>
+            </Cell>
+            <If condition={hasRoadOrFlood}>
+              <Separator />
+            </If>
+          </Cell>
         </If>
         <If condition={hasRoadInfo}>
           <CardItem noBorder>

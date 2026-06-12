@@ -25,17 +25,14 @@ import Config from "@config/config";
 import { IconButton, SolidButton } from "@common-ui/components/Button";
 import { Colors } from "@common-ui/constants/colors";
 import { Picker } from "@react-native-picker/picker";
-import { LabelText, MediumText, RegularText, SmallerText } from "@common-ui/components/Text";
+import { RegularText } from "@common-ui/components/Text";
 import { FloodEvent } from "@models/LocationInfo";
-import { DataPoint } from "@models/Forecasts";
-import { formatReadingTime } from "@utils/useTimeFormat";
 import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Icon from "@common-ui/components/Icon";
 import DatePickerVariantSwitch from "./DatePickerVariantSwitch";
 import { Dayjs } from "dayjs";
 import { normalizeSearchParams } from "@utils/navigation";
-import { computeRoadCrossing } from "@utils/roadCrossing";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import { useDatePicker } from "@common-ui/contexts/DatePickerContext";
 
@@ -242,70 +239,6 @@ const HistoricEvents = observer(function HistoricEvents({
   );
 });
 
-/** Water level rate of change */
-const RateOfChange = observer(function RateOfChange({ gage }: { gage: Gage }) {
-  const { t } = useLocale();
-  const { getTimezone } = useStores();
-  const tz = getTimezone();
-
-  // set rate of change
-  let rate = gage?.predictedFeetPerHour;
-  if (rate > -0.01 && rate < 0.01) {
-    rate = null;
-  }
-
-  // Computed every render (not memoized) so it stays reactive to live prediction
-  // updates — the previous useMemo omitted `gage.predictions` from its deps, so
-  // it captured the empty initial predictions and never recomputed.
-  const crossingTime = computeRoadCrossing(gage, tz);
-
-  if (!gage?.locationId) {
-    return null;
-  }
-
-  if (!rate) {
-    return null;
-  }
-
-  const rateText = `${rate > 0 ? "+" : ""}${rate.toFixed(2)} ${t("measure.feet")}/${t(
-    "measure.hour"
-  )}`;
-
-  return (
-    <Row align="center" bottom={Spacing.extraSmall}>
-      <MediumText muted>{t("gageDetailsChart.rateOfChange")}: </MediumText>
-      <RegularText muted>{rateText}</RegularText>
-      <If condition={!!crossingTime}>
-        <LabelText>
-          {" "}
-          {t("gageDetailsChart.roadLevel")} @{" "}
-          <SmallerText>{crossingTime?.format("llll")}</SmallerText>
-        </LabelText>
-      </If>
-    </Row>
-  );
-});
-
-/** Crest Info */
-const CrestInfo = observer(function CrestInfo({ crest }: { crest: DataPoint }) {
-  const { t } = useLocale();
-  const { getTimezone } = useStores();
-  const tz = getTimezone();
-
-  if (!crest) {
-    return null;
-  }
-
-  return (
-    <Row align="center" bottom={Spacing.extraSmall}>
-      <MediumText muted>{t("measure.max")}: </MediumText>
-      <RegularText muted>
-        {crest?.reading?.toFixed(2)} {t("measure.ft")}. / {formatReadingTime(crest?.timestamp, tz)}
-      </RegularText>
-    </Row>
-  );
-});
-
 export const GageDetailsChart = observer(function GageDetailsChart(props: GageDetailsChartProps) {
   const { gage, hideChart } = props;
 
@@ -480,12 +413,7 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
     setChartDataType(key);
   };
 
-  const [chartOptions, crest] = useGageChartOptions(
-    gage,
-    "gageDetailsOptions",
-    chartDataType,
-    range
-  );
+  const [chartOptions] = useGageChartOptions(gage, "gageDetailsOptions", chartDataType, range);
 
   const hasDischargeControl =
     gage?.locationInfo?.hasDischarge && !Config.GAGES_WITHOUT_DISHCARGE.includes(gage?.locationId);
@@ -572,8 +500,6 @@ export const GageDetailsChart = observer(function GageDetailsChart(props: GageDe
         <Row align="space-between">
           <Cell />
           <Cell>
-            <CrestInfo crest={crest} />
-            <RateOfChange gage={gage} />
             <HistoricEvents floodEvents={gage?.locationInfo?.floodEvents} />
           </Cell>
           {/* Refresh Icon */}

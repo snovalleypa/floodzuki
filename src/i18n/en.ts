@@ -282,6 +282,8 @@ const en = {
     roadSmall: " road",
     floodLevel: "Flood Level",
     floodLevelSmall: " flood level",
+    trendIntersectsRoad: "Trend intersects road saddle at",
+    trendIntersectsFlood: "Trend intersects flood level at",
     floodChance: "Chance of flooding (next %{days} days)",
     floodChanceLow: "Low (<10%)",
     floodChanceVeryHigh: "Very High (>90%)",

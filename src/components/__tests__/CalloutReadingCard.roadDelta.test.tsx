@@ -53,7 +53,10 @@ const makeFloodStatus = () =>
     delta: Math.abs(level - RED),
   }));
 
-function buildGage({ hasRoad = true }: { hasRoad?: boolean } = {}) {
+function buildGage({
+  hasRoad = true,
+  predictions = [],
+}: { hasRoad?: boolean; predictions?: any[] } = {}) {
   const getCalculatedRoadStatus = makeRoadStatus();
   const getCalculatedFloodStatus = makeFloodStatus();
 
@@ -62,6 +65,7 @@ function buildGage({ hasRoad = true }: { hasRoad?: boolean } = {}) {
     roadSaddleHeight: hasRoad ? ROAD : undefined,
     roadDisplayName: hasRoad ? "NE Test Road" : undefined,
     redStage: RED,
+    predictions,
     status: {
       lastReading: { waterHeight: 52, waterDischarge: 1000, timestamp: "2026-06-12T08:00:00" },
       floodLevel: "Normal",
@@ -144,5 +148,46 @@ describe("CalloutReadingCard — Flood Level row (no road)", () => {
 
     expect(queryByText("calloutReading.road")).not.toBeNull();
     expect(queryByText("calloutReading.floodLevel")).toBeNull();
+  });
+});
+
+// Predictions rising 1 ft per hour from `start`.
+function risingPredictions(start: number) {
+  return Array.from({ length: 8 }, (_, i) => ({
+    timestamp: `2026-06-12T${String(i).padStart(2, "0")}:00:00`,
+    waterHeight: start + i,
+  }));
+}
+
+describe("CalloutReadingCard — trend/road crossing line", () => {
+  it("shows the road-saddle crossing under the Trend row when the trend reaches it", () => {
+    // Road is 58; rising 56,57,58... crosses it.
+    const { gage } = buildGage({ hasRoad: true, predictions: risingPredictions(56) });
+    mockUseLocalSearchParams.mockReturnValue({});
+
+    const { queryByText } = render(<CalloutReadingCard gage={gage} />);
+
+    expect(queryByText(/trendIntersectsRoad/)).not.toBeNull();
+    expect(queryByText(/trendIntersectsFlood/)).toBeNull();
+  });
+
+  it("shows the flood-level crossing for a gauge without a road", () => {
+    // Red stage is 60; rising 58,59,60... crosses it.
+    const { gage } = buildGage({ hasRoad: false, predictions: risingPredictions(58) });
+    mockUseLocalSearchParams.mockReturnValue({});
+
+    const { queryByText } = render(<CalloutReadingCard gage={gage} />);
+
+    expect(queryByText(/trendIntersectsFlood/)).not.toBeNull();
+    expect(queryByText(/trendIntersectsRoad/)).toBeNull();
+  });
+
+  it("shows no crossing line when there are no predictions", () => {
+    const { gage } = buildGage({ hasRoad: true, predictions: [] });
+    mockUseLocalSearchParams.mockReturnValue({});
+
+    const { queryByText } = render(<CalloutReadingCard gage={gage} />);
+
+    expect(queryByText(/trendIntersects/)).toBeNull();
   });
 });
