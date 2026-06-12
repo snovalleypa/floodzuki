@@ -69,16 +69,12 @@ export const CHART_OPTIONS = {
 
     xAxis.min = chartBeginTime.clone().subtract(20, "m").valueOf();
 
-    xAxis.plotLines.push({
-      value: chartBeginTime.valueOf(),
-      dashStyle: "Dot",
-      color: "#9a9a9a",
-      label: {
-        text: t("gageChart.dashboardDurationLabel"),
-        style: { color: "#9a9a9a" },
-        align: "left",
-      },
-    });
+    xAxis.plotLines.push(
+      makePlotLine({
+        value: chartBeginTime.valueOf(),
+        label: t("gageChart.dashboardDurationLabel"),
+      })
+    );
 
     return [options, null] as const;
   },
@@ -164,7 +160,12 @@ function calculateCrest(
   return null;
 }
 
-function makePlotLine({ value, label, color = "#9a9a9a" }): Highcharts.XAxisPlotLinesOptions {
+function makePlotLine({
+  value,
+  label,
+  color = "#9a9a9a",
+  x = 3,
+}): Highcharts.XAxisPlotLinesOptions {
   return {
     value,
     dashStyle: "Dot",
@@ -172,12 +173,9 @@ function makePlotLine({ value, label, color = "#9a9a9a" }): Highcharts.XAxisPlot
     label: {
       text: label,
       style: { color },
-      align: "right",
-      x: -5,
-      // Highcharts defaults these rotated (90°) labels to y:10, which clips
-      // their top edge against the chart's top. Nudge them down to stay fully
-      // visible.
-      y: 24,
+      align: "left",
+      x: x,
+      y: -10,
     },
   };
 }
@@ -659,6 +657,7 @@ const buildBasicOptions = (props: BuildOptionsProps, t) => {
     makePlotLine({
       value: options._now.valueOf(),
       label: t("gageChart.Now"),
+      x: -13,
     })
   );
 

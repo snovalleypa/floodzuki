@@ -26,7 +26,7 @@ export const MOCK_REPLAY_SCENARIOS: MockReplayScenario[] = [
   {
     id: "march-2022-underforecast",
     label: "March 2022 — forecast runs 25% low",
-    mockNow: "2022-02-28T17:50:00",
+    mockNow: "2022-02-29T18:50:00",
     forecastAgeHours: -4,
     forecastDeviationPct: -25,
   },
