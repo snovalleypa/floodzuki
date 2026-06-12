@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="%LANG_ISO_CODE%">
+  <head>
+    <meta charset="utf-8" />
+    <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>%WEB_TITLE%</title>
+    <!-- The `react-native-web` recommended style reset: https://necolas.github.io/react-native-web/docs/setup/#root-element -->
+    <style id="expo-reset">
+      /* These styles make the body full-height */
+      html,
+      body {
+        height: 100%;
+      }
+      /* These styles disable body scrolling if you are using <ScrollView> */
+      body {
+        overflow: hidden;
+      }
+      /* These styles make the root element full-height */
+      #root {
+        display: flex;
+        height: 100%;
+        flex: 1;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Use static rendering with Expo Router to support running without JavaScript. -->
+    <noscript>
+      You need to enable JavaScript to run this app.
+    </noscript>
+    <!-- The root element for your Expo app. -->
+    <div id="root"></div>
+    <script>"use strict";(c=>{const t=document,r=(e,...d)=>{const s=t.head.appendChild(t.createElement(e));return d.forEach(a=>s.setAttribute(a[0],a[1])),s};r("meta",["name","navu:site"],["content",c]),r("script",["src","https://embed.navu.co/boot.js"],["async","true"]);const n=sessionStorage.getItem("nv-sidebar");if(n){const e=JSON.parse(n);e.css&&(r("style",["data-widget","sidebar"]).innerHTML=e.css);const d=(e.colorTheme||"light").trim().replace(/s/gi,"-").toLowerCase(),s=e.layoutTheme||"classic-dockable",a=["nv-sidebar-"+e.state,`nv-sidebar-color-${d}`,`nv-sidebar-layout-${s}`],o=()=>t.body.classList.add(...a);if(t.body){o();return}const i=t.readyState;i==="interactive"||i==="complete"?o():t.addEventListener("DOMContentLoaded",()=>o())}})("$NAVU_SITE_CODE$");</script>
+  </body>
+</html>

@@ -453,9 +453,28 @@ export const GageStoreModel = types
           gage?.setProp("lastReadingId", undefined);
         }
 
-        // If last reading id is included - add it to the readings array
+        // If last reading id is included - merge the incremental readings in.
+        // `readings` is kept newest-first (descending): the chart reverses it
+        // before plotting and predictedPoints uses readings[0] as the latest
+        // reading. The new readings are the newest, so they must go at the front
+        // and the merged array must stay sorted descending — appending them to
+        // the end instead draws a spurious chart line from the newest point back
+        // to the oldest. Dedupe by id in case the API resends the boundary reading.
         if (includeLastReading) {
-          gage?.setProp("readings", [...gage.readings, ...data.readings]);
+          const seen = new Set<number>();
+          const merged = [...data.readings, ...gage.readings].filter((r) => {
+            if (r.id == null) {
+              return true;
+            }
+            if (seen.has(r.id)) {
+              return false;
+            }
+            seen.add(r.id);
+            return true;
+          });
+          // Descending (newest first); ISO timestamps sort lexically.
+          merged.sort((a, b) => (b.timestamp ?? "").localeCompare(a.timestamp ?? ""));
+          gage?.setProp("readings", merged);
         } else {
           // Otherwise, just replace the readings array
           gage?.setProp("readings", data.readings);
