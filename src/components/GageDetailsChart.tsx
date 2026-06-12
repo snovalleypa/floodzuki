@@ -35,6 +35,7 @@ import Icon from "@common-ui/components/Icon";
 import DatePickerVariantSwitch from "./DatePickerVariantSwitch";
 import { Dayjs } from "dayjs";
 import { normalizeSearchParams } from "@utils/navigation";
+import { computeRoadCrossing } from "@utils/roadCrossing";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import { useDatePicker } from "@common-ui/contexts/DatePickerContext";
 
@@ -253,38 +254,10 @@ const RateOfChange = observer(function RateOfChange({ gage }: { gage: Gage }) {
     rate = null;
   }
 
-  const crossingTime = useMemo(() => {
-    let crossingTime = null;
-
-    if (!gage?.roadSaddleHeight) {
-      return null;
-    }
-
-    const toGaugeTime = (s: string) => localDayJs.tz(s, "YYYY-MM-DDTHH:mm:ss", tz);
-
-    for (let i = 0; i < gage.predictions?.length - 1; i++) {
-      let p = gage.predictions[i];
-      let pNext = gage.predictions[i + 1];
-
-      if (pNext.waterHeight === gage.roadSaddleHeight) {
-        crossingTime = toGaugeTime(pNext.timestamp);
-        break;
-      }
-
-      if (
-        (pNext.waterHeight > gage.roadSaddleHeight && gage.roadSaddleHeight > p.waterHeight) ||
-        (pNext.waterHeight < gage.roadSaddleHeight && gage.roadSaddleHeight < p.waterHeight)
-      ) {
-        let waterDelta =
-          (gage.roadSaddleHeight - p.waterHeight) / (pNext.waterHeight - p.waterHeight);
-        let msec = toGaugeTime(pNext.timestamp).diff(toGaugeTime(p.timestamp)) * waterDelta;
-        crossingTime = toGaugeTime(p.timestamp).add(msec, "milliseconds");
-        break;
-      }
-    }
-
-    return crossingTime;
-  }, [gage?.locationId, gage?.roadSaddleHeight, tz]);
+  // Computed every render (not memoized) so it stays reactive to live prediction
+  // updates — the previous useMemo omitted `gage.predictions` from its deps, so
+  // it captured the empty initial predictions and never recomputed.
+  const crossingTime = computeRoadCrossing(gage, tz);
 
   if (!gage?.locationId) {
     return null;
