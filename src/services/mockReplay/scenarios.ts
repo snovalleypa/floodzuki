@@ -18,10 +18,17 @@ export const MOCK_REPLAY_SCENARIOS: MockReplayScenario[] = [
   },
   {
     id: "march-2022-overforecast",
-    label: "March 2022 — forecast runs 15% hot",
-    mockNow: "2022-02-28T14:00:00",
+    label: "March 2022 — forecast runs 15% high",
+    mockNow: "2022-02-28T20:00:00",
     forecastAgeHours: -4,
     forecastDeviationPct: 15,
+  },
+  {
+    id: "march-2022-underforecast",
+    label: "March 2022 — forecast runs 25% low",
+    mockNow: "2022-02-28T17:50:00",
+    forecastAgeHours: -4,
+    forecastDeviationPct: -25,
   },
 ];
 
