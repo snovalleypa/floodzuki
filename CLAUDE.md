@@ -139,6 +139,14 @@ The `authSessionStore` stores the JWT and manages login/logout; the API singleto
 
 `src/services/api.ts` exports a singleton `api` instance. The `Api` class has two base URLs — `Config.BASE_URL` (floodzilla.com) and `Config.READING_BASE_URL` (Azure reading service) — and switches between them per call. All responses go through `getGeneralApiProblem()` for normalized error handling.
 
+### Dev mode: flood replay (`src/services/mockReplay/`)
+
+A developer tool to replay historical river data as if it were happening live, for building/debugging flood + forecast features out of season. Activate by URL param: `?mock=<scenarioId>` (`?mock=reset` clears; persists 24h, all builds). Scenarios (named `mockNow` + forecast age + deviation) live in `src/services/mockReplay/scenarios.ts`.
+
+- **How it works:** the engine preloads real history once at boot (`RootStore.fetchMainData`), captures a fixed `delta = realNow − mockNow`, and **time-shifts** readings forward so `mockNow` appears live now (it does NOT mock the global clock — existing `dayjs()`/charts/"today" logic work unchanged). Refresh advances the clock; a full reload restarts at `mockNow`.
+- **Interception seam:** `mockReplayEngine.isActive()` branches inside `api.ts` for the live data calls (`getStatusAndRecentReadings`, `getGageReadings` when `includePredictions`, `getReadings`/`getForecasts` v2) and `floodPrediction/mockForecasts.ts` for bands. Historical date-range / flood-event fetches (`includePredictions===false`) pass through to real data.
+- **When adding a data-driven feature:** verify it under a replay scenario, and if it reads a new field/shape from the data API, add it to the matching `engine.ts` `build*` function (the engine reconstructs each store's response shape). Gotchas the engine already handles: recent readings are **newest-first**; V2 `ReadingModel.waterHeights` is a strict `number[]` (the flow-only "sum of forks" metagage has no stage → coerce to 0); the metagage's slash id (`A/B/C`) must stay intact (split gageIds on `,` only) and its series is the **sum** of component forks' discharge; `getGageReadings` `predictions` is a 6h/15-min trend nowcast (not the 10-day forecast). Pure logic is unit-tested under `src/services/mockReplay/__tests__/` with `TZ=UTC`.
+
 ### Platform-split components
 
 Several components have native/web variants:
