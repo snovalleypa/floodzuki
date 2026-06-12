@@ -107,6 +107,27 @@ describe("MapLibreWebGageMap — marker filtering", () => {
 
 // ---------------------------------------------------------------------------
 
+describe("MapLibreWebGageMap — style gating", () => {
+  // Regression: with no region (e.g. a fresh incognito load before data is
+  // fetched) mapStyle was "". react-maplibre normalizes "" to null, which
+  // leaves the underlying maplibre map with no `style` object and then crashes
+  // in _updateStyleComponents (`map.style._loaded`). The component must not
+  // mount the map until it has a real style.
+  it("does not render a Map when region is undefined", () => {
+    render(
+      <MapLibreWebGageWebMap
+        gages={[]}
+        region={undefined as any}
+        onGagePress={jest.fn()}
+        singleGage={null}
+      />
+    );
+    expect(MockMap).not.toHaveBeenCalled();
+  });
+});
+
+// ---------------------------------------------------------------------------
+
 describe("MapLibreWebGageMap — startBounds", () => {
   const singleGageLngDelta = 0.00421;
   const singleGageLatDelta = 0.00922;

@@ -117,6 +117,15 @@ const MapLibreWebGageWebMap = ({
     return defaultMapBounds as [number, number, number, number];
   }, [region, singleGage]);
 
+  // Until the region (and thus a real map style) is available, don't mount the
+  // map. react-maplibre normalizes an empty mapStyle to null, which leaves the
+  // underlying maplibre map without a `style` object and then crashes in its
+  // _updateStyleComponents (`map.style._loaded`). This happens on a fresh load
+  // (e.g. incognito) before region data is fetched.
+  if (!mapStyle) {
+    return null;
+  }
+
   return (
     <Map
       initialViewState={{
