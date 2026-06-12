@@ -33,7 +33,9 @@ const CalloutReading = observer(function CalloutReadingCard({ gage }: { gage: Ga
   const reading = status?.lastReading;
   const label = isNow ? t("calloutReading.lastReading") : t("calloutReading.peak");
 
-  const roadStatus = gage?.getCalculatedRoadStatus(gage?.waterLevel);
+  // Road delta must reflect the reading this card is showing — the peak height
+  // for a historic range, the live level when "now" — not always the live level.
+  const roadStatus = gage?.getCalculatedRoadStatus(reading?.waterHeight);
 
   const timeAgo =
     isNow && reading?.timestamp
