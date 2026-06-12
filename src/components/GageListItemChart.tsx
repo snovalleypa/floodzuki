@@ -73,7 +73,10 @@ const useChartData = (gage: Gage, layout) => {
       return yAxis(d.value);
     });
 
-  const roadHeight = y(gage?.roads[0]?.elevation);
+  // Threshold line: road saddle when the gauge has a road, otherwise the
+  // flood (red) stage shown as a red "Flooding" line.
+  const thresholdElevation = gage?.hasRoads ? gage?.roads[0]?.elevation : gage?.redStage;
+  const thresholdHeight = y(thresholdElevation);
 
   const circles = (data) => {
     const circleData = data.map((d) => ({
@@ -87,7 +90,7 @@ const useChartData = (gage: Gage, layout) => {
     return circleData.filter((c, i) => circleDataXValues.indexOf(c.cx) === i);
   };
 
-  return [area(data), line(data), circles(data), roadHeight];
+  return [area(data), line(data), circles(data), thresholdHeight];
 };
 
 const GageListItemChart = observer(function GageListItemChart({ gage }: { gage: Gage }) {
@@ -107,7 +110,12 @@ const GageListItemChart = observer(function GageListItemChart({ gage }: { gage: 
 
   const height = CHART_HEIGHT;
 
-  const [areaData, lineData, circleData, roadHeight] = useChartData(gage, layout);
+  const [areaData, lineData, circleData, thresholdHeight] = useChartData(gage, layout);
+
+  // Road line when the gauge has one; otherwise a red "Flooding" line at the
+  // flood (red) stage, styled the same.
+  const thresholdColor = gage?.hasRoads ? Colors.primary : Colors.red;
+  const thresholdLabel = gage?.hasRoads ? gage?.roads[0]?.name : t("gageChart.flooding");
 
   return (
     <View style={{ flex: 1, height: CHART_HEIGHT }} onLayout={handleLayout}>
@@ -160,24 +168,24 @@ const GageListItemChart = observer(function GageListItemChart({ gage }: { gage: 
             x2={layout.width - OFFSET_RIGHT / 2}
             y2={height}
           />
-          <If condition={roadHeight > 0}>
-            {/* Road Line */}
+          <If condition={thresholdHeight > 0}>
+            {/* Road / Flooding Line */}
             <Line
-              stroke={Colors.primary}
+              stroke={thresholdColor}
               strokeWidth="1"
               strokeDasharray={[1, 3]}
               x1={OFFSET_LEFT / 2}
-              y1={roadHeight}
+              y1={thresholdHeight}
               x2={layout.width - OFFSET_RIGHT / 2}
-              y2={roadHeight}
+              y2={thresholdHeight}
             />
             <Text
               x={layout.width / 2}
-              y={roadHeight - OFFSET_BOTTOM}
+              y={thresholdHeight - OFFSET_BOTTOM}
               fontSize="12"
-              fill={Colors.primary}
+              fill={thresholdColor}
               textAnchor="middle">
-              {gage?.roads[0]?.name}
+              {thresholdLabel}
             </Text>
           </If>
           <If condition={displayChart}>

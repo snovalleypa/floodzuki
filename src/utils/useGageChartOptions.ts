@@ -520,6 +520,47 @@ function createDataAndReturnMin(gage: Gage, chartDataType: GageChartDataType, t,
   return [chartData, min] as const;
 }
 
+/**
+ * Horizontal threshold line(s) for the chart's y-axis. Gauges with a road
+ * show the road saddle line; gauges without one show a red "Flooding" line
+ * at the flood (red) stage, styled identically to the road line.
+ */
+export function buildThresholdPlotLines(gage: Gage, t): Highcharts.YAxisPlotLinesOptions[] {
+  let thresholds: { elevation: number; name: string; color: string }[] = [];
+
+  if (gage?.hasRoads) {
+    thresholds = gage.roads.map((road) => ({
+      elevation: road.elevation,
+      name: road.name,
+      color: Colors.primary,
+    }));
+  } else if (gage?.redStage) {
+    thresholds = [
+      {
+        elevation: gage.redStage,
+        name: t("gageChart.flooding"),
+        color: Colors.red,
+      },
+    ];
+  }
+
+  return thresholds.map((threshold) => ({
+    value: threshold.elevation,
+    label: {
+      text: threshold.name,
+      style: {
+        color: threshold.color,
+        fontFamily: "'Open Sans', sans-serif",
+        fontSize: "14px",
+      },
+      align: "right",
+      x: -10,
+    },
+    color: threshold.color,
+    dashStyle: "Dot" as Highcharts.DashStyleValue,
+  }));
+}
+
 const buildBasicOptions = (props: BuildOptionsProps, t) => {
   const { gage, chartDataType } = props;
 
@@ -587,23 +628,7 @@ const buildBasicOptions = (props: BuildOptionsProps, t) => {
   yAxis.min = Math.min(minVal, yAxisMin);
   yAxis.max = yMaximum;
 
-  yAxis.plotLines = (gage?.roads).map((cat) => {
-    return {
-      value: cat.elevation,
-      label: {
-        text: cat.name,
-        style: {
-          color: Colors.primary,
-          fontFamily: "'Open Sans', sans-serif",
-          fontSize: "14px",
-        },
-        align: "right",
-        x: -10,
-      },
-      color: Colors.primary,
-      dashStyle: "Dot" as Highcharts.DashStyleValue,
-    };
-  });
+  yAxis.plotLines = buildThresholdPlotLines(gage, t);
 
   options._now = localDayJs();
 

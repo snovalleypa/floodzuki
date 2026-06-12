@@ -258,6 +258,7 @@ const en = {
     live: "Live",
   },
   gageChart: {
+    flooding: "Flooding",
     discharge: "Flow",
     waterLevel: "Water Level",
     flow: "Flow",
