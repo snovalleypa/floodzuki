@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import Constants from "expo-constants";
 import { Slot, useGlobalSearchParams } from "expo-router";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
@@ -116,6 +117,7 @@ function App() {
   const { getAsset } = useAppAssets();
   const { t } = useLocale();
   const params = useGlobalSearchParams();
+  const navuSiteCode = Constants.expoConfig?.extra?.navuSiteCode;
 
   useEffect(() => {
     applyDebugFlagsFromParams(params as Record<string, string | string[] | undefined>);
@@ -140,6 +142,11 @@ function App() {
           <meta property="expo:handoff" content="true" />
           <meta name="apple-itunes-app" content="app-id=6448645748" />
           <meta name="google-play-app" content="app-id=com.floodzilla.floodzuki" />
+          {/* Navu FAQ widget — site code injected from env via app.config.ts `extra`.
+              Kept as direct children (no Fragment): react-helmet only reads direct
+              element children of Head and silently drops anything wrapped in a Fragment. */}
+          {navuSiteCode ? <meta name="navu:site" content={navuSiteCode} /> : null}
+          {navuSiteCode ? <script async src="https://embed.navu.co/boot.js"></script> : null}
           <link rel="apple-touch-icon" href={getAsset("favicon").uri} />
           <script async src="https://www.googletagmanager.com/gtag/js?id=UA-302444-12"></script>
           <script src="//apis.google.com/js/client:platform.js?onload=start"></script>
