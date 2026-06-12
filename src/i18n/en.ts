@@ -280,6 +280,8 @@ const en = {
     trend: "Trend",
     road: "Road",
     roadSmall: " road",
+    floodLevel: "Flood Level",
+    floodLevelSmall: " flood level",
     floodChance: "Chance of flooding (next %{days} days)",
     floodChanceLow: "Low (<10%)",
     floodChanceVeryHigh: "Very High (>90%)",

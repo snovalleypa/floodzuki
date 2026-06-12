@@ -284,6 +284,8 @@ const es = {
     trend: "Tendencia",
     road: "Carretera",
     roadSmall: " carretera",
+    floodLevel: "Nivel de inundación",
+    floodLevelSmall: " del nivel de inundación",
     floodChance: "Probabilidad de inundación (próximos %{days} días)",
     floodChanceLow: "Baja (<10%)",
     floodChanceVeryHigh: "Muy alta (>90%)",

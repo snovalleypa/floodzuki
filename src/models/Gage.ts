@@ -331,6 +331,26 @@ export const GageModel = types
       };
     },
 
+    // Height above/below the flood (red) stage. Used in place of the road status
+    // for gauges that have no road but do have a flood level.
+    getCalculatedFloodStatus(waterLevel: number) {
+      if (store.redStage == null) {
+        return null;
+      }
+
+      const baseLevel = waterLevel || store.waterLevel;
+      const level = baseLevel - store.redStage;
+      const preposition: "statusLevelsCard.below" | "statusLevelsCard.above" =
+        store.redStage - baseLevel > 0 ? "statusLevelsCard.below" : "statusLevelsCard.above";
+      const delta = Math.abs(level);
+
+      return {
+        level,
+        preposition,
+        delta,
+      };
+    },
+
     clearLastReading() {
       store.lastReadingId = undefined;
     },

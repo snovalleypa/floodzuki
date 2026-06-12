@@ -39,9 +39,11 @@ const CalloutReading = observer(function CalloutReadingCard({ gage }: { gage: Ga
   const reading = status?.lastReading;
   const label = isNow ? t("calloutReading.lastReading") : t("calloutReading.peak");
 
-  // Road delta must reflect the reading this card is showing — the peak height
-  // for a historic range, the live level when "now" — not always the live level.
+  // Road / flood-level delta must reflect the reading this card is showing — the
+  // peak height for a historic range, the live level when "now" — not always the
+  // live level.
   const roadStatus = gage?.getCalculatedRoadStatus(reading?.waterHeight);
+  const floodStatus = gage?.getCalculatedFloodStatus(reading?.waterHeight);
 
   const timeAgo =
     isNow && reading?.timestamp
@@ -51,6 +53,9 @@ const CalloutReading = observer(function CalloutReadingCard({ gage }: { gage: Ga
   const hasTrendInfo =
     !!status?.levelTrend && !!status?.waterTrend && !isNullish(status?.waterTrend?.trendValue);
   const hasRoadInfo = !isNullish(gage?.roadSaddleHeight) && !!gage?.roadDisplayName;
+  // Gauges without a road fall back to a "Flood Level" row (relative to red stage).
+  const hasFloodLevelInfo = !hasRoadInfo && !isNullish(gage?.redStage);
+  const hasRoadOrFlood = hasRoadInfo || hasFloodLevelInfo;
 
   // Forward-looking flood probability for the current reading only (not historic
   // peaks). Hidden when the gauge isn't covered by the prediction constants, or
@@ -118,12 +123,12 @@ const CalloutReading = observer(function CalloutReadingCard({ gage }: { gage: Ga
             <MediumText>{floodChanceLabel}</MediumText>
           </CardItem>
         </If>
-        <CardItem noBorder={!hasRoadInfo && !hasTrendInfo}>
+        <CardItem noBorder={!hasRoadOrFlood && !hasTrendInfo}>
           <RegularText>{t("calloutReading.status")}</RegularText>
           <LargeLabel type={STATUSES[status?.floodLevel]} text={status?.floodLevel} />
         </CardItem>
         <If condition={hasTrendInfo}>
-          <CardItem noBorder={!hasRoadInfo}>
+          <CardItem noBorder={!hasRoadOrFlood}>
             <RegularText>{t("calloutReading.trend")}</RegularText>
             <Row>
               <MediumText>{formatTrend(status?.waterTrend?.trendValue)}</MediumText>
@@ -140,6 +145,16 @@ const CalloutReading = observer(function CalloutReadingCard({ gage }: { gage: Ga
               {roadStatus?.delta?.toFixed(1)} {t("measure.ft")}{" "}
               {roadStatus && t(`${roadStatus.preposition}`)}
               {t("calloutReading.roadSmall")}
+            </MediumText>
+          </CardItem>
+        </If>
+        <If condition={hasFloodLevelInfo}>
+          <CardItem noBorder>
+            <RegularText>{t("calloutReading.floodLevel")}</RegularText>
+            <MediumText>
+              {floodStatus?.delta?.toFixed(1)} {t("measure.ft")}{" "}
+              {floodStatus && t(`${floodStatus.preposition}`)}
+              {t("calloutReading.floodLevelSmall")}
             </MediumText>
           </CardItem>
         </If>
