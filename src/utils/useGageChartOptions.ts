@@ -50,6 +50,9 @@ export const CHART_OPTIONS = {
     yAxis.title = null;
 
     for (const line of yAxis.plotLines || []) {
+      if (!line.label) {
+        continue;
+      }
       line.label.style.fontSize = "11px";
       line.label.align = "center";
       line.label.x = 0;
@@ -527,8 +530,15 @@ function createDataAndReturnMin(gage: Gage, chartDataType: GageChartDataType, t,
  * Horizontal threshold line(s) for the chart's y-axis. Gauges with a road
  * show the road saddle line; gauges without one show a red "Flooding" line
  * at the flood (red) stage, styled identically to the road line.
+ *
+ * The thresholds are water-height values (feet), so on a flow (discharge)
+ * chart the label is omitted — the line value has no meaning on a CFS axis.
  */
-export function buildThresholdPlotLines(gage: Gage, t): Highcharts.YAxisPlotLinesOptions[] {
+export function buildThresholdPlotLines(
+  gage: Gage,
+  t,
+  chartDataType: GageChartDataType
+): Highcharts.YAxisPlotLinesOptions[] {
   let thresholds: { elevation: number; name: string; color: string }[] = [];
 
   if (gage?.hasRoads) {
@@ -547,18 +557,22 @@ export function buildThresholdPlotLines(gage: Gage, t): Highcharts.YAxisPlotLine
     ];
   }
 
+  const showLabel = chartDataType !== GageChartDataType.DISCHARGE;
+
   return thresholds.map((threshold) => ({
     value: threshold.elevation,
-    label: {
-      text: threshold.name,
-      style: {
-        color: threshold.color,
-        fontFamily: "'Open Sans', sans-serif",
-        fontSize: "14px",
-      },
-      align: "right",
-      x: -10,
-    },
+    label: showLabel
+      ? {
+          text: threshold.name,
+          style: {
+            color: threshold.color,
+            fontFamily: "'Open Sans', sans-serif",
+            fontSize: "14px",
+          },
+          align: "right",
+          x: -10,
+        }
+      : undefined,
     color: threshold.color,
     dashStyle: "Dot" as Highcharts.DashStyleValue,
   }));
@@ -631,7 +645,7 @@ const buildBasicOptions = (props: BuildOptionsProps, t) => {
   yAxis.min = Math.min(minVal, yAxisMin);
   yAxis.max = yMaximum;
 
-  yAxis.plotLines = buildThresholdPlotLines(gage, t);
+  yAxis.plotLines = buildThresholdPlotLines(gage, t, chartDataType);
 
   options._now = localDayJs();
 
