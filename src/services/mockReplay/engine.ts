@@ -174,8 +174,27 @@ function sumDischargeSeries(caches: GaugeCache[]): RawReading[] {
   }));
 }
 
+const STALE_AFTER_MS = 2 * HOUR_MS; // no reading within 2h → offline, no trend line
+
 function readingsUpTo(c: GaugeCache, cutoffMs: number): RawReading[] {
   return c.readings.filter((r) => r.timestampMs <= cutoffMs);
+}
+
+/**
+ * A gauge is stale when its most recent reading is 2h+ behind the mock "now".
+ * Gauges lag at different rates; a stale one is treated as offline (no trend).
+ */
+function isStale(latest: RawReading | undefined, cutoffMs: number): boolean {
+  return !latest || cutoffMs - latest.timestampMs >= STALE_AFTER_MS;
+}
+
+/** Trend rates from the last 3 readings, zeroed when the gauge is stale. */
+function trendRatesAt(c: GaugeCache, cutoffMs: number) {
+  const upTo = readingsUpTo(c, cutoffMs);
+  if (isStale(upTo[upTo.length - 1], cutoffMs)) {
+    return { feetPerHour: 0, cfsPerHour: 0 };
+  }
+  return computeTrendRates(upTo.slice(-3));
 }
 
 /**
@@ -200,12 +219,20 @@ function shiftedReadingObjects(c: GaugeCache, cutoffMs: number, windowMs: number
 function statusBlock(c: GaugeCache, cutoffMs: number) {
   const upTo = readingsUpTo(c, cutoffMs);
   const recent = upTo.slice(-12); // last ~12 readings drive trend
-  const status = computeStatus({
-    readings: recent,
-    yellowStage: c.yellowStage,
-    redStage: c.redStage,
-  });
   const last = upTo[upTo.length - 1];
+  // A gauge whose last reading is 2h+ stale is reported offline (but still
+  // visible — it keeps its last known reading).
+  const status = isStale(last, cutoffMs)
+    ? {
+        floodLevel: "Offline",
+        levelTrend: "Offline",
+        waterTrend: { trendValues: [], trendValue: 0 },
+      }
+    : computeStatus({
+        readings: recent,
+        yellowStage: c.yellowStage,
+        redStage: c.redStage,
+      });
   const lastReading = last
     ? {
         timestamp: toGaugeLocalString(shiftToDisplay(anchor!, last.timestampMs), timezone),
@@ -251,27 +278,31 @@ const MIN_MS = 60_000;
 /**
  * The short-term trend nowcast returned by getGageReadings as `predictions`:
  * the current rate of change extrapolated linearly for 6 hours at 15-minute
- * steps, from the latest reading. Exists for every gauge (level and/or flow).
- * Excludes the anchor point — Gage.predictedPoints prepends readings[0].
+ * steps. Exists for every gauge (level and/or flow). Excludes the anchor
+ * point — Gage.predictedPoints prepends readings[0].
+ *
+ * Anchored to each gauge's OWN last reading (gauges lag at different rates), so
+ * the first point is 15 min after that reading, not after mockNow. A gauge with
+ * no reading in the last 2h is stale (offline) → no trend line.
  */
 function trendNowcast(c: GaugeCache, cutoffMs: number) {
   const upTo = readingsUpTo(c, cutoffMs);
   const latest = upTo[upTo.length - 1];
-  if (!latest) {
+  if (isStale(latest, cutoffMs)) {
     return [];
   }
   const rates = computeTrendRates(upTo.slice(-3));
   const out = [];
   for (let m = NOWCAST_STEP_MIN; m <= NOWCAST_WINDOW_MIN; m += NOWCAST_STEP_MIN) {
     const hours = m / 60;
-    const tMs = cutoffMs + m * MIN_MS;
+    const tMs = latest!.timestampMs + m * MIN_MS;
     out.push({
       timestamp: toGaugeLocalString(shiftToDisplay(anchor!, tMs), timezone),
       waterHeight:
-        latest.waterHeight != null ? latest.waterHeight + rates.feetPerHour * hours : undefined,
+        latest!.waterHeight != null ? latest!.waterHeight + rates.feetPerHour * hours : undefined,
       waterDischarge:
-        latest.waterDischarge != null
-          ? latest.waterDischarge + rates.cfsPerHour * hours
+        latest!.waterDischarge != null
+          ? latest!.waterDischarge + rates.cfsPerHour * hours
           : undefined,
       isDeleted: false,
     });
@@ -310,7 +341,7 @@ export function buildGageReadings(locationId: string, nowMs: number = Date.now()
   if (!c || readingsUpTo(c, cutoff).length === 0) {
     return empty;
   }
-  const rates = computeTrendRates(readingsUpTo(c, cutoff).slice(-3));
+  const rates = trendRatesAt(c, cutoff);
   return {
     ...empty,
     noData: false,
@@ -338,7 +369,7 @@ export function buildStatusAndRecentReadings(locationIds?: string[], nowMs: numb
       if (!c || readingsUpTo(c, cutoff).length === 0) {
         return null;
       }
-      const rates = computeTrendRates(readingsUpTo(c, cutoff).slice(-3));
+      const rates = trendRatesAt(c, cutoff);
       const skeleton = dashboardSkeletons.get(id) ?? { locationId: id, id };
       return {
         ...skeleton,
