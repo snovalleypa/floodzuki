@@ -324,6 +324,7 @@ const es = {
     Below: "Debajo",
     atAndAbove: "Este nivel y superior",
     predicted: "Pronosticado",
+    trending: "Tendencia",
     water: "Agua",
   },
   footer: {

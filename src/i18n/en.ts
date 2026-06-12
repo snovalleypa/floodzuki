@@ -320,6 +320,7 @@ const en = {
     Below: "Below",
     atAndAbove: "At and above",
     predicted: "Predicted",
+    trending: "Trending",
     water: "Water",
   },
   footer: {

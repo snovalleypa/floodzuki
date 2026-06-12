@@ -195,7 +195,7 @@ function createPredictionSeries(
       return {
         x,
         y,
-        name: `${t("statusLevelsCard.predicted")} ${t("statusLevelsCard.level")}: `,
+        name: `${t("statusLevelsCard.trending")} ${t("statusLevelsCard.level")}: `,
         isPrediction: true,
         tooltipHtml: buildGageTooltipHtml({
           gage,
@@ -205,6 +205,7 @@ function createPredictionSeries(
           waterLevel: d.reading,
           waterDischarge: d.waterDischarge,
           isPrediction: true,
+          levelTitle: t("statusLevelsCard.trending"),
         }),
       };
     }),
