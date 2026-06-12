@@ -262,7 +262,7 @@ const es = {
     live: "En vivo",
   },
   gageChart: {
-    flooding: "Inundación",
+    flooding: "Nivel de inundación",
     discharge: "Caudal",
     waterLevel: "Nivel del agua",
     flow: "Caudal",

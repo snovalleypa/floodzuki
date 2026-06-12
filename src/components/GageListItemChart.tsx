@@ -181,7 +181,7 @@ const GageListItemChart = observer(function GageListItemChart({ gage }: { gage: 
             />
             <Text
               x={layout.width / 2}
-              y={thresholdHeight - OFFSET_BOTTOM}
+              y={thresholdHeight - OFFSET_BOTTOM / 2}
               fontSize="12"
               fill={thresholdColor}
               textAnchor="middle">

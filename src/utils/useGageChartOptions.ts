@@ -53,6 +53,9 @@ export const CHART_OPTIONS = {
       line.label.style.fontSize = "11px";
       line.label.align = "center";
       line.label.x = 0;
+      // Halve the default vertical gap (Highcharts default is -4) between the
+      // label and its line on the gauge list page.
+      line.label.y = -2;
     }
 
     xAxis.max = options._now.valueOf();
