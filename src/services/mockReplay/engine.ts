@@ -1,6 +1,7 @@
 // src/services/mockReplay/engine.ts
 import localDayJs from "@services/localDayJs";
 import constants from "@config/floodPredictionConstants.json";
+import { DIRECT_GAUGES } from "@services/floodPrediction/directGauges";
 import { MapQuantiles } from "@services/floodPrediction/types";
 
 import { buildEmpiricalRating } from "./empiricalRating";
@@ -438,8 +439,18 @@ export function buildV2Readings(gageIds?: string[], nowMs: number = Date.now()) 
   return { readings, maxReadingId: null };
 }
 
-/** Map a NOAA predictor site id to the floodzilla gauge id we cached. */
+/**
+ * Map a NOAA site id to the floodzilla gauge id we cached. Covers the direct USGS
+ * gauges (Falls, Carnation, Monroe, the three forks) so their HEFS bands are
+ * mocked too — each is preloaded in the cache (forecast gauge or metagage
+ * component). Falls back to the generated predictors block for any predictor not
+ * in the registry.
+ */
 function locationForNoaaSite(noaaSiteId: string): string | null {
+  const direct = DIRECT_GAUGES.find((g) => g.noaaSiteId === noaaSiteId);
+  if (direct) {
+    return direct.gaugeId;
+  }
   const predictors = (constants as any).predictors ?? {};
   for (const key of Object.keys(predictors)) {
     if (predictors[key].noaaSiteId === noaaSiteId) {

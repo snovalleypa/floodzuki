@@ -40,4 +40,33 @@ describe("engine.buildMapQuantiles", () => {
     expect(q).not.toBeNull();
     expect(q!.flowsByWindow[5].length).toBe(q!.exceedanceQuantiles.length);
   });
+
+  it("synthesizes bands for a direct USGS gauge fork (GARW1 -> USGS-SF17)", async () => {
+    engine.__resetEngineForTest();
+    const mockNowMs = localDayJs.tz("2022-03-01T06:00:00", "YYYY-MM-DDTHH:mm:ss", TZ).valueOf();
+    const readings = Array.from({ length: 24 * 12 }, (_, i) => ({
+      timestampMs: mockNowMs - DAY + i * HOUR,
+      waterDischarge: 3000 + (i === 50 ? 12000 : i * 8),
+      waterHeight: 9,
+    }));
+    // USGS-SF17 (South Fork) arrives as a metagage component of the forecast list.
+    await engine.init({
+      scenario: {
+        id: "x",
+        label: "x",
+        mockNow: "2022-03-01T06:00:00",
+        forecastAgeHours: 18,
+        forecastDeviationPct: 0,
+      },
+      timezone: TZ,
+      nowMs: mockNowMs,
+      locationIds: [],
+      forecastGageIds: ["USGS-SF17/USGS-NF10/USGS-MF11"],
+      stagesByLocation: {},
+      fetchRawReadings: async () => readings,
+    });
+    const q = engine.buildMapQuantiles("GARW1", mockNowMs);
+    expect(q).not.toBeNull();
+    expect(q!.flowsByWindow[5].length).toBe(q!.exceedanceQuantiles.length);
+  });
 });
