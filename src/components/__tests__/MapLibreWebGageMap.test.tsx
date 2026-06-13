@@ -27,10 +27,9 @@ jest.mock("../../config/config", () => ({
   default: { DEFAULT_MAP_TILE_BASE_URL: "https://tiles.example.com" },
 }));
 
-jest.mock("../TrendIcon", () => ({
+jest.mock("../MapPinIcon", () => ({
   __esModule: true,
   default: () => null,
-  TREND_ICON_TYPES: { Map: "Map" },
 }));
 
 const MockMap = MapLibre.Map as unknown as jest.Mock;
