@@ -13,7 +13,7 @@ import { applySnapshot, IDisposer, onSnapshot } from "mobx-state-tree";
 import type { RootStore } from "../RootStore";
 import * as storage from "@utils/storage";
 import { loadDebugFlags } from "@utils/debugFlags";
-import { loadMockReplay } from "@services/mockReplay/mockReplayState";
+import { loadMockReplay, isMockReplayActive } from "@services/mockReplay/mockReplayState";
 import { api } from "@services/api";
 import { changeLocale } from "@i18n/i18n";
 import localDayJs from "@services/localDayJs";
@@ -75,7 +75,15 @@ export async function setupRootStore(rootStore: RootStore) {
       localDayJs.locale(loadedState.authSessionStore.preferredLocale);
     }
 
-    applySnapshot(rootStore, restoredState);
+    // When a mock-replay scenario is active, boot from a clean store instead of
+    // rehydrating persisted gauge/forecast data. The engine re-shifts everything
+    // from scratch on fetch; reconciling the previous scenario's stale persisted
+    // nodes against the freshly built ones makes React's dev-mode commit-phase
+    // prop walk lazily instantiate an MST child (e.g. peakStatus) outside an
+    // action, which throws the "must be done on the initializing phase" error.
+    // This is the reason switching scenarios needed a second refresh. Dev-only
+    // path — real sessions still rehydrate normally (auth/locale above are kept).
+    applySnapshot(rootStore, isMockReplayActive() ? ROOT_STORE_DEFAULT : restoredState);
 
     // Stubs are stripped from the persisted snapshot (see Gage.ts postProcessSnapshot and
     // the explicit strip in this file), but `showHiddenOffline` IS persisted. Without
@@ -102,8 +110,16 @@ export async function setupRootStore(rootStore: RootStore) {
     _disposer();
   }
 
-  // track changes & save to AsyncStorage
-  _disposer = onSnapshot(rootStore, (snapshot) => storage.save(ROOT_STATE_STORAGE_KEY, snapshot));
+  // track changes & save to AsyncStorage. Never persist while a mock-replay
+  // scenario is active: the time-shifted data would pollute the real app's cache
+  // and get rehydrated on the next (real or mock) boot, recreating the stale-
+  // reconciliation crash described above.
+  _disposer = onSnapshot(rootStore, (snapshot) => {
+    if (isMockReplayActive()) {
+      return;
+    }
+    storage.save(ROOT_STATE_STORAGE_KEY, snapshot);
+  });
 
   const unsubscribe = () => {
     _disposer();
