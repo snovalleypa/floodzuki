@@ -162,7 +162,7 @@ const CalloutReading = observer(function CalloutReadingCard({ gage }: { gage: Ga
                       : t("calloutReading.trendIntersectsFlood")}{" "}
                     <SmallerText
                       textStyle={[{ fontFamily: Fonts.openSans.bold, fontWeight: "700" }]}>
-                      {crossing?.time.format("llll")}
+                      {crossing?.time.format("LT")}
                     </SmallerText>
                   </SmallerText>
                 </Cell>
