@@ -1,6 +1,6 @@
 // src/services/mockReplay/mockReplayState.ts
 import * as storage from "@utils/storage";
-import { getScenarioById } from "./scenarios";
+import { resolveScenario } from "./scenarios";
 import { MockReplayScenario } from "./types";
 
 const STORAGE_KEY = "mock-replay-v1";
@@ -24,7 +24,7 @@ export function getActiveScenario(): MockReplayScenario | null {
   if (!activeId) {
     return null;
   }
-  return getScenarioById(activeId) ?? null;
+  return resolveScenario(activeId) ?? null;
 }
 
 export async function loadMockReplay(): Promise<void> {
@@ -32,7 +32,7 @@ export async function loadMockReplay(): Promise<void> {
   if (!stored || typeof stored !== "object") {
     return;
   }
-  if (!stored.expiresAt || stored.expiresAt < Date.now() || !getScenarioById(stored.id)) {
+  if (!stored.expiresAt || stored.expiresAt < Date.now() || !resolveScenario(stored.id)) {
     await storage.remove(STORAGE_KEY);
     return;
   }
@@ -63,7 +63,7 @@ export async function applyMockReplayFromParams(
     await storage.remove(STORAGE_KEY);
     return;
   }
-  if (getScenarioById(token)) {
+  if (resolveScenario(token)) {
     activeId = token;
     await persist();
   }

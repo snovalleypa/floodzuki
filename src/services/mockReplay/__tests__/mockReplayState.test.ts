@@ -34,6 +34,22 @@ describe("mockReplayState", () => {
     expect(isMockReplayActive()).toBe(false);
   });
 
+  it("activates an ad-hoc scenario from a full-ISO datetime param", async () => {
+    await applyMockReplayFromParams({ mock: "2022-03-01T06:00:00" });
+    expect(isMockReplayActive()).toBe(true);
+    expect(getActiveScenario()?.mockNow).toBe("2022-03-01T06:00:00");
+    expect(mockStorage.save).toHaveBeenCalled();
+  });
+
+  it("rehydrates a stored ad-hoc datetime id", async () => {
+    mockStorage.load.mockResolvedValue({
+      id: "2022-03-01T06:00:00",
+      expiresAt: Date.now() + 100000,
+    });
+    await loadMockReplay();
+    expect(getActiveScenario()?.mockNow).toBe("2022-03-01T06:00:00");
+  });
+
   it("reset clears the active scenario", async () => {
     await applyMockReplayFromParams({ mock: "march-2022-major" });
     await applyMockReplayFromParams({ mock: "reset" });
