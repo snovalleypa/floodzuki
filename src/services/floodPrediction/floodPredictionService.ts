@@ -2,6 +2,7 @@ import Config from "@config/config";
 import constants from "@config/floodPredictionConstants.json";
 
 import { computeFloodProbability, parseMapQuantiles, parseRatingTable } from "./calculations";
+import { getDirectGaugeConstants } from "./directGauges";
 import { getMockMapQuantiles } from "./mockForecasts";
 import { FloodPredictionGauge, FloodProbabilityResult, MapQuantiles, RatingPoint } from "./types";
 
@@ -74,25 +75,49 @@ function fetchMapQuantiles(noaaSiteId: string): Promise<MapQuantiles> {
  * move server-side, replace the body of this function with a single API call
  * that returns a FloodProbabilityResult — the hook and UI are unaffected.
  *
- * Returns null when the gauge is not covered by the constants (R² < 0.9 or
- * otherwise excluded).
+ * Two paths:
+ *  - SVPA gauge (in the generated constants): translate its red stage into a
+ *    predictor stage via regression and read the predictor's exceedance curve at
+ *    p99.
+ *  - Direct USGS gauge (in the hand-maintained registry): the gauge is its own
+ *    predictor — read its own exceedance curve at its own `redStage` (passed in,
+ *    since it comes from locationInfo, not the constants). Forecast-only.
+ *
+ * Returns null when the gauge is covered by neither, or a direct gauge has no
+ * red stage.
  */
 export async function getFloodProbability(
-  locationId: string
+  locationId: string,
+  redStage?: number
 ): Promise<FloodProbabilityResult | null> {
   const gauge = gauges.find((g) => g.gaugeId === locationId);
-  if (!gauge) {
-    return null;
+  if (gauge) {
+    const [ratingTable, quantiles] = await Promise.all([
+      fetchRatingTable(gauge.predictor.usgsSiteId),
+      fetchMapQuantiles(gauge.predictor.noaaSiteId),
+    ]);
+
+    return computeFloodProbability({
+      p99: gauge.floodProbability.p99,
+      quantiles,
+      ratingTable,
+    });
   }
 
-  const [ratingTable, quantiles] = await Promise.all([
-    fetchRatingTable(gauge.predictor.usgsSiteId),
-    fetchMapQuantiles(gauge.predictor.noaaSiteId),
-  ]);
+  const direct = getDirectGaugeConstants(locationId);
+  if (direct) {
+    if (redStage == null) {
+      return null;
+    }
+    const [ratingTable, quantiles] = await Promise.all([
+      fetchRatingTable(direct.usgsSiteId),
+      fetchMapQuantiles(direct.noaaSiteId),
+    ]);
 
-  return computeFloodProbability({
-    p99: gauge.floodProbability.p99,
-    quantiles,
-    ratingTable,
-  });
+    // The gauge is its own predictor: its red stage is the threshold stage fed
+    // straight into the exceedance curve (no regression p99 indirection).
+    return computeFloodProbability({ p99: redStage, quantiles, ratingTable });
+  }
+
+  return null;
 }

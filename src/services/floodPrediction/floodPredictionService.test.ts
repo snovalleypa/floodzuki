@@ -51,4 +51,32 @@ describe("getFloodProbability", () => {
     );
     expect(ratingCalls.length).toBe(1);
   });
+
+  // Direct USGS gauges: the gauge is its own predictor, threshold = its red
+  // stage. With the fixtures above the exceedance curve is (0.1,44.7) (0.5,44.6)
+  // (0.9,44.5), so the red stage maps straight onto the exceedance probability.
+  it("computes a direct USGS gauge using its red stage as the threshold", async () => {
+    const r = await getFloodProbability("USGS-SH5", 44.6);
+    expect(r).not.toBeNull();
+    expect(r!.probability).toBeCloseTo(0.5, 5);
+  });
+
+  it("moves the probability as the direct gauge's red stage changes", async () => {
+    const least = await getFloodProbability("USGS-SH5", 44.7);
+    const most = await getFloodProbability("USGS-SH5", 44.5);
+    expect(least!.probability).toBeCloseTo(0.1, 5);
+    expect(most!.probability).toBeCloseTo(0.9, 5);
+  });
+
+  it("returns null for a direct gauge with no red stage", async () => {
+    expect(await getFloodProbability("USGS-SH5")).toBeNull();
+  });
+
+  it("fetches the direct gauge's own USGS rating site", async () => {
+    await getFloodProbability("USGS-SH5", 44.6);
+    const ratingCall = (globalThis.fetch as jest.Mock).mock.calls.find((c) =>
+      String(c[0]).includes("get_ratings")
+    );
+    expect(String(ratingCall![0])).toContain("12150800");
+  });
 });
