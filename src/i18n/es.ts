@@ -39,6 +39,10 @@ const es = {
     Flooding: "Inundación",
     Dry: "Seco",
   },
+  floodRisk: {
+    highBadge: "Alta probabilidad de inundación",
+    mediumBadge: "Probabilidad media de inundación",
+  },
   errorScreen: {
     header: "Ups...",
     title: "¡Algo salió mal!",

@@ -63,3 +63,15 @@ export interface FloodChanceResult {
   windowDays: FloodWindow;
   chance: FloodChanceLevel;
 }
+
+/**
+ * Coarse risk grouping derived from the combined flood chance, used to pick a
+ * status badge. High (>=70%) and Medium (>30% and <70%) show a badge; Low (<=30%)
+ * shows none. The ">=90% Very High" / "<=10% Very Low" sub-levels do not change
+ * the badge (Very High stays High; Very Low stays Low).
+ */
+export enum FloodRiskLevel {
+  High = "high",
+  Medium = "medium",
+  Low = "low",
+}

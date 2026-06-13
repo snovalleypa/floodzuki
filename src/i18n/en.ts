@@ -38,6 +38,10 @@ const en = {
     Flooding: "Flooding",
     Dry: "Dry",
   },
+  floodRisk: {
+    highBadge: "High chance of flooding",
+    mediumBadge: "Medium chance of flooding",
+  },
   errorScreen: {
     header: "Ooops...",
     title: "Something went wrong!",

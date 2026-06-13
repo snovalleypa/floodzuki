@@ -24,6 +24,9 @@ import TrendIcon, { TREND_ICON_TYPES } from "@components/TrendIcon";
 import { Spacing } from "@common-ui/constants/spacing";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import { useFloodProbability } from "@utils/useFloodProbability";
+import { isAtOrAboveRedStage } from "@utils/useFloodRiskLevel";
+import { floodChanceRiskLevel } from "@services/floodPrediction/calculations";
+import FloodRiskBadge, { WithFloodRiskBadge } from "@components/FloodRiskBadge";
 import { deriveRange } from "@utils/deriveRange";
 import { normalizeSearchParams } from "@utils/navigation";
 import { computeThresholdCrossing } from "@utils/thresholdCrossing";
@@ -74,13 +77,13 @@ const CalloutReading = observer(function CalloutReadingCard({ gage }: { gage: Ga
   // peaks). Hidden when the gauge isn't covered by the prediction constants, or
   // when the gauge is already at/above red stage (it's flooding now, so a
   // "chance of flooding" is moot) — in which case we skip the calculation too.
-  const isAtOrAboveRedStage =
-    !isNullish(reading?.waterHeight) &&
-    !isNullish(gage?.redStage) &&
-    reading.waterHeight >= gage.redStage;
-  const shouldPredictFlood = isNow && !isAtOrAboveRedStage;
+  const shouldPredictFlood = isNow && !isAtOrAboveRedStage(reading?.waterHeight, gage?.redStage);
   const floodChance = useFloodProbability(shouldPredictFlood ? gage : undefined);
   const showFloodChance = !!floodChance;
+
+  // Coarse risk for the badge. High/Medium drives an overlay on the status pill
+  // and an inline badge by the percentage; Low / no-chance shows nothing.
+  const riskLevel = floodChance ? floodChanceRiskLevel(floodChance.chance) : null;
 
   // Map the combined chance bucket to a label. Forecast tops out at 90% (a lower
   // bound → ">90%"); the observed path is precise (exact 90/95, ">=99%").
@@ -98,14 +101,35 @@ const CalloutReading = observer(function CalloutReadingCard({ gage }: { gage: Ga
     floodChanceLabel = t("calloutReading.floodChanceNearCertain");
   }
 
+  // The Status row moved to the header, so the reading rows (water level / flow /
+  // flood chance) can now be the last item in the card. Drop the trailing border
+  // on whichever is last when no trend or road/flood row follows.
+  const hasRowsBelowReadings = hasTrendInfo || hasRoadOrFlood;
+  let lastReadingRow: string | null = null;
+  if (showFloodChance) {
+    lastReadingRow = "floodChance";
+  } else if (!isNullish(reading?.waterDischarge)) {
+    lastReadingRow = "waterFlow";
+  } else if (!isNullish(reading?.waterHeight)) {
+    lastReadingRow = "waterLevel";
+  }
+  const noBorderFor = (row: string) => !hasRowsBelowReadings && lastReadingRow === row;
+
   return (
     <Card flex>
       <CardHeader>
         <Row align="space-between" justify="flex-start">
           <SmallTitle>{label}</SmallTitle>
-          <If condition={gagesStore.isFetching}>
-            <ActivityIndicator />
-          </If>
+          <Row>
+            <If condition={gagesStore.isFetching}>
+              <ActivityIndicator />
+            </If>
+            <Cell left={Spacing.small}>
+              <WithFloodRiskBadge level={riskLevel}>
+                <LargeLabel type={STATUSES[status?.floodLevel]} text={status?.floodLevel} />
+              </WithFloodRiskBadge>
+            </Cell>
+          </Row>
         </Row>
         <LabelText>
           <If condition={!!timeAgo}>
@@ -117,29 +141,32 @@ const CalloutReading = observer(function CalloutReadingCard({ gage }: { gage: Ga
       </CardHeader>
       <Cell flex>
         <If condition={!isNullish(reading?.waterHeight)}>
-          <CardItem>
+          <CardItem noBorder={noBorderFor("waterLevel")}>
             <RegularText>{t("calloutReading.waterLevel")}</RegularText>
             <MediumText>{formatHeight(reading?.waterHeight)}</MediumText>
           </CardItem>
         </If>
         <If condition={!isNullish(reading?.waterDischarge)}>
-          <CardItem>
+          <CardItem noBorder={noBorderFor("waterFlow")}>
             <RegularText>{t("calloutReading.waterFlow")}</RegularText>
             <MediumText>{formatFlow(reading?.waterDischarge)}</MediumText>
           </CardItem>
         </If>
         <If condition={showFloodChance}>
-          <CardItem>
+          <CardItem noBorder={noBorderFor("floodChance")}>
             <RegularText>
               {t("calloutReading.floodChance", { days: floodChance?.windowDays })}
             </RegularText>
-            <MediumText>{floodChanceLabel}</MediumText>
+            <Row>
+              <MediumText>{floodChanceLabel}</MediumText>
+              <If condition={!!riskLevel}>
+                <Cell left={Spacing.tiny}>
+                  <FloodRiskBadge level={riskLevel!} variant="inline" />
+                </Cell>
+              </If>
+            </Row>
           </CardItem>
         </If>
-        <CardItem noBorder={!hasRoadOrFlood && !hasTrendInfo}>
-          <RegularText>{t("calloutReading.status")}</RegularText>
-          <LargeLabel type={STATUSES[status?.floodLevel]} text={status?.floodLevel} />
-        </CardItem>
         <If condition={hasTrendInfo}>
           {/* Custom (non-CardItem) layout: the optional crossing line spans both
               columns, centered, below the label/value row. */}

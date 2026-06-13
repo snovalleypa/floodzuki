@@ -2,6 +2,7 @@ import {
   FloodChanceLevel,
   FloodChanceResult,
   FloodProbabilityResult,
+  FloodRiskLevel,
   FloodWindow,
   MapQuantiles,
   RatingPoint,
@@ -236,4 +237,30 @@ export function combineFloodChance(args: {
   }
 
   return { windowDays, chance };
+}
+
+/**
+ * Group a flood-chance bucket into a coarse risk level for badge selection:
+ * High (>=70%), Medium (>30% and <70%), Low (<=30%). The clamped/precise
+ * very-high buckets are all >=90% → High; the `low` bucket (<10%) → Low.
+ * Percentages out of `combineFloodChance` are multiples of 5, so the 30/35 and
+ * 65/70 boundaries fall cleanly between buckets.
+ */
+export function floodChanceRiskLevel(chance: FloodChanceLevel): FloodRiskLevel {
+  switch (chance.level) {
+    case "low":
+      return FloodRiskLevel.Low;
+    case "veryHighClamp":
+    case "veryHigh":
+    case "nearCertain":
+      return FloodRiskLevel.High;
+    case "percent":
+      if (chance.percent >= 70) {
+        return FloodRiskLevel.High;
+      }
+      if (chance.percent > 30) {
+        return FloodRiskLevel.Medium;
+      }
+      return FloodRiskLevel.Low;
+  }
 }

@@ -7,8 +7,9 @@ import {
   computeFloodProbability,
   derivePredictorStageProbability,
   combineFloodChance,
+  floodChanceRiskLevel,
 } from "./calculations";
-import { FloodProbabilityResult } from "./types";
+import { FloodProbabilityResult, FloodRiskLevel } from "./types";
 
 const SAMPLE = [
   "# //comment line",
@@ -161,5 +162,32 @@ describe("combineFloodChance", () => {
   it("shows near-certain when the observed value rounds to 100", () => {
     const r = combineFloodChance({ forecast: forecast(0.5), observedProbability: 0.995 });
     expect(r!.chance).toEqual({ level: "nearCertain" });
+  });
+});
+
+describe("floodChanceRiskLevel", () => {
+  it("maps the low bucket to Low", () => {
+    expect(floodChanceRiskLevel({ level: "low" })).toBe(FloodRiskLevel.Low);
+  });
+
+  it("maps every very-high bucket (>=90%) to High", () => {
+    expect(floodChanceRiskLevel({ level: "veryHighClamp" })).toBe(FloodRiskLevel.High);
+    expect(floodChanceRiskLevel({ level: "veryHigh", percent: 95 })).toBe(FloodRiskLevel.High);
+    expect(floodChanceRiskLevel({ level: "nearCertain" })).toBe(FloodRiskLevel.High);
+  });
+
+  it("treats 70% and above as High", () => {
+    expect(floodChanceRiskLevel({ level: "percent", percent: 70 })).toBe(FloodRiskLevel.High);
+    expect(floodChanceRiskLevel({ level: "percent", percent: 85 })).toBe(FloodRiskLevel.High);
+  });
+
+  it("treats 35-65% as Medium", () => {
+    expect(floodChanceRiskLevel({ level: "percent", percent: 35 })).toBe(FloodRiskLevel.Medium);
+    expect(floodChanceRiskLevel({ level: "percent", percent: 65 })).toBe(FloodRiskLevel.Medium);
+  });
+
+  it("treats 30% and below as Low", () => {
+    expect(floodChanceRiskLevel({ level: "percent", percent: 30 })).toBe(FloodRiskLevel.Low);
+    expect(floodChanceRiskLevel({ level: "percent", percent: 10 })).toBe(FloodRiskLevel.Low);
   });
 });
