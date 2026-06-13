@@ -19,20 +19,16 @@ export const ALERT_BADGE_ICONS = {
 
 const OVERLAY_SIZE = 22;
 const INLINE_SIZE = 18;
-const PIN_SIZE = 46;
 
-type Variant = "overlay" | "inline" | "pin";
+type Variant = "overlay" | "inline";
 
 const styles = StyleSheet.create({
   overlay: { width: OVERLAY_SIZE, height: OVERLAY_SIZE },
   inline: { width: INLINE_SIZE, height: INLINE_SIZE },
-  pin: { width: PIN_SIZE, height: PIN_SIZE },
 });
 
 function iconKey(level: FloodRiskLevel, variant: Variant): keyof typeof ALERT_BADGE_ICONS | null {
-  // Halo variants (white outline) read clearly over a colored pill or the map;
-  // the flat no-halo variant is for inline text.
-  const halo = variant !== "inline";
+  const halo = variant === "overlay";
   if (level === FloodRiskLevel.High) {
     return halo ? "high_halo" : "high_no_halo";
   }
@@ -56,7 +52,7 @@ const FloodRiskBadge = ({ level, variant }: { level: FloodRiskLevel; variant: Va
   }
 
   const icon = ALERT_BADGE_ICONS[key];
-  const style = styles[variant];
+  const style = variant === "overlay" ? styles.overlay : styles.inline;
   const label = t(
     (level === FloodRiskLevel.High ? "floodRisk.highBadge" : "floodRisk.mediumBadge") as TxKeyPath
   );

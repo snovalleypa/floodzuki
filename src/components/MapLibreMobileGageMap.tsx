@@ -3,7 +3,7 @@ import { useMemo, useRef } from "react";
 import { Camera, GeoJSONSource, Layer, Map, Marker } from "@maplibre/maplibre-react-native";
 import { StyleSheet, ViewStyle } from "react-native";
 import { Spacing } from "../common-ui/constants/spacing";
-import MapPinIcon from "./MapPinIcon";
+import TrendIcon, { TREND_ICON_TYPES } from "./TrendIcon";
 import { getTownLabelsGeoJson, TOWN_LABELS_LAYER_PROPS } from "./townLabels";
 import { getRiverOverlaysGeoJson, RIVER_OVERLAY_LAYER_PROPS } from "./riverOverlays";
 import Config from "../config/config";
@@ -76,7 +76,7 @@ const MapLibreMobileGageMap = ({
         onPress={() => {
           onGagePress(g);
         }}>
-        <MapPinIcon gage={g} />
+        <TrendIcon gage={g} iconType={TREND_ICON_TYPES.Map} />
       </Marker>
     ));
   }, [mapRef, gages]);

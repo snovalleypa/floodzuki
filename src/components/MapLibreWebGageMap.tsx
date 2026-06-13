@@ -3,7 +3,7 @@ import { useMemo } from "react";
 import { InternalGageMapProps } from "@models/MapModels";
 import { StyleSheet } from "react-native";
 import "maplibre-gl/dist/maplibre-gl.css";
-import MapPinIcon from "./MapPinIcon";
+import TrendIcon, { TREND_ICON_TYPES } from "./TrendIcon";
 import { getTownLabelsGeoJson, TOWN_LABELS_LAYER_PROPS } from "./townLabels";
 import { getRiverOverlaysGeoJson, RIVER_OVERLAY_LAYER_PROPS } from "./riverOverlays";
 import Config from "../config/config";
@@ -79,7 +79,7 @@ const MapLibreWebGageWebMap = ({
               onGagePress(g);
             }}
             key={"marker" + index}>
-            <MapPinIcon gage={g} />
+            <TrendIcon gage={g} iconType={TREND_ICON_TYPES.Map} />
           </Marker>
         )
     );
