@@ -27,11 +27,41 @@
 
   <body>
     <!-- Use static rendering with Expo Router to support running without JavaScript. -->
-    <noscript>
-      You need to enable JavaScript to run this app.
-    </noscript>
+    <noscript> You need to enable JavaScript to run this app. </noscript>
     <!-- The root element for your Expo app. -->
     <div id="root"></div>
-    <script>"use strict";(c=>{const t=document,r=(e,...d)=>{const s=t.head.appendChild(t.createElement(e));return d.forEach(a=>s.setAttribute(a[0],a[1])),s};r("meta",["name","navu:site"],["content",c]),r("script",["src","https://embed.navu.co/boot.js"],["async","true"]);const n=sessionStorage.getItem("nv-sidebar");if(n){const e=JSON.parse(n);e.css&&(r("style",["data-widget","sidebar"]).innerHTML=e.css);const d=(e.colorTheme||"light").trim().replace(/s/gi,"-").toLowerCase(),s=e.layoutTheme||"classic-dockable",a=["nv-sidebar-"+e.state,`nv-sidebar-color-${d}`,`nv-sidebar-layout-${s}`],o=()=>t.body.classList.add(...a);if(t.body){o();return}const i=t.readyState;i==="interactive"||i==="complete"?o():t.addEventListener("DOMContentLoaded",()=>o())}})("$NAVU_SITE_CODE$");</script>
+    <!--
+      Navu sidebar pre-paint restore. Runs at parse time to re-apply the sidebar's
+      saved body classes from a prior visit (sessionStorage) before first paint,
+      avoiding a flash. The Navu `meta[name=navu:site]` tag + boot.js loader live in
+      app/_layout.tsx (Head), driven by NAVU_SITE_CODE via app.config.ts `extra`.
+    -->
+    <script>
+      "use strict";
+      (() => {
+        const t = document,
+          r = (e, ...d) => {
+            const s = t.head.appendChild(t.createElement(e));
+            return d.forEach((a) => s.setAttribute(a[0], a[1])), s;
+          };
+        const n = sessionStorage.getItem("nv-sidebar");
+        if (n) {
+          const e = JSON.parse(n);
+          e.css && (r("style", ["data-widget", "sidebar"]).innerHTML = e.css);
+          const d = (e.colorTheme || "light").trim().replace(/s/gi, "-").toLowerCase(),
+            s = e.layoutTheme || "classic-dockable",
+            a = ["nv-sidebar-" + e.state, `nv-sidebar-color-${d}`, `nv-sidebar-layout-${s}`],
+            o = () => t.body.classList.add(...a);
+          if (t.body) {
+            o();
+            return;
+          }
+          const i = t.readyState;
+          i === "interactive" || i === "complete"
+            ? o()
+            : t.addEventListener("DOMContentLoaded", () => o());
+        }
+      })();
+    </script>
   </body>
 </html>
