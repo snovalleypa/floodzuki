@@ -91,7 +91,7 @@ At the moment Maps are only available when running the app in Expo Go or in the 
 
 #### Google Auth
 
-Google Auth is only supported in the broser and standalone builds. It is not supported in the Expo Go app. To test it in the browser you'll need to start the secure tunnel with `$ EXPO_TUNNEL_SUBDOMAIN="floodzuki" npx expo start --tunnel --web` and open the app in the browser via `https://floodzuki.ngrok.io` (don't forget to pass the rest of the environment variables as well).
+To test Google Auth in the browser you'll need to start the secure tunnel with `$ EXPO_TUNNEL_SUBDOMAIN="floodzuki" npx expo start --tunnel --web` and open the app in the browser via `https://floodzuki.ngrok.io` (don't forget to pass the rest of the environment variables as well).
 
 ### Distribution
 
