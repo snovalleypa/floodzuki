@@ -8,10 +8,11 @@ import {
 } from "@services/floodPrediction/calculations";
 import { getDirectGaugeConstants } from "@services/floodPrediction/directGauges";
 import {
+  getCachedFloodProbability,
   getFloodProbability,
   getGaugeConstants,
 } from "@services/floodPrediction/floodPredictionService";
-import { FloodChanceResult, FloodProbabilityResult } from "@services/floodPrediction/types";
+import { FloodChanceResult } from "@services/floodPrediction/types";
 
 import { selectObservedPredictorStage } from "./observedFloodProbability";
 
@@ -37,26 +38,25 @@ export function useFloodProbability(gage?: Gage): FloodChanceResult | null {
   // Direct USGS gauges read their own red stage as the forecast threshold.
   const redStage = gage?.redStage;
 
-  const [forecast, setForecast] = useState<FloodProbabilityResult | null>(null);
+  // The resolved forecast lives in a module-level cache (below) so it surfaces on
+  // any render. This local state is only a re-render nudge for when the async
+  // fetch lands — never the source of truth — so a virtualized row whose effect
+  // is torn down before the fetch resolves still shows the value on its next
+  // render (e.g. the always-present map pin warms the cache first).
+  const [, bumpTick] = useState(0);
 
   useEffect(() => {
     let active = true;
-    const apply = (r: FloodProbabilityResult | null) => {
+    const done = () => {
       if (active) {
-        setForecast(r);
+        bumpTick((t) => t + 1);
       }
     };
 
     if (locationId && getGaugeConstants(locationId)) {
-      getFloodProbability(locationId)
-        .then(apply)
-        .catch(() => apply(null));
+      getFloodProbability(locationId).then(done).catch(done);
     } else if (locationId && getDirectGaugeConstants(locationId) && redStage != null) {
-      getFloodProbability(locationId, redStage)
-        .then(apply)
-        .catch(() => apply(null));
-    } else {
-      setForecast(null);
+      getFloodProbability(locationId, redStage).then(done).catch(done);
     }
 
     return () => {
@@ -95,6 +95,12 @@ export function useFloodProbability(gage?: Gage): FloodChanceResult | null {
         ? derivePredictorStageProbability(constants.floodProbability, observedStage)
         : null;
   }
+
+  // Read the forecast synchronously from the shared cache, keyed to match how the
+  // effect requested it (SVPA: locationId; direct USGS: locationId + red stage).
+  const forecast = constants
+    ? getCachedFloodProbability(locationId) ?? null
+    : getCachedFloodProbability(locationId, redStage) ?? null;
 
   return combineFloodChance({ forecast, observedProbability });
 }

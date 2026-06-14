@@ -1,3 +1,5 @@
+import { observable, runInAction } from "mobx";
+
 import Config from "@config/config";
 import constants from "@config/floodPredictionConstants.json";
 
@@ -12,11 +14,35 @@ const gauges = (constants as { gauges: FloodPredictionGauge[] }).gauges;
 const ratingCache = new Map<string, Promise<RatingPoint[]>>();
 // Map-quantiles change daily (or faster during flooding) → 15-min TTL.
 const quantileCache = new Map<string, { at: number; promise: Promise<MapQuantiles> }>();
+// Last resolved probability per gauge+threshold, readable synchronously. An
+// observable map (not a plain Map) on purpose: a consumer reads the value during
+// render, and the async fetch writes it later. For a mobx `observer` (e.g. the
+// gauge-list status pill) the observable read makes the component reliably
+// re-render when the value lands — a plain Map + async setState was racy and got
+// dropped for virtualized rows whose own re-render didn't fire. Kept out of MST
+// (a module-level observable) so the bulky payloads never enter the snapshot.
+const resultCache = observable.map<string, FloodProbabilityResult>({}, { deep: false });
+
+function resultKey(locationId: string, redStage?: number): string {
+  return redStage == null ? locationId : `${locationId}:${redStage}`;
+}
+
+/** The last computed flood probability for a gauge, or undefined if none yet. */
+export function getCachedFloodProbability(
+  locationId?: string,
+  redStage?: number
+): FloodProbabilityResult | undefined {
+  if (!locationId) {
+    return undefined;
+  }
+  return resultCache.get(resultKey(locationId, redStage));
+}
 
 /** Test hook: clears the in-memory caches. */
 export function __resetFloodPredictionCaches() {
   ratingCache.clear();
   quantileCache.clear();
+  runInAction(() => resultCache.clear());
 }
 
 /** The prediction constants for a gauge, or null when it isn't covered. */
@@ -97,11 +123,13 @@ export async function getFloodProbability(
       fetchMapQuantiles(gauge.predictor.noaaSiteId),
     ]);
 
-    return computeFloodProbability({
+    const result = computeFloodProbability({
       p99: gauge.floodProbability.p99,
       quantiles,
       ratingTable,
     });
+    runInAction(() => resultCache.set(resultKey(locationId), result));
+    return result;
   }
 
   const direct = getDirectGaugeConstants(locationId);
@@ -116,7 +144,9 @@ export async function getFloodProbability(
 
     // The gauge is its own predictor: its red stage is the threshold stage fed
     // straight into the exceedance curve (no regression p99 indirection).
-    return computeFloodProbability({ p99: redStage, quantiles, ratingTable });
+    const result = computeFloodProbability({ p99: redStage, quantiles, ratingTable });
+    runInAction(() => resultCache.set(resultKey(locationId, redStage), result));
+    return result;
   }
 
   return null;

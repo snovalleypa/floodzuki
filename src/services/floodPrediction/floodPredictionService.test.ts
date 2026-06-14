@@ -1,4 +1,8 @@
-import { __resetFloodPredictionCaches, getFloodProbability } from "./floodPredictionService";
+import {
+  __resetFloodPredictionCaches,
+  getCachedFloodProbability,
+  getFloodProbability,
+} from "./floodPredictionService";
 
 const RATING = [
   "# comment",
@@ -78,5 +82,20 @@ describe("getFloodProbability", () => {
       String(c[0]).includes("get_ratings")
     );
     expect(String(ratingCall![0])).toContain("12150800");
+  });
+
+  // The resolved result is cached for synchronous reads so consumers surface it
+  // on any render, not just when a single async update lands.
+  it("caches the resolved result, keyed by gauge + threshold, for sync reads", async () => {
+    expect(getCachedFloodProbability("USGS-SH5", 44.6)).toBeUndefined();
+    const r = await getFloodProbability("USGS-SH5", 44.6);
+    expect(getCachedFloodProbability("USGS-SH5", 44.6)).toEqual(r);
+    // A different threshold is a different cache entry.
+    expect(getCachedFloodProbability("USGS-SH5", 44.5)).toBeUndefined();
+  });
+
+  it("caches an SVPA result under the bare locationId", async () => {
+    await getFloodProbability("SVPA-25");
+    expect(getCachedFloodProbability("SVPA-25")).not.toBeUndefined();
   });
 });
