@@ -139,8 +139,9 @@ describe("MapLibreWebGageMap — style gating", () => {
 // ---------------------------------------------------------------------------
 
 describe("MapLibreWebGageMap — startBounds", () => {
-  const singleGageLngDelta = 0.00421;
-  const singleGageLatDelta = 0.00922;
+  // Keep in sync with SINGLE_GAGE_LNG_DELTA / SINGLE_GAGE_LAT_DELTA in MapModels.
+  const singleGageLngDelta = 0.09;
+  const singleGageLatDelta = 0.06;
 
   it("uses singleGage coords when lat and lng are valid", () => {
     const singleGage = makeGage({ latitude: 47.0, longitude: -122.0 });

@@ -1,4 +1,8 @@
-import { InternalGageMapProps } from "@models/MapModels";
+import {
+  InternalGageMapProps,
+  SINGLE_GAGE_LAT_DELTA,
+  SINGLE_GAGE_LNG_DELTA,
+} from "@models/MapModels";
 import { useMemo, useRef, useState } from "react";
 import { Camera, GeoJSONSource, Layer, Map, Marker } from "@maplibre/maplibre-react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
@@ -41,8 +45,8 @@ const styles = StyleSheet.create({
 const defaultRegionBounds = [-122.4, 46.9, -120.9, 48.4];
 const defaultMapBounds = [-122.3328, 46.9564, -121.2959, 48.3127];
 
-const singleGageLatDelta = 0.00421;
-const singleGageLngDelta = 0.00421;
+const singleGageLatDelta = SINGLE_GAGE_LAT_DELTA;
+const singleGageLngDelta = SINGLE_GAGE_LNG_DELTA;
 
 const MapLibreMobileGageMap = ({
   gages,

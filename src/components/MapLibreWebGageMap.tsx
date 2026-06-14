@@ -1,6 +1,10 @@
 import { Map, Marker, Source, Layer, useMap, type MapRef } from "@vis.gl/react-maplibre";
 import { useEffect, useMemo, useRef } from "react";
-import { InternalGageMapProps } from "@models/MapModels";
+import {
+  InternalGageMapProps,
+  SINGLE_GAGE_LAT_DELTA,
+  SINGLE_GAGE_LNG_DELTA,
+} from "@models/MapModels";
 import { useResponsive } from "@common-ui/utils/responsive";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import { StyleSheet } from "react-native";
@@ -39,8 +43,8 @@ const styles = StyleSheet.create({
 const defaultRegionBounds = [-122.4, 46.9, -120.9, 48.4];
 const defaultMapBounds = [-122.3328, 46.9564, -121.2959, 48.3127];
 
-const singleGageLatDelta = 0.00922;
-const singleGageLngDelta = 0.00421;
+const singleGageLatDelta = SINGLE_GAGE_LAT_DELTA;
+const singleGageLngDelta = SINGLE_GAGE_LNG_DELTA;
 
 const MapLibreWebGageWebMap = ({
   gages,
