@@ -1,6 +1,8 @@
-import { Map, Marker, Source, Layer, useMap } from "@vis.gl/react-maplibre";
-import { useMemo } from "react";
+import { Map, Marker, Source, Layer, useMap, type MapRef } from "@vis.gl/react-maplibre";
+import { useEffect, useMemo, useRef } from "react";
 import { InternalGageMapProps } from "@models/MapModels";
+import { useResponsive } from "@common-ui/utils/responsive";
+import { useLocale } from "@common-ui/contexts/LocaleContext";
 import { StyleSheet } from "react-native";
 import "maplibre-gl/dist/maplibre-gl.css";
 import TrendIcon, { TREND_ICON_TYPES } from "./TrendIcon";
@@ -61,6 +63,41 @@ const MapLibreWebGageWebMap = ({
   }, [region]);
 
   const { current: map } = useMap();
+
+  // On the narrow (mobile-web) layout the map is the header of a vertically-scrolling
+  // list, so a one-finger drag should scroll the page rather than pan the map.
+  // maplibre's `cooperativeGestures` gives exactly that: one finger scrolls the page
+  // (with a hint overlay), two fingers pan/zoom. On desktop we leave it off so the
+  // free pan/scroll-zoom behavior is unchanged.
+  const { isMobile } = useResponsive();
+  const { t } = useLocale();
+  const mapRef = useRef<MapRef>(null);
+
+  // Localized overrides for maplibre's built-in cooperative-gestures hint overlay.
+  // maplibre merges this with its default locale, so we only override these keys.
+  const mapLocale = useMemo(
+    () => ({
+      "CooperativeGesturesHandler.WindowsHelpText": t("map.cooperativeGesturesWindows"),
+      "CooperativeGesturesHandler.MacHelpText": t("map.cooperativeGesturesMac"),
+      "CooperativeGesturesHandler.MobileHelpText": t("map.cooperativeGesturesMobile"),
+    }),
+    [t]
+  );
+
+  // `cooperativeGestures` is only read at map init by @vis.gl/react-maplibre (it is
+  // not one of its reactive handler props), so toggle it directly when the viewport
+  // crosses the breakpoint, e.g. on resize or device rotation.
+  useEffect(() => {
+    const gl = mapRef.current?.getMap();
+    if (!gl) {
+      return;
+    }
+    if (isMobile) {
+      gl.cooperativeGestures.enable();
+    } else {
+      gl.cooperativeGestures.disable();
+    }
+  }, [isMobile]);
 
   const townLabelsGeoJson = useMemo(() => getTownLabelsGeoJson(region?.id), [region]);
   const riverOverlaysGeoJson = useMemo(() => getRiverOverlaysGeoJson(region?.id), [region]);
@@ -128,11 +165,14 @@ const MapLibreWebGageWebMap = ({
 
   return (
     <Map
+      ref={mapRef}
       initialViewState={{
         bounds: startBounds,
       }}
       maxBounds={regionBounds}
       mapStyle={mapStyle}
+      cooperativeGestures={isMobile}
+      locale={mapLocale}
       attributionControl={{ compact: true }}
       onLoad={(e) => {
         const container = e.target.getContainer();

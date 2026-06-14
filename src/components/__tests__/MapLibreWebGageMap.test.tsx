@@ -33,6 +33,16 @@ jest.mock("../TrendIcon", () => ({
   TREND_ICON_TYPES: { Map: "Map" },
 }));
 
+// Avoid pulling in the store/api graph (LocaleContext -> useStores -> api) which
+// fails to load under jsdom (TextEncoder). Only the `t` passthrough is needed here.
+jest.mock("@common-ui/contexts/LocaleContext", () => ({
+  useLocale: () => ({ t: (key: string) => key }),
+}));
+
+jest.mock("@common-ui/utils/responsive", () => ({
+  useResponsive: () => ({ isMobile: false, isDesktop: true, isTablet: false, isWideScreen: true }),
+}));
+
 const MockMap = MapLibre.Map as unknown as jest.Mock;
 const MockMarker = MapLibre.Marker as unknown as jest.Mock;
 

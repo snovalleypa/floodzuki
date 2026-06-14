@@ -274,6 +274,11 @@ const es = {
     upstreamGage: "Medidor río arriba",
     downstreamGage: "Medidor río abajo",
   },
+  map: {
+    cooperativeGesturesWindows: "Usa Ctrl + desplazamiento para hacer zoom en el mapa",
+    cooperativeGesturesMac: "Usa ⌘ + desplazamiento para hacer zoom en el mapa",
+    cooperativeGesturesMobile: "Usa dos dedos para mover el mapa",
+  },
   calloutReading: {
     lastReading: "Última medición",
     peak: "Máximo",

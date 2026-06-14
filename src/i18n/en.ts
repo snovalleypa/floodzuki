@@ -270,6 +270,11 @@ const en = {
     upstreamGage: "Upstream Gauge",
     downstreamGage: "Downstream Gauge",
   },
+  map: {
+    cooperativeGesturesWindows: "Use Ctrl + scroll to zoom the map",
+    cooperativeGesturesMac: "Use ⌘ + scroll to zoom the map",
+    cooperativeGesturesMobile: "Use two fingers to move the map",
+  },
   calloutReading: {
     lastReading: "Last Reading",
     peak: "Peak",
