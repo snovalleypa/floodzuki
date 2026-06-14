@@ -1,6 +1,12 @@
-import { InternalGageMapProps } from "@models/MapModels";
-import { useMemo, useRef } from "react";
+import {
+  InternalGageMapProps,
+  SINGLE_GAGE_LAT_DELTA,
+  SINGLE_GAGE_LNG_DELTA,
+} from "@models/MapModels";
+import { useMemo, useRef, useState } from "react";
 import { Camera, GeoJSONSource, Layer, Map, Marker } from "@maplibre/maplibre-react-native";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import { runOnJS } from "react-native-reanimated";
 import { StyleSheet, ViewStyle } from "react-native";
 import { Spacing } from "../common-ui/constants/spacing";
 import TrendIcon, { TREND_ICON_TYPES } from "./TrendIcon";
@@ -39,8 +45,8 @@ const styles = StyleSheet.create({
 const defaultRegionBounds = [-122.4, 46.9, -120.9, 48.4];
 const defaultMapBounds = [-122.3328, 46.9564, -121.2959, 48.3127];
 
-const singleGageLatDelta = 0.00421;
-const singleGageLngDelta = 0.00421;
+const singleGageLatDelta = SINGLE_GAGE_LAT_DELTA;
+const singleGageLngDelta = SINGLE_GAGE_LNG_DELTA;
 
 const MapLibreMobileGageMap = ({
   gages,
@@ -49,6 +55,34 @@ const MapLibreMobileGageMap = ({
   singleGage,
 }: InternalGageMapProps) => {
   const mapRef = useRef(null);
+
+  // The map lives inside a vertically-scrolling list, so a one-finger drag should
+  // scroll the page rather than pan the map. We keep panning disabled until two or
+  // more fingers are down, giving "cooperative gestures": one finger = page scroll,
+  // two fingers = pan/zoom the map. (Pinch-zoom via `touchZoom` is inherently
+  // two-finger and stays enabled.)
+  const [dragPanEnabled, setDragPanEnabled] = useState(false);
+
+  // `Gesture.Manual` only observes touches — it never activates, so it won't steal
+  // the gesture from MapLibre's own pan recognizer; it just counts active pointers.
+  const pointerCounter = useMemo(
+    () =>
+      Gesture.Manual()
+        .onTouchesDown((event) => {
+          if (event.numberOfTouches >= 2) {
+            runOnJS(setDragPanEnabled)(true);
+          }
+        })
+        .onTouchesUp((event) => {
+          if (event.numberOfTouches < 2) {
+            runOnJS(setDragPanEnabled)(false);
+          }
+        })
+        .onTouchesCancelled(() => {
+          runOnJS(setDragPanEnabled)(false);
+        }),
+    []
+  );
 
   const mapStyle = useMemo(() => {
     if (useLocalMapStyle) {
@@ -117,16 +151,23 @@ const MapLibreMobileGageMap = ({
   }, [region, singleGage]);
 
   return (
-    <Map ref={mapRef} style={styles.map} mapStyle={mapStyle} touchRotate={false}>
-      <Camera maxBounds={regionBounds} bounds={startBounds} />
-      <GeoJSONSource id="region-rivers" data={riverOverlaysGeoJson}>
-        <Layer {...RIVER_OVERLAY_LAYER_PROPS} />
-      </GeoJSONSource>
-      <GeoJSONSource id="region-towns" data={townLabelsGeoJson}>
-        <Layer {...TOWN_LABELS_LAYER_PROPS} />
-      </GeoJSONSource>
-      {markers}
-    </Map>
+    <GestureDetector gesture={pointerCounter}>
+      <Map
+        ref={mapRef}
+        style={styles.map}
+        mapStyle={mapStyle}
+        touchRotate={false}
+        dragPan={dragPanEnabled}>
+        <Camera maxBounds={regionBounds} bounds={startBounds} />
+        <GeoJSONSource id="region-rivers" data={riverOverlaysGeoJson}>
+          <Layer {...RIVER_OVERLAY_LAYER_PROPS} />
+        </GeoJSONSource>
+        <GeoJSONSource id="region-towns" data={townLabelsGeoJson}>
+          <Layer {...TOWN_LABELS_LAYER_PROPS} />
+        </GeoJSONSource>
+        {markers}
+      </Map>
+    </GestureDetector>
   );
 };
 
