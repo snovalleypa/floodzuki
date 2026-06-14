@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Git directives
+
+- **Never commit `docs/`.** It is intentionally gitignored (local-only specs, design notes, etc.). Do not stage or commit files under `docs/`, and never use `git add -f` to bypass the ignore for them.
+
 ## Project Overview
 
 Floodzuki is the mobile/web client for the **Floodzilla Gauge Monitoring System**, operated by the Snoqualmie Valley Preservation Alliance (SVPA). It monitors river gauges on the Snoqualmie River and provides flood predictions and alerts. The app runs on iOS, Android, and Web via Expo/React Native.
