@@ -108,6 +108,12 @@ const es = {
     timeHeader: "Hora Local",
     heightHeader: "Altura",
     flowHeader: "Caudal",
+    roadFloodingTitle: "Inundación de carreteras",
+    roadFloodingSubtitle: "Probabilidad de que el agua llegue a la vía · próximos 10 días",
+    floodingTitle: "Inundación",
+    floodingSubtitle:
+      "Probabilidad de que el agua llegue al nivel de inundación · próximos 10 días",
+    floodingNow: "Inundándose ahora",
   },
   profileScreen: {
     title: "Perfil",

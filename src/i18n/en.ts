@@ -106,6 +106,11 @@ const en = {
     timeHeader: "Local Time",
     heightHeader: "Height",
     flowHeader: "Flow",
+    roadFloodingTitle: "Road Flooding",
+    roadFloodingSubtitle: "Chance water reaches the road · next 10 days",
+    floodingTitle: "Flooding",
+    floodingSubtitle: "Chance water reaches flood stage · next 10 days",
+    floodingNow: "Flooding now",
   },
   profileScreen: {
     title: "Profile",
