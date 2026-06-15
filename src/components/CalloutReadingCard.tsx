@@ -24,6 +24,7 @@ import TrendIcon, { TREND_ICON_TYPES } from "@components/TrendIcon";
 import { Spacing } from "@common-ui/constants/spacing";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import { useFloodProbability } from "@utils/useFloodProbability";
+import { formatFloodChanceLabel } from "@utils/floodChanceLabel";
 import { isAtOrAboveRedStage } from "@utils/useFloodRiskLevel";
 import { floodChanceRiskLevel } from "@services/floodPrediction/calculations";
 import FloodRiskBadge, { WithFloodRiskBadge } from "@components/FloodRiskBadge";
@@ -88,18 +89,7 @@ const CalloutReading = observer(function CalloutReadingCard({ gage }: { gage: Ga
   // Map the combined chance bucket to a label. Forecast tops out at 90% (a lower
   // bound → ">90%"); the observed path is precise (exact 90/95, ">=99%").
   const chance = floodChance?.chance;
-  let floodChanceLabel = "";
-  if (chance?.level === "low") {
-    floodChanceLabel = t("calloutReading.floodChanceLow");
-  } else if (chance?.level === "percent") {
-    floodChanceLabel = `${chance.percent}%`;
-  } else if (chance?.level === "veryHighClamp") {
-    floodChanceLabel = t("calloutReading.floodChanceVeryHigh");
-  } else if (chance?.level === "veryHigh") {
-    floodChanceLabel = t("calloutReading.floodChanceVeryHighExact", { percent: chance.percent });
-  } else if (chance?.level === "nearCertain") {
-    floodChanceLabel = t("calloutReading.floodChanceNearCertain");
-  }
+  const floodChanceLabel = chance ? formatFloodChanceLabel(chance, t) : "";
 
   // The Status row moved to the header, so the reading rows (water level / flow /
   // flood chance) can now be the last item in the card. Drop the trailing border
