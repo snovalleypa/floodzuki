@@ -1,6 +1,5 @@
 import Config from "@config/config";
 import { ChartColorsHex } from "@common-ui/constants/colors";
-import { ROUTES } from "app/_layout";
 
 export interface ForecastGroup {
   // Ordered ids for the page group (top-level order, or fork S->M->N order).
@@ -29,6 +28,12 @@ export function getForecastFetchIds(): string[] {
  * ids that are neither, so callers can fall back to a standalone page.
  */
 export function findForecastGroup(gageId: string): ForecastGroup | null {
+  // Lazy-require to avoid pulling native bottom-sheet/reanimated modules into
+  // the module graph at import time (which breaks Jest for any file that
+  // transitively imports forecastGroups).
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { ROUTES } = require("app/_layout") as { ROUTES: Record<string, string> };
+
   if (Config.FORECAST_GAGE_IDS.includes(gageId)) {
     return {
       ids: Config.FORECAST_GAGE_IDS,
