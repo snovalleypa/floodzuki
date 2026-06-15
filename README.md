@@ -65,12 +65,18 @@ To fully utilize all supported features in development mode you'll need to run t
   GOOGLE_MAPS_IOS_API_KEY=""
   GOOGLE_MAPS_ANDROID_API_KEY=""
   GOOGLE_MAPS_WEB_API_KEY=""
+  NAVU_SITE_CODE=""
+  GA_TRACKING_ID=""
+  APPLE_APP_ID=""
+  GOOGLE_PLAY_PACKAGE=""
 ```
+
+The last four are public, fixed identifiers (not per-developer secrets) that drive web-only `<head>` tags — the Navu FAQ widget, Google Analytics, and the App Store / Play Store smart-app banners. They have no fallback in code, so a build that omits them silently drops those features.
 
 or just run the app with the following command:
 
 ```bash
-$ BUILD_ENV="local" SENTRY_AUTH_TOKEN="" GOOGLE_AUTH_CLIENT_SECRET="" GOOGLE_RECAPTCH_SITE_KEY="" GOOGLE_AUTH_EXPO_ID="" GOOGLE_AUTH_WEB_ID="" GOOGLE_AUTH_IOS_ID="" GOOGLE_AUTH_ANDROID_ID="" GOOGLE_MAPS_IOS_API_KEY="" GOOGLE_MAPS_ANDROID_API_KEY="" GOOGLE_MAPS_WEB_API_KEY="" npx expo start
+$ BUILD_ENV="local" SENTRY_AUTH_TOKEN="" GOOGLE_AUTH_CLIENT_SECRET="" GOOGLE_RECAPTCH_SITE_KEY="" GOOGLE_AUTH_EXPO_ID="" GOOGLE_AUTH_WEB_ID="" GOOGLE_AUTH_IOS_ID="" GOOGLE_AUTH_ANDROID_ID="" GOOGLE_MAPS_IOS_API_KEY="" GOOGLE_MAPS_ANDROID_API_KEY="" GOOGLE_MAPS_WEB_API_KEY="" NAVU_SITE_CODE="" GA_TRACKING_ID="" APPLE_APP_ID="" GOOGLE_PLAY_PACKAGE="" npx expo start
 ```
 
 #### Push Notifications
@@ -85,7 +91,7 @@ At the moment Maps are only available when running the app in Expo Go or in the 
 
 #### Google Auth
 
-Google Auth is only supported in the broser and standalone builds. It is not supported in the Expo Go app. To test it in the browser you'll need to start the secure tunnel with `$ EXPO_TUNNEL_SUBDOMAIN="floodzuki" npx expo start --tunnel --web` and open the app in the browser via `https://floodzuki.ngrok.io` (don't forget to pass the rest of the environment variables as well).
+To test Google Auth in the browser you'll need to start the secure tunnel with `$ EXPO_TUNNEL_SUBDOMAIN="floodzuki" npx expo start --tunnel --web` and open the app in the browser via `https://floodzuki.ngrok.io` (don't forget to pass the rest of the environment variables as well).
 
 ### Debug & replay URL params
 
@@ -131,7 +137,7 @@ The updates are created locally and don't have access to Expo Secrets therefore 
 The full command will look more like this (`BUILD_ENV="local"` is used to bundle local `google-services.json` file):
 
 ```bash
-$ BUILD_ENV="local" SENTRY_AUTH_TOKEN="" GOOGLE_AUTH_CLIENT_SECRET="" GOOGLE_RECAPTCH_SITE_KEY="" GOOGLE_AUTH_EXPO_ID="" GOOGLE_AUTH_WEB_ID="" GOOGLE_AUTH_IOS_ID="" GOOGLE_AUTH_ANDROID_ID="" GOOGLE_MAPS_IOS_API_KEY="" GOOGLE_MAPS_ANDROID_API_KEY="" GOOGLE_MAPS_WEB_API_KEY="" eas update --channel production
+$ BUILD_ENV="local" SENTRY_AUTH_TOKEN="" GOOGLE_AUTH_CLIENT_SECRET="" GOOGLE_RECAPTCH_SITE_KEY="" GOOGLE_AUTH_EXPO_ID="" GOOGLE_AUTH_WEB_ID="" GOOGLE_AUTH_IOS_ID="" GOOGLE_AUTH_ANDROID_ID="" GOOGLE_MAPS_IOS_API_KEY="" GOOGLE_MAPS_ANDROID_API_KEY="" GOOGLE_MAPS_WEB_API_KEY="" NAVU_SITE_CODE="" GA_TRACKING_ID="" APPLE_APP_ID="" GOOGLE_PLAY_PACKAGE="" eas update --channel production
 ```
 
 To upload source maps for Sentry you need to take the following steps to upload the source maps for your update to Sentry:
