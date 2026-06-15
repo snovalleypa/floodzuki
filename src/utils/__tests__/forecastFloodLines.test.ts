@@ -42,4 +42,22 @@ describe("computeFloodLines", () => {
     expect(lines).toHaveLength(1);
     expect(lines[0].value).toBe(19400);
   });
+
+  it("returns empty when the override gage is missing from forecasts", () => {
+    const lines = computeFloodLines(
+      [mkForecast("USGS-38", "SQUW1", 19400)],
+      { gageId: "USGS-SF17/USGS-NF10/USGS-MF11", label: "Forks" },
+      t
+    );
+    expect(lines).toHaveLength(0);
+  });
+
+  it("returns empty when the override gage has no flood stage yet (stageTwo 0)", () => {
+    const lines = computeFloodLines(
+      [mkForecast("USGS-SF17/USGS-NF10/USGS-MF11", "", 0)],
+      { gageId: "USGS-SF17/USGS-NF10/USGS-MF11", label: "Forks" },
+      t
+    );
+    expect(lines).toHaveLength(0);
+  });
 });
