@@ -8,8 +8,56 @@ import {
   derivePredictorStageProbability,
   combineFloodChance,
   floodChanceRiskLevel,
+  predictorStageForThreshold,
+  shiftFloodProbabilityConstants,
 } from "./calculations";
 import { FloodProbabilityResult, FloodRiskLevel } from "./types";
+
+describe("predictorStageForThreshold", () => {
+  const fp = { redStage: 74.12, p50: 10.38, p90: 11.06, p99: 11.61, residualSigma: 0.6485 };
+  const slope = 1.2184;
+
+  it("returns p99 unchanged when threshold equals redStage", () => {
+    expect(predictorStageForThreshold(fp, slope, 74.12)).toBeCloseTo(11.61, 5);
+  });
+
+  it("returns p99 unchanged when threshold is undefined", () => {
+    expect(predictorStageForThreshold(fp, slope, undefined)).toBeCloseTo(11.61, 5);
+  });
+
+  it("shifts up for a road saddle above red stage", () => {
+    // Δ = (76.55 - 74.12) / 1.2184 = 1.9944; p99 + Δ = 13.6044
+    expect(predictorStageForThreshold(fp, slope, 76.55)).toBeCloseTo(13.6044, 3);
+  });
+});
+
+describe("shiftFloodProbabilityConstants", () => {
+  const fp = { redStage: 74.12, p50: 10.38, p90: 11.06, p99: 11.61, residualSigma: 0.6485 };
+  const slope = 1.2184;
+
+  it("is unchanged at threshold = redStage", () => {
+    expect(shiftFloodProbabilityConstants(fp, slope, 74.12)).toEqual({
+      p50: 10.38,
+      p90: 11.06,
+      p99: 11.61,
+    });
+  });
+
+  it("is unchanged when threshold is undefined", () => {
+    expect(shiftFloodProbabilityConstants(fp, slope, undefined)).toEqual({
+      p50: 10.38,
+      p90: 11.06,
+      p99: 11.61,
+    });
+  });
+
+  it("shifts all three quantiles by the same Δ", () => {
+    const out = shiftFloodProbabilityConstants(fp, slope, 76.55); // Δ ≈ 1.9944
+    expect(out.p50).toBeCloseTo(12.3744, 3);
+    expect(out.p90).toBeCloseTo(13.0544, 3);
+    expect(out.p99).toBeCloseTo(13.6044, 3);
+  });
+});
 
 const SAMPLE = [
   "# //comment line",

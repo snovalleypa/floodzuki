@@ -192,6 +192,51 @@ export function derivePredictorStageProbability(
   return 0.1 + ((stage - p10Stage) / span) * 0.8;
 }
 
+interface FloodProbabilityConstants {
+  redStage: number;
+  p50: number;
+  p90: number;
+  p99: number;
+  residualSigma: number;
+}
+
+/**
+ * Predictor stage corresponding to threshold height T, anchored on the gauge's
+ * 99%-confidence red-stage predictor stage (p99). A threshold above red stage
+ * (e.g. a road saddle) maps to a higher predictor stage by Δ = (T − redStage) /
+ * slope. Returns p99 unchanged when T is omitted or equals redStage (Δ = 0), so
+ * the default red-stage path is byte-for-byte the original computation.
+ */
+export function predictorStageForThreshold(
+  fp: FloodProbabilityConstants,
+  slope: number,
+  thresholdOverride?: number
+): number {
+  if (thresholdOverride == null) {
+    return fp.p99;
+  }
+  const delta = (thresholdOverride - fp.redStage) / slope;
+  return fp.p99 + delta;
+}
+
+/**
+ * The {p50,p90,p99} observed-probability distribution shifted to threshold T by
+ * the same Δ = (T − redStage) / slope. Unchanged when T is omitted or equals
+ * redStage. A higher threshold yields a higher distribution, so the same measured
+ * predictor stage maps to a lower observed probability.
+ */
+export function shiftFloodProbabilityConstants(
+  fp: FloodProbabilityConstants,
+  slope: number,
+  thresholdOverride?: number
+): { p50: number; p90: number; p99: number } {
+  if (thresholdOverride == null) {
+    return { p50: fp.p50, p90: fp.p90, p99: fp.p99 };
+  }
+  const delta = (thresholdOverride - fp.redStage) / slope;
+  return { p50: fp.p50 + delta, p90: fp.p90 + delta, p99: fp.p99 + delta };
+}
+
 function roundToFivePercent(probability: number): number {
   return Math.round((probability * 100) / 5) * 5;
 }
