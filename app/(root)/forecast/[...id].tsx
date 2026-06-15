@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { ErrorBoundaryProps, Stack, useGlobalSearchParams } from "expo-router";
+import { ErrorBoundaryProps, Stack, useGlobalSearchParams, useRouter } from "expo-router";
 import PageTitle from "@common-ui/components/PageTitle";
 
 import { observer } from "mobx-react-lite";
@@ -9,7 +9,7 @@ import { LargeTitle } from "@common-ui/components/Text";
 import { ErrorDetails } from "@components/ErrorDetails";
 import { ForecastChart } from "@components/ForecastChart";
 import { ExtendedGageSummaryCard, GageSummaryCard } from "@components/GageSummaryCard";
-import { Cell, Row } from "@common-ui/components/Common";
+import { Cell, Row, RowOrCell } from "@common-ui/components/Common";
 import { Spacing } from "@common-ui/constants/spacing";
 
 import { useStores } from "@models/helpers/useStores";
@@ -31,9 +31,16 @@ export function ErrorBoundary(props: ErrorBoundaryProps) {
   return <ErrorDetails {...props} />;
 }
 
-const ForecastDetailsBody = observer(function ForecastDetailsBody({ gageId }: { gageId: string }) {
+const ForecastDetailsBody = observer(function ForecastDetailsBody({
+  gageId,
+  backRoute,
+}: {
+  gageId: string;
+  backRoute?: { pathname: string; params: Record<string, any> | undefined };
+}) {
   const { t } = useLocale();
   const store = useStores();
+  const router = useRouter();
 
   const { isMobile } = useResponsive();
 
@@ -49,9 +56,17 @@ const ForecastDetailsBody = observer(function ForecastDetailsBody({ gageId }: { 
     }
   }, [store.isFetched]);
 
-  const goBack = useGoBack(ROUTES.Forecast);
+  const goBack = useGoBack(backRoute?.pathname ?? ROUTES.Forecast, backRoute?.params);
 
   const forecastGage = store.getForecastGage(gageId);
+
+  const forkIds = forecastGage?.isMetagage ? Config.FORECAST_METAGAGE_COMPONENTS[gageId] ?? [] : [];
+  const forkGages = store.getForecastGages(forkIds);
+
+  // Metagage chart: sum line + each fork; draw the metagage's own flood-stage line.
+  const chartGages = forecastGage?.isMetagage ? [forecastGage, ...forkGages] : [forecastGage];
+  // "Forks" matches the existing hardcoded label in getFloodStageLabel.
+  const floodLineOverride = forecastGage?.isMetagage ? { gageId, label: "Forks" } : undefined;
 
   return (
     <Screen>
@@ -82,13 +97,33 @@ const ForecastDetailsBody = observer(function ForecastDetailsBody({ gageId }: { 
       </Row>
       <Content scrollable onRefresh={fetchData}>
         <If condition={!!forecastGage}>
-          <ForecastChart gages={[forecastGage]} />
+          <ForecastChart gages={chartGages} floodLineOverride={floodLineOverride} />
           <Cell top={isMobile ? Spacing.small : Spacing.tiny}>
             <GageSummaryCard firstItem noDetails gage={forecastGage} />
           </Cell>
           <Cell top={isMobile ? Spacing.small : Spacing.mediumXL}>
             <ExtendedGageSummaryCard gage={forecastGage} />
           </Cell>
+          <If condition={forkGages.length > 0}>
+            <Cell top={isMobile ? Spacing.small : Spacing.mediumXL}>
+              <LargeTitle>{t("forecastScreen.forksSectionTitle")}</LargeTitle>
+            </Cell>
+            <RowOrCell flex align="flex-start" justify="stretch" top={Spacing.medium}>
+              {forkGages.map((fork, i) => (
+                <GageSummaryCard
+                  firstItem={i === 0}
+                  key={fork.id}
+                  gage={fork}
+                  onPress={() =>
+                    router.push({
+                      pathname: ROUTES.ForecastDetails,
+                      params: { id: [fork.id] },
+                    })
+                  }
+                />
+              ))}
+            </RowOrCell>
+          </If>
           <ForecastFooter />
         </If>
       </Content>
