@@ -5,6 +5,7 @@ import { useStores } from "@models/helpers/useStores";
 import {
   combineFloodChance,
   derivePredictorStageProbability,
+  shiftFloodProbabilityConstants,
 } from "@services/floodPrediction/calculations";
 import { getDirectGaugeConstants } from "@services/floodPrediction/directGauges";
 import {
@@ -30,13 +31,18 @@ import { selectObservedPredictorStage } from "./observedFloodProbability";
  * of MST so the bulky payloads never enter the persisted snapshot. Someday the
  * whole computation moves server-side behind this same return shape.
  */
-export function useFloodProbability(gage?: Gage): FloodChanceResult | null {
+export function useFloodProbability(
+  gage?: Gage,
+  thresholdOverride?: number
+): FloodChanceResult | null {
   const { gagesStore, getTimezone } = useStores();
   const locationId = gage?.locationId;
   const constants = getGaugeConstants(locationId);
   const direct = getDirectGaugeConstants(locationId);
-  // Direct USGS gauges read their own red stage as the forecast threshold.
+  // Direct USGS gauges read their own red stage as the forecast threshold, unless
+  // an explicit threshold (e.g. a road saddle) is supplied.
   const redStage = gage?.redStage;
+  const directThreshold = thresholdOverride ?? redStage;
 
   // The resolved forecast lives in a module-level cache (below) so it surfaces on
   // any render. This local state is only a re-render nudge for when the async
@@ -54,15 +60,15 @@ export function useFloodProbability(gage?: Gage): FloodChanceResult | null {
     };
 
     if (locationId && getGaugeConstants(locationId)) {
-      getFloodProbability(locationId).then(done).catch(done);
-    } else if (locationId && getDirectGaugeConstants(locationId) && redStage != null) {
-      getFloodProbability(locationId, redStage).then(done).catch(done);
+      getFloodProbability(locationId, thresholdOverride).then(done).catch(done);
+    } else if (locationId && getDirectGaugeConstants(locationId) && directThreshold != null) {
+      getFloodProbability(locationId, directThreshold).then(done).catch(done);
     }
 
     return () => {
       active = false;
     };
-  }, [locationId, redStage]);
+  }, [locationId, directThreshold, thresholdOverride]);
 
   if (!gage || (!constants && !direct)) {
     return null;
@@ -92,15 +98,22 @@ export function useFloodProbability(gage?: Gage): FloodChanceResult | null {
 
     observedProbability =
       observedStage != null
-        ? derivePredictorStageProbability(constants.floodProbability, observedStage)
+        ? derivePredictorStageProbability(
+            shiftFloodProbabilityConstants(
+              constants.floodProbability,
+              constants.regression.slope,
+              thresholdOverride
+            ),
+            observedStage
+          )
         : null;
   }
 
   // Read the forecast synchronously from the shared cache, keyed to match how the
   // effect requested it (SVPA: locationId; direct USGS: locationId + red stage).
   const forecast = constants
-    ? getCachedFloodProbability(locationId) ?? null
-    : getCachedFloodProbability(locationId, redStage) ?? null;
+    ? getCachedFloodProbability(locationId, thresholdOverride) ?? null
+    : getCachedFloodProbability(locationId, directThreshold) ?? null;
 
   return combineFloodChance({ forecast, observedProbability });
 }
