@@ -8,6 +8,11 @@ export interface ForecastGroup {
   backRoute: { pathname: string; params: Record<string, any> | undefined };
 }
 
+export interface ForecastRoutes {
+  Forecast: string;
+  ForecastDetails: string;
+}
+
 /** All component fork ids across every metagage, flattened (display order). */
 function allForkComponents(): string[] {
   return Object.values(Config.FORECAST_METAGAGE_COMPONENTS).flat();
@@ -27,17 +32,11 @@ export function getForecastFetchIds(): string[] {
  * (metagage + Falls + Carnation) or a per-metagage fork group. Returns null for
  * ids that are neither, so callers can fall back to a standalone page.
  */
-export function findForecastGroup(gageId: string): ForecastGroup | null {
-  // Lazy-require to avoid pulling native bottom-sheet/reanimated modules into
-  // the module graph at import time (which breaks Jest for any file that
-  // transitively imports forecastGroups).
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { ROUTES } = require("app/_layout") as { ROUTES: Record<string, string> };
-
+export function findForecastGroup(gageId: string, routes: ForecastRoutes): ForecastGroup | null {
   if (Config.FORECAST_GAGE_IDS.includes(gageId)) {
     return {
       ids: Config.FORECAST_GAGE_IDS,
-      backRoute: { pathname: ROUTES.Forecast, params: undefined },
+      backRoute: { pathname: routes.Forecast, params: undefined },
     };
   }
 
@@ -46,7 +45,7 @@ export function findForecastGroup(gageId: string): ForecastGroup | null {
       return {
         ids: components,
         backRoute: {
-          pathname: ROUTES.ForecastDetails,
+          pathname: routes.ForecastDetails,
           params: { id: metagageId.split("/") },
         },
       };

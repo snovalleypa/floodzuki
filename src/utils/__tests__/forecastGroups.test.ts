@@ -1,15 +1,8 @@
 import { getForecastFetchIds, findForecastGroup, buildForecastColorMap } from "../forecastGroups";
 import Config from "@config/config";
 import { ChartColorsHex } from "@common-ui/constants/colors";
-import { ROUTES } from "app/_layout";
 
-// app/_layout pulls in native bottom-sheet/reanimated modules that don't run in Jest.
-jest.mock("app/_layout", () => ({
-  ROUTES: {
-    Forecast: "/forecast",
-    ForecastDetails: "/forecast/[...id]",
-  },
-}));
+const ROUTES = { Forecast: "/forecast", ForecastDetails: "/forecast/[...id]" };
 
 const METAGAGE = "USGS-SF17/USGS-NF10/USGS-MF11";
 
@@ -33,17 +26,17 @@ describe("getForecastFetchIds", () => {
 
 describe("findForecastGroup", () => {
   it("resolves a top-level id to the top-level group with a Forecast back route", () => {
-    const group = findForecastGroup("USGS-38");
+    const group = findForecastGroup("USGS-38", ROUTES);
     expect(group?.ids).toEqual(Config.FORECAST_GAGE_IDS);
     expect(group?.backRoute).toEqual({ pathname: ROUTES.Forecast, params: undefined });
   });
 
   it("resolves the metagage id to the top-level group", () => {
-    expect(findForecastGroup(METAGAGE)?.ids).toEqual(Config.FORECAST_GAGE_IDS);
+    expect(findForecastGroup(METAGAGE, ROUTES)?.ids).toEqual(Config.FORECAST_GAGE_IDS);
   });
 
   it("resolves a fork id to the S->M->N fork group with a back route to its metagage", () => {
-    const group = findForecastGroup("USGS-NF10");
+    const group = findForecastGroup("USGS-NF10", ROUTES);
     expect(group?.ids).toEqual(["USGS-SF17", "USGS-MF11", "USGS-NF10"]);
     expect(group?.backRoute).toEqual({
       pathname: ROUTES.ForecastDetails,
@@ -52,7 +45,7 @@ describe("findForecastGroup", () => {
   });
 
   it("returns null for an unknown id", () => {
-    expect(findForecastGroup("USGS-999")).toBeNull();
+    expect(findForecastGroup("USGS-999", ROUTES)).toBeNull();
   });
 });
 

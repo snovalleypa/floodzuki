@@ -1,6 +1,7 @@
 import { ForecastStoreModel } from "../Forecasts";
 import { api } from "@services/api";
 import { getForecastFetchIds } from "@utils/forecastGroups";
+import { ChartColorsHex } from "@common-ui/constants/colors";
 
 jest.mock("@services/api", () => ({
   api: { getReadings: jest.fn(), getForecasts: jest.fn() },
@@ -44,9 +45,9 @@ describe("ForecastStore — fork fetching, colors, severity", () => {
 
     await store.fetchRecentReadings();
 
-    expect(store.forecasts.get(METAGAGE)?.color).toBe("#0000FF");
-    expect(store.forecasts.get("USGS-22")?.color).toBe("#800000");
-    expect(store.forecasts.get("USGS-NF10")?.color).not.toBe("#0000FF");
+    expect(store.forecasts.get(METAGAGE)?.color).toBe(ChartColorsHex[0]);
+    expect(store.forecasts.get("USGS-22")?.color).toBe(ChartColorsHex[2]);
+    expect(store.forecasts.get("USGS-NF10")?.color).not.toBe(ChartColorsHex[0]);
   });
 
   it("computes severity only from top-level FORECAST_GAGE_IDS, ignoring forks", async () => {
