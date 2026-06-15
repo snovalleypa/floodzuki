@@ -49,10 +49,10 @@ const FloodCard = ({ title, subtitle, rows, top, renderRow }: FloodCardProps) =>
  * `selectCardMembership` over the river-ordered gauge list.
  */
 const FloodProbabilityCards = observer(function FloodProbabilityCards() {
-  const { getLocationsWithGages } = useStores();
+  const { getAllLocationsWithGages } = useStores();
   const { t } = useLocale();
 
-  const gages = getLocationsWithGages();
+  const gages = getAllLocationsWithGages();
   const { roadRows, floodRows } = selectCardMembership(gages);
 
   return (

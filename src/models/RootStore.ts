@@ -167,6 +167,22 @@ export const RootStoreModel = types
         .map((location) => gages.find((gage) => gage.locationId === location.id));
     };
 
+    /**
+     * Like getLocationsWithGages but ignores the hidden/offline visibility toggle —
+     * returns a gage (real, offline, or stub) for every location in river order.
+     * Used by the forecast flood-probability cards, which should rank every covered
+     * gauge regardless of whether it's currently shown on the gauge list. Relies on
+     * hidden-location stubs having been materialized (see GageStore.syncHiddenStubs).
+     */
+    const getAllLocationsWithGages = () => {
+      const gages = store.gagesStore.gages;
+      const gageIds = gages.map((gage) => gage.locationId);
+
+      return store.locationInfoStore.locationInfos
+        .filter((location) => gageIds.includes(location.id))
+        .map((location) => gages.find((gage) => gage.locationId === location.id));
+    };
+
     const getLocationWithGagesIds = () => {
       const gages = visibleGages().map((gage) => gage.locationId);
       return store.locationInfoStore.locationInfos
@@ -232,6 +248,7 @@ export const RootStoreModel = types
       getForecasts,
       getTimezone,
       getLocationsWithGages,
+      getAllLocationsWithGages,
       getLocationWithGagesIds,
       isHiddenLocation,
       getUpstreamGageLocation,

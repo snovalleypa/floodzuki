@@ -1,8 +1,10 @@
 import React from "react";
-import { ActivityIndicator } from "react-native";
+import { ActivityIndicator, Pressable } from "react-native";
+import { Link } from "expo-router";
 import { observer } from "mobx-react-lite";
 
 import { Gage } from "@models/Gage";
+import { ROUTES } from "app/_layout";
 import { Cell, Row } from "@common-ui/components/Common";
 import { MediumText, RegularText, SmallerText } from "@common-ui/components/Text";
 import { Colors } from "@common-ui/constants/colors";
@@ -69,24 +71,28 @@ const FloodProbabilityRow = observer(function FloodProbabilityRow({
   }
 
   return (
-    <Row
-      align="space-between"
-      justify="flex-start"
-      vertical={Spacing.small}
-      innerHorizontal={Spacing.medium}>
-      <Cell flex>
-        <MediumText color={Colors.lightDark}>{primary}</MediumText>
-        {!!sub && <SmallerText muted>{sub}</SmallerText>}
-      </Cell>
-      <Row>
-        {valueNode}
-        {!!badge && (
-          <Cell left={Spacing.tiny}>
-            <FloodRiskBadge level={badge} variant="inline" />
+    <Link href={{ pathname: ROUTES.GageDetails, params: { id: gage.locationId } }} asChild>
+      <Pressable>
+        <Row
+          align="space-between"
+          justify="flex-start"
+          vertical={Spacing.small}
+          innerHorizontal={Spacing.medium}>
+          <Cell flex>
+            <MediumText color={Colors.lightDark}>{primary}</MediumText>
+            {!!sub && <SmallerText muted>{sub}</SmallerText>}
           </Cell>
-        )}
-      </Row>
-    </Row>
+          <Row>
+            {valueNode}
+            {!!badge && (
+              <Cell left={Spacing.tiny}>
+                <FloodRiskBadge level={badge} variant="inline" />
+              </Cell>
+            )}
+          </Row>
+        </Row>
+      </Pressable>
+    </Link>
   );
 });
 

@@ -35,6 +35,11 @@ const ForecastScreen = observer(function ForecastScreen() {
 
   const fetchData = async () => {
     await store.locationInfoStore.fetchData();
+    // Materialize hidden-location stubs (independent of the gauge-list visibility
+    // toggle) so the flood-probability cards can rank every covered gauge, hidden
+    // or offline. syncHiddenStubs is idempotent and never removes — the gauge list
+    // / map still hide these because they key off showHiddenOffline, not presence.
+    store.gagesStore.syncHiddenStubs(true, store.locationInfoStore.locationInfos);
     await store.forecastsStore.fetchData();
   };
 
