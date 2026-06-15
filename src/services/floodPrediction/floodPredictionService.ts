@@ -3,9 +3,10 @@ import { observable, runInAction } from "mobx";
 import Config from "@config/config";
 import constants from "@config/floodPredictionConstants.json";
 
+import * as mockReplayEngine from "@services/mockReplay/engine";
+
 import { computeFloodProbability, parseMapQuantiles, parseRatingTable } from "./calculations";
 import { getDirectGaugeConstants } from "./directGauges";
-import { getMockMapQuantiles } from "./mockForecasts";
 import { FloodPredictionGauge, FloodProbabilityResult, MapQuantiles, RatingPoint } from "./types";
 
 const gauges = (constants as { gauges: FloodPredictionGauge[] }).gauges;
@@ -72,12 +73,14 @@ function fetchRatingTable(usgsSiteId: string): Promise<RatingPoint[]> {
 }
 
 function fetchMapQuantiles(noaaSiteId: string): Promise<MapQuantiles> {
-  // Debug-flag mock injection (out-of-season UX verification). Bypasses the
-  // network and the cache so toggling the flag takes effect immediately and the
-  // real quantile cache is never poisoned.
-  const mock = getMockMapQuantiles(noaaSiteId);
-  if (mock) {
-    return Promise.resolve(mock);
+  // Flood replay mock injection (out-of-season UX verification). Bypasses the
+  // network and the cache so the scenario's bands take effect immediately and
+  // the real quantile cache is never poisoned.
+  if (mockReplayEngine.isActive()) {
+    const mock = mockReplayEngine.buildMapQuantiles(noaaSiteId);
+    if (mock) {
+      return Promise.resolve(mock);
+    }
   }
 
   const entry = quantileCache.get(noaaSiteId);

@@ -460,7 +460,7 @@ function locationForNoaaSite(noaaSiteId: string): string | null {
   return null;
 }
 
-/** Flood-probability bands for a predictor site (consumed via mockForecasts seam). */
+/** Flood-probability bands for a predictor site (consumed by floodPredictionService). */
 export function buildMapQuantiles(
   noaaSiteId: string,
   nowMs: number = Date.now()

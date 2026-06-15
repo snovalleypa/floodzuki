@@ -93,10 +93,11 @@ Two URL params toggle developer features in any build (web/mobile). Both persist
 
 #### `?debug=` — debug flags
 
-Enable lightweight power-user flags (for data managers / devs). Comma-separate multiple, e.g. `?debug=showDeletedReadings,mockFloodMajorIn5Days`. `?debug=reset` clears them. Flags are defined in `src/utils/debugFlags.ts`:
+Enable lightweight power-user flags (for data managers / devs). Comma-separate multiple, e.g. `?debug=showDeletedReadings`. `?debug=reset` clears them. Flags are defined in `src/utils/debugFlags.ts`:
 
 - `showDeletedReadings` — include deleted readings in chart data.
-- `mockFloodMajorIn5Days` / `mockFloodModerateIn5Days` — inject mock NOAA flood-probability quantiles so the flood-chance UX can be verified out of season.
+
+To verify the flood-chance UX out of season, use flood replay mode (`?mock=`, below) — it injects mock NOAA flood-probability quantiles along with the matching readings and forecasts.
 
 #### `?mock=` — flood replay mode
 

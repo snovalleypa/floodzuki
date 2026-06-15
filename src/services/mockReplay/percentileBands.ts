@@ -5,7 +5,8 @@ import { sampleDischargeAt } from "./forecastSynthesis";
 
 const DAY_MS = 86_400_000;
 
-// Mirrors src/services/floodPrediction/mockForecasts.ts so the band shape matches.
+// NOAA HEFS map-quantile exceedance levels; the band shape must match what
+// floodPredictionService expects from the real NOAA quantiles endpoint.
 export const BAND_EXCEEDANCES = [0.1, 0.25, 0.3, 0.5, 0.7, 0.75, 0.9];
 const BAND_SPREAD = [1.25, 1.12, 1.08, 1.0, 0.88, 0.85, 0.72];
 
