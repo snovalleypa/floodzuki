@@ -86,6 +86,9 @@ const BaseConfig: {
   API: typeof API;
 
   FORECAST_GAGE_IDS: string[];
+  // metagage id -> component fork ids in DISPLAY order (S -> M -> N), which differs
+  // from the metagage-id split order (S, N, M). Single source for fork ordering.
+  FORECAST_METAGAGE_COMPONENTS: Record<string, string[]>;
   GAGES_WITHOUT_DISHCARGE: string[];
   DATE_PICKER_VARIANT: {
     default: "legacy" | "split-v1" | "range-v1" | "range-v2";
@@ -125,6 +128,9 @@ const BaseConfig: {
   // Order: upstream → downstream. The first entry is the headwaters metagage
   // (the three forks combined) and is NOT present in the gauge list.
   FORECAST_GAGE_IDS: ["USGS-SF17/USGS-NF10/USGS-MF11", "USGS-38", "USGS-22"],
+  FORECAST_METAGAGE_COMPONENTS: {
+    "USGS-SF17/USGS-NF10/USGS-MF11": ["USGS-SF17", "USGS-MF11", "USGS-NF10"],
+  },
   GAGES_WITHOUT_DISHCARGE: ["USGS-9"],
   DATE_PICKER_VARIANT: {
     default: "range-v1",
