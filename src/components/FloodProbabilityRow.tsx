@@ -73,11 +73,7 @@ const FloodProbabilityRow = observer(function FloodProbabilityRow({
   return (
     <Link href={{ pathname: ROUTES.GageDetails, params: { id: gage.locationId } }} asChild>
       <Pressable>
-        <Row
-          align="space-between"
-          justify="flex-start"
-          vertical={Spacing.small}
-          innerHorizontal={Spacing.medium}>
+        <Row align="space-between" justify="flex-start" vertical={Spacing.small}>
           <Cell flex>
             <MediumText color={Colors.lightDark}>{primary}</MediumText>
             {!!sub && <SmallerText muted>{sub}</SmallerText>}

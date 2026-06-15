@@ -34,7 +34,7 @@ const FloodCard = ({ title, subtitle, rows, wide, first, renderRow }: FloodCardP
   const left = wide && !first ? Spacing.medium : 0;
   const top = !wide && !first ? Spacing.medium : 0;
   return (
-    <Card flex={wide} left={left} top={top} innerHorizontal={0}>
+    <Card flex={wide} left={left} top={top}>
       <CardHeader>
         <SmallTitle>{title}</SmallTitle>
         <LabelText>{subtitle}</LabelText>
@@ -67,7 +67,7 @@ const FloodProbabilityCards = observer(function FloodProbabilityCards() {
   const { roadRows, floodRows } = selectCardMembership(gages);
 
   return (
-    <RowOrCell flex align="flex-start" justify="flex-start" top={Spacing.mediumXL}>
+    <RowOrCell align="flex-start" justify="flex-start" top={Spacing.mediumXL}>
       <FloodCard
         title={t("forecastScreen.roadFloodingTitle")}
         subtitle={t("forecastScreen.roadFloodingSubtitle")}
