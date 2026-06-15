@@ -300,9 +300,9 @@ const es = {
     trendIntersectsFlood: "La tendencia cruza el nivel de inundación a las",
     floodChance: "Probabilidad de inundación (próximos %{days} días)",
     floodChanceLow: "Baja (<10%)",
-    floodChanceVeryHigh: "Muy alta (>90%)",
-    floodChanceVeryHighExact: "Muy alta (%{percent}%)",
-    floodChanceNearCertain: "Muy alta (>=99%)",
+    floodChanceVeryHigh: ">90%",
+    floodChanceVeryHighExact: "%{percent}%",
+    floodChanceNearCertain: ">=99%",
   },
   gageDetailsChart: {
     discharge: "Caudal",
