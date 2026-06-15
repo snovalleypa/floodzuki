@@ -7,6 +7,7 @@ import { observer } from "mobx-react-lite";
 import { Content, Screen } from "@common-ui/components/Screen";
 import { ErrorDetails } from "@components/ErrorDetails";
 import { ForecastChart } from "@components/ForecastChart";
+import FloodProbabilityCards from "@components/FloodProbabilityCards";
 import { GageSummaryCard } from "@components/GageSummaryCard";
 import { RowOrCell } from "@common-ui/components/Common";
 import { Spacing } from "@common-ui/constants/spacing";
@@ -66,6 +67,7 @@ const ForecastScreen = observer(function ForecastScreen() {
       <PageTitle name={t("navigation.forecastScreen")} />
       <Content scrollable onRefresh={fetchData}>
         <ForecastChart gages={forecastGages} />
+        <FloodProbabilityCards />
         <RowOrCell flex align="flex-start" justify="stretch" top={Spacing.mediumXL}>
           {forecastGages.map((gage, i) => (
             <GageSummaryCard
