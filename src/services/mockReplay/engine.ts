@@ -161,6 +161,17 @@ export async function init(ctx: MockReplayContext): Promise<void> {
 
 // --- shape builders ---
 
+// Synthesized values (interpolation, regression, extrapolation) carry many
+// decimals; emit them at the precision the real API does — feet to 2 dp, flow to
+// whole CFS — so the mock UI reads identically to live. Null/undefined pass
+// through (the flow-only metagage has no stage).
+function roundFeet<T extends number | null | undefined>(h: T): T {
+  return (h == null ? h : Math.round((h as number) * 100) / 100) as T;
+}
+function roundFlow<T extends number | null | undefined>(d: T): T {
+  return (d == null ? d : Math.round(d as number)) as T;
+}
+
 /** Sum component gauges' discharge onto a shared timestamp grid (for metagages). */
 function sumDischargeSeries(caches: GaugeCache[]): RawReading[] {
   if (caches.length === 0) {
@@ -171,7 +182,7 @@ function sumDischargeSeries(caches: GaugeCache[]): RawReading[] {
   const grid = Array.from(tset).sort((a, b) => a - b);
   return grid.map((t) => ({
     timestampMs: t,
-    waterDischarge: caches.reduce((sum, c) => sum + sampleDischargeAt(c.readings, t), 0),
+    waterDischarge: roundFlow(caches.reduce((sum, c) => sum + sampleDischargeAt(c.readings, t), 0)),
   }));
 }
 
@@ -209,8 +220,8 @@ function shiftedReadingObjects(c: GaugeCache, cutoffMs: number, windowMs: number
     .filter((r) => r.timestampMs >= from && r.timestampMs <= cutoffMs)
     .map((r) => ({
       timestamp: toGaugeLocalString(shiftToDisplay(anchor!, r.timestampMs), timezone),
-      waterHeight: r.waterHeight,
-      waterDischarge: r.waterDischarge,
+      waterHeight: roundFeet(r.waterHeight),
+      waterDischarge: roundFlow(r.waterDischarge),
       isDeleted: false,
       isMissing: false,
     }))
@@ -237,8 +248,8 @@ function statusBlock(c: GaugeCache, cutoffMs: number) {
   const lastReading = last
     ? {
         timestamp: toGaugeLocalString(shiftToDisplay(anchor!, last.timestampMs), timezone),
-        waterHeight: last.waterHeight,
-        waterDischarge: last.waterDischarge,
+        waterHeight: roundFeet(last.waterHeight),
+        waterDischarge: roundFlow(last.waterDischarge),
         isDeleted: false,
       }
     : undefined;
@@ -262,8 +273,8 @@ function forecastSeries(c: GaugeCache, cutoffMs: number): ForecastPoint[] {
 function toPredictionObject(p: ForecastPoint) {
   return {
     timestamp: toGaugeLocalString(shiftToDisplay(anchor!, p.timestampMs), timezone),
-    waterHeight: p.stage,
-    waterDischarge: p.discharge,
+    waterHeight: roundFeet(p.stage),
+    waterDischarge: roundFlow(p.discharge),
     isDeleted: false,
   };
 }
@@ -300,10 +311,12 @@ function trendNowcast(c: GaugeCache, cutoffMs: number) {
     out.push({
       timestamp: toGaugeLocalString(shiftToDisplay(anchor!, tMs), timezone),
       waterHeight:
-        latest!.waterHeight != null ? latest!.waterHeight + rates.feetPerHour * hours : undefined,
+        latest!.waterHeight != null
+          ? roundFeet(latest!.waterHeight + rates.feetPerHour * hours)
+          : undefined,
       waterDischarge:
         latest!.waterDischarge != null
-          ? latest!.waterDischarge + rates.cfsPerHour * hours
+          ? roundFlow(latest!.waterDischarge + rates.cfsPerHour * hours)
           : undefined,
       isDeleted: false,
     });
@@ -320,8 +333,8 @@ function forecastPeak(c: GaugeCache, cutoffMs: number) {
   const peak = future.reduce((mx, p) => (p.discharge > mx.discharge ? p : mx), future[0]);
   return {
     timestamps: [toGaugeLocalString(shiftToDisplay(anchor!, peak.timestampMs), timezone)],
-    discharges: [peak.discharge],
-    waterHeights: [peak.stage],
+    discharges: [roundFlow(peak.discharge)],
+    waterHeights: [roundFeet(peak.stage)],
   };
 }
 

@@ -75,4 +75,30 @@ describe("engine shape builders", () => {
     const shape = engine.buildV2Readings(["USGS-22"], mockNowMs);
     expect(shape.readings["USGS-22"].timestamps.length).toBeGreaterThan(0);
   });
+
+  it("rounds emitted feet to 2 decimals and flow to whole CFS", async () => {
+    const { mockNowMs } = await setup();
+    // Raw fixture stages (10 + i*0.002) and the synthesized forecast/nowcast carry
+    // more than 2 decimals before rounding; flow must be whole numbers.
+    const has2dp = (n: number) => Math.abs(n * 100 - Math.round(n * 100)) < 1e-9;
+    const isInt = (n: number) => Number.isInteger(n);
+
+    const gr = engine.buildGageReadings("USGS-22", mockNowMs);
+    gr.readings.forEach((r) => {
+      expect(has2dp(r.waterHeight as number)).toBe(true);
+      expect(isInt(r.waterDischarge as number)).toBe(true);
+    });
+    gr.predictions.forEach((p) => {
+      expect(has2dp(p.waterHeight as number)).toBe(true);
+      expect(isInt(p.waterDischarge as number)).toBe(true);
+    });
+    expect(has2dp(gr.status!.lastReading!.waterHeight as number)).toBe(true);
+    expect(isInt(gr.status!.lastReading!.waterDischarge as number)).toBe(true);
+
+    const fc = engine.buildV2Forecasts(["USGS-22"], mockNowMs)["USGS-22"];
+    fc.waterHeights.forEach((h: number) => expect(has2dp(h)).toBe(true));
+    fc.discharges.forEach((d: number) => expect(isInt(d)).toBe(true));
+    expect(isInt(fc.peaks.discharges[0])).toBe(true);
+    expect(has2dp(fc.peaks.waterHeights[0])).toBe(true);
+  });
 });
