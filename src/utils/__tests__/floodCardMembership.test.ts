@@ -33,6 +33,23 @@ describe("selectCardMembership", () => {
     expect(floodRows).toEqual([gage]);
   });
 
+  it("no-road covered gauge with no red stage → neither card (no threshold to compute)", () => {
+    // USGS-SH5 (Snohomish near Monroe) is covered (HEFS bands) but SVPA defines no
+    // flood/red stage for it. Without a threshold the flood-stage chance can't be
+    // computed, so it must not be listed (otherwise the row spins forever).
+    const gage = g({ locationId: "USGS-SH5", hasRoads: false, redStage: undefined });
+    const { roadRows, floodRows } = selectCardMembership([gage]);
+    expect(roadRows).toHaveLength(0);
+    expect(floodRows).toHaveLength(0);
+  });
+
+  it("road gauge with no red stage → road card only, never flood card", () => {
+    const gage = g({ hasRoads: true, roadSaddleHeight: 76.55, redStage: undefined });
+    const { roadRows, floodRows } = selectCardMembership([gage]);
+    expect(roadRows).toEqual([gage]);
+    expect(floodRows).toHaveLength(0);
+  });
+
   it("uncovered gauge → neither card", () => {
     const gage = g({ locationId: "USGS-99", hasRoads: true, roadSaddleHeight: 80, redStage: 70 });
     const { roadRows, floodRows } = selectCardMembership([gage]);

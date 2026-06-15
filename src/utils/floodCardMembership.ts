@@ -14,10 +14,14 @@ function sameStage(a?: number, b?: number): boolean {
 /**
  * Split the (river-ordered) gauges into the two Forecast-tab flood cards:
  *  - `roadRows`: covered gauges that have a road (threshold = road saddle height).
- *  - `floodRows`: covered gauges with no road, OR road gauges whose red stage
- *    differs from the road saddle (threshold = red flood stage). A "type 2" road
- *    gauge (red ≠ saddle) therefore appears in both cards; a "type 1" gauge
- *    (red = saddle) appears only in the road card.
+ *  - `floodRows`: covered gauges that have a red stage (the flood-stage threshold)
+ *    AND are either roadless or a "type 2" road gauge whose red stage differs from
+ *    the road saddle. A "type 2" gauge therefore appears in both cards; a "type 1"
+ *    gauge (red = saddle) appears only in the road card.
+ *
+ * A gauge with no red stage (e.g. the downstream Snohomish-at-Monroe gauge, which
+ * has HEFS bands but no SVPA flood stage) is never placed in the flood card: there
+ * is no threshold to compute against, and an uncomputable row would spin forever.
  *
  * Input order is preserved so each card stays in gauge-list (upstream →
  * downstream) order. Gauges with no flood-prediction coverage are dropped.
@@ -32,10 +36,12 @@ export function selectCardMembership(gages: Gage[]): { roadRows: Gage[]; floodRo
     }
     if (gage.hasRoads) {
       roadRows.push(gage);
-      if (!sameStage(gage.redStage, gage.roadSaddleHeight)) {
-        floodRows.push(gage);
-      }
-    } else {
+    }
+    // The flood-stage row's threshold is the red stage — skip gauges that have
+    // none. A road gauge whose red stage equals its road saddle is already covered
+    // by its road row.
+    const redDiffersFromSaddle = !gage.hasRoads || !sameStage(gage.redStage, gage.roadSaddleHeight);
+    if (gage.redStage != null && redDiffersFromSaddle) {
       floodRows.push(gage);
     }
   }
