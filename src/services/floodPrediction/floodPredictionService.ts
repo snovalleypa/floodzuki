@@ -5,7 +5,12 @@ import constants from "@config/floodPredictionConstants.json";
 
 import * as mockReplayEngine from "@services/mockReplay/engine";
 
-import { computeFloodProbability, parseMapQuantiles, parseRatingTable } from "./calculations";
+import {
+  computeFloodProbability,
+  parseMapQuantiles,
+  parseRatingTable,
+  predictorStageForThreshold,
+} from "./calculations";
 import { getDirectGaugeConstants } from "./directGauges";
 import { FloodPredictionGauge, FloodProbabilityResult, MapQuantiles, RatingPoint } from "./types";
 
@@ -24,19 +29,19 @@ const quantileCache = new Map<string, { at: number; promise: Promise<MapQuantile
 // (a module-level observable) so the bulky payloads never enter the snapshot.
 const resultCache = observable.map<string, FloodProbabilityResult>({}, { deep: false });
 
-function resultKey(locationId: string, redStage?: number): string {
-  return redStage == null ? locationId : `${locationId}:${redStage}`;
+function resultKey(locationId: string, threshold?: number): string {
+  return threshold == null ? locationId : `${locationId}:${threshold}`;
 }
 
 /** The last computed flood probability for a gauge, or undefined if none yet. */
 export function getCachedFloodProbability(
   locationId?: string,
-  redStage?: number
+  threshold?: number
 ): FloodProbabilityResult | undefined {
   if (!locationId) {
     return undefined;
   }
-  return resultCache.get(resultKey(locationId, redStage));
+  return resultCache.get(resultKey(locationId, threshold));
 }
 
 /** Test hook: clears the in-memory caches. */
@@ -105,19 +110,22 @@ function fetchMapQuantiles(noaaSiteId: string): Promise<MapQuantiles> {
  * that returns a FloodProbabilityResult — the hook and UI are unaffected.
  *
  * Two paths:
- *  - SVPA gauge (in the generated constants): translate its red stage into a
- *    predictor stage via regression and read the predictor's exceedance curve at
- *    p99.
+ *  - SVPA gauge (in the generated constants): translate the threshold height into
+ *    a predictor stage via the regression-anchored shift and read the predictor's
+ *    exceedance curve there. With no `thresholdOverride` this is the gauge's red
+ *    stage (predictor stage = p99); a road saddle shifts it up by
+ *    Δ = (threshold − redStage) / slope.
  *  - Direct USGS gauge (in the hand-maintained registry): the gauge is its own
- *    predictor — read its own exceedance curve at its own `redStage` (passed in,
- *    since it comes from locationInfo, not the constants). Forecast-only.
+ *    predictor — read its own exceedance curve at `thresholdOverride` (its red
+ *    stage or road saddle, passed in since it comes from locationInfo, not the
+ *    constants). Forecast-only.
  *
  * Returns null when the gauge is covered by neither, or a direct gauge has no
- * red stage.
+ * threshold.
  */
 export async function getFloodProbability(
   locationId: string,
-  redStage?: number
+  thresholdOverride?: number
 ): Promise<FloodProbabilityResult | null> {
   const gauge = gauges.find((g) => g.gaugeId === locationId);
   if (gauge) {
@@ -126,18 +134,19 @@ export async function getFloodProbability(
       fetchMapQuantiles(gauge.predictor.noaaSiteId),
     ]);
 
-    const result = computeFloodProbability({
-      p99: gauge.floodProbability.p99,
-      quantiles,
-      ratingTable,
-    });
-    runInAction(() => resultCache.set(resultKey(locationId), result));
+    const predictorStage = predictorStageForThreshold(
+      gauge.floodProbability,
+      gauge.regression.slope,
+      thresholdOverride
+    );
+    const result = computeFloodProbability({ p99: predictorStage, quantiles, ratingTable });
+    runInAction(() => resultCache.set(resultKey(locationId, thresholdOverride), result));
     return result;
   }
 
   const direct = getDirectGaugeConstants(locationId);
   if (direct) {
-    if (redStage == null) {
+    if (thresholdOverride == null) {
       return null;
     }
     const [ratingTable, quantiles] = await Promise.all([
@@ -145,10 +154,10 @@ export async function getFloodProbability(
       fetchMapQuantiles(direct.noaaSiteId),
     ]);
 
-    // The gauge is its own predictor: its red stage is the threshold stage fed
-    // straight into the exceedance curve (no regression p99 indirection).
-    const result = computeFloodProbability({ p99: redStage, quantiles, ratingTable });
-    runInAction(() => resultCache.set(resultKey(locationId, redStage), result));
+    // The gauge is its own predictor: the threshold stage is fed straight into the
+    // exceedance curve (no regression p99 indirection).
+    const result = computeFloodProbability({ p99: thresholdOverride, quantiles, ratingTable });
+    runInAction(() => resultCache.set(resultKey(locationId, thresholdOverride), result));
     return result;
   }
 

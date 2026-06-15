@@ -2,6 +2,7 @@ import {
   __resetFloodPredictionCaches,
   getCachedFloodProbability,
   getFloodProbability,
+  getGaugeConstants,
 } from "./floodPredictionService";
 
 const RATING = [
@@ -97,5 +98,34 @@ describe("getFloodProbability", () => {
   it("caches an SVPA result under the bare locationId", async () => {
     await getFloodProbability("SVPA-25");
     expect(getCachedFloodProbability("SVPA-25")).not.toBeUndefined();
+  });
+
+  // The SVPA threshold shift: a higher threshold (road saddle above red stage)
+  // maps to a higher predictor stage, so its exceedance probability is <= the red
+  // stage's. The no-threshold call is the red-stage baseline (Δ = 0).
+  it("SVPA: a higher threshold yields a probability <= the red-stage probability", async () => {
+    const constants = getGaugeConstants("SVPA-25")!;
+    const roadSaddle = constants.floodProbability.redStage + 2; // above red stage
+    const red = await getFloodProbability("SVPA-25");
+    const road = await getFloodProbability("SVPA-25", roadSaddle);
+    expect(road).not.toBeNull();
+    expect(road!.probability ?? 0).toBeLessThanOrEqual(red!.probability ?? 0);
+  });
+
+  it("SVPA: threshold equal to redStage matches the no-threshold result (Δ = 0)", async () => {
+    const constants = getGaugeConstants("SVPA-25")!;
+    const baseline = await getFloodProbability("SVPA-25");
+    __resetFloodPredictionCaches();
+    (globalThis as any).fetch = mockFetch();
+    const atRed = await getFloodProbability("SVPA-25", constants.floodProbability.redStage);
+    expect(atRed).toEqual(baseline);
+  });
+
+  it("SVPA: a road threshold caches under a suffixed key, distinct from red", async () => {
+    const roadSaddle = getGaugeConstants("SVPA-25")!.floodProbability.redStage + 2;
+    await getFloodProbability("SVPA-25", roadSaddle);
+    expect(getCachedFloodProbability("SVPA-25", roadSaddle)).not.toBeUndefined();
+    // The bare red-stage entry is a different cache slot.
+    expect(getCachedFloodProbability("SVPA-25")).toBeUndefined();
   });
 });
