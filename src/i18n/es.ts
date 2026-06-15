@@ -114,6 +114,7 @@ const es = {
     floodingSubtitle:
       "Probabilidad de que el agua llegue al nivel de inundación · próximos 10 días",
     floodingNow: "Inundándose ahora",
+    forksSectionTitle: "Brazos del río",
   },
   profileScreen: {
     title: "Perfil",

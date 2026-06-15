@@ -111,6 +111,7 @@ const en = {
     floodingTitle: "Flooding",
     floodingSubtitle: "Chance water reaches flood stage · next 10 days",
     floodingNow: "Flooding now",
+    forksSectionTitle: "River Forks",
   },
   profileScreen: {
     title: "Profile",
