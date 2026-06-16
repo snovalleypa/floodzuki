@@ -19,6 +19,7 @@ import { If, Ternary } from "@common-ui/components/Conditional";
 import { Colors } from "@common-ui/constants/colors";
 import { useTimeout } from "@utils/useTimeout";
 import { useGoBack } from "@utils/useGoBack";
+import { findForecastGroup } from "@utils/forecastGroups";
 import { ROUTES } from "app/_layout";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import ForecastFooter from "@components/ForecastFooter";
@@ -139,8 +140,8 @@ const ForecastDetailsScreen = observer(function ForecastDetailsScreen() {
   const { isMobile } = useResponsive();
 
   // Pathname id can either be a simple gauge like "USGS-38"
-  // or a metagauge like "USGS-SF17/USGS-NF10/USGS-MF11", which will be
-  // represented as an array of strings ["USGS-SF17", "USGS-NF10", "USGS-MF11"]
+  // or a metagauge like "USGS-SF17/USGS-NF10/USGS-MF11", which arrives as an
+  // array of segments ["USGS-SF17", "USGS-NF10", "USGS-MF11"].
   const gageId = Array.isArray(id) ? id.join("/") : id;
 
   const [hidden, setHidden] = React.useState(isMobile ? true : false);
@@ -153,17 +154,22 @@ const ForecastDetailsScreen = observer(function ForecastDetailsScreen() {
     return null;
   }
 
-  const pages = Config.FORECAST_GAGE_IDS.map((forecastId) => ({
+  // findForecastGroup takes routes by injection (forecastGroups.ts has no
+  // app/_layout dependency); pass the ROUTES enum already imported in this file.
+  const group = findForecastGroup(gageId, ROUTES);
+
+  // Unknown id (not a top-level forecast or a known fork) -> standalone page.
+  if (!group) {
+    return <ForecastDetailsBody gageId={gageId} />;
+  }
+
+  const pages = group.ids.map((forecastId) => ({
     key: forecastId,
     route: { pathname: ROUTES.ForecastDetails, params: { id: forecastId.split("/") } },
-    render: () => <ForecastDetailsBody gageId={forecastId} />,
+    render: () => <ForecastDetailsBody gageId={forecastId} backRoute={group.backRoute} />,
   }));
 
   const initialIndex = pages.findIndex((p) => p.key === gageId);
-
-  if (initialIndex === -1) {
-    return <ForecastDetailsBody gageId={gageId} />;
-  }
 
   return (
     <>
