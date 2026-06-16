@@ -171,6 +171,13 @@ const ForecastDetailsScreen = observer(function ForecastDetailsScreen() {
 
   const initialIndex = pages.findIndex((p) => p.key === gageId);
 
+  // findForecastGroup guarantees gageId is in group.ids, so this is defensive:
+  // if that invariant ever breaks, render the page standalone rather than let
+  // ChainPager silently clamp -1 to index 0 and open the wrong fork.
+  if (initialIndex === -1) {
+    return <ForecastDetailsBody gageId={gageId} backRoute={group.backRoute} />;
+  }
+
   return (
     <>
       <Stack.Screen options={{ gestureEnabled: false, animation: "none" }} />
