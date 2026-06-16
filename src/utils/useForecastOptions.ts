@@ -126,9 +126,15 @@ const buildSeries = (
       };
     });
 
+    // One legend entry per gage: the observed series is the legend item
+    // (labeled with just the gage title), and the forecast series links to
+    // it via `linkedTo` so it shares the same legend entry and toggle.
+    const seriesId = `gage-${forecast.id}`;
+
     series.push({
       animation: false,
-      name: seriesName,
+      id: seriesId,
+      name: gage?.title,
       data: normalizedDataPoints,
       color: gage?.color,
       fillOpacity: 0.5,
@@ -166,14 +172,15 @@ const buildSeries = (
 
     series.push({
       animation: false,
-      name: `${t("forecastChart.forecast")}: ${gage?.title}`,
+      name: forecastName,
+      linkedTo: seriesId,
       data: noramlizedForecastDataPoints,
       fillOpacity: 0,
       color: isMobile ? lightenHexColor(gage?.color) : gage?.color,
       threshold: 0,
       lineWidth: 2,
       states: { hover: { lineWidth: 3 } },
-      marker: { symbol: "circle" },
+      marker: { symbol: "circle", enabled: true, radius: 3 },
     });
   });
 
