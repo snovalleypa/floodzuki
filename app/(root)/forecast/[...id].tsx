@@ -36,6 +36,8 @@ const ForecastDetailsBody = observer(function ForecastDetailsBody({
   backRoute,
 }: {
   gageId: string;
+  // Fallback destination for the back button; the forecast screen passes the
+  // fork group's metagage route so fork pages return to "Sum of Forks".
   backRoute?: { pathname: string; params: Record<string, any> | undefined };
 }) {
   const { t } = useLocale();
@@ -64,7 +66,8 @@ const ForecastDetailsBody = observer(function ForecastDetailsBody({
   const forkGages = store.getForecastGages(forkIds);
 
   // Metagage chart: sum line + each fork; draw the metagage's own flood-stage line.
-  const chartGages = forecastGage?.isMetagage ? [forecastGage, ...forkGages] : [forecastGage];
+  const singleGage = forecastGage && !forecastGage.isMetagage ? [forecastGage] : [];
+  const chartGages = forecastGage?.isMetagage ? [forecastGage, ...forkGages] : singleGage;
   // "Forks" matches the existing hardcoded label in getFloodStageLabel.
   const floodLineOverride = forecastGage?.isMetagage ? { gageId, label: "Forks" } : undefined;
 
