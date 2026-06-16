@@ -75,7 +75,7 @@ const FloodProbabilityRow = observer(function FloodProbabilityRow({
       <Pressable>
         <Row align="space-between" justify="flex-start" vertical={Spacing.small}>
           <Cell flex>
-            <MediumText color={Colors.blue}>{primary}</MediumText>
+            <MediumText color={Colors.lightBlue}>{primary}</MediumText>
             {!!sub && <SmallerText muted>{sub}</SmallerText>}
           </Cell>
           <Row>

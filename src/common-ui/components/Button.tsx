@@ -296,7 +296,11 @@ export function OutlinedButton(props: ButtonProps) {
  * @example
  * <LinkButton title="Link Button" onPress={pressHandler} />
  */
-export function LinkButton(props: ButtonProps) {
+// forwardRef so LinkButton can be used as the child of <Link asChild> (expo-router
+// forwards a ref to its child). The ref isn't forwarded onward — BaseButton is a
+// plain function component — matching IconButton's behavior; navigation works via
+// the injected onPress.
+export const LinkButton = forwardRef(function LinkButton(props: ButtonProps, _ref) {
   const { type, ...rest } = props;
 
   const textColor = type ? Colors[type] : Colors.lightBlue;
@@ -311,7 +315,7 @@ export function LinkButton(props: ButtonProps) {
       {...rest}
     />
   );
-}
+});
 
 /**
  * A simple link component similar to links that we've used to see on the web

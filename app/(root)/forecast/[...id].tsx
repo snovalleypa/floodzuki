@@ -16,7 +16,6 @@ import { useStores } from "@models/helpers/useStores";
 import { isAndroid, useResponsive } from "@common-ui/utils/responsive";
 import { IconButton, LinkButton } from "@common-ui/components/Button";
 import { If, Ternary } from "@common-ui/components/Conditional";
-import { Colors } from "@common-ui/constants/colors";
 import { useTimeout } from "@utils/useTimeout";
 import { useGoBack } from "@utils/useGoBack";
 import { findForecastGroup } from "@utils/forecastGroups";
@@ -93,7 +92,6 @@ const ForecastDetailsBody = observer(function ForecastDetailsBody({
             left={-Spacing.medium}
             title={t("navigation.back")}
             leftIcon="chevron-left"
-            textColor={Colors.blue}
             onPress={goBack}
           />
         </Ternary>
