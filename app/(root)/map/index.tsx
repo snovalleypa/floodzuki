@@ -26,6 +26,10 @@ const MapScreen = observer(function MapScreen() {
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+  // Bumped only when the already-selected level is re-tapped (e.g. to retry after
+  // an error). Folded into the inundation URL so a re-tap actually changes the URL
+  // and forces a refetch; otherwise selectedKey is unchanged and nothing reloads.
+  const [reloadNonce, setReloadNonce] = useState(0);
   const loadTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const clearLoadTimeout = () => {
@@ -35,19 +39,27 @@ const MapScreen = observer(function MapScreen() {
     }
   };
 
-  const handleSelect = useCallback((key: string | null) => {
-    setSelectedKey(key);
-    setError(false);
-    clearLoadTimeout();
-    if (key === null) {
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
-    // Safety fallback so the spinner never hangs (covers slow connections and any
-    // case where neither the load nor error signal arrives).
-    loadTimeout.current = setTimeout(() => setLoading(false), 12000);
-  }, []);
+  const handleSelect = useCallback(
+    (key: string | null) => {
+      setError(false);
+      clearLoadTimeout();
+      if (key === null) {
+        setSelectedKey(null);
+        setLoading(false);
+        return;
+      }
+      // Re-tapping the current level wouldn't change the URL, so force a refetch.
+      if (key === selectedKey) {
+        setReloadNonce((n) => n + 1);
+      }
+      setSelectedKey(key);
+      setLoading(true);
+      // Safety fallback so the spinner never hangs (covers slow connections and any
+      // case where neither the load nor error signal arrives).
+      loadTimeout.current = setTimeout(() => setLoading(false), 12000);
+    },
+    [selectedKey]
+  );
 
   const handleInundationLoad = useCallback(() => {
     clearLoadTimeout();
@@ -65,10 +77,17 @@ const MapScreen = observer(function MapScreen() {
 
   const locations = getLocationsWithGages();
 
-  const inundationUrl = useMemo(
-    () => levels.find((l) => l.key === selectedKey)?.url ?? null,
-    [levels, selectedKey]
-  );
+  const inundationUrl = useMemo(() => {
+    const level = levels.find((l) => l.key === selectedKey);
+    if (!level) {
+      return null;
+    }
+    if (reloadNonce === 0) {
+      return level.url;
+    }
+    const separator = level.url.includes("?") ? "&" : "?";
+    return `${level.url}${separator}_retry=${reloadNonce}`;
+  }, [levels, selectedKey, reloadNonce]);
 
   const $controlWrap: ViewStyle = useMemo(
     () => ({
