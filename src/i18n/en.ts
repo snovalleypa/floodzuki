@@ -47,6 +47,7 @@ const en = {
   navigation: {
     homeScreen: "Gauges",
     forecastScreen: "Forecast",
+    mapScreen: "Map",
     alertsScreen: "Alerts",
     profileScreen: "Edit Profile",
     loginScreen: "Login",
@@ -274,6 +275,10 @@ const en = {
     cooperativeGesturesWindows: "Use Ctrl + scroll to zoom the map",
     cooperativeGesturesMac: "Use ⌘ + scroll to zoom the map",
     cooperativeGesturesMobile: "Use two fingers to move the map",
+    levelNone: "None",
+    levelMinor: "Minor",
+    levelModerate: "Moderate",
+    levelMajor: "Major",
   },
   calloutReading: {
     lastReading: "Last Reading",
