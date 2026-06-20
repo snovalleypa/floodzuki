@@ -12,6 +12,7 @@ import { Spacing } from "../common-ui/constants/spacing";
 import TrendIcon, { TREND_ICON_TYPES } from "./TrendIcon";
 import { getTownLabelsGeoJson, TOWN_LABELS_LAYER_PROPS } from "./townLabels";
 import { getRiverOverlaysGeoJson, RIVER_OVERLAY_LAYER_PROPS } from "./riverOverlays";
+import { INUNDATION_FILL_LAYER_PROPS } from "./inundationOverlay";
 import Config from "../config/config";
 import Constants from "expo-constants";
 import floodzillaLocalStyle from "./mapStyles/floodzilla-webstyles.json";
@@ -53,6 +54,8 @@ const MapLibreMobileGageMap = ({
   region,
   onGagePress,
   singleGage,
+  cooperativeGestures,
+  inundationUrl,
 }: InternalGageMapProps) => {
   const mapRef = useRef(null);
 
@@ -83,6 +86,10 @@ const MapLibreMobileGageMap = ({
         }),
     []
   );
+
+  // When the caller disables cooperative gestures (the full-screen Map tab), pan
+  // with a single finger directly; otherwise use the two-finger gate.
+  const dragPan = cooperativeGestures === false ? true : dragPanEnabled;
 
   const mapStyle = useMemo(() => {
     if (useLocalMapStyle) {
@@ -157,8 +164,13 @@ const MapLibreMobileGageMap = ({
         style={styles.map}
         mapStyle={mapStyle}
         touchRotate={false}
-        dragPan={dragPanEnabled}>
+        dragPan={dragPan}>
         <Camera maxBounds={regionBounds} bounds={startBounds} />
+        {inundationUrl ? (
+          <GeoJSONSource id="inundation" data={inundationUrl}>
+            <Layer {...INUNDATION_FILL_LAYER_PROPS} />
+          </GeoJSONSource>
+        ) : null}
         <GeoJSONSource id="region-rivers" data={riverOverlaysGeoJson}>
           <Layer {...RIVER_OVERLAY_LAYER_PROPS} />
         </GeoJSONSource>

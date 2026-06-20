@@ -45,6 +45,7 @@ jest.mock("@common-ui/utils/responsive", () => ({
 
 const MockMap = MapLibre.Map as unknown as jest.Mock;
 const MockMarker = MapLibre.Marker as unknown as jest.Mock;
+const MockSource = MapLibre.Source as unknown as jest.Mock;
 
 const makeGage = (overrides: Record<string, unknown> = {}) =>
   ({ locationId: "test", latitude: 47.5, longitude: -121.8, ...overrides } as any);
@@ -54,6 +55,7 @@ const makeRegion = (overrides: Record<string, unknown> = {}) => ({ id: 1, ...ove
 beforeEach(() => {
   MockMap.mockClear();
   MockMarker.mockClear();
+  MockSource.mockClear();
 });
 
 // ---------------------------------------------------------------------------
@@ -236,5 +238,50 @@ describe("MapLibreWebGageMap — regionBounds", () => {
     );
     const maxBounds = MockMap.mock.calls[0][0].maxBounds;
     expect(maxBounds).toEqual([-122.4, 46.9, -120.9, 48.4]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+
+describe("MapLibreWebGageMap — new props", () => {
+  it("passes cooperativeGestures=false through to the Map when explicitly set", () => {
+    render(
+      <MapLibreWebGageWebMap
+        gages={[]}
+        region={makeRegion()}
+        onGagePress={jest.fn()}
+        singleGage={null}
+        cooperativeGestures={false}
+      />
+    );
+    expect(MockMap.mock.calls[0][0].cooperativeGestures).toBe(false);
+  });
+
+  it("renders an inundation Source pointed at the given url", () => {
+    render(
+      <MapLibreWebGageWebMap
+        gages={[]}
+        region={makeRegion()}
+        onGagePress={jest.fn()}
+        singleGage={null}
+        inundationUrl="https://example.com/extent.geojson"
+      />
+    );
+    const inundation = MockSource.mock.calls.find((c) => c[0].id === "inundation");
+    expect(inundation).toBeTruthy();
+    expect(inundation[0].data).toBe("https://example.com/extent.geojson");
+  });
+
+  it("renders no inundation Source when inundationUrl is not set", () => {
+    render(
+      <MapLibreWebGageWebMap
+        gages={[]}
+        region={makeRegion()}
+        onGagePress={jest.fn()}
+        singleGage={null}
+      />
+    );
+    const inundation = MockSource.mock.calls.find((c) => c[0].id === "inundation");
+    expect(inundation).toBeFalsy();
   });
 });

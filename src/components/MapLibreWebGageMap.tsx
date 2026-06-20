@@ -12,6 +12,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import TrendIcon, { TREND_ICON_TYPES } from "./TrendIcon";
 import { getTownLabelsGeoJson, TOWN_LABELS_LAYER_PROPS } from "./townLabels";
 import { getRiverOverlaysGeoJson, RIVER_OVERLAY_LAYER_PROPS } from "./riverOverlays";
+import { INUNDATION_FILL_LAYER_PROPS } from "./inundationOverlay";
 import Config from "../config/config";
 import Constants from "expo-constants";
 import floodzillaLocalStyle from "./mapStyles/floodzilla-webstyles.json";
@@ -51,6 +52,8 @@ const MapLibreWebGageWebMap = ({
   region,
   onGagePress,
   singleGage,
+  cooperativeGestures,
+  inundationUrl,
 }: InternalGageMapProps) => {
   const mapStyle = useMemo(() => {
     if (useLocalMapStyle) {
@@ -74,6 +77,7 @@ const MapLibreWebGageWebMap = ({
   // (with a hint overlay), two fingers pan/zoom. On desktop we leave it off so the
   // free pan/scroll-zoom behavior is unchanged.
   const { isMobile } = useResponsive();
+  const coop = cooperativeGestures ?? isMobile;
   const { t } = useLocale();
   const mapRef = useRef<MapRef>(null);
 
@@ -96,12 +100,12 @@ const MapLibreWebGageWebMap = ({
     if (!gl) {
       return;
     }
-    if (isMobile) {
+    if (coop) {
       gl.cooperativeGestures.enable();
     } else {
       gl.cooperativeGestures.disable();
     }
-  }, [isMobile]);
+  }, [coop]);
 
   const townLabelsGeoJson = useMemo(() => getTownLabelsGeoJson(region?.id), [region]);
   const riverOverlaysGeoJson = useMemo(() => getRiverOverlaysGeoJson(region?.id), [region]);
@@ -175,7 +179,7 @@ const MapLibreWebGageWebMap = ({
       }}
       maxBounds={regionBounds}
       mapStyle={mapStyle}
-      cooperativeGestures={isMobile}
+      cooperativeGestures={coop}
       locale={mapLocale}
       attributionControl={{ compact: true }}
       onLoad={(e) => {
@@ -193,6 +197,11 @@ const MapLibreWebGageWebMap = ({
         }, 1000);
       }}
       style={styles.map}>
+      {inundationUrl ? (
+        <Source id="inundation" type="geojson" data={inundationUrl}>
+          <Layer {...INUNDATION_FILL_LAYER_PROPS} />
+        </Source>
+      ) : null}
       <Source id="region-rivers" type="geojson" data={riverOverlaysGeoJson}>
         <Layer {...RIVER_OVERLAY_LAYER_PROPS} />
       </Source>
