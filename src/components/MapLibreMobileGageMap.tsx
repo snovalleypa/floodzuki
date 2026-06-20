@@ -56,6 +56,7 @@ const MapLibreMobileGageMap = ({
   singleGage,
   cooperativeGestures,
   inundationUrl,
+  onInundationLoad: _onInundationLoad,
 }: InternalGageMapProps) => {
   const mapRef = useRef(null);
 

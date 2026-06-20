@@ -54,6 +54,7 @@ const MapLibreWebGageWebMap = ({
   singleGage,
   cooperativeGestures,
   inundationUrl,
+  onInundationLoad,
 }: InternalGageMapProps) => {
   const mapStyle = useMemo(() => {
     if (useLocalMapStyle) {
@@ -195,6 +196,11 @@ const MapLibreWebGageWebMap = ({
             button?.click();
           }
         }, 1000);
+      }}
+      onSourceData={(e) => {
+        if (e.sourceId === "inundation" && e.isSourceLoaded) {
+          onInundationLoad?.();
+        }
       }}
       style={styles.map}>
       {inundationUrl ? (

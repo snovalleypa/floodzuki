@@ -14,7 +14,8 @@ const Map = Platform.select({
 })();
 
 const GageMap = observer(function GageMap(props: GageMapProps) {
-  const { region, gages, onGagePress, cooperativeGestures, inundationUrl } = props;
+  const { region, gages, onGagePress, cooperativeGestures, inundationUrl, onInundationLoad } =
+    props;
 
   const reverseGages = useMemo(() => {
     return [...gages].reverse();
@@ -35,6 +36,7 @@ const GageMap = observer(function GageMap(props: GageMapProps) {
       singleGage={singleGage}
       cooperativeGestures={cooperativeGestures}
       inundationUrl={inundationUrl}
+      onInundationLoad={onInundationLoad}
     />
   );
 });

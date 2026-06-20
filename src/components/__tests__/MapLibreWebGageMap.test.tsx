@@ -284,4 +284,32 @@ describe("MapLibreWebGageMap — new props", () => {
     const inundation = MockSource.mock.calls.find((c) => c[0].id === "inundation");
     expect(inundation).toBeFalsy();
   });
+
+  it("calls onInundationLoad via onSourceData only for the inundation source when fully loaded", () => {
+    const onInundationLoad = jest.fn();
+    render(
+      <MapLibreWebGageWebMap
+        gages={[]}
+        region={makeRegion()}
+        onGagePress={jest.fn()}
+        singleGage={null}
+        inundationUrl="https://example.com/extent.geojson"
+        onInundationLoad={onInundationLoad}
+      />
+    );
+
+    const onSourceData = MockMap.mock.calls[0][0].onSourceData;
+
+    // Should call the callback when the inundation source is fully loaded.
+    onSourceData({ sourceId: "inundation", isSourceLoaded: true });
+    expect(onInundationLoad).toHaveBeenCalledTimes(1);
+
+    // Should NOT call the callback for a different source.
+    onSourceData({ sourceId: "other", isSourceLoaded: true });
+    expect(onInundationLoad).toHaveBeenCalledTimes(1);
+
+    // Should NOT call the callback when isSourceLoaded is false.
+    onSourceData({ sourceId: "inundation", isSourceLoaded: false });
+    expect(onInundationLoad).toHaveBeenCalledTimes(1);
+  });
 });

@@ -31,8 +31,8 @@ initSentry();
 export enum ROUTES {
   Home = "/",
   Forecast = "/forecast",
-  ForecastDetails = "/forecast/[...id]",
   Map = "/map",
+  ForecastDetails = "/forecast/[...id]",
   Gages = "/gage",
   GageDetails = "/gage/[id]",
   UserAlerts = "/user/alerts",

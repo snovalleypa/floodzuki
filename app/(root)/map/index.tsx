@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { View, ViewStyle } from "react-native";
 import { ErrorBoundaryProps } from "expo-router";
 import { observer } from "mobx-react-lite";
@@ -24,6 +24,35 @@ const MapScreen = observer(function MapScreen() {
 
   const levels = useMemo(() => getInundationLevels(), []);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const loadTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearLoadTimeout = () => {
+    if (loadTimeout.current) {
+      clearTimeout(loadTimeout.current);
+      loadTimeout.current = null;
+    }
+  };
+
+  const handleSelect = useCallback((key: string | null) => {
+    setSelectedKey(key);
+    clearLoadTimeout();
+    if (key === null) {
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    // Safety fallback so the spinner never hangs (covers native, where no
+    // per-source load event is wired, and slow connections on web).
+    loadTimeout.current = setTimeout(() => setLoading(false), 12000);
+  }, []);
+
+  const handleInundationLoad = useCallback(() => {
+    clearLoadTimeout();
+    setLoading(false);
+  }, []);
+
+  useEffect(() => clearLoadTimeout, []);
 
   const locations = getLocationsWithGages();
 
@@ -32,12 +61,15 @@ const MapScreen = observer(function MapScreen() {
     [levels, selectedKey]
   );
 
-  const $controlWrap: ViewStyle = {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    bottom: Math.max(insets.bottom, Spacing.medium),
-  };
+  const $controlWrap: ViewStyle = useMemo(
+    () => ({
+      position: "absolute",
+      left: 0,
+      right: 0,
+      bottom: Math.max(insets.bottom, Spacing.medium),
+    }),
+    [insets.bottom]
+  );
 
   return (
     <View style={$screen}>
@@ -48,9 +80,15 @@ const MapScreen = observer(function MapScreen() {
         onGagePress={() => {}}
         cooperativeGestures={false}
         inundationUrl={inundationUrl}
+        onInundationLoad={handleInundationLoad}
       />
       <View style={$controlWrap}>
-        <InundationControl levels={levels} selectedKey={selectedKey} onSelect={setSelectedKey} />
+        <InundationControl
+          levels={levels}
+          selectedKey={selectedKey}
+          onSelect={handleSelect}
+          loading={loading}
+        />
       </View>
     </View>
   );
