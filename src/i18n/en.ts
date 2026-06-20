@@ -275,6 +275,7 @@ const en = {
     cooperativeGesturesWindows: "Use Ctrl + scroll to zoom the map",
     cooperativeGesturesMac: "Use ⌘ + scroll to zoom the map",
     cooperativeGesturesMobile: "Use two fingers to move the map",
+    floodVisualizerTitle: "Flood Visualizer",
     levelNone: "None",
     levelMinor: "Minor",
     levelModerate: "Moderate",

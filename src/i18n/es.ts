@@ -279,6 +279,7 @@ const es = {
     cooperativeGesturesWindows: "Usa Ctrl + desplazamiento para hacer zoom en el mapa",
     cooperativeGesturesMac: "Usa ⌘ + desplazamiento para hacer zoom en el mapa",
     cooperativeGesturesMobile: "Usa dos dedos para mover el mapa",
+    floodVisualizerTitle: "Visualizador de inundaciones",
     levelNone: "Ninguna",
     levelMinor: "Menor",
     levelModerate: "Moderada",

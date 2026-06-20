@@ -1,7 +1,7 @@
 import React from "react";
 import { Pressable, View, ViewStyle, ActivityIndicator } from "react-native";
 import { Row, Cell } from "@common-ui/components/Common";
-import { LabelText, TinyText } from "@common-ui/components/Text";
+import { LabelText, MediumText, TinyText } from "@common-ui/components/Text";
 import { Colors } from "@common-ui/constants/colors";
 import { Spacing } from "@common-ui/constants/spacing";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
@@ -55,6 +55,11 @@ export default function InundationControl({
         </View>
       ) : null}
       <View style={$pill}>
+        <Cell bottom={Spacing.tiny} align="center">
+          <MediumText color={Colors.lightDark} align="center">
+            {t("map.floodVisualizerTitle")}
+          </MediumText>
+        </Cell>
         <Row>
           <Segment
             active={selectedKey === null}
