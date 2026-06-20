@@ -3,7 +3,7 @@ import {
   SINGLE_GAGE_LAT_DELTA,
   SINGLE_GAGE_LNG_DELTA,
 } from "@models/MapModels";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Camera, GeoJSONSource, Layer, Map, Marker } from "@maplibre/maplibre-react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { runOnJS } from "react-native-reanimated";
@@ -56,9 +56,20 @@ const MapLibreMobileGageMap = ({
   singleGage,
   cooperativeGestures,
   inundationUrl,
-  onInundationLoad: _onInundationLoad,
+  onInundationLoad,
 }: InternalGageMapProps) => {
   const mapRef = useRef(null);
+
+  // Native has no per-source "loaded" event, so we infer it from frame rendering:
+  // `onDidFinishRenderingFrameFully` fires only when a frame renders with no
+  // pending sources/tiles. We arm this ref whenever a new inundation URL is set;
+  // the first fully-rendered frame after that means the polygon has loaded and
+  // drawn, so we clear the loading state then (rather than waiting on the screen's
+  // 12s timeout fallback). Subsequent frames (panning, etc.) are ignored.
+  const awaitingInundationRender = useRef(false);
+  useEffect(() => {
+    awaitingInundationRender.current = Boolean(inundationUrl);
+  }, [inundationUrl]);
 
   // The map lives inside a vertically-scrolling list, so a one-finger drag should
   // scroll the page rather than pan the map. We keep panning disabled until two or
@@ -165,7 +176,13 @@ const MapLibreMobileGageMap = ({
         style={styles.map}
         mapStyle={mapStyle}
         touchRotate={false}
-        dragPan={dragPan}>
+        dragPan={dragPan}
+        onDidFinishRenderingFrameFully={() => {
+          if (awaitingInundationRender.current) {
+            awaitingInundationRender.current = false;
+            onInundationLoad?.();
+          }
+        }}>
         <Camera maxBounds={regionBounds} bounds={startBounds} />
         {inundationUrl ? (
           <GeoJSONSource id="inundation" data={inundationUrl}>
