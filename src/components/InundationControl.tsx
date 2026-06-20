@@ -46,6 +46,14 @@ export default function InundationControl({
 
   return (
     <View style={$container}>
+      {/* Floated above the pill and out of layout flow, so showing/hiding it
+          never resizes the pill (loads are often fast, and a resizing pill is
+          distracting). pointerEvents none keeps it from blocking segment taps. */}
+      {loading ? (
+        <View style={$spinnerWrap} pointerEvents="none">
+          <ActivityIndicator color={Colors.primary} />
+        </View>
+      ) : null}
       <View style={$pill}>
         <Row>
           <Segment
@@ -62,11 +70,6 @@ export default function InundationControl({
               onPress={() => onSelect(level.key)}
             />
           ))}
-          {loading ? (
-            <Cell align="center" innerHorizontal={Spacing.small}>
-              <ActivityIndicator color={Colors.primary} />
-            </Cell>
-          ) : null}
         </Row>
       </View>
     </View>
@@ -75,6 +78,15 @@ export default function InundationControl({
 
 const $container: ViewStyle = {
   alignItems: "center",
+};
+
+const $spinnerWrap: ViewStyle = {
+  position: "absolute",
+  bottom: "100%",
+  left: 0,
+  right: 0,
+  alignItems: "center",
+  marginBottom: Spacing.small,
 };
 
 const $pill: ViewStyle = {
