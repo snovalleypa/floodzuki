@@ -25,6 +25,7 @@ const MapScreen = observer(function MapScreen() {
   const levels = useMemo(() => getInundationLevels(), []);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
   const loadTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const clearLoadTimeout = () => {
@@ -36,20 +37,28 @@ const MapScreen = observer(function MapScreen() {
 
   const handleSelect = useCallback((key: string | null) => {
     setSelectedKey(key);
+    setError(false);
     clearLoadTimeout();
     if (key === null) {
       setLoading(false);
       return;
     }
     setLoading(true);
-    // Safety fallback so the spinner never hangs (covers native, where no
-    // per-source load event is wired, and slow connections on web).
+    // Safety fallback so the spinner never hangs (covers slow connections and any
+    // case where neither the load nor error signal arrives).
     loadTimeout.current = setTimeout(() => setLoading(false), 12000);
   }, []);
 
   const handleInundationLoad = useCallback(() => {
     clearLoadTimeout();
     setLoading(false);
+    setError(false);
+  }, []);
+
+  const handleInundationError = useCallback(() => {
+    clearLoadTimeout();
+    setLoading(false);
+    setError(true);
   }, []);
 
   useEffect(() => clearLoadTimeout, []);
@@ -81,6 +90,7 @@ const MapScreen = observer(function MapScreen() {
         cooperativeGestures={false}
         inundationUrl={inundationUrl}
         onInundationLoad={handleInundationLoad}
+        onInundationError={handleInundationError}
       />
       <View style={$controlWrap}>
         <InundationControl
@@ -88,6 +98,7 @@ const MapScreen = observer(function MapScreen() {
           selectedKey={selectedKey}
           onSelect={handleSelect}
           loading={loading}
+          error={error}
         />
       </View>
     </View>

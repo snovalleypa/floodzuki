@@ -280,6 +280,7 @@ const es = {
     cooperativeGesturesMac: "Usa ⌘ + desplazamiento para hacer zoom en el mapa",
     cooperativeGesturesMobile: "Usa dos dedos para mover el mapa",
     floodVisualizerTitle: "Visualizador de inundaciones",
+    loadError: "No se pudieron cargar los datos de inundación. Inténtalo de nuevo.",
     levelNone: "Ninguna",
     levelMinor: "Menor",
     levelModerate: "Moderada",

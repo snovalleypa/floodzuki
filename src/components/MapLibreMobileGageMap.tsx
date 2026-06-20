@@ -57,8 +57,36 @@ const MapLibreMobileGageMap = ({
   cooperativeGestures,
   inundationUrl,
   onInundationLoad,
+  onInundationError,
 }: InternalGageMapProps) => {
   const mapRef = useRef(null);
+
+  // Native has no per-source error event either, so probe the URL with a cheap
+  // HEAD request when it's set (no CORS on native). A non-OK status or network
+  // failure means the geojson won't load, so report the error. `cancelled` guards
+  // against a stale response after the selection changed.
+  useEffect(() => {
+    if (!inundationUrl) {
+      return undefined;
+    }
+    let cancelled = false;
+    fetch(inundationUrl, { method: "HEAD" })
+      .then((res) => {
+        if (!cancelled && !res.ok) {
+          onInundationError?.();
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          onInundationError?.();
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+    // onInundationError is a stable callback from the screen; we only re-probe on URL change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inundationUrl]);
 
   // Native has no per-source "loaded" event, so we infer it from frame rendering:
   // `onDidFinishRenderingFrameFully` fires only when a frame renders with no

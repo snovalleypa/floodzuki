@@ -21,9 +21,15 @@ export type GageMapProps = {
   // When set, the map renders a translucent flood-inundation fill for this URL,
   // beneath the river/town overlays. Null/undefined renders none.
   inundationUrl?: string | null;
-  // Called when the inundation GeoJSON source has finished loading into the map
-  // (web only; native relies on the screen's timeout fallback).
+  // Called when the inundation GeoJSON source has finished loading into the map.
+  // Web fires it from the source-loaded event; native from the first
+  // fully-rendered frame after the URL is set. The screen also keeps a timeout
+  // fallback so the loading state never hangs.
   onInundationLoad?: () => void;
+  // Called when the inundation GeoJSON fails to load (e.g. the URL 404s or the
+  // network is down). Web fires it from the map error event; native from a HEAD
+  // probe of the URL.
+  onInundationError?: () => void;
 };
 
 export type InternalGageMapProps = GageMapProps & {

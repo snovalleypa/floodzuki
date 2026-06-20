@@ -276,6 +276,7 @@ const en = {
     cooperativeGesturesMac: "Use ⌘ + scroll to zoom the map",
     cooperativeGesturesMobile: "Use two fingers to move the map",
     floodVisualizerTitle: "Flood Visualizer",
+    loadError: "Couldn't load flood data. Please try again.",
     levelNone: "None",
     levelMinor: "Minor",
     levelModerate: "Moderate",

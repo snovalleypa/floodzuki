@@ -1,7 +1,7 @@
 import React from "react";
 import { Pressable, View, ViewStyle, ActivityIndicator } from "react-native";
 import { Row, Cell } from "@common-ui/components/Common";
-import { LabelText, MediumText, TinyText } from "@common-ui/components/Text";
+import { LabelText, MediumText, SmallText, TinyText } from "@common-ui/components/Text";
 import { Colors } from "@common-ui/constants/colors";
 import { Spacing } from "@common-ui/constants/spacing";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
@@ -13,6 +13,7 @@ type InundationControlProps = {
   selectedKey: string | null;
   onSelect: (key: string | null) => void;
   loading?: boolean;
+  error?: boolean;
 };
 
 type SegmentProps = {
@@ -40,17 +41,28 @@ export default function InundationControl({
   selectedKey,
   onSelect,
   loading,
+  error,
 }: InundationControlProps) {
   const { t } = useLocale();
   const { formatFlow } = useUtils();
 
   return (
     <View style={$container}>
-      {/* Floated above the pill and out of layout flow, so showing/hiding it
-          never resizes the pill (loads are often fast, and a resizing pill is
-          distracting). pointerEvents none keeps it from blocking segment taps. */}
-      {loading ? (
-        <View style={$spinnerWrap} pointerEvents="none">
+      {/* The spinner and error banner float above the pill and out of layout flow,
+          so showing/hiding them never resizes the pill (loads are often fast, and a
+          resizing pill is distracting). pointerEvents none keeps them from blocking
+          segment taps. The error takes priority over the spinner. */}
+      {error ? (
+        <View style={$bannerWrap} pointerEvents="none">
+          <View style={$errorBanner}>
+            <SmallText color={Colors.white} align="center">
+              {t("map.loadError")}
+            </SmallText>
+          </View>
+        </View>
+      ) : null}
+      {!error && loading ? (
+        <View style={$bannerWrap} pointerEvents="none">
           <ActivityIndicator color={Colors.primary} />
         </View>
       ) : null}
@@ -85,13 +97,22 @@ const $container: ViewStyle = {
   alignItems: "center",
 };
 
-const $spinnerWrap: ViewStyle = {
+const $bannerWrap: ViewStyle = {
   position: "absolute",
   bottom: "100%",
   left: 0,
   right: 0,
   alignItems: "center",
   marginBottom: Spacing.small,
+  paddingHorizontal: Spacing.medium,
+};
+
+const $errorBanner: ViewStyle = {
+  backgroundColor: Colors.danger,
+  borderRadius: Spacing.small,
+  paddingHorizontal: Spacing.medium,
+  paddingVertical: Spacing.extraSmall,
+  maxWidth: 360,
 };
 
 const $pill: ViewStyle = {

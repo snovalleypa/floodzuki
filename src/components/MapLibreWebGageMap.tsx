@@ -55,7 +55,17 @@ const MapLibreWebGageWebMap = ({
   cooperativeGestures,
   inundationUrl,
   onInundationLoad,
+  onInundationError,
 }: InternalGageMapProps) => {
+  // The typed map error event doesn't carry a sourceId, so we scope errors to the
+  // inundation load by only treating an error as an inundation failure while we're
+  // awaiting one. Armed when a new URL is set; disarmed once the source loads
+  // successfully or an error has been reported.
+  const awaitingInundation = useRef(false);
+  useEffect(() => {
+    awaitingInundation.current = Boolean(inundationUrl);
+  }, [inundationUrl]);
+
   const mapStyle = useMemo(() => {
     if (useLocalMapStyle) {
       return floodzillaLocalStyle as never;
@@ -199,7 +209,17 @@ const MapLibreWebGageWebMap = ({
       }}
       onSourceData={(e) => {
         if (e.sourceId === "inundation" && e.isSourceLoaded) {
+          awaitingInundation.current = false;
           onInundationLoad?.();
+        }
+      }}
+      onError={(e) => {
+        // No sourceId on the typed error event; treat any error while awaiting the
+        // inundation source as that load failing (the basemap is already loaded by
+        // the time a level is selected).
+        if (awaitingInundation.current) {
+          awaitingInundation.current = false;
+          onInundationError?.();
         }
       }}
       style={styles.map}>

@@ -312,4 +312,42 @@ describe("MapLibreWebGageMap — new props", () => {
     onSourceData({ sourceId: "inundation", isSourceLoaded: false });
     expect(onInundationLoad).toHaveBeenCalledTimes(1);
   });
+
+  it("calls onInundationError on a map error while an inundation load is awaited", () => {
+    const onInundationError = jest.fn();
+    render(
+      <MapLibreWebGageWebMap
+        gages={[]}
+        region={makeRegion()}
+        onGagePress={jest.fn()}
+        singleGage={null}
+        inundationUrl="https://example.com/extent.geojson"
+        onInundationError={onInundationError}
+      />
+    );
+
+    const props = MockMap.mock.calls[0][0];
+    props.onError({ error: new Error("Failed to fetch") });
+    expect(onInundationError).toHaveBeenCalledTimes(1);
+
+    // After one failure it disarms — a second error should not fire again.
+    props.onError({ error: new Error("Failed to fetch") });
+    expect(onInundationError).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not call onInundationError when no inundation load is awaited", () => {
+    const onInundationError = jest.fn();
+    render(
+      <MapLibreWebGageWebMap
+        gages={[]}
+        region={makeRegion()}
+        onGagePress={jest.fn()}
+        singleGage={null}
+        onInundationError={onInundationError}
+      />
+    );
+
+    MockMap.mock.calls[0][0].onError({ error: new Error("some basemap tile error") });
+    expect(onInundationError).not.toHaveBeenCalled();
+  });
 });
