@@ -1,8 +1,10 @@
 import { getInundationLevels, INUNDATION_FILL_LAYER_PROPS } from "../inundationOverlay";
 
+const TEST_URL_FOR_TESTING = "https://this.does.not.exist/";
+
 jest.mock("../../config/config", () => ({
   __esModule: true,
-  default: { INUNDATION_GEOJSON_BASE_URL: "https://storage.googleapis.com/fz-dev-public/" },
+  default: { INUNDATION_GEOJSON_BASE_URL: TEST_URL_FOR_TESTING },
 }));
 
 describe("getInundationLevels", () => {
@@ -15,10 +17,10 @@ describe("getInundationLevels", () => {
   it("builds each url from the config base + filename", () => {
     const levels = getInundationLevels();
     expect(levels[0].url).toBe(
-      "https://storage.googleapis.com/fz-dev-public/FloodExtent_20000CFS_fixed_simplified.geojson"
+      TEST_URL_FOR_TESTING + "FloodExtent_20000CFS_fixed_simplified.geojson"
     );
     expect(levels[2].url).toBe(
-      "https://storage.googleapis.com/fz-dev-public/FloodExtent_42500CFS_fixed_simplified.geojson"
+      TEST_URL_FOR_TESTING + "FloodExtent_42500CFS_fixed_simplified.geojson"
     );
   });
 
