@@ -21,7 +21,7 @@ const LocaleContext = React.createContext<LocaleContextType>(initialState);
 export const useLocaleContext = () => React.useContext(LocaleContext);
 
 export const useLocale = () => {
-  const { t, changeContextLocale } = useLocaleContext();
+  const { t, changeContextLocale, locale } = useLocaleContext();
   const { authSessionStore } = useStores();
 
   const changeLocale = (locale: string) => {
@@ -30,7 +30,7 @@ export const useLocale = () => {
     authSessionStore.setPrefferedLocale(locale);
   };
 
-  return { t, changeLocale };
+  return { t, changeLocale, locale };
 };
 
 export const LocaleProvider = ({ children }: { children: React.ReactNode }) => {

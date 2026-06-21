@@ -6,7 +6,7 @@ import { Colors } from "@common-ui/constants/colors";
 import { Spacing } from "@common-ui/constants/spacing";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import { useUtils } from "@utils/utils";
-import type { InundationLevel } from "./inundationOverlay";
+import { localizeLevelLabel, type InundationLevel } from "./inundationOverlay";
 
 type InundationControlProps = {
   levels: InundationLevel[];
@@ -43,7 +43,7 @@ export default function InundationControl({
   loading,
   error,
 }: InundationControlProps) {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const { formatFlow } = useUtils();
 
   return (
@@ -82,7 +82,7 @@ export default function InundationControl({
             <Segment
               key={level.key}
               active={selectedKey === level.key}
-              label={t(level.labelTx as never)}
+              label={localizeLevelLabel(level.label, locale)}
               caption={formatFlow(level.cfs)}
               onPress={() => onSelect(level.key)}
             />

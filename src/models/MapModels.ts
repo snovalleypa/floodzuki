@@ -30,6 +30,10 @@ export type GageMapProps = {
   // network is down). Web fires it from the map error event; native from a HEAD
   // probe of the URL.
   onInundationError?: () => void;
+  // GeoJSON URL of the road segments that flood at the selected inundation
+  // level, drawn as colored, labeled lines above the inundation fill. Served
+  // from the same bucket as the inundation files. Null/undefined renders none.
+  roadClosuresUrl?: string | null;
 };
 
 export type InternalGageMapProps = GageMapProps & {

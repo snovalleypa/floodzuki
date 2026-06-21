@@ -278,9 +278,6 @@ const en = {
     floodVisualizerTitle: "Flood Visualizer",
     loadError: "Couldn't load flood data. Please try again.",
     levelNone: "None",
-    levelMinor: "Minor",
-    levelModerate: "Moderate",
-    levelMajor: "Major",
   },
   calloutReading: {
     lastReading: "Last Reading",
