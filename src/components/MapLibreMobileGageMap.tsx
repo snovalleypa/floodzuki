@@ -3,7 +3,7 @@ import {
   SINGLE_GAGE_LAT_DELTA,
   SINGLE_GAGE_LNG_DELTA,
 } from "@models/MapModels";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Camera, GeoJSONSource, Layer, Map, Marker } from "@maplibre/maplibre-react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { runOnJS } from "react-native-reanimated";
@@ -12,6 +12,7 @@ import { Spacing } from "../common-ui/constants/spacing";
 import TrendIcon, { TREND_ICON_TYPES } from "./TrendIcon";
 import { getTownLabelsGeoJson, TOWN_LABELS_LAYER_PROPS } from "./townLabels";
 import { getRiverOverlaysGeoJson, RIVER_OVERLAY_LAYER_PROPS } from "./riverOverlays";
+import { INUNDATION_FILL_LAYER_PROPS } from "./inundationOverlay";
 import Config from "../config/config";
 import Constants from "expo-constants";
 import floodzillaLocalStyle from "./mapStyles/floodzilla-webstyles.json";
@@ -53,8 +54,50 @@ const MapLibreMobileGageMap = ({
   region,
   onGagePress,
   singleGage,
+  cooperativeGestures,
+  inundationUrl,
+  onInundationLoad,
+  onInundationError,
 }: InternalGageMapProps) => {
   const mapRef = useRef(null);
+
+  // Native has no per-source error event either, so probe the URL with a cheap
+  // HEAD request when it's set (no CORS on native). A non-OK status or network
+  // failure means the geojson won't load, so report the error. `cancelled` guards
+  // against a stale response after the selection changed.
+  useEffect(() => {
+    if (!inundationUrl) {
+      return undefined;
+    }
+    let cancelled = false;
+    fetch(inundationUrl, { method: "HEAD" })
+      .then((res) => {
+        if (!cancelled && !res.ok) {
+          onInundationError?.();
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          onInundationError?.();
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+    // onInundationError is a stable callback from the screen; we only re-probe on URL change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inundationUrl]);
+
+  // Native has no per-source "loaded" event, so we infer it from frame rendering:
+  // `onDidFinishRenderingFrameFully` fires only when a frame renders with no
+  // pending sources/tiles. We arm this ref whenever a new inundation URL is set;
+  // the first fully-rendered frame after that means the polygon has loaded and
+  // drawn, so we clear the loading state then (rather than waiting on the screen's
+  // 12s timeout fallback). Subsequent frames (panning, etc.) are ignored.
+  const awaitingInundationRender = useRef(false);
+  useEffect(() => {
+    awaitingInundationRender.current = Boolean(inundationUrl);
+  }, [inundationUrl]);
 
   // The map lives inside a vertically-scrolling list, so a one-finger drag should
   // scroll the page rather than pan the map. We keep panning disabled until two or
@@ -83,6 +126,10 @@ const MapLibreMobileGageMap = ({
         }),
     []
   );
+
+  // When the caller disables cooperative gestures (the full-screen Map tab), pan
+  // with a single finger directly; otherwise use the two-finger gate.
+  const dragPan = cooperativeGestures === false ? true : dragPanEnabled;
 
   const mapStyle = useMemo(() => {
     if (useLocalMapStyle) {
@@ -157,8 +204,19 @@ const MapLibreMobileGageMap = ({
         style={styles.map}
         mapStyle={mapStyle}
         touchRotate={false}
-        dragPan={dragPanEnabled}>
+        dragPan={dragPan}
+        onDidFinishRenderingFrameFully={() => {
+          if (awaitingInundationRender.current) {
+            awaitingInundationRender.current = false;
+            onInundationLoad?.();
+          }
+        }}>
         <Camera maxBounds={regionBounds} bounds={startBounds} />
+        {inundationUrl ? (
+          <GeoJSONSource id="inundation" data={inundationUrl}>
+            <Layer {...INUNDATION_FILL_LAYER_PROPS} />
+          </GeoJSONSource>
+        ) : null}
         <GeoJSONSource id="region-rivers" data={riverOverlaysGeoJson}>
           <Layer {...RIVER_OVERLAY_LAYER_PROPS} />
         </GeoJSONSource>

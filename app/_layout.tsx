@@ -31,6 +31,7 @@ initSentry();
 export enum ROUTES {
   Home = "/",
   Forecast = "/forecast",
+  Map = "/map",
   ForecastDetails = "/forecast/[...id]",
   Gages = "/gage",
   GageDetails = "/gage/[id]",
@@ -63,6 +64,12 @@ export const routes = {
     icon: "trending-up",
     tabName: "forecast",
     title: "navigation.forecastScreen",
+  },
+  [ROUTES.Map]: {
+    path: ROUTES.Map,
+    icon: "map",
+    tabName: "map",
+    title: "navigation.mapScreen",
   },
   [ROUTES.UserAlerts]: {
     path: ROUTES.About,

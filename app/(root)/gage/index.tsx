@@ -40,7 +40,6 @@ import { useLocale } from "@common-ui/contexts/LocaleContext";
 import { TxKeyPath } from "@i18n/i18n";
 import { Timing } from "@common-ui/constants/timing";
 import { RefreshControl, ScrollView } from "react-native-gesture-handler";
-import { Region } from "../../../src/models/Region";
 
 const ITEM_HEIGHT = 200;
 const MAP_WIDTH = 400;
@@ -139,29 +138,9 @@ const GageItem = observer(function GageItem({ item }: GageItemProps) {
   );
 });
 
-const HeaderComponent = ({ gages, region }: { gages: Gage[]; region: Region }) => {
-  const { isMobile } = useResponsive();
-  const router = useRouter();
-
+const HeaderComponent = () => {
   return (
     <>
-      <If condition={isMobile}>
-        <Card
-          height={300}
-          innerHorizontal={Spacing.tiny}
-          innerVertical={Spacing.tiny}
-          bottom={Spacing.small}>
-          <GageMap
-            gages={gages || []}
-            region={region}
-            onGagePress={(gage) => {
-              if (gage && router) {
-                router.push({ pathname: ROUTES.GageDetails, params: { id: gage.locationId } });
-              }
-            }}
-          />
-        </Card>
-      </If>
       <RegionSummaryCard />
     </>
   );
@@ -250,7 +229,7 @@ const HomeScreen = observer(function HomeScreen() {
             getItemLayout={getItemLayout}
             renderItem={renderGageItem}
             ListEmptyComponent={<EmptyComponent />}
-            ListHeaderComponent={<HeaderComponent gages={locations} region={regionStore.region} />}
+            ListHeaderComponent={<HeaderComponent />}
           />
         </Cell>
       </Row>

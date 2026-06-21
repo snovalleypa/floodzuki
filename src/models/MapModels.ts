@@ -14,6 +14,22 @@ export type GageMapProps = {
   onGagePress: (gage: Gage) => void;
   region: Region;
   gages: Gage[];
+  // When explicitly false, disables the accidental-scroll protection so a single
+  // finger pans the map (used by the full-screen Map tab). Defaults to the
+  // existing per-platform behavior when omitted.
+  cooperativeGestures?: boolean;
+  // When set, the map renders a translucent flood-inundation fill for this URL,
+  // beneath the river/town overlays. Null/undefined renders none.
+  inundationUrl?: string | null;
+  // Called when the inundation GeoJSON source has finished loading into the map.
+  // Web fires it from the source-loaded event; native from the first
+  // fully-rendered frame after the URL is set. The screen also keeps a timeout
+  // fallback so the loading state never hangs.
+  onInundationLoad?: () => void;
+  // Called when the inundation GeoJSON fails to load (e.g. the URL 404s or the
+  // network is down). Web fires it from the map error event; native from a HEAD
+  // probe of the URL.
+  onInundationError?: () => void;
 };
 
 export type InternalGageMapProps = GageMapProps & {

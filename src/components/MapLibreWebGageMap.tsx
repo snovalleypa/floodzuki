@@ -12,6 +12,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import TrendIcon, { TREND_ICON_TYPES } from "./TrendIcon";
 import { getTownLabelsGeoJson, TOWN_LABELS_LAYER_PROPS } from "./townLabels";
 import { getRiverOverlaysGeoJson, RIVER_OVERLAY_LAYER_PROPS } from "./riverOverlays";
+import { INUNDATION_FILL_LAYER_PROPS } from "./inundationOverlay";
 import Config from "../config/config";
 import Constants from "expo-constants";
 import floodzillaLocalStyle from "./mapStyles/floodzilla-webstyles.json";
@@ -51,7 +52,20 @@ const MapLibreWebGageWebMap = ({
   region,
   onGagePress,
   singleGage,
+  cooperativeGestures,
+  inundationUrl,
+  onInundationLoad,
+  onInundationError,
 }: InternalGageMapProps) => {
+  // The typed map error event doesn't carry a sourceId, so we scope errors to the
+  // inundation load by only treating an error as an inundation failure while we're
+  // awaiting one. Armed when a new URL is set; disarmed once the source loads
+  // successfully or an error has been reported.
+  const awaitingInundation = useRef(false);
+  useEffect(() => {
+    awaitingInundation.current = Boolean(inundationUrl);
+  }, [inundationUrl]);
+
   const mapStyle = useMemo(() => {
     if (useLocalMapStyle) {
       return floodzillaLocalStyle as never;
@@ -74,6 +88,7 @@ const MapLibreWebGageWebMap = ({
   // (with a hint overlay), two fingers pan/zoom. On desktop we leave it off so the
   // free pan/scroll-zoom behavior is unchanged.
   const { isMobile } = useResponsive();
+  const coop = cooperativeGestures ?? isMobile;
   const { t } = useLocale();
   const mapRef = useRef<MapRef>(null);
 
@@ -96,12 +111,12 @@ const MapLibreWebGageWebMap = ({
     if (!gl) {
       return;
     }
-    if (isMobile) {
+    if (coop) {
       gl.cooperativeGestures.enable();
     } else {
       gl.cooperativeGestures.disable();
     }
-  }, [isMobile]);
+  }, [coop]);
 
   const townLabelsGeoJson = useMemo(() => getTownLabelsGeoJson(region?.id), [region]);
   const riverOverlaysGeoJson = useMemo(() => getRiverOverlaysGeoJson(region?.id), [region]);
@@ -175,7 +190,7 @@ const MapLibreWebGageWebMap = ({
       }}
       maxBounds={regionBounds}
       mapStyle={mapStyle}
-      cooperativeGestures={isMobile}
+      cooperativeGestures={coop}
       locale={mapLocale}
       attributionControl={{ compact: true }}
       onLoad={(e) => {
@@ -192,7 +207,27 @@ const MapLibreWebGageWebMap = ({
           }
         }, 1000);
       }}
+      onSourceData={(e) => {
+        if (e.sourceId === "inundation" && e.isSourceLoaded) {
+          awaitingInundation.current = false;
+          onInundationLoad?.();
+        }
+      }}
+      onError={(e) => {
+        // No sourceId on the typed error event; treat any error while awaiting the
+        // inundation source as that load failing (the basemap is already loaded by
+        // the time a level is selected).
+        if (awaitingInundation.current) {
+          awaitingInundation.current = false;
+          onInundationError?.();
+        }
+      }}
       style={styles.map}>
+      {inundationUrl ? (
+        <Source id="inundation" type="geojson" data={inundationUrl}>
+          <Layer {...INUNDATION_FILL_LAYER_PROPS} />
+        </Source>
+      ) : null}
       <Source id="region-rivers" type="geojson" data={riverOverlaysGeoJson}>
         <Layer {...RIVER_OVERLAY_LAYER_PROPS} />
       </Source>
