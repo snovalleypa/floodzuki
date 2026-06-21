@@ -18,7 +18,7 @@ const GageMap = observer(function GageMap(props: GageMapProps) {
     region,
     gages,
     onGagePress,
-    cooperativeGestures,
+    useCooperativeGestures,
     inundationUrl,
     onInundationLoad,
     onInundationError,
@@ -42,7 +42,7 @@ const GageMap = observer(function GageMap(props: GageMapProps) {
       onGagePress={onGagePress}
       gages={reverseGages}
       singleGage={singleGage}
-      cooperativeGestures={cooperativeGestures}
+      useCooperativeGestures={useCooperativeGestures}
       inundationUrl={inundationUrl}
       onInundationLoad={onInundationLoad}
       onInundationError={onInundationError}

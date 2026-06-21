@@ -111,7 +111,7 @@ const MapScreen = observer(function MapScreen() {
         gages={locations}
         region={regionStore.region}
         onGagePress={() => {}}
-        cooperativeGestures={false}
+        useCooperativeGestures={false}
         inundationUrl={inundationUrl}
         onInundationLoad={handleInundationLoad}
         onInundationError={handleInundationError}

@@ -53,7 +53,7 @@ const MapLibreWebGageWebMap = ({
   region,
   onGagePress,
   singleGage,
-  cooperativeGestures,
+  useCooperativeGestures,
   inundationUrl,
   onInundationLoad,
   onInundationError,
@@ -90,7 +90,7 @@ const MapLibreWebGageWebMap = ({
   // (with a hint overlay), two fingers pan/zoom. On desktop we leave it off so the
   // free pan/scroll-zoom behavior is unchanged.
   const { isMobile } = useResponsive();
-  const coop = cooperativeGestures ?? isMobile;
+  const coop = useCooperativeGestures ?? isMobile;
   const { t } = useLocale();
   const mapRef = useRef<MapRef>(null);
 

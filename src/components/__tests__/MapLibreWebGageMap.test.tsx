@@ -251,7 +251,7 @@ describe("MapLibreWebGageMap — new props", () => {
         region={makeRegion()}
         onGagePress={jest.fn()}
         singleGage={null}
-        cooperativeGestures={false}
+        useCooperativeGestures={false}
       />
     );
     expect(MockMap.mock.calls[0][0].cooperativeGestures).toBe(false);
