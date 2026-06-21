@@ -54,7 +54,7 @@ const MapLibreMobileGageMap = ({
   region,
   onGagePress,
   singleGage,
-  cooperativeGestures,
+  useCooperativeGestures,
   inundationUrl,
   onInundationLoad,
   onInundationError,
@@ -129,7 +129,7 @@ const MapLibreMobileGageMap = ({
 
   // When the caller disables cooperative gestures (the full-screen Map tab), pan
   // with a single finger directly; otherwise use the two-finger gate.
-  const dragPan = cooperativeGestures === false ? true : dragPanEnabled;
+  const dragPan = useCooperativeGestures === false ? true : dragPanEnabled;
 
   const mapStyle = useMemo(() => {
     if (useLocalMapStyle) {

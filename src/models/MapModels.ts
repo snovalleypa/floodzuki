@@ -17,7 +17,7 @@ export type GageMapProps = {
   // When explicitly false, disables the accidental-scroll protection so a single
   // finger pans the map (used by the full-screen Map tab). Defaults to the
   // existing per-platform behavior when omitted.
-  cooperativeGestures?: boolean;
+  useCooperativeGestures?: boolean;
   // When set, the map renders a translucent flood-inundation fill for this URL,
   // beneath the river/town overlays. Null/undefined renders none.
   inundationUrl?: string | null;
