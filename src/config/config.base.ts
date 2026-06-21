@@ -94,7 +94,7 @@ const BaseConfig: {
   GAGE_IMAGE_BASE_URL: "https://svpastorage.blob.core.windows.net/uploads/",
   DONATION_URL: "https://www.paypal.com/donate/?hosted_button_id=HT6T3U5F2C4NG",
   DEFAULT_MAP_TILE_BASE_URL: "https://floodzilla.com/maps",
-  INUNDATION_GEOJSON_BASE_URL: "https://floodzilla.com/map/",
+  INUNDATION_GEOJSON_BASE_URL: "https://storage.googleapis.com/fz-dev-public/",
 
   SVPA_URL: "https://svpa.us",
   SVPA_PHONE: "425-549-0316",
