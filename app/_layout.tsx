@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import Constants from "expo-constants";
 import { Slot, useGlobalSearchParams } from "expo-router";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
@@ -116,6 +117,10 @@ function App() {
   const { getAsset } = useAppAssets();
   const { t } = useLocale();
   const params = useGlobalSearchParams();
+  const navuSiteCode = Constants.expoConfig?.extra?.navuSiteCode;
+  const gaTrackingId = Constants.expoConfig?.extra?.gaTrackingId;
+  const appleAppId = Constants.expoConfig?.extra?.appleAppId;
+  const googlePlayPackage = Constants.expoConfig?.extra?.googlePlayPackage;
 
   useEffect(() => {
     applyDebugFlagsFromParams(params as Record<string, string | string[] | undefined>);
@@ -138,14 +143,26 @@ function App() {
           <title>{t("common.title")}</title>
           <meta name="description" content={t("common.metaDescription")} />
           <meta property="expo:handoff" content="true" />
-          <meta name="apple-itunes-app" content="app-id=6448645748" />
-          <meta name="google-play-app" content="app-id=com.floodzilla.floodzuki" />
+          {appleAppId ? <meta name="apple-itunes-app" content={`app-id=${appleAppId}`} /> : null}
+          {googlePlayPackage ? (
+            <meta name="google-play-app" content={`app-id=${googlePlayPackage}`} />
+          ) : null}
+          {/* Navu FAQ widget — site code injected from env via app.config.ts `extra`.
+              Kept as direct children (no Fragment): react-helmet only reads direct
+              element children of Head and silently drops anything wrapped in a Fragment. */}
+          {navuSiteCode ? <meta name="navu:site" content={navuSiteCode} /> : null}
+          {navuSiteCode ? <script async src="https://embed.navu.co/boot.js"></script> : null}
           <link rel="apple-touch-icon" href={getAsset("favicon").uri} />
-          <script async src="https://www.googletagmanager.com/gtag/js?id=UA-302444-12"></script>
+          {gaTrackingId ? (
+            <script
+              async
+              src={`https://www.googletagmanager.com/gtag/js?id=${gaTrackingId}`}></script>
+          ) : null}
           <script src="//apis.google.com/js/client:platform.js?onload=start"></script>
           <script src="//www.google.com/recaptcha/api.js" async defer></script>
-          <script>
-            {`
+          {gaTrackingId ? (
+            <script>
+              {`
             window.dataLayer = window.dataLayer || [];
 
             function gtag() {
@@ -154,9 +171,10 @@ function App() {
 
             gtag("js", new Date())
 
-            gtag("config", "UA-302444-12")
+            gtag("config", "${gaTrackingId}")
           `}
-          </script>
+            </script>
+          ) : null}
           <style>
             {`
             a {
