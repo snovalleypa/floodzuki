@@ -22,6 +22,7 @@ const GageMap = observer(function GageMap(props: GageMapProps) {
     inundationUrl,
     onInundationLoad,
     onInundationError,
+    roadClosuresUrl,
   } = props;
 
   const reverseGages = useMemo(() => {
@@ -45,6 +46,7 @@ const GageMap = observer(function GageMap(props: GageMapProps) {
       inundationUrl={inundationUrl}
       onInundationLoad={onInundationLoad}
       onInundationError={onInundationError}
+      roadClosuresUrl={roadClosuresUrl}
     />
   );
 });

@@ -8,7 +8,7 @@ import PageTitle from "@common-ui/components/PageTitle";
 import { ErrorDetails } from "@components/ErrorDetails";
 import GageMap from "@components/GageMap";
 import InundationControl from "@components/InundationControl";
-import { getInundationLevels } from "@components/inundationOverlay";
+import { useInundationLevels } from "@components/useInundationLevels";
 import { useStores } from "@models/helpers/useStores";
 import { Spacing } from "@common-ui/constants/spacing";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
@@ -22,7 +22,7 @@ const MapScreen = observer(function MapScreen() {
   const { t } = useLocale();
   const insets = useSafeAreaInsets();
 
-  const levels = useMemo(() => getInundationLevels(), []);
+  const { levels, ready } = useInundationLevels(regionStore.region?.id);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
@@ -78,7 +78,7 @@ const MapScreen = observer(function MapScreen() {
   const locations = getLocationsWithGages();
 
   const inundationUrl = useMemo(() => {
-    const level = levels.find((l) => l.key === selectedKey);
+    const level = levels?.find((l) => l.key === selectedKey);
     if (!level) {
       return null;
     }
@@ -88,6 +88,11 @@ const MapScreen = observer(function MapScreen() {
     const separator = level.url.includes("?") ? "&" : "?";
     return `${level.url}${separator}_retry=${reloadNonce}`;
   }, [levels, selectedKey, reloadNonce]);
+
+  const roadClosuresUrl = useMemo(() => {
+    const level = levels?.find((l) => l.key === selectedKey);
+    return level?.roadClosuresUrl ?? null;
+  }, [levels, selectedKey]);
 
   const $controlWrap: ViewStyle = useMemo(
     () => ({
@@ -110,16 +115,21 @@ const MapScreen = observer(function MapScreen() {
         inundationUrl={inundationUrl}
         onInundationLoad={handleInundationLoad}
         onInundationError={handleInundationError}
+        roadClosuresUrl={roadClosuresUrl}
       />
-      <View style={$controlWrap}>
-        <InundationControl
-          levels={levels}
-          selectedKey={selectedKey}
-          onSelect={handleSelect}
-          loading={loading}
-          error={error}
-        />
-      </View>
+      {/* Only show the Flood Visualizer once the region's level config has loaded
+          and actually has levels — no config (404) means no control at all. */}
+      {ready && levels && levels.length > 0 ? (
+        <View style={$controlWrap}>
+          <InundationControl
+            levels={levels}
+            selectedKey={selectedKey}
+            onSelect={handleSelect}
+            loading={loading}
+            error={error}
+          />
+        </View>
+      ) : null}
     </View>
   );
 });

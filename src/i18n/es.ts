@@ -282,9 +282,6 @@ const es = {
     floodVisualizerTitle: "Visualizador de inundaciones",
     loadError: "No se pudieron cargar los datos de inundación. Inténtalo de nuevo.",
     levelNone: "Ninguna",
-    levelMinor: "Menor",
-    levelModerate: "Moderada",
-    levelMajor: "Mayor",
   },
   calloutReading: {
     lastReading: "Última medición",
