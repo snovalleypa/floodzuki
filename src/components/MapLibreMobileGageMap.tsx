@@ -231,7 +231,10 @@ const MapLibreMobileGageMap = ({
         <GeoJSONSource id="region-towns" data={townLabelsGeoJson}>
           <Layer {...TOWN_LABELS_LAYER_PROPS} />
         </GeoJSONSource>
-        {markers}
+        {/* Hide gauge icons while a flood level is selected so users aren't
+            confused about whether the icons reflect live status or the
+            selected visualization level. */}
+        {inundationUrl ? null : markers}
       </Map>
     </GestureDetector>
   );

@@ -242,7 +242,10 @@ const MapLibreWebGageWebMap = ({
       <Source id="region-towns" type="geojson" data={townLabelsGeoJson}>
         <Layer {...TOWN_LABELS_LAYER_PROPS} />
       </Source>
-      {markers}
+      {/* Hide gauge icons while a flood level is selected so users aren't
+          confused about whether the icons reflect live status or the
+          selected visualization level. */}
+      {inundationUrl ? null : markers}
     </Map>
   );
 };
