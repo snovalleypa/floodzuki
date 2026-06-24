@@ -62,4 +62,15 @@ describe("InundationControl", () => {
     expect(getByText("20000 cfs")).toBeTruthy();
     expect(getByText("42500 cfs")).toBeTruthy();
   });
+
+  it("opens the info popup when the info button is pressed", () => {
+    const { getByLabelText, queryByText, getByText } = render(
+      <InundationControl levels={levels} selectedKey={null} onSelect={jest.fn()} />
+    );
+    // Popup content is not rendered until the info button is pressed.
+    expect(queryByText("map.info.intro")).toBeNull();
+    fireEvent.press(getByLabelText("map.info.buttonLabel"));
+    expect(getByText("map.info.intro")).toBeTruthy();
+    expect(getByText("map.info.roadsNote")).toBeTruthy();
+  });
 });
