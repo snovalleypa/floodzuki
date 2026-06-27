@@ -8,10 +8,14 @@ import PageTitle from "@common-ui/components/PageTitle";
 import { ErrorDetails } from "@components/ErrorDetails";
 import GageMap from "@components/GageMap";
 import InundationControl from "@components/InundationControl";
+import MapBaseLayerToggle from "@components/MapBaseLayerToggle";
 import { useInundationLevels } from "@components/useInundationLevels";
+import { isSatelliteAvailable } from "@components/mapTilerStyle";
 import { useStores } from "@models/helpers/useStores";
+import { MapBaseLayer } from "@models/MapModels";
 import { Spacing } from "@common-ui/constants/spacing";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
+import { useMapBaseLayer } from "@common-ui/contexts/MapBaseLayerContext";
 
 export function ErrorBoundary(props: ErrorBoundaryProps) {
   return <ErrorDetails {...props} />;
@@ -21,6 +25,7 @@ const MapScreen = observer(function MapScreen() {
   const { regionStore, getLocationsWithGages } = useStores();
   const { t } = useLocale();
   const insets = useSafeAreaInsets();
+  const { baseLayer, setBaseLayer } = useMapBaseLayer();
 
   const { levels, ready } = useInundationLevels(regionStore.region?.id);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
@@ -104,6 +109,15 @@ const MapScreen = observer(function MapScreen() {
     [insets.bottom]
   );
 
+  const $toggleWrap: ViewStyle = useMemo(
+    () => ({
+      position: "absolute",
+      top: Math.max(insets.top, Spacing.medium),
+      right: Spacing.medium,
+    }),
+    [insets.top]
+  );
+
   return (
     <View style={$screen}>
       <PageTitle name={t("navigation.mapScreen")} />
@@ -116,7 +130,21 @@ const MapScreen = observer(function MapScreen() {
         onInundationLoad={handleInundationLoad}
         onInundationError={handleInundationError}
         roadClosuresUrl={roadClosuresUrl}
+        baseLayer={baseLayer}
       />
+      {/* The Map/Satellite toggle only appears when a MapTiler key is configured. */}
+      {isSatelliteAvailable() ? (
+        <View style={$toggleWrap}>
+          <MapBaseLayerToggle
+            baseLayer={baseLayer}
+            onPress={() =>
+              setBaseLayer(
+                baseLayer === MapBaseLayer.Map ? MapBaseLayer.Satellite : MapBaseLayer.Map
+              )
+            }
+          />
+        </View>
+      ) : null}
       {/* Only show the Flood Visualizer once the region's level config has loaded
           and actually has levels — no config (404) means no control at all. */}
       {ready && levels && levels.length > 0 ? (

@@ -31,6 +31,7 @@ import { useLocale } from "@common-ui/contexts/LocaleContext";
 import LocaleChange from "@components/LocaleChange";
 import TasteOfTheValleyBanner from "@components/TasteOfTheValleyBanner";
 import AppStoreBanner from "@components/AppStoreBanner";
+import { MapBaseLayerProvider } from "@common-ui/contexts/MapBaseLayerContext";
 
 const GAGE_ICONS = {
   active: require("@assets/images/floodzuki.png"),
@@ -62,15 +63,17 @@ export default function AppLayout() {
   useRegisterPushNotificationsListener(store.authSessionStore.isPushNotificationsEnabled);
 
   return (
-    <Ternary condition={isWeb}>
-      <>
-        <AppStoreBanner />
-        <Header />
-        <TasteOfTheValleyBanner />
-        <Slot />
-      </>
-      <TabView />
-    </Ternary>
+    <MapBaseLayerProvider>
+      <Ternary condition={isWeb}>
+        <>
+          <AppStoreBanner />
+          <Header />
+          <TasteOfTheValleyBanner />
+          <Slot />
+        </>
+        <TabView />
+      </Ternary>
+    </MapBaseLayerProvider>
   );
 }
 
