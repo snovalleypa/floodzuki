@@ -282,6 +282,12 @@ const es = {
     floodVisualizerTitle: "Visualizador de inundaciones",
     loadError: "No se pudieron cargar los datos de inundación. Inténtalo de nuevo.",
     levelNone: "Ninguna",
+    baseLayer: {
+      map: "Mapa",
+      satellite: "Satélite",
+      switchToSatellite: "Cambiar a vista satelital",
+      switchToMap: "Cambiar a vista de mapa",
+    },
     info: {
       buttonLabel: "Acerca del Visualizador de inundaciones",
       title: "Acerca del Visualizador de inundaciones",

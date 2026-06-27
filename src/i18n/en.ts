@@ -278,6 +278,12 @@ const en = {
     floodVisualizerTitle: "Flood Visualizer",
     loadError: "Couldn't load flood data. Please try again.",
     levelNone: "None",
+    baseLayer: {
+      map: "Map",
+      satellite: "Satellite",
+      switchToSatellite: "Switch to satellite view",
+      switchToMap: "Switch to map view",
+    },
     info: {
       buttonLabel: "About the Flood Visualizer",
       title: "About the Flood Visualizer",
