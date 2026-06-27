@@ -5,7 +5,14 @@ import {
   SINGLE_GAGE_LNG_DELTA,
 } from "@models/MapModels";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Camera, GeoJSONSource, Layer, Map, Marker } from "@maplibre/maplibre-react-native";
+import {
+  Camera,
+  GeoJSONSource,
+  Layer,
+  Map,
+  Marker,
+  TransformRequestManager,
+} from "@maplibre/maplibre-react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { runOnJS } from "react-native-reanimated";
 import { StyleSheet, ViewStyle } from "react-native";
@@ -52,6 +59,11 @@ const defaultMapBounds = [-122.3328, 46.9564, -121.2959, 48.3127];
 const singleGageLatDelta = SINGLE_GAGE_LAT_DELTA;
 const singleGageLngDelta = SINGLE_GAGE_LNG_DELTA;
 
+// The native MapTiler key is restricted to this allowed User-Agent substring
+// (native requests can't send a Referer like the web key does). Must match the
+// "Allowed user-agent" value configured for the native key in MapTiler Cloud.
+const MAPTILER_USER_AGENT = "FloodzillaApp/1.0";
+
 const MapLibreMobileGageMap = ({
   gages,
   region,
@@ -65,6 +77,18 @@ const MapLibreMobileGageMap = ({
   baseLayer,
 }: InternalGageMapProps) => {
   const mapRef = useRef(null);
+
+  // Tag only MapTiler requests with the allowed User-Agent so the native key
+  // passes MapTiler's user-agent restriction. Scoped by `match` so floodzilla.com
+  // tile requests keep their default User-Agent. Idempotent via the stable id.
+  useEffect(() => {
+    TransformRequestManager.addHeader({
+      id: "maptiler-user-agent",
+      match: /api\.maptiler\.com/,
+      name: "User-Agent",
+      value: MAPTILER_USER_AGENT,
+    });
+  }, []);
 
   // Native has no per-source error event either, so probe the URL with a cheap
   // HEAD request when it's set (no CORS on native). A non-OK status or network

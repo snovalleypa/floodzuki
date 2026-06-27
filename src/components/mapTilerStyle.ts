@@ -1,11 +1,20 @@
+import { Platform } from "react-native";
 import Constants from "expo-constants";
 import Config from "../config/config";
 
-// The MapTiler API key is injected at build time from MAP_TILER_KEY via
-// app.config.ts `extra`. When it is absent (e.g. local dev without the key),
-// the satellite base layer is not offered at all.
+// MapTiler keys are restricted differently per platform: the web key is locked
+// to allowed domains (the browser sends a Referer), while native apps can't send
+// a Referer, so they use a separate key locked to an allowed User-Agent substring
+// (see MapLibreMobileGageMap, which sets that User-Agent). We therefore pick the
+// key by platform and never fall back across platforms — a web key would 403 on
+// native and vice-versa. Both come from app.config.ts `extra` (MAP_TILER_KEY /
+// MAP_TILER_KEY_NATIVE). When the platform's key is absent (e.g. local dev), the
+// satellite base layer is not offered.
 export function getMapTilerKey(): string | null {
-  const key = Constants.expoConfig?.extra?.mapTilerKey as string | undefined;
+  const extra = Constants.expoConfig?.extra;
+  const key = (Platform.OS === "web" ? extra?.mapTilerKey : extra?.mapTilerKeyNative) as
+    | string
+    | undefined;
   return key ? key : null;
 }
 

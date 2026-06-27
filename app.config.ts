@@ -145,6 +145,7 @@ export default {
     },
     mapTileUrlBase: process.env.MAP_TILE_URL_BASE,
     mapTilerKey: process.env.MAP_TILER_KEY,
+    mapTilerKeyNative: process.env.MAP_TILER_KEY_NATIVE,
     mapStyleLocal: process.env.MAP_STYLE_LOCAL === "1" || process.env.MAP_STYLE_LOCAL === "true",
     recaptchaKey: process.env.GOOGLE_RECAPTCH_SITE_KEY,
     googleMapsWebApiKey: process.env.GOOGLE_MAPS_WEB_API_KEY,
