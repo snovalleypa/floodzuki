@@ -53,6 +53,8 @@ Create a `.env` file or pass inline:
 BUILD_ENV="local" SENTRY_AUTH_TOKEN="" GOOGLE_AUTH_CLIENT_SECRET="" GOOGLE_RECAPTCH_SITE_KEY="" GOOGLE_AUTH_EXPO_ID="" GOOGLE_AUTH_WEB_ID="" GOOGLE_AUTH_IOS_ID="" GOOGLE_AUTH_ANDROID_ID="" GOOGLE_MAPS_IOS_API_KEY="" GOOGLE_MAPS_ANDROID_API_KEY="" GOOGLE_MAPS_WEB_API_KEY="" npx expo start
 ```
 
+`MAP_TILER_KEY` (web) and `MAP_TILER_KEY_NATIVE` (iOS/Android) enable the Map-tab satellite layer; without them the Map/Satellite toggle is hidden. They are two distinct keys with different MapTiler Cloud restrictions — see [Satellite base layer (MapTiler) — why there are two keys](#satellite-base-layer-maptiler--why-there-are-two-keys) under Maps.
+
 Google Auth only works in the browser via secure tunnel:
 
 ```bash
@@ -162,6 +164,15 @@ All user-visible strings go through the `useLocale()` hook (`t("key")`). Transla
 Maps use MapLibre with tile URLs from `Config.DEFAULT_MAP_TILE_BASE_URL`. The `MAP_TILE_URL_BASE` env var overrides the tile source at build time (exposed via `app.config.ts` extra). Maps are not supported in standalone dev builds — only Expo Go and browser.
 
 The map _style_ (layer colors, label sizes, zoom rules) is normally fetched from `https://floodzilla.com/maps/{regionId}/webstyles`. To iterate locally on the style JSON, set `MAP_STYLE_LOCAL=1` — the app will use the checked-in copy at `src/components/mapStyles/floodzilla-webstyles.json` instead. Save the file and reload to see changes. Hand the file off to the backend developer to deploy (same content goes into both the `WebStyles` and `MobileStyles` DB records).
+
+#### Satellite base layer (MapTiler) — why there are two keys
+
+The Map tab has a Map/Satellite toggle ([MapBaseLayerToggle.tsx](src/components/MapBaseLayerToggle.tsx)). "Satellite" swaps the basemap to MapTiler's hybrid style (`Config.MAPTILER_HYBRID_STYLE_URL` + `?key=`). The key selection lives in [mapTilerStyle.ts](src/components/mapTilerStyle.ts) (`getMapTilerKey()`), which picks **one of two keys by platform** — there is no cross-platform fallback (each key 403s on the other platform):
+
+- **Web → `MAP_TILER_KEY`** (exposed as `extra.mapTilerKey`). Restricted in MapTiler Cloud by **allowed domains/referrers** (`localhost`, `floodzilla.com`, …). This works because browsers automatically send a `Referer` header that MapTiler can check.
+- **Native (iOS/Android) → `MAP_TILER_KEY_NATIVE`** (exposed as `extra.mapTilerKeyNative`). Native HTTP requests **cannot send a `Referer`**, so a domain-restricted key always 403s on device. Instead this key is restricted in MapTiler Cloud by an **allowed User-Agent substring** (case-sensitive). [MapLibreMobileGageMap.tsx](src/components/MapLibreMobileGageMap.tsx) registers a `TransformRequestManager` header that tags only `api.maptiler.com` requests with `User-Agent: FloodzillaApp/1.0`; the dashboard substring is `FloodzillaApp`. If you change `MAPTILER_USER_AGENT` in that file, update the dashboard to match.
+
+So: two keys because MapTiler can only restrict browser traffic by domain and native traffic by User-Agent — a single key can't be locked down for both. A platform whose key is unset simply hides the toggle (`isSatelliteAvailable()`), it doesn't fall back to the other key. MapTiler reference: <https://docs.maptiler.com/guides/maps-apis/maps-platform/how-to-protect-your-map-key/>.
 
 ### OTA Updates
 
