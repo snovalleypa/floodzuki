@@ -28,16 +28,20 @@ type SegmentProps = {
   active: boolean;
   label: string;
   caption?: string;
+  subCaption?: string;
   onPress: () => void;
 };
 
-function Segment({ active, label, caption, onPress }: SegmentProps) {
+function Segment({ active, label, caption, subCaption, onPress }: SegmentProps) {
   return (
     <Pressable onPress={onPress} style={[$segment, active ? $segmentActive : undefined]}>
       <Cell align="center" innerHorizontal={Spacing.small} innerVertical={Spacing.tiny}>
         <LabelText color={active ? Colors.white : Colors.lightDark}>{label}</LabelText>
         {caption ? (
           <TinyText color={active ? Colors.white : Colors.darkGrey}>{caption}</TinyText>
+        ) : null}
+        {subCaption ? (
+          <TinyText color={active ? Colors.white : Colors.darkGrey}>{subCaption}</TinyText>
         ) : null}
       </Cell>
     </Pressable>
@@ -67,6 +71,16 @@ export default function InundationControl({
   const { t, locale } = useLocale();
   const { formatFlow } = useUtils();
   const [infoVisible, setInfoVisible] = useState(false);
+
+  // Gauge height for a level, rounded to one decimal place (e.g. "53.7 ft").
+  // Undefined when the config omits a height so the segment skips that line.
+  const formatFeet = (feet: number | null) =>
+    feet === null
+      ? undefined
+      : `${feet.toLocaleString(undefined, {
+          minimumFractionDigits: 1,
+          maximumFractionDigits: 1,
+        })} ${t("measure.ft")}`;
 
   return (
     <View style={$container}>
@@ -114,6 +128,7 @@ export default function InundationControl({
               active={selectedKey === level.key}
               label={localizeLevelLabel(level.label, locale)}
               caption={formatFlow(level.cfs)}
+              subCaption={formatFeet(level.feet)}
               onPress={() => onSelect(level.key)}
             />
           ))}

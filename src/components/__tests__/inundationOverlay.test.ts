@@ -24,6 +24,7 @@ const config = {
       cfs: 20000,
       file: "FloodExtent_20000CFS_fixed_simplified.geojson",
       roadClosuresFile: "RoadClosures_20000CFS.geojson",
+      feet: 53.69,
     },
     {
       key: "major",
@@ -55,6 +56,13 @@ describe("fetchInundationLevels", () => {
     const levels = await fetchInundationLevels(1);
     expect(levels?.[0].roadClosuresUrl).toBe(BASE + "RoadClosures_20000CFS.geojson");
     expect(levels?.[1].roadClosuresUrl).toBeNull();
+  });
+
+  it("parses the gauge height in feet, or null when absent", async () => {
+    mockFetch(config);
+    const levels = await fetchInundationLevels(1);
+    expect(levels?.[0].feet).toBe(53.69);
+    expect(levels?.[1].feet).toBeNull();
   });
 
   it("accepts a bare array config too", async () => {
