@@ -6,6 +6,8 @@ import { render } from "@testing-library/react-native";
 
 import MapLibreWebGageWebMap from "../MapLibreWebGageMap";
 import * as MapLibre from "@vis.gl/react-maplibre";
+import { getMapTilerHybridStyleUrl } from "../mapTilerStyle";
+import { MapBaseLayer } from "@models/MapModels";
 
 jest.mock("maplibre-gl/dist/maplibre-gl.css", () => {});
 
@@ -42,6 +44,12 @@ jest.mock("@common-ui/contexts/LocaleContext", () => ({
 jest.mock("@common-ui/utils/responsive", () => ({
   useResponsive: () => ({ isMobile: false, isDesktop: true, isTablet: false, isWideScreen: true }),
 }));
+
+jest.mock("../mapTilerStyle", () => ({
+  getMapTilerHybridStyleUrl: jest.fn(() => null),
+}));
+
+const mockHybridUrl = getMapTilerHybridStyleUrl as jest.Mock;
 
 const MockMap = MapLibre.Map as unknown as jest.Mock;
 const MockMarker = MapLibre.Marker as unknown as jest.Mock;
@@ -349,5 +357,51 @@ describe("MapLibreWebGageMap — new props", () => {
 
     MockMap.mock.calls[0][0].onError({ error: new Error("some basemap tile error") });
     expect(onInundationError).not.toHaveBeenCalled();
+  });
+});
+
+// ---------------------------------------------------------------------------
+
+describe("MapLibreWebGageMap — base layer", () => {
+  afterEach(() => mockHybridUrl.mockReturnValue(null));
+
+  it("uses the Floodzilla vector style by default", () => {
+    render(
+      <MapLibreWebGageWebMap
+        gages={[]}
+        region={makeRegion({ id: 7 })}
+        onGagePress={jest.fn()}
+        singleGage={null}
+      />
+    );
+    expect(MockMap.mock.calls[0][0].mapStyle).toBe("https://tiles.example.com/7/webstyles");
+  });
+
+  it("uses the MapTiler hybrid url when baseLayer is Satellite and a key exists", () => {
+    mockHybridUrl.mockReturnValue("https://maptiler.test/hybrid?key=K");
+    render(
+      <MapLibreWebGageWebMap
+        gages={[]}
+        region={makeRegion({ id: 7 })}
+        onGagePress={jest.fn()}
+        singleGage={null}
+        baseLayer={MapBaseLayer.Satellite}
+      />
+    );
+    expect(MockMap.mock.calls[0][0].mapStyle).toBe("https://maptiler.test/hybrid?key=K");
+  });
+
+  it("falls back to the vector style when Satellite is requested but no key exists", () => {
+    mockHybridUrl.mockReturnValue(null);
+    render(
+      <MapLibreWebGageWebMap
+        gages={[]}
+        region={makeRegion({ id: 7 })}
+        onGagePress={jest.fn()}
+        singleGage={null}
+        baseLayer={MapBaseLayer.Satellite}
+      />
+    );
+    expect(MockMap.mock.calls[0][0].mapStyle).toBe("https://tiles.example.com/7/webstyles");
   });
 });

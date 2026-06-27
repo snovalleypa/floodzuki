@@ -1,5 +1,6 @@
 import {
   InternalGageMapProps,
+  MapBaseLayer,
   SINGLE_GAGE_LAT_DELTA,
   SINGLE_GAGE_LNG_DELTA,
 } from "@models/MapModels";
@@ -14,6 +15,7 @@ import { getTownLabelsGeoJson, TOWN_LABELS_LAYER_PROPS } from "./townLabels";
 import { getRiverOverlaysGeoJson, RIVER_OVERLAY_LAYER_PROPS } from "./riverOverlays";
 import { INUNDATION_FILL_LAYER_PROPS } from "./inundationOverlay";
 import { ROAD_CLOSURE_LINE_LAYER_PROPS, ROAD_CLOSURE_LABEL_LAYER_PROPS } from "./roadClosures";
+import { getMapTilerHybridStyleUrl } from "./mapTilerStyle";
 import Config from "../config/config";
 import Constants from "expo-constants";
 import floodzillaLocalStyle from "./mapStyles/floodzilla-webstyles.json";
@@ -60,6 +62,7 @@ const MapLibreMobileGageMap = ({
   onInundationLoad,
   onInundationError,
   roadClosuresUrl,
+  baseLayer,
 }: InternalGageMapProps) => {
   const mapRef = useRef(null);
 
@@ -134,6 +137,12 @@ const MapLibreMobileGageMap = ({
   const dragPan = useCooperativeGestures === false ? true : dragPanEnabled;
 
   const mapStyle = useMemo(() => {
+    if (baseLayer === MapBaseLayer.Satellite) {
+      const satelliteUrl = getMapTilerHybridStyleUrl();
+      if (satelliteUrl) {
+        return satelliteUrl;
+      }
+    }
     if (useLocalMapStyle) {
       return floodzillaLocalStyle as never;
     }
@@ -145,7 +154,7 @@ const MapLibreMobileGageMap = ({
       url += "/";
     }
     return url + region.id + "/mobilestyles";
-  }, [region]);
+  }, [region, baseLayer]);
 
   const markers = useMemo(() => {
     if (!gages) {
