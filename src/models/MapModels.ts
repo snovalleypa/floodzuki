@@ -10,6 +10,13 @@ import { Region } from "./Region";
 export const SINGLE_GAGE_LAT_DELTA = 0.06;
 export const SINGLE_GAGE_LNG_DELTA = 0.09;
 
+// Which basemap the map renders. "map" is the Floodzilla vector style; "satellite"
+// is MapTiler's hybrid (satellite + labels). String enum per project convention.
+export enum MapBaseLayer {
+  Map = "map",
+  Satellite = "satellite",
+}
+
 export type GageMapProps = {
   onGagePress: (gage: Gage) => void;
   region: Region;
@@ -34,6 +41,9 @@ export type GageMapProps = {
   // level, drawn as colored, labeled lines above the inundation fill. Served
   // from the same bucket as the inundation files. Null/undefined renders none.
   roadClosuresUrl?: string | null;
+  // Which basemap to render. Defaults to the Floodzilla vector style. Only the
+  // Map tab passes "satellite"; the gauge-list/detail maps leave it unset.
+  baseLayer?: MapBaseLayer;
 };
 
 export type InternalGageMapProps = GageMapProps & {
