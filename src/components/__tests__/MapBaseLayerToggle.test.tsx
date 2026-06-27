@@ -8,11 +8,11 @@ jest.mock("@common-ui/contexts/LocaleContext", () => ({
   useLocale: () => ({ t: (k: string) => k }),
 }));
 
-// Icon renders an @expo/vector-icons glyph; stub to a plain view to keep the
-// test light and avoid font loading.
-jest.mock("@common-ui/components/Icon", () => ({
+// The thumbnail button renders an expo-image; stub it so the test doesn't need
+// the native image module.
+jest.mock("expo-image", () => ({
   __esModule: true,
-  default: () => null,
+  Image: () => null,
 }));
 
 describe("MapBaseLayerToggle", () => {

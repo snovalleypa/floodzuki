@@ -1,7 +1,7 @@
 import React from "react";
-import { Pressable, View, ViewStyle, TextStyle } from "react-native";
-import { LabelText } from "@common-ui/components/Text";
-import Icon from "@common-ui/components/Icon";
+import { Pressable, View, ViewStyle, ImageStyle } from "react-native";
+import { Image } from "expo-image";
+import { TinyText } from "@common-ui/components/Text";
 import { Colors } from "@common-ui/constants/colors";
 import { Spacing } from "@common-ui/constants/spacing";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
@@ -12,14 +12,20 @@ type Props = {
   onPress: () => void;
 };
 
-// A Google-Maps-style corner button that shows the OTHER mode you can switch to:
-// while on the vector map it offers "Satellite"; while on satellite it offers "Map".
+// Show the target mode's thumbnail (the mode tapping switches you TO).
+const THUMBNAILS = {
+  [MapBaseLayer.Satellite]: require("@assets/images/baselayer-satellite.png"),
+  [MapBaseLayer.Map]: require("@assets/images/baselayer-map.png"),
+};
+
+// A Google-Maps-style corner button that previews the OTHER mode you can switch
+// to: on the vector map it shows a satellite thumbnail labeled "Satellite"; on
+// satellite it shows a map thumbnail labeled "Map".
 export default function MapBaseLayerToggle({ baseLayer, onPress }: Props) {
   const { t } = useLocale();
   const onMap = baseLayer === MapBaseLayer.Map;
+  const targetLayer = onMap ? MapBaseLayer.Satellite : MapBaseLayer.Map;
 
-  // Show the target mode's affordance.
-  const iconName = onMap ? "globe" : "map";
   const label = onMap ? t("map.baseLayer.satellite") : t("map.baseLayer.map");
   const a11yLabel = onMap ? t("map.baseLayer.switchToSatellite") : t("map.baseLayer.switchToMap");
 
@@ -29,34 +35,45 @@ export default function MapBaseLayerToggle({ baseLayer, onPress }: Props) {
       accessibilityRole="button"
       accessibilityLabel={a11yLabel}
       onPress={onPress}
-      style={$button}>
-      <View style={$row}>
-        <Icon name={iconName} size={Spacing.medium} color={Colors.lightDark} />
-        <LabelText color={Colors.lightDark} textStyle={[$label]}>
+      style={$thumbButton}>
+      <Image source={THUMBNAILS[targetLayer]} style={$thumbImage} contentFit="cover" />
+      <View style={$thumbLabelStrip}>
+        <TinyText color={Colors.white} align="center">
           {label}
-        </LabelText>
+        </TinyText>
       </View>
     </Pressable>
   );
 }
 
-const $button: ViewStyle = {
+const THUMB_WIDTH = 84;
+const THUMB_HEIGHT = 60;
+
+const $thumbButton: ViewStyle = {
+  width: THUMB_WIDTH,
+  height: THUMB_HEIGHT,
+  borderRadius: Spacing.small,
+  overflow: "hidden",
+  borderWidth: 2,
+  borderColor: Colors.white,
   backgroundColor: Colors.white,
-  borderRadius: Spacing.medium,
-  paddingHorizontal: Spacing.small,
-  paddingVertical: Spacing.tiny,
   shadowColor: Colors.dark,
-  shadowOpacity: 0.2,
+  shadowOpacity: 0.3,
   shadowRadius: 6,
   shadowOffset: { width: 0, height: 2 },
   elevation: 4,
 };
 
-const $row: ViewStyle = {
-  flexDirection: "row",
-  alignItems: "center",
+const $thumbImage: ImageStyle = {
+  width: "100%",
+  height: "100%",
 };
 
-const $label: TextStyle = {
-  marginLeft: Spacing.tiny,
+const $thumbLabelStrip: ViewStyle = {
+  position: "absolute",
+  left: 0,
+  right: 0,
+  bottom: 0,
+  backgroundColor: "rgba(0,0,0,0.55)",
+  paddingVertical: 1,
 };
