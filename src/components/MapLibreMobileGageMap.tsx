@@ -13,6 +13,7 @@ import TrendIcon, { TREND_ICON_TYPES } from "./TrendIcon";
 import { getTownLabelsGeoJson, TOWN_LABELS_LAYER_PROPS } from "./townLabels";
 import { getRiverOverlaysGeoJson, RIVER_OVERLAY_LAYER_PROPS } from "./riverOverlays";
 import { INUNDATION_FILL_LAYER_PROPS } from "./inundationOverlay";
+import { ROAD_CLOSURE_LINE_LAYER_PROPS, ROAD_CLOSURE_LABEL_LAYER_PROPS } from "./roadClosures";
 import Config from "../config/config";
 import Constants from "expo-constants";
 import floodzillaLocalStyle from "./mapStyles/floodzilla-webstyles.json";
@@ -58,6 +59,7 @@ const MapLibreMobileGageMap = ({
   inundationUrl,
   onInundationLoad,
   onInundationError,
+  roadClosuresUrl,
 }: InternalGageMapProps) => {
   const mapRef = useRef(null);
 
@@ -217,13 +219,22 @@ const MapLibreMobileGageMap = ({
             <Layer {...INUNDATION_FILL_LAYER_PROPS} />
           </GeoJSONSource>
         ) : null}
+        {roadClosuresUrl ? (
+          <GeoJSONSource id="road-closures" data={roadClosuresUrl}>
+            <Layer {...ROAD_CLOSURE_LINE_LAYER_PROPS} />
+            <Layer {...ROAD_CLOSURE_LABEL_LAYER_PROPS} />
+          </GeoJSONSource>
+        ) : null}
         <GeoJSONSource id="region-rivers" data={riverOverlaysGeoJson}>
           <Layer {...RIVER_OVERLAY_LAYER_PROPS} />
         </GeoJSONSource>
         <GeoJSONSource id="region-towns" data={townLabelsGeoJson}>
           <Layer {...TOWN_LABELS_LAYER_PROPS} />
         </GeoJSONSource>
-        {markers}
+        {/* Hide gauge icons while a flood level is selected so users aren't
+            confused about whether the icons reflect live status or the
+            selected visualization level. */}
+        {inundationUrl ? null : markers}
       </Map>
     </GestureDetector>
   );

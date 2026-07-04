@@ -5,7 +5,7 @@ import InundationControl from "../InundationControl";
 import type { InundationLevel } from "../inundationOverlay";
 
 jest.mock("@common-ui/contexts/LocaleContext", () => ({
-  useLocale: () => ({ t: (key: string) => key }),
+  useLocale: () => ({ t: (key: string) => key, locale: "en" }),
 }));
 
 jest.mock("@utils/utils", () => ({
@@ -13,9 +13,27 @@ jest.mock("@utils/utils", () => ({
 }));
 
 const levels: InundationLevel[] = [
-  { key: "minor", labelTx: "map.levelMinor", cfs: 20000, url: "u1" },
-  { key: "moderate", labelTx: "map.levelModerate", cfs: 32200, url: "u2" },
-  { key: "major", labelTx: "map.levelMajor", cfs: 42500, url: "u3" },
+  {
+    key: "minor",
+    label: { en: "Minor", es: "Menor" },
+    cfs: 20000,
+    url: "u1",
+    roadClosuresUrl: null,
+  },
+  {
+    key: "moderate",
+    label: { en: "Moderate", es: "Moderada" },
+    cfs: 32200,
+    url: "u2",
+    roadClosuresUrl: null,
+  },
+  {
+    key: "major",
+    label: { en: "Major", es: "Mayor" },
+    cfs: 42500,
+    url: "u3",
+    roadClosuresUrl: null,
+  },
 ];
 
 describe("InundationControl", () => {
@@ -24,7 +42,7 @@ describe("InundationControl", () => {
     const { getByText } = render(
       <InundationControl levels={levels} selectedKey={null} onSelect={onSelect} />
     );
-    fireEvent.press(getByText("map.levelModerate"));
+    fireEvent.press(getByText("Moderate"));
     expect(onSelect).toHaveBeenCalledWith("moderate");
   });
 
@@ -43,5 +61,16 @@ describe("InundationControl", () => {
     );
     expect(getByText("20000 cfs")).toBeTruthy();
     expect(getByText("42500 cfs")).toBeTruthy();
+  });
+
+  it("opens the info popup when the info button is pressed", () => {
+    const { getByLabelText, queryByText, getByText } = render(
+      <InundationControl levels={levels} selectedKey={null} onSelect={jest.fn()} />
+    );
+    // Popup content is not rendered until the info button is pressed.
+    expect(queryByText("map.info.intro")).toBeNull();
+    fireEvent.press(getByLabelText("map.info.buttonLabel"));
+    expect(getByText("map.info.intro")).toBeTruthy();
+    expect(getByText("map.info.roadsNote")).toBeTruthy();
   });
 });

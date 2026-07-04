@@ -13,6 +13,7 @@ import TrendIcon, { TREND_ICON_TYPES } from "./TrendIcon";
 import { getTownLabelsGeoJson, TOWN_LABELS_LAYER_PROPS } from "./townLabels";
 import { getRiverOverlaysGeoJson, RIVER_OVERLAY_LAYER_PROPS } from "./riverOverlays";
 import { INUNDATION_FILL_LAYER_PROPS } from "./inundationOverlay";
+import { ROAD_CLOSURE_LINE_LAYER_PROPS, ROAD_CLOSURE_LABEL_LAYER_PROPS } from "./roadClosures";
 import Config from "../config/config";
 import Constants from "expo-constants";
 import floodzillaLocalStyle from "./mapStyles/floodzilla-webstyles.json";
@@ -56,6 +57,7 @@ const MapLibreWebGageWebMap = ({
   inundationUrl,
   onInundationLoad,
   onInundationError,
+  roadClosuresUrl,
 }: InternalGageMapProps) => {
   // The typed map error event doesn't carry a sourceId, so we scope errors to the
   // inundation load by only treating an error as an inundation failure while we're
@@ -228,13 +230,22 @@ const MapLibreWebGageWebMap = ({
           <Layer {...INUNDATION_FILL_LAYER_PROPS} />
         </Source>
       ) : null}
+      {roadClosuresUrl ? (
+        <Source id="road-closures" type="geojson" data={roadClosuresUrl}>
+          <Layer {...ROAD_CLOSURE_LINE_LAYER_PROPS} />
+          <Layer {...ROAD_CLOSURE_LABEL_LAYER_PROPS} />
+        </Source>
+      ) : null}
       <Source id="region-rivers" type="geojson" data={riverOverlaysGeoJson}>
         <Layer {...RIVER_OVERLAY_LAYER_PROPS} />
       </Source>
       <Source id="region-towns" type="geojson" data={townLabelsGeoJson}>
         <Layer {...TOWN_LABELS_LAYER_PROPS} />
       </Source>
-      {markers}
+      {/* Hide gauge icons while a flood level is selected so users aren't
+          confused about whether the icons reflect live status or the
+          selected visualization level. */}
+      {inundationUrl ? null : markers}
     </Map>
   );
 };
