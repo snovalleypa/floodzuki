@@ -1,11 +1,21 @@
-import { Map, Marker, Source, Layer, useMap } from "@vis.gl/react-maplibre";
-import { useMemo } from "react";
-import { InternalGageMapProps } from "@models/MapModels";
+import { Map, Marker, Source, Layer, useMap, type MapRef } from "@vis.gl/react-maplibre";
+import { useEffect, useMemo, useRef } from "react";
+import {
+  InternalGageMapProps,
+  SINGLE_GAGE_LAT_DELTA,
+  SINGLE_GAGE_LNG_DELTA,
+  MapBaseLayer,
+} from "@models/MapModels";
+import { useResponsive } from "@common-ui/utils/responsive";
+import { useLocale } from "@common-ui/contexts/LocaleContext";
 import { StyleSheet } from "react-native";
 import "maplibre-gl/dist/maplibre-gl.css";
 import MapPinIcon from "./MapPinIcon";
 import { getTownLabelsGeoJson, TOWN_LABELS_LAYER_PROPS } from "./townLabels";
 import { getRiverOverlaysGeoJson, RIVER_OVERLAY_LAYER_PROPS } from "./riverOverlays";
+import { INUNDATION_FILL_LAYER_PROPS } from "./inundationOverlay";
+import { ROAD_CLOSURE_LINE_LAYER_PROPS, ROAD_CLOSURE_LABEL_LAYER_PROPS } from "./roadClosures";
+import { getMapTilerHybridStyleUrl } from "./mapTilerStyle";
 import Config from "../config/config";
 import Constants from "expo-constants";
 import floodzillaLocalStyle from "./mapStyles/floodzilla-webstyles.json";
@@ -37,16 +47,37 @@ const styles = StyleSheet.create({
 const defaultRegionBounds = [-122.4, 46.9, -120.9, 48.4];
 const defaultMapBounds = [-122.3328, 46.9564, -121.2959, 48.3127];
 
-const singleGageLatDelta = 0.00922;
-const singleGageLngDelta = 0.00421;
+const singleGageLatDelta = SINGLE_GAGE_LAT_DELTA;
+const singleGageLngDelta = SINGLE_GAGE_LNG_DELTA;
 
 const MapLibreWebGageWebMap = ({
   gages,
   region,
   onGagePress,
   singleGage,
+  useCooperativeGestures,
+  inundationUrl,
+  onInundationLoad,
+  onInundationError,
+  roadClosuresUrl,
+  baseLayer,
 }: InternalGageMapProps) => {
+  // The typed map error event doesn't carry a sourceId, so we scope errors to the
+  // inundation load by only treating an error as an inundation failure while we're
+  // awaiting one. Armed when a new URL is set; disarmed once the source loads
+  // successfully or an error has been reported.
+  const awaitingInundation = useRef(false);
+  useEffect(() => {
+    awaitingInundation.current = Boolean(inundationUrl);
+  }, [inundationUrl]);
+
   const mapStyle = useMemo(() => {
+    if (baseLayer === MapBaseLayer.Satellite) {
+      const satelliteUrl = getMapTilerHybridStyleUrl();
+      if (satelliteUrl) {
+        return satelliteUrl;
+      }
+    }
     if (useLocalMapStyle) {
       return floodzillaLocalStyle as never;
     }
@@ -58,9 +89,45 @@ const MapLibreWebGageWebMap = ({
       url += "/";
     }
     return url + region.id + "/webstyles";
-  }, [region]);
+  }, [region, baseLayer]);
 
   const { current: map } = useMap();
+
+  // On the narrow (mobile-web) layout the map is the header of a vertically-scrolling
+  // list, so a one-finger drag should scroll the page rather than pan the map.
+  // maplibre's `cooperativeGestures` gives exactly that: one finger scrolls the page
+  // (with a hint overlay), two fingers pan/zoom. On desktop we leave it off so the
+  // free pan/scroll-zoom behavior is unchanged.
+  const { isMobile } = useResponsive();
+  const useCoop = useCooperativeGestures ?? isMobile;
+  const { t } = useLocale();
+  const mapRef = useRef<MapRef>(null);
+
+  // Localized overrides for maplibre's built-in cooperative-gestures hint overlay.
+  // maplibre merges this with its default locale, so we only override these keys.
+  const mapLocale = useMemo(
+    () => ({
+      "CooperativeGesturesHandler.WindowsHelpText": t("map.cooperativeGesturesWindows"),
+      "CooperativeGesturesHandler.MacHelpText": t("map.cooperativeGesturesMac"),
+      "CooperativeGesturesHandler.MobileHelpText": t("map.cooperativeGesturesMobile"),
+    }),
+    [t]
+  );
+
+  // `cooperativeGestures` is only read at map init by @vis.gl/react-maplibre (it is
+  // not one of its reactive handler props), so toggle it directly when the viewport
+  // crosses the breakpoint, e.g. on resize or device rotation.
+  useEffect(() => {
+    const gl = mapRef.current?.getMap();
+    if (!gl) {
+      return;
+    }
+    if (useCoop) {
+      gl.cooperativeGestures.enable();
+    } else {
+      gl.cooperativeGestures.disable();
+    }
+  }, [useCoop]);
 
   const townLabelsGeoJson = useMemo(() => getTownLabelsGeoJson(region?.id), [region]);
   const riverOverlaysGeoJson = useMemo(() => getRiverOverlaysGeoJson(region?.id), [region]);
@@ -128,11 +195,14 @@ const MapLibreWebGageWebMap = ({
 
   return (
     <Map
+      ref={mapRef}
       initialViewState={{
         bounds: startBounds,
       }}
       maxBounds={regionBounds}
       mapStyle={mapStyle}
+      cooperativeGestures={useCoop}
+      locale={mapLocale}
       attributionControl={{ compact: true }}
       onLoad={(e) => {
         const container = e.target.getContainer();
@@ -148,14 +218,43 @@ const MapLibreWebGageWebMap = ({
           }
         }, 1000);
       }}
+      onSourceData={(e) => {
+        if (e.sourceId === "inundation" && e.isSourceLoaded) {
+          awaitingInundation.current = false;
+          onInundationLoad?.();
+        }
+      }}
+      onError={(e) => {
+        // No sourceId on the typed error event; treat any error while awaiting the
+        // inundation source as that load failing (the basemap is already loaded by
+        // the time a level is selected).
+        if (awaitingInundation.current) {
+          awaitingInundation.current = false;
+          onInundationError?.();
+        }
+      }}
       style={styles.map}>
+      {inundationUrl ? (
+        <Source id="inundation" type="geojson" data={inundationUrl}>
+          <Layer {...INUNDATION_FILL_LAYER_PROPS} />
+        </Source>
+      ) : null}
+      {roadClosuresUrl ? (
+        <Source id="road-closures" type="geojson" data={roadClosuresUrl}>
+          <Layer {...ROAD_CLOSURE_LINE_LAYER_PROPS} />
+          <Layer {...ROAD_CLOSURE_LABEL_LAYER_PROPS} />
+        </Source>
+      ) : null}
       <Source id="region-rivers" type="geojson" data={riverOverlaysGeoJson}>
         <Layer {...RIVER_OVERLAY_LAYER_PROPS} />
       </Source>
       <Source id="region-towns" type="geojson" data={townLabelsGeoJson}>
         <Layer {...TOWN_LABELS_LAYER_PROPS} />
       </Source>
-      {markers}
+      {/* Hide gauge icons while a flood level is selected so users aren't
+          confused about whether the icons reflect live status or the
+          selected visualization level. */}
+      {inundationUrl ? null : markers}
     </Map>
   );
 };

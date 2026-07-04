@@ -144,6 +144,8 @@ export default {
       projectId: "0f52b777-109a-423d-a18b-1ccfb5dea8e0",
     },
     mapTileUrlBase: process.env.MAP_TILE_URL_BASE,
+    mapTilerKey: process.env.MAP_TILER_KEY,
+    mapTilerKeyNative: process.env.MAP_TILER_KEY_NATIVE,
     navuSiteCode: process.env.NAVU_SITE_CODE,
     gaTrackingId: process.env.GA_TRACKING_ID,
     appleAppId: process.env.APPLE_APP_ID,

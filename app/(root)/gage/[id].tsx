@@ -272,8 +272,12 @@ const GageDetailsBody = observer(function GageDetailsBody({ gageId }: { gageId: 
               <StatusLevelsCard gage={gage} />
             </RowOrCell>
             <If condition={isMobile}>
+              {/* No flex here: `flex: 1` compiles to flex-basis 0%, which on
+                  react-native-web overrides the explicit height for a flex item
+                  nested in this ScrollView, collapsing the map container to 0
+                  (white box). A plain fixed-height Card renders correctly, matching
+                  the working list-screen map. */}
               <Card
-                flex={1}
                 height={300}
                 minHeight={300}
                 top={Spacing.small}

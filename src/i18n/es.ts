@@ -53,6 +53,7 @@ const es = {
   navigation: {
     homeScreen: "Medidores",
     forecastScreen: "Pronóstico",
+    mapScreen: "Mapa",
     alertsScreen: "Alertas",
     profileScreen: "Editar perfil",
     loginScreen: "Iniciar sesión",
@@ -287,6 +288,37 @@ const es = {
     goToDownstreamGage: "Ir al medidor río abajo",
     upstreamGage: "Medidor río arriba",
     downstreamGage: "Medidor río abajo",
+  },
+  map: {
+    cooperativeGesturesWindows: "Usa Ctrl + desplazamiento para hacer zoom en el mapa",
+    cooperativeGesturesMac: "Usa ⌘ + desplazamiento para hacer zoom en el mapa",
+    cooperativeGesturesMobile: "Usa dos dedos para mover el mapa",
+    floodVisualizerTitle: "Visualizador de inundaciones",
+    loadError: "No se pudieron cargar los datos de inundación. Inténtalo de nuevo.",
+    levelNone: "Ninguna",
+    baseLayer: {
+      map: "Mapa",
+      satellite: "Satélite",
+      switchToSatellite: "Cambiar a vista satelital",
+      switchToMap: "Cambiar a vista de mapa",
+    },
+    info: {
+      buttonLabel: "Acerca del Visualizador de inundaciones",
+      title: "Acerca del Visualizador de inundaciones",
+      intro: "Estos son mapas de inundación del bajo Valle de Snoqualmie.",
+      extent:
+        "El área azul muestra la extensión máxima proyectada del agua durante todo un evento de inundación. No es una instantánea de un solo momento en el tiempo.",
+      cfs: "Los valores de caudal (ft³/s) se basan en el medidor del río Snoqualmie cerca de Carnation.",
+      modeled:
+        "Estos son datos modelados, y cada inundación se comporta de manera diferente. Usa el mapa como guía, no como garantía.",
+      roadsHeading: "Colores de las carreteras",
+      roadOpen: "Abierta: no se espera inundación en este nivel.",
+      roadPossible: "Posible cierre: el agua podría estar llegando a la carretera.",
+      roadClosed: "Cerrada: se espera que la carretera sea intransitable.",
+      roadsNote:
+        "Los colores de las carreteras son estimaciones. Una carretera puede cerrarse antes o después de lo indicado, y algunas carreteras afectadas podrían no aparecer en el mapa.",
+      close: "Cerrar",
+    },
   },
   calloutReading: {
     lastReading: "Última medición",

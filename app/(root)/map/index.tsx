@@ -1,0 +1,169 @@
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { View, ViewStyle } from "react-native";
+import { ErrorBoundaryProps } from "expo-router";
+import { observer } from "mobx-react-lite";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+import PageTitle from "@common-ui/components/PageTitle";
+import { ErrorDetails } from "@components/ErrorDetails";
+import GageMap from "@components/GageMap";
+import InundationControl from "@components/InundationControl";
+import MapBaseLayerToggle from "@components/MapBaseLayerToggle";
+import { useInundationLevels } from "@components/useInundationLevels";
+import { isSatelliteAvailable } from "@components/mapTilerStyle";
+import { useStores } from "@models/helpers/useStores";
+import { MapBaseLayer } from "@models/MapModels";
+import { Spacing } from "@common-ui/constants/spacing";
+import { useLocale } from "@common-ui/contexts/LocaleContext";
+import { useMapBaseLayer } from "@common-ui/contexts/MapBaseLayerContext";
+
+export function ErrorBoundary(props: ErrorBoundaryProps) {
+  return <ErrorDetails {...props} />;
+}
+
+const MapScreen = observer(function MapScreen() {
+  const { regionStore, getLocationsWithGages } = useStores();
+  const { t } = useLocale();
+  const insets = useSafeAreaInsets();
+  const { baseLayer, setBaseLayer } = useMapBaseLayer();
+
+  const { levels, ready } = useInundationLevels(regionStore.region?.id);
+  const [selectedKey, setSelectedKey] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
+  // Bumped only when the already-selected level is re-tapped (e.g. to retry after
+  // an error). Folded into the inundation URL so a re-tap actually changes the URL
+  // and forces a refetch; otherwise selectedKey is unchanged and nothing reloads.
+  const [reloadNonce, setReloadNonce] = useState(0);
+  const loadTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearLoadTimeout = () => {
+    if (loadTimeout.current) {
+      clearTimeout(loadTimeout.current);
+      loadTimeout.current = null;
+    }
+  };
+
+  const handleSelect = useCallback(
+    (key: string | null) => {
+      setError(false);
+      clearLoadTimeout();
+      if (key === null) {
+        setSelectedKey(null);
+        setLoading(false);
+        return;
+      }
+      // Re-tapping the current level wouldn't change the URL, so force a refetch.
+      if (key === selectedKey) {
+        setReloadNonce((n) => n + 1);
+      }
+      setSelectedKey(key);
+      setLoading(true);
+      // Safety fallback so the spinner never hangs (covers slow connections and any
+      // case where neither the load nor error signal arrives).
+      loadTimeout.current = setTimeout(() => setLoading(false), 12000);
+    },
+    [selectedKey]
+  );
+
+  const handleInundationLoad = useCallback(() => {
+    clearLoadTimeout();
+    setLoading(false);
+    setError(false);
+  }, []);
+
+  const handleInundationError = useCallback(() => {
+    clearLoadTimeout();
+    setLoading(false);
+    setError(true);
+  }, []);
+
+  useEffect(() => clearLoadTimeout, []);
+
+  const locations = getLocationsWithGages();
+
+  const inundationUrl = useMemo(() => {
+    const level = levels?.find((l) => l.key === selectedKey);
+    if (!level) {
+      return null;
+    }
+    if (reloadNonce === 0) {
+      return level.url;
+    }
+    const separator = level.url.includes("?") ? "&" : "?";
+    return `${level.url}${separator}_retry=${reloadNonce}`;
+  }, [levels, selectedKey, reloadNonce]);
+
+  const roadClosuresUrl = useMemo(() => {
+    const level = levels?.find((l) => l.key === selectedKey);
+    return level?.roadClosuresUrl ?? null;
+  }, [levels, selectedKey]);
+
+  const $controlWrap: ViewStyle = useMemo(
+    () => ({
+      position: "absolute",
+      left: 0,
+      right: 0,
+      bottom: Math.max(insets.bottom, Spacing.medium),
+    }),
+    [insets.bottom]
+  );
+
+  const $toggleWrap: ViewStyle = useMemo(
+    () => ({
+      position: "absolute",
+      top: Math.max(insets.top, Spacing.medium),
+      right: Spacing.medium,
+    }),
+    [insets.top]
+  );
+
+  return (
+    <View style={$screen}>
+      <PageTitle name={t("navigation.mapScreen")} />
+      <GageMap
+        gages={locations}
+        region={regionStore.region}
+        onGagePress={() => {}}
+        useCooperativeGestures={false}
+        inundationUrl={inundationUrl}
+        onInundationLoad={handleInundationLoad}
+        onInundationError={handleInundationError}
+        roadClosuresUrl={roadClosuresUrl}
+        baseLayer={baseLayer}
+      />
+      {/* The Map/Satellite toggle only appears when a MapTiler key is configured. */}
+      {isSatelliteAvailable() ? (
+        <View style={$toggleWrap}>
+          <MapBaseLayerToggle
+            baseLayer={baseLayer}
+            onPress={() =>
+              setBaseLayer(
+                baseLayer === MapBaseLayer.Map ? MapBaseLayer.Satellite : MapBaseLayer.Map
+              )
+            }
+          />
+        </View>
+      ) : null}
+      {/* Only show the Flood Visualizer once the region's level config has loaded
+          and actually has levels — no config (404) means no control at all. */}
+      {ready && levels && levels.length > 0 ? (
+        <View style={$controlWrap}>
+          <InundationControl
+            levels={levels}
+            selectedKey={selectedKey}
+            onSelect={handleSelect}
+            loading={loading}
+            error={error}
+          />
+        </View>
+      ) : null}
+    </View>
+  );
+});
+
+const $screen: ViewStyle = {
+  flex: 1,
+};
+
+export default MapScreen;

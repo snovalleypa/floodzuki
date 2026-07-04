@@ -51,6 +51,7 @@ const en = {
   navigation: {
     homeScreen: "Gauges",
     forecastScreen: "Forecast",
+    mapScreen: "Map",
     alertsScreen: "Alerts",
     profileScreen: "Edit Profile",
     loginScreen: "Login",
@@ -282,6 +283,37 @@ const en = {
     goToDownstreamGage: "Go to Downstream Gauge",
     upstreamGage: "Upstream Gauge",
     downstreamGage: "Downstream Gauge",
+  },
+  map: {
+    cooperativeGesturesWindows: "Use Ctrl + scroll to zoom the map",
+    cooperativeGesturesMac: "Use ⌘ + scroll to zoom the map",
+    cooperativeGesturesMobile: "Use two fingers to move the map",
+    floodVisualizerTitle: "Flood Visualizer",
+    loadError: "Couldn't load flood data. Please try again.",
+    levelNone: "None",
+    baseLayer: {
+      map: "Map",
+      satellite: "Satellite",
+      switchToSatellite: "Switch to satellite view",
+      switchToMap: "Switch to map view",
+    },
+    info: {
+      buttonLabel: "About the Flood Visualizer",
+      title: "About the Flood Visualizer",
+      intro: "These are inundation maps of the Lower Snoqualmie Valley.",
+      extent:
+        "The blue area shows the maximum projected extent of the water over the course of an entire flooding event. It is not a snapshot of a single moment in time.",
+      cfs: "The flow values (CFS) are based on the Snoqualmie River gauge near Carnation.",
+      modeled:
+        "This is modeled data, and every flood behaves differently. Treat the map as a guide, not a guarantee.",
+      roadsHeading: "Road colors",
+      roadOpen: "Open — flooding is not expected at this level.",
+      roadPossible: "Possible closure — water may be reaching the road.",
+      roadClosed: "Closed — the road is expected to be impassable.",
+      roadsNote:
+        "Road colors are estimates. A road may close earlier or later than shown, and some impacted roads may not appear on the map.",
+      close: "Close",
+    },
   },
   calloutReading: {
     lastReading: "Last Reading",

@@ -14,9 +14,18 @@ const Map = Platform.select({
 })();
 
 const GageMap = observer(function GageMap(props: GageMapProps) {
-  const { region, gages, onGagePress } = props;
+  const {
+    region,
+    gages,
+    onGagePress,
+    useCooperativeGestures,
+    inundationUrl,
+    onInundationLoad,
+    onInundationError,
+    roadClosuresUrl,
+    baseLayer,
+  } = props;
 
-  // Reverse the gauges to get the z-order to be a little friendlier...
   const reverseGages = useMemo(() => {
     return [...gages].reverse();
   }, [gages]);
@@ -29,7 +38,18 @@ const GageMap = observer(function GageMap(props: GageMapProps) {
   }, [gages]);
 
   return (
-    <Map region={region} onGagePress={onGagePress} gages={reverseGages} singleGage={singleGage} />
+    <Map
+      region={region}
+      onGagePress={onGagePress}
+      gages={reverseGages}
+      singleGage={singleGage}
+      useCooperativeGestures={useCooperativeGestures}
+      inundationUrl={inundationUrl}
+      onInundationLoad={onInundationLoad}
+      onInundationError={onInundationError}
+      roadClosuresUrl={roadClosuresUrl}
+      baseLayer={baseLayer}
+    />
   );
 });
 
