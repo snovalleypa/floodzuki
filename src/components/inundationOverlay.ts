@@ -8,6 +8,8 @@ export type InundationLevel = {
   // fully data-driven (no app i18n key needed to add one).
   label: Record<string, string>;
   cfs: number;
+  // Gauge height in feet at this level, or null when the config omits it.
+  feet: number | null;
   // GeoJSON URL of the flood-extent fill for this level.
   url: string;
   // GeoJSON URL of the road closures shown at this level, or null when the config
@@ -21,6 +23,7 @@ type RawLevel = {
   key?: string;
   label?: Record<string, string>;
   cfs?: number;
+  feet?: number;
   file?: string;
   roadClosuresFile?: string;
 };
@@ -70,6 +73,7 @@ export async function fetchInundationLevels(regionId: number): Promise<Inundatio
       key: l.key,
       label: l.label && typeof l.label === "object" ? l.label : {},
       cfs: typeof l.cfs === "number" ? l.cfs : 0,
+      feet: typeof l.feet === "number" ? l.feet : null,
       url: base + l.file,
       roadClosuresUrl: l.roadClosuresFile ? base + l.roadClosuresFile : null,
     }));

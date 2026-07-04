@@ -4,6 +4,7 @@ import {
   InternalGageMapProps,
   SINGLE_GAGE_LAT_DELTA,
   SINGLE_GAGE_LNG_DELTA,
+  MapBaseLayer,
 } from "@models/MapModels";
 import { useResponsive } from "@common-ui/utils/responsive";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
@@ -14,6 +15,7 @@ import { getTownLabelsGeoJson, TOWN_LABELS_LAYER_PROPS } from "./townLabels";
 import { getRiverOverlaysGeoJson, RIVER_OVERLAY_LAYER_PROPS } from "./riverOverlays";
 import { INUNDATION_FILL_LAYER_PROPS } from "./inundationOverlay";
 import { ROAD_CLOSURE_LINE_LAYER_PROPS, ROAD_CLOSURE_LABEL_LAYER_PROPS } from "./roadClosures";
+import { getMapTilerHybridStyleUrl } from "./mapTilerStyle";
 import Config from "../config/config";
 import Constants from "expo-constants";
 import floodzillaLocalStyle from "./mapStyles/floodzilla-webstyles.json";
@@ -58,6 +60,7 @@ const MapLibreWebGageWebMap = ({
   onInundationLoad,
   onInundationError,
   roadClosuresUrl,
+  baseLayer,
 }: InternalGageMapProps) => {
   // The typed map error event doesn't carry a sourceId, so we scope errors to the
   // inundation load by only treating an error as an inundation failure while we're
@@ -69,6 +72,12 @@ const MapLibreWebGageWebMap = ({
   }, [inundationUrl]);
 
   const mapStyle = useMemo(() => {
+    if (baseLayer === MapBaseLayer.Satellite) {
+      const satelliteUrl = getMapTilerHybridStyleUrl();
+      if (satelliteUrl) {
+        return satelliteUrl;
+      }
+    }
     if (useLocalMapStyle) {
       return floodzillaLocalStyle as never;
     }
@@ -80,7 +89,7 @@ const MapLibreWebGageWebMap = ({
       url += "/";
     }
     return url + region.id + "/webstyles";
-  }, [region]);
+  }, [region, baseLayer]);
 
   const { current: map } = useMap();
 
