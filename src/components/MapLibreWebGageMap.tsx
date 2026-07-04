@@ -99,7 +99,7 @@ const MapLibreWebGageWebMap = ({
   // (with a hint overlay), two fingers pan/zoom. On desktop we leave it off so the
   // free pan/scroll-zoom behavior is unchanged.
   const { isMobile } = useResponsive();
-  const coop = useCooperativeGestures ?? isMobile;
+  const useCoop = useCooperativeGestures ?? isMobile;
   const { t } = useLocale();
   const mapRef = useRef<MapRef>(null);
 
@@ -122,12 +122,12 @@ const MapLibreWebGageWebMap = ({
     if (!gl) {
       return;
     }
-    if (coop) {
+    if (useCoop) {
       gl.cooperativeGestures.enable();
     } else {
       gl.cooperativeGestures.disable();
     }
-  }, [coop]);
+  }, [useCoop]);
 
   const townLabelsGeoJson = useMemo(() => getTownLabelsGeoJson(region?.id), [region]);
   const riverOverlaysGeoJson = useMemo(() => getRiverOverlaysGeoJson(region?.id), [region]);
@@ -201,7 +201,7 @@ const MapLibreWebGageWebMap = ({
       }}
       maxBounds={regionBounds}
       mapStyle={mapStyle}
-      cooperativeGestures={coop}
+      cooperativeGestures={useCoop}
       locale={mapLocale}
       attributionControl={{ compact: true }}
       onLoad={(e) => {
