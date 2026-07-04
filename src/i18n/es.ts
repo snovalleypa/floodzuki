@@ -49,6 +49,7 @@ const es = {
   navigation: {
     homeScreen: "Medidores",
     forecastScreen: "Pronóstico",
+    mapScreen: "Mapa",
     alertsScreen: "Alertas",
     profileScreen: "Editar perfil",
     loginScreen: "Iniciar sesión",
@@ -273,6 +274,17 @@ const es = {
     goToDownstreamGage: "Ir al medidor río abajo",
     upstreamGage: "Medidor río arriba",
     downstreamGage: "Medidor río abajo",
+  },
+  map: {
+    cooperativeGesturesWindows: "Usa Ctrl + desplazamiento para hacer zoom en el mapa",
+    cooperativeGesturesMac: "Usa ⌘ + desplazamiento para hacer zoom en el mapa",
+    cooperativeGesturesMobile: "Usa dos dedos para mover el mapa",
+    floodVisualizerTitle: "Visualizador de inundaciones",
+    loadError: "No se pudieron cargar los datos de inundación. Inténtalo de nuevo.",
+    levelNone: "Ninguna",
+    levelMinor: "Menor",
+    levelModerate: "Moderada",
+    levelMajor: "Mayor",
   },
   calloutReading: {
     lastReading: "Última medición",

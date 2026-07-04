@@ -47,6 +47,7 @@ const en = {
   navigation: {
     homeScreen: "Gauges",
     forecastScreen: "Forecast",
+    mapScreen: "Map",
     alertsScreen: "Alerts",
     profileScreen: "Edit Profile",
     loginScreen: "Login",
@@ -269,6 +270,17 @@ const en = {
     goToDownstreamGage: "Go to Downstream Gauge",
     upstreamGage: "Upstream Gauge",
     downstreamGage: "Downstream Gauge",
+  },
+  map: {
+    cooperativeGesturesWindows: "Use Ctrl + scroll to zoom the map",
+    cooperativeGesturesMac: "Use ⌘ + scroll to zoom the map",
+    cooperativeGesturesMobile: "Use two fingers to move the map",
+    floodVisualizerTitle: "Flood Visualizer",
+    loadError: "Couldn't load flood data. Please try again.",
+    levelNone: "None",
+    levelMinor: "Minor",
+    levelModerate: "Moderate",
+    levelMajor: "Major",
   },
   calloutReading: {
     lastReading: "Last Reading",

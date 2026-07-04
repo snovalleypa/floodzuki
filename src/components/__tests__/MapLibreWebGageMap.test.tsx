@@ -33,8 +33,19 @@ jest.mock("../TrendIcon", () => ({
   TREND_ICON_TYPES: { Map: "Map" },
 }));
 
+// Avoid pulling in the store/api graph (LocaleContext -> useStores -> api) which
+// fails to load under jsdom (TextEncoder). Only the `t` passthrough is needed here.
+jest.mock("@common-ui/contexts/LocaleContext", () => ({
+  useLocale: () => ({ t: (key: string) => key }),
+}));
+
+jest.mock("@common-ui/utils/responsive", () => ({
+  useResponsive: () => ({ isMobile: false, isDesktop: true, isTablet: false, isWideScreen: true }),
+}));
+
 const MockMap = MapLibre.Map as unknown as jest.Mock;
 const MockMarker = MapLibre.Marker as unknown as jest.Mock;
+const MockSource = MapLibre.Source as unknown as jest.Mock;
 
 const makeGage = (overrides: Record<string, unknown> = {}) =>
   ({ locationId: "test", latitude: 47.5, longitude: -121.8, ...overrides } as any);
@@ -44,6 +55,7 @@ const makeRegion = (overrides: Record<string, unknown> = {}) => ({ id: 1, ...ove
 beforeEach(() => {
   MockMap.mockClear();
   MockMarker.mockClear();
+  MockSource.mockClear();
 });
 
 // ---------------------------------------------------------------------------
@@ -129,8 +141,9 @@ describe("MapLibreWebGageMap — style gating", () => {
 // ---------------------------------------------------------------------------
 
 describe("MapLibreWebGageMap — startBounds", () => {
-  const singleGageLngDelta = 0.00421;
-  const singleGageLatDelta = 0.00922;
+  // Keep in sync with SINGLE_GAGE_LNG_DELTA / SINGLE_GAGE_LAT_DELTA in MapModels.
+  const singleGageLngDelta = 0.09;
+  const singleGageLatDelta = 0.06;
 
   it("uses singleGage coords when lat and lng are valid", () => {
     const singleGage = makeGage({ latitude: 47.0, longitude: -122.0 });
@@ -225,5 +238,116 @@ describe("MapLibreWebGageMap — regionBounds", () => {
     );
     const maxBounds = MockMap.mock.calls[0][0].maxBounds;
     expect(maxBounds).toEqual([-122.4, 46.9, -120.9, 48.4]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+
+describe("MapLibreWebGageMap — new props", () => {
+  it("passes cooperativeGestures=false through to the Map when explicitly set", () => {
+    render(
+      <MapLibreWebGageWebMap
+        gages={[]}
+        region={makeRegion()}
+        onGagePress={jest.fn()}
+        singleGage={null}
+        useCooperativeGestures={false}
+      />
+    );
+    expect(MockMap.mock.calls[0][0].cooperativeGestures).toBe(false);
+  });
+
+  it("renders an inundation Source pointed at the given url", () => {
+    render(
+      <MapLibreWebGageWebMap
+        gages={[]}
+        region={makeRegion()}
+        onGagePress={jest.fn()}
+        singleGage={null}
+        inundationUrl="https://example.com/extent.geojson"
+      />
+    );
+    const inundation = MockSource.mock.calls.find((c) => c[0].id === "inundation");
+    expect(inundation).toBeTruthy();
+    expect(inundation[0].data).toBe("https://example.com/extent.geojson");
+  });
+
+  it("renders no inundation Source when inundationUrl is not set", () => {
+    render(
+      <MapLibreWebGageWebMap
+        gages={[]}
+        region={makeRegion()}
+        onGagePress={jest.fn()}
+        singleGage={null}
+      />
+    );
+    const inundation = MockSource.mock.calls.find((c) => c[0].id === "inundation");
+    expect(inundation).toBeFalsy();
+  });
+
+  it("calls onInundationLoad via onSourceData only for the inundation source when fully loaded", () => {
+    const onInundationLoad = jest.fn();
+    render(
+      <MapLibreWebGageWebMap
+        gages={[]}
+        region={makeRegion()}
+        onGagePress={jest.fn()}
+        singleGage={null}
+        inundationUrl="https://example.com/extent.geojson"
+        onInundationLoad={onInundationLoad}
+      />
+    );
+
+    const onSourceData = MockMap.mock.calls[0][0].onSourceData;
+
+    // Should call the callback when the inundation source is fully loaded.
+    onSourceData({ sourceId: "inundation", isSourceLoaded: true });
+    expect(onInundationLoad).toHaveBeenCalledTimes(1);
+
+    // Should NOT call the callback for a different source.
+    onSourceData({ sourceId: "other", isSourceLoaded: true });
+    expect(onInundationLoad).toHaveBeenCalledTimes(1);
+
+    // Should NOT call the callback when isSourceLoaded is false.
+    onSourceData({ sourceId: "inundation", isSourceLoaded: false });
+    expect(onInundationLoad).toHaveBeenCalledTimes(1);
+  });
+
+  it("calls onInundationError on a map error while an inundation load is awaited", () => {
+    const onInundationError = jest.fn();
+    render(
+      <MapLibreWebGageWebMap
+        gages={[]}
+        region={makeRegion()}
+        onGagePress={jest.fn()}
+        singleGage={null}
+        inundationUrl="https://example.com/extent.geojson"
+        onInundationError={onInundationError}
+      />
+    );
+
+    const props = MockMap.mock.calls[0][0];
+    props.onError({ error: new Error("Failed to fetch") });
+    expect(onInundationError).toHaveBeenCalledTimes(1);
+
+    // After one failure it disarms — a second error should not fire again.
+    props.onError({ error: new Error("Failed to fetch") });
+    expect(onInundationError).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not call onInundationError when no inundation load is awaited", () => {
+    const onInundationError = jest.fn();
+    render(
+      <MapLibreWebGageWebMap
+        gages={[]}
+        region={makeRegion()}
+        onGagePress={jest.fn()}
+        singleGage={null}
+        onInundationError={onInundationError}
+      />
+    );
+
+    MockMap.mock.calls[0][0].onError({ error: new Error("some basemap tile error") });
+    expect(onInundationError).not.toHaveBeenCalled();
   });
 });
