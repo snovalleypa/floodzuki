@@ -55,8 +55,9 @@ const makeFloodStatus = () =>
 
 function buildGage({
   hasRoad = true,
+  hasReading = true,
   predictions = [],
-}: { hasRoad?: boolean; predictions?: any[] } = {}) {
+}: { hasRoad?: boolean; hasReading?: boolean; predictions?: any[] } = {}) {
   const getCalculatedRoadStatus = makeRoadStatus();
   const getCalculatedFloodStatus = makeFloodStatus();
 
@@ -67,8 +68,10 @@ function buildGage({
     redStage: RED,
     predictions,
     status: {
-      lastReading: { waterHeight: 52, waterDischarge: 1000, timestamp: "2026-06-12T08:00:00" },
-      floodLevel: "Normal",
+      lastReading: hasReading
+        ? { waterHeight: 52, waterDischarge: 1000, timestamp: "2026-06-12T08:00:00" }
+        : undefined,
+      floodLevel: hasReading ? "Normal" : "Offline",
       levelTrend: "Steady",
       waterTrend: { trendValue: 0 },
     },
@@ -138,6 +141,26 @@ describe("CalloutReadingCard — Flood Level row (no road)", () => {
 
     // Peak height (64) → 4.0 ft above the red stage (60).
     expect(getCalculatedFloodStatus).toHaveBeenCalledWith(64);
+  });
+
+  it("hides both the Road and Flood Level rows when there is no reading (offline gauge with a road)", () => {
+    const { gage } = buildGage({ hasRoad: true, hasReading: false });
+    mockUseLocalSearchParams.mockReturnValue({});
+
+    const { queryByText } = render(<CalloutReadingCard gage={gage} />);
+
+    expect(queryByText("calloutReading.road")).toBeNull();
+    expect(queryByText("calloutReading.floodLevel")).toBeNull();
+  });
+
+  it("hides the Flood Level row when there is no reading (offline gauge without a road)", () => {
+    const { gage } = buildGage({ hasRoad: false, hasReading: false });
+    mockUseLocalSearchParams.mockReturnValue({});
+
+    const { queryByText } = render(<CalloutReadingCard gage={gage} />);
+
+    expect(queryByText("calloutReading.floodLevel")).toBeNull();
+    expect(queryByText("calloutReading.road")).toBeNull();
   });
 
   it("keeps the Road row (no Flood Level row) when the gauge has a road", () => {

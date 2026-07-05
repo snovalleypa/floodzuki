@@ -69,9 +69,14 @@ const CalloutReading = observer(function CalloutReadingCard({ gage }: { gage: Ga
 
   const hasTrendInfo =
     !!status?.levelTrend && !!status?.waterTrend && !isNullish(status?.waterTrend?.trendValue);
-  const hasRoadInfo = !isNullish(gage?.roadSaddleHeight) && !!gage?.roadDisplayName;
+  // No reading (e.g. an offline gauge) → no road/flood delta; without a height
+  // the model falls back to the stale live level (or 0, rendering the raw
+  // saddle elevation as "N ft below road").
+  const hasReadingHeight = !isNullish(reading?.waterHeight);
+  const hasRoadInfo =
+    hasReadingHeight && !isNullish(gage?.roadSaddleHeight) && !!gage?.roadDisplayName;
   // Gauges without a road fall back to a "Flood Level" row (relative to red stage).
-  const hasFloodLevelInfo = !hasRoadInfo && !isNullish(gage?.redStage);
+  const hasFloodLevelInfo = hasReadingHeight && !hasRoadInfo && !isNullish(gage?.redStage);
   const hasRoadOrFlood = hasRoadInfo || hasFloodLevelInfo;
 
   // Forward-looking flood probability for the current reading only (not historic

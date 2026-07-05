@@ -29,6 +29,6 @@ module.exports = defineConfig([
     },
   },
   {
-    ignores: ["node_modules/", "dist/", ".expo/", "ios/", "android/", "patches/"],
+    ignores: ["node_modules/", "dist/", ".expo/", "ios/", "android/", "patches/", "local-dev/"],
   },
 ]);
