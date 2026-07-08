@@ -105,7 +105,7 @@ const BaseConfig: {
   DONATION_URL: "https://www.paypal.com/donate/?hosted_button_id=HT6T3U5F2C4NG",
   DEFAULT_MAP_TILE_BASE_URL: "https://floodzilla.com/maps",
   MAPTILER_HYBRID_STYLE_URL: "https://api.maptiler.com/maps/hybrid/style.json",
-  INUNDATION_GEOJSON_BASE_URL: "https://floodzilla.com/map/",
+  INUNDATION_GEOJSON_BASE_URL: "https://floodzilla.com/files/map/",
 
   SVPA_URL: "https://svpa.us",
   SVPA_PHONE: "425-549-0316",
