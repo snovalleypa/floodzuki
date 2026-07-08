@@ -6,6 +6,12 @@ import { LocationInfoModelStore } from "./LocationInfo";
 import { RegionModelStore } from "./Region";
 import { AuthSessionStoreModel } from "./AuthSession";
 import { computeBucketCounts } from "./helpers/regionSummary";
+import { api } from "@services/api";
+import Config from "@config/config";
+import * as mockReplayEngine from "@services/mockReplay/engine";
+import { getActiveScenario } from "@services/mockReplay/mockReplayState";
+import { RawReading } from "@services/mockReplay/types";
+import localDayJs from "@services/localDayJs";
 
 /**
  * A RootStore model.
@@ -38,6 +44,68 @@ export const RootStoreModel = types
       yield store.regionStore.fetchData();
       yield store.locationInfoStore.fetchData();
       yield store.gagesStore.fetchData();
+
+      // When a replay scenario is active, preload historical data and capture the
+      // session anchor BEFORE the forecast fetch so the engine can serve it. The
+      // engine sets isPreloading() during init, so these fetches hit the real
+      // network (mockActive() is false). Both fetch callbacks below are plain
+      // async fns using await — the single generator yield is mockReplayEngine.init.
+      const scenario = getActiveScenario();
+      if (scenario) {
+        // Inline the region tz (getTimezone view isn't in scope inside this action).
+        const tz = store.regionStore?.region?.timezone || "America/Los_Angeles";
+        const locations = store.locationInfoStore.locationInfos;
+        const locationIds = locations.map((l) => l.id);
+        const stagesByLocation: Record<string, { yellowStage?: number; redStage?: number }> = {};
+        locations.forEach((l) => {
+          stagesByLocation[l.id] = { yellowStage: l.yellowStage, redStage: l.redStage };
+        });
+
+        const fetchRawReadings = async (
+          id: string,
+          fromMs: number,
+          toMs: number
+        ): Promise<RawReading[]> => {
+          const from = localDayJs(fromMs).utc().format();
+          const to = localDayJs(toMs).utc().format();
+          const res = await api.getGageReadings<{ readings?: any[]; noData?: boolean }>(
+            id,
+            from,
+            to,
+            undefined,
+            true,
+            false // includePredictions=false → real passthrough (also guarded by isPreloading)
+          );
+          if (res.kind !== "ok" || res.data?.noData || !res.data?.readings) {
+            return [];
+          }
+          return res.data.readings.map((r) => ({
+            timestampMs: localDayJs.tz(r.timestamp, "YYYY-MM-DDTHH:mm:ss", tz).valueOf(),
+            waterHeight: r.waterHeight,
+            waterDischarge: r.waterDischarge,
+            isDeleted: r.isDeleted,
+          }));
+        };
+
+        const fetchDashboardSkeletons = async (): Promise<any[]> => {
+          const res = await api.getStatusAndRecentReadings<{ gages: any[] }>(
+            localDayJs().subtract(2, "day").utc().format(),
+            localDayJs().utc().format()
+          );
+          return res.kind === "ok" ? res.data?.gages ?? [] : [];
+        };
+
+        yield mockReplayEngine.init({
+          scenario,
+          timezone: tz,
+          locationIds,
+          forecastGageIds: Config.FORECAST_GAGE_IDS,
+          stagesByLocation,
+          fetchRawReadings,
+          fetchDashboardSkeletons,
+        });
+      }
+
       yield store.forecastsStore.fetchData();
 
       setIsFetched(true);
@@ -92,6 +160,22 @@ export const RootStoreModel = types
 
     const getLocationsWithGages = () => {
       const gages = visibleGages();
+      const gageIds = gages.map((gage) => gage.locationId);
+
+      return store.locationInfoStore.locationInfos
+        .filter((location) => gageIds.includes(location.id))
+        .map((location) => gages.find((gage) => gage.locationId === location.id));
+    };
+
+    /**
+     * Like getLocationsWithGages but ignores the hidden/offline visibility toggle —
+     * returns a gage (real, offline, or stub) for every location in river order.
+     * Used by the forecast flood-probability cards, which should rank every covered
+     * gauge regardless of whether it's currently shown on the gauge list. Relies on
+     * hidden-location stubs having been materialized (see GageStore.syncHiddenStubs).
+     */
+    const getAllLocationsWithGages = () => {
+      const gages = store.gagesStore.gages;
       const gageIds = gages.map((gage) => gage.locationId);
 
       return store.locationInfoStore.locationInfos
@@ -164,6 +248,7 @@ export const RootStoreModel = types
       getForecasts,
       getTimezone,
       getLocationsWithGages,
+      getAllLocationsWithGages,
       getLocationWithGagesIds,
       isHiddenLocation,
       getUpstreamGageLocation,

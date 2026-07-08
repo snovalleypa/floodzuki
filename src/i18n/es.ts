@@ -39,6 +39,10 @@ const es = {
     Flooding: "Inundación",
     Dry: "Seco",
   },
+  floodRisk: {
+    highBadge: "Alta probabilidad de inundación",
+    mediumBadge: "Probabilidad media de inundación",
+  },
   errorScreen: {
     header: "Ups...",
     title: "¡Algo salió mal!",
@@ -105,6 +109,15 @@ const es = {
     timeHeader: "Hora Local",
     heightHeader: "Altura",
     flowHeader: "Caudal",
+    roadFloodingTitle: "Inundación de carreteras",
+    roadFloodingSubtitle: "Probabilidad de que el agua llegue a la vía · próximos 10 días",
+    floodingTitle: "Inundación",
+    floodingSubtitle:
+      "Probabilidad de que el agua llegue al nivel de inundación · próximos 10 días",
+    floodingNow: "Inundándose ahora",
+    forksSectionTitle: "Brazos del río",
+    showMore: "Mostrar más",
+    showLess: "Mostrar menos",
   },
   profileScreen: {
     title: "Perfil",
@@ -263,6 +276,7 @@ const es = {
     live: "En vivo",
   },
   gageChart: {
+    flooding: "Nivel de inundación",
     discharge: "Caudal",
     waterLevel: "Nivel del agua",
     flow: "Caudal",
@@ -315,6 +329,15 @@ const es = {
     trend: "Tendencia",
     road: "Carretera",
     roadSmall: " carretera",
+    floodLevel: "Nivel de inundación",
+    floodLevelSmall: " del nivel de inundación",
+    trendIntersectsRoad: "La tendencia cruza el punto bajo de la carretera a las",
+    trendIntersectsFlood: "La tendencia cruza el nivel de inundación a las",
+    floodChance: "Probabilidad de inundación (próximos %{days} días)",
+    floodChanceLow: "Baja (<10%)",
+    floodChanceVeryHigh: ">90%",
+    floodChanceVeryHighExact: "%{percent}%",
+    floodChanceNearCertain: ">=99%",
   },
   gageDetailsChart: {
     discharge: "Caudal",
@@ -350,6 +373,7 @@ const es = {
     Below: "Debajo",
     atAndAbove: "Este nivel y superior",
     predicted: "Pronosticado",
+    trending: "Tendencia",
     water: "Agua",
   },
   footer: {

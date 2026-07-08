@@ -10,7 +10,7 @@ import { useResponsive } from "@common-ui/utils/responsive";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import { StyleSheet } from "react-native";
 import "maplibre-gl/dist/maplibre-gl.css";
-import TrendIcon, { TREND_ICON_TYPES } from "./TrendIcon";
+import MapPinIcon from "./MapPinIcon";
 import { getTownLabelsGeoJson, TOWN_LABELS_LAYER_PROPS } from "./townLabels";
 import { getRiverOverlaysGeoJson, RIVER_OVERLAY_LAYER_PROPS } from "./riverOverlays";
 import { INUNDATION_FILL_LAYER_PROPS } from "./inundationOverlay";
@@ -146,7 +146,7 @@ const MapLibreWebGageWebMap = ({
               onGagePress(g);
             }}
             key={"marker" + index}>
-            <TrendIcon gage={g} iconType={TREND_ICON_TYPES.Map} />
+            <MapPinIcon gage={g} />
           </Marker>
         )
     );

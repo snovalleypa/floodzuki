@@ -50,9 +50,15 @@ export const CHART_OPTIONS = {
     yAxis.title = null;
 
     for (const line of yAxis.plotLines || []) {
+      if (!line.label) {
+        continue;
+      }
       line.label.style.fontSize = "11px";
       line.label.align = "center";
       line.label.x = 0;
+      // Halve the default vertical gap (Highcharts default is -4) between the
+      // label and its line on the gauge list page.
+      line.label.y = -2;
     }
 
     xAxis.max = options._now.valueOf();
@@ -63,16 +69,12 @@ export const CHART_OPTIONS = {
 
     xAxis.min = chartBeginTime.clone().subtract(20, "m").valueOf();
 
-    xAxis.plotLines.push({
-      value: chartBeginTime.valueOf(),
-      dashStyle: "Dot",
-      color: "#9a9a9a",
-      label: {
-        text: t("gageChart.dashboardDurationLabel"),
-        style: { color: "#9a9a9a" },
-        align: "left",
-      },
-    });
+    xAxis.plotLines.push(
+      makePlotLine({
+        value: chartBeginTime.valueOf(),
+        label: t("gageChart.dashboardDurationLabel"),
+      })
+    );
 
     return [options, null] as const;
   },
@@ -158,7 +160,12 @@ function calculateCrest(
   return null;
 }
 
-function makePlotLine({ value, label, color = "#9a9a9a" }): Highcharts.XAxisPlotLinesOptions {
+function makePlotLine({
+  value,
+  label,
+  color = "#9a9a9a",
+  x = 3,
+}): Highcharts.XAxisPlotLinesOptions {
   return {
     value,
     dashStyle: "Dot",
@@ -166,8 +173,9 @@ function makePlotLine({ value, label, color = "#9a9a9a" }): Highcharts.XAxisPlot
     label: {
       text: label,
       style: { color },
-      align: "right",
-      x: -5,
+      align: "left",
+      x: x,
+      y: -10,
     },
   };
 }
@@ -189,7 +197,7 @@ function createPredictionSeries(
       return {
         x,
         y,
-        name: `${t("statusLevelsCard.predicted")} ${t("statusLevelsCard.level")}: `,
+        name: `${t("statusLevelsCard.trending")} ${t("statusLevelsCard.level")}: `,
         isPrediction: true,
         tooltipHtml: buildGageTooltipHtml({
           gage,
@@ -199,6 +207,7 @@ function createPredictionSeries(
           waterLevel: d.reading,
           waterDischarge: d.waterDischarge,
           isPrediction: true,
+          levelTitle: t("statusLevelsCard.trending"),
         }),
       };
     }),
@@ -520,6 +529,58 @@ function createDataAndReturnMin(gage: Gage, chartDataType: GageChartDataType, t,
   return [chartData, min] as const;
 }
 
+/**
+ * Horizontal threshold line(s) for the chart's y-axis. Gauges with a road
+ * show the road saddle line; gauges without one show a red "Flooding" line
+ * at the flood (red) stage, styled identically to the road line.
+ *
+ * The thresholds are water-height values (feet), so on a flow (discharge)
+ * chart the label is omitted — the line value has no meaning on a CFS axis.
+ */
+export function buildThresholdPlotLines(
+  gage: Gage,
+  t,
+  chartDataType: GageChartDataType
+): Highcharts.YAxisPlotLinesOptions[] {
+  let thresholds: { elevation: number; name: string; color: string }[] = [];
+
+  if (gage?.hasRoads) {
+    thresholds = gage.roads.map((road) => ({
+      elevation: road.elevation,
+      name: road.name,
+      color: Colors.primary,
+    }));
+  } else if (gage?.redStage) {
+    thresholds = [
+      {
+        elevation: gage.redStage,
+        name: t("gageChart.flooding"),
+        color: Colors.primary,
+      },
+    ];
+  }
+
+  const showLabel = chartDataType !== GageChartDataType.DISCHARGE;
+
+  return thresholds.map((threshold) => ({
+    value: threshold.elevation,
+    label: showLabel
+      ? {
+          text: threshold.name,
+          style: {
+            color: threshold.color,
+            fontFamily: "'Open Sans', sans-serif",
+            fontSize: "14px",
+          },
+          align: "right",
+          x: -10,
+        }
+      : undefined,
+    color: threshold.color,
+    dashStyle: "Dot" as Highcharts.DashStyleValue,
+  }));
+}
+
 const buildBasicOptions = (props: BuildOptionsProps, t) => {
   const { gage, chartDataType } = props;
 
@@ -587,23 +648,7 @@ const buildBasicOptions = (props: BuildOptionsProps, t) => {
   yAxis.min = Math.min(minVal, yAxisMin);
   yAxis.max = yMaximum;
 
-  yAxis.plotLines = (gage?.roads).map((cat) => {
-    return {
-      value: cat.elevation,
-      label: {
-        text: cat.name,
-        style: {
-          color: Colors.primary,
-          fontFamily: "'Open Sans', sans-serif",
-          fontSize: "14px",
-        },
-        align: "right",
-        x: -10,
-      },
-      color: Colors.primary,
-      dashStyle: "Dot" as Highcharts.DashStyleValue,
-    };
-  });
+  yAxis.plotLines = buildThresholdPlotLines(gage, t, chartDataType);
 
   options._now = localDayJs();
 
@@ -612,6 +657,7 @@ const buildBasicOptions = (props: BuildOptionsProps, t) => {
     makePlotLine({
       value: options._now.valueOf(),
       label: t("gageChart.Now"),
+      x: -13,
     })
   );
 

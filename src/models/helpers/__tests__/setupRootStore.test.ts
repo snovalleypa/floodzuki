@@ -15,6 +15,13 @@ jest.mock("@utils/debugFlags", () => ({
   loadDebugFlags: jest.fn().mockResolvedValue(undefined),
 }));
 
+// Same reasoning as loadDebugFlags: loadMockReplay() also awaits storage.load,
+// which would otherwise consume the single mocked snapshot meant for the root store.
+jest.mock("@services/mockReplay/mockReplayState", () => ({
+  loadMockReplay: jest.fn().mockResolvedValue(undefined),
+  isMockReplayActive: jest.fn().mockReturnValue(false),
+}));
+
 // setupRootStore calls api.setHeader when an auth token is present. Stub it.
 jest.mock("@services/api", () => ({
   api: {
@@ -31,11 +38,18 @@ jest.mock("@services/localDayJs", () => ({
   default: { locale: jest.fn() },
 }));
 
-const { load } = jest.requireMock("@utils/storage") as { load: jest.Mock };
+const { load, save } = jest.requireMock("@utils/storage") as {
+  load: jest.Mock;
+  save: jest.Mock;
+};
+const { isMockReplayActive } = jest.requireMock("@services/mockReplay/mockReplayState") as {
+  isMockReplayActive: jest.Mock;
+};
 
 describe("setupRootStore stub rehydration", () => {
   beforeEach(() => {
     load.mockReset();
+    isMockReplayActive.mockReturnValue(false);
   });
 
   it("repopulates stubs for hidden locations when showHiddenOffline rehydrates as true", async () => {
@@ -101,5 +115,54 @@ describe("setupRootStore stub rehydration", () => {
       "USGS-22",
       "USGS-38",
     ]);
+  });
+});
+
+describe("setupRootStore mock-replay mode", () => {
+  beforeEach(() => {
+    load.mockReset();
+    save.mockClear();
+    isMockReplayActive.mockReturnValue(false);
+  });
+
+  it("boots from a clean store (ignores persisted gauges) when a mock scenario is active", async () => {
+    isMockReplayActive.mockReturnValue(true);
+    load.mockResolvedValueOnce({
+      isFetched: false,
+      gagesStore: {
+        gages: [{ locationId: "USGS-38", _isStub: false }],
+      },
+    });
+
+    const rootStore = RootStoreModel.create({});
+    await setupRootStore(rootStore);
+
+    // Persisted gauges are NOT rehydrated — the engine repopulates on fetch.
+    expect(rootStore.gagesStore.gages).toHaveLength(0);
+  });
+
+  it("does not persist snapshots while a mock scenario is active", async () => {
+    isMockReplayActive.mockReturnValue(true);
+    load.mockResolvedValueOnce({ isFetched: false });
+
+    const rootStore = RootStoreModel.create({});
+    await setupRootStore(rootStore);
+
+    // Trigger a snapshot change; the onSnapshot handler must skip saving.
+    rootStore.gagesStore.setIsFetching(true);
+
+    expect(save).not.toHaveBeenCalled();
+  });
+
+  it("persists snapshots normally when no mock scenario is active", async () => {
+    isMockReplayActive.mockReturnValue(false);
+    load.mockResolvedValueOnce({ isFetched: false });
+
+    const rootStore = RootStoreModel.create({});
+    await setupRootStore(rootStore);
+
+    rootStore.gagesStore.setIsFetching(true);
+
+    expect(save).toHaveBeenCalled();
   });
 });

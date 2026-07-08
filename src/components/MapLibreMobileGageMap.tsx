@@ -10,7 +10,7 @@ import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { runOnJS } from "react-native-reanimated";
 import { StyleSheet, ViewStyle } from "react-native";
 import { Spacing } from "../common-ui/constants/spacing";
-import TrendIcon, { TREND_ICON_TYPES } from "./TrendIcon";
+import MapPinIcon from "./MapPinIcon";
 import { getTownLabelsGeoJson, TOWN_LABELS_LAYER_PROPS } from "./townLabels";
 import { getRiverOverlaysGeoJson, RIVER_OVERLAY_LAYER_PROPS } from "./riverOverlays";
 import { INUNDATION_FILL_LAYER_PROPS } from "./inundationOverlay";
@@ -168,7 +168,7 @@ const MapLibreMobileGageMap = ({
         onPress={() => {
           onGagePress(g);
         }}>
-        <TrendIcon gage={g} iconType={TREND_ICON_TYPES.Map} />
+        <MapPinIcon gage={g} />
       </Marker>
     ));
   }, [mapRef, gages]);

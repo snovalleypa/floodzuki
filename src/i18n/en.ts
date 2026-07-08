@@ -38,6 +38,10 @@ const en = {
     Flooding: "Flooding",
     Dry: "Dry",
   },
+  floodRisk: {
+    highBadge: "High chance of flooding",
+    mediumBadge: "Medium chance of flooding",
+  },
   errorScreen: {
     header: "Ooops...",
     title: "Something went wrong!",
@@ -103,6 +107,14 @@ const en = {
     timeHeader: "Local Time",
     heightHeader: "Height",
     flowHeader: "Flow",
+    roadFloodingTitle: "Road Flooding",
+    roadFloodingSubtitle: "Chance water reaches the road · next 10 days",
+    floodingTitle: "Flooding",
+    floodingSubtitle: "Chance water reaches flood stage · next 10 days",
+    floodingNow: "Flooding now",
+    forksSectionTitle: "River Forks",
+    showMore: "Show more",
+    showLess: "Show less",
   },
   profileScreen: {
     title: "Profile",
@@ -259,6 +271,7 @@ const en = {
     live: "Live",
   },
   gageChart: {
+    flooding: "Flood Level",
     discharge: "Flow",
     waterLevel: "Water Level",
     flow: "Flow",
@@ -311,6 +324,15 @@ const en = {
     trend: "Trend",
     road: "Road",
     roadSmall: " road",
+    floodLevel: "Flood Level",
+    floodLevelSmall: " flood level",
+    trendIntersectsRoad: "Trend intersects road saddle at",
+    trendIntersectsFlood: "Trend intersects flood level at",
+    floodChance: "Chance of flooding (next %{days} days)",
+    floodChanceLow: "Low (<10%)",
+    floodChanceVeryHigh: ">90%",
+    floodChanceVeryHighExact: "%{percent}%",
+    floodChanceNearCertain: ">=99%",
   },
   gageDetailsChart: {
     discharge: "Flow",
@@ -346,6 +368,7 @@ const en = {
     Below: "Below",
     atAndAbove: "At and above",
     predicted: "Predicted",
+    trending: "Trending",
     water: "Water",
   },
   footer: {

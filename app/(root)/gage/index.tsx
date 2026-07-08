@@ -28,6 +28,8 @@ import { useUtils } from "@utils/utils";
 import { formatReadingTime } from "@utils/useTimeFormat";
 import { ROUTES } from "app/_layout";
 import TrendIcon, { TREND_ICON_TYPES } from "@components/TrendIcon";
+import { WithFloodRiskBadge } from "@components/FloodRiskBadge";
+import { useFloodRiskLevel } from "@utils/useFloodRiskLevel";
 import { useInterval } from "@utils/useTimeout";
 import EmptyComponent from "@common-ui/components/EmptyComponent";
 import { GageChart } from "@components/GageChart";
@@ -56,12 +58,15 @@ interface GageItemProps {
 
 const GageStatus = observer(({ gage }: { gage: Gage }) => {
   const { t } = useLocale();
+  const riskLevel = useFloodRiskLevel(gage);
 
   return (
-    <LargeLabel
-      type={STATUSES[gage?.gageStatus?.floodLevel]}
-      text={t(`statuses.${gage?.gageStatus?.floodLevel}` as TxKeyPath)}
-    />
+    <WithFloodRiskBadge level={riskLevel}>
+      <LargeLabel
+        type={STATUSES[gage?.gageStatus?.floodLevel]}
+        text={t(`statuses.${gage?.gageStatus?.floodLevel}` as TxKeyPath)}
+      />
+    </WithFloodRiskBadge>
   );
 });
 

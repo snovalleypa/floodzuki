@@ -26,8 +26,10 @@ export function buildGageTooltipHtml(args: {
   waterLevel?: number | null;
   waterDischarge?: number | null;
   isPrediction: boolean;
+  /** Overrides the level-line title (e.g. "Trending" for the trend nowcast line). */
+  levelTitle?: string;
 }): string {
-  const { gage, t, tz, x, waterLevel, waterDischarge, isPrediction } = args;
+  const { gage, t, tz, x, waterLevel, waterDischarge, isPrediction, levelTitle } = args;
 
   const roadStatus = waterLevel != null ? gage?.getCalculatedRoadStatus(waterLevel) : null;
 
@@ -40,7 +42,8 @@ export function buildGageTooltipHtml(args: {
     )}</span>`;
   }
 
-  const titleKey = isPrediction ? t("statusLevelsCard.predicted") : t("statusLevelsCard.water");
+  const titleKey =
+    levelTitle ?? (isPrediction ? t("statusLevelsCard.predicted") : t("statusLevelsCard.water"));
 
   let levelLine = "";
   if (waterLevel != null) {

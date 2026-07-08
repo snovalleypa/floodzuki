@@ -52,4 +52,20 @@ describe("useGoBack", () => {
     rerender({});
     expect(result.current).toBe(first);
   });
+
+  it("pushes the fallback pathname WITH params when provided and canGoBack is false", () => {
+    const push = jest.fn();
+    (useNavigation as jest.Mock).mockReturnValue({ canGoBack: () => false, goBack: jest.fn() });
+    (useRouter as jest.Mock).mockReturnValue({ push });
+
+    const { result } = renderHook(() =>
+      useGoBack("/forecast/[...id]", { id: ["USGS-SF17", "USGS-NF10", "USGS-MF11"] })
+    );
+    act(() => result.current());
+
+    expect(push).toHaveBeenCalledWith({
+      pathname: "/forecast/[...id]",
+      params: { id: ["USGS-SF17", "USGS-NF10", "USGS-MF11"] },
+    });
+  });
 });
