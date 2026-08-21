@@ -114,6 +114,33 @@ describe("parseConstants", () => {
     expect(parseConstants({ ...PAYLOAD, gauges: [bad] })).toBeNull();
   });
 
+  // A degenerate slope, residualSigma, or non-monotonic p50/p90/p99 spread would
+  // otherwise reach calculations.ts and either divide by zero (-> "NaN%" on the
+  // road-flooding card) or collapse to a flat, false-dangerous 90% chance for
+  // every stage below p90 — dropping the gauge is safer than either.
+  it.each([
+    ["regression.slope === 0", { ...GAUGE, regression: { ...GAUGE.regression, slope: 0 } }],
+    ["regression.slope < 0", { ...GAUGE, regression: { ...GAUGE.regression, slope: -1 } }],
+    [
+      "floodProbability.residualSigma === 0",
+      { ...GAUGE, floodProbability: { ...GAUGE.floodProbability, residualSigma: 0 } },
+    ],
+    [
+      "floodProbability.p50 === p90",
+      { ...GAUGE, floodProbability: { ...GAUGE.floodProbability, p50: 51.19, p90: 51.19 } },
+    ],
+    [
+      "floodProbability.p90 === p99",
+      { ...GAUGE, floodProbability: { ...GAUGE.floodProbability, p90: 51.44, p99: 51.44 } },
+    ],
+    [
+      "floodProbability.p50 > p90 (non-monotonic)",
+      { ...GAUGE, floodProbability: { ...GAUGE.floodProbability, p50: 52, p90: 51.19 } },
+    ],
+  ])("drops a gauge with %s", (_desc, bad) => {
+    expect(parseConstants({ ...PAYLOAD, gauges: [bad] })).toBeNull();
+  });
+
   it("drops a gauge missing predictor site ids", () => {
     const bad = { ...GAUGE, predictor: { ...GAUGE.predictor, noaaSiteId: "" } };
     expect(parseConstants({ ...PAYLOAD, gauges: [bad] })).toBeNull();
@@ -136,11 +163,21 @@ describe("loadFloodPredictionConstants", () => {
     mockFetch(PAYLOAD);
     await loadFloodPredictionConstants(1);
     expect(globalThis.fetch).toHaveBeenCalledWith(
-      BASE + "flood-prediction-constants-region-1.json"
+      BASE + "flood-prediction-constants-region-1.json",
+      { cache: "no-cache" }
     );
     expect(getGauges().map((g) => g.gaugeId)).toEqual(["SVPA-25"]);
     expect(getPredictors()["12149000"].floodzillaId).toBe("USGS-22");
     expect((await storage.load(STORAGE_KEY)).gauges).toHaveLength(1);
+  });
+
+  // finding 4: this origin returns ETag/Last-Modified but no Cache-Control, so a
+  // plain fetch() would be served from the browser's heuristic cache (~10% of
+  // age) instead of revalidating. `no-cache` forces revalidation on every call.
+  it("bypasses the HTTP heuristic cache so a republish is picked up promptly", async () => {
+    mockFetch(PAYLOAD);
+    await loadFloodPredictionConstants(1);
+    expect(globalThis.fetch).toHaveBeenCalledWith(expect.any(String), { cache: "no-cache" });
   });
 
   it("falls back to the cached copy when the network fails", async () => {

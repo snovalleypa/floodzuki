@@ -9,8 +9,10 @@ import { FloodPredictionGauge, FloodPredictionPredictor } from "./types";
  * The regression-derived flood-prediction constants, published per region by the
  * analytics pipeline (see the file's own `source` field) to
  * `floodzilla.com/files/prediction/`. The app bundles no copy: it loads the last
- * known-good copy from AsyncStorage, then refreshes from the network, once per
- * launch.
+ * known-good copy from AsyncStorage, then refreshes from the network. This runs
+ * on every `RootStore.fetchMainData` call — app launch, and again on login/logout
+ * — not just once per session; repeat calls are safe (the box-empty guard means a
+ * stale cached copy can never clobber constants that already published).
  *
  * The data lives in a module-level mobx box rather than in MST, matching the
  * decision documented in floodPredictionService.ts — these payloads must never
@@ -68,17 +70,27 @@ function parseGauge(raw: unknown): FloodPredictionGauge | null {
   if (!isStr(g?.gaugeId)) {
     return null;
   }
-  if (!isNum(g.regression?.slope) || !isNum(g.regression?.intercept)) {
+  // slope feeds a division in predictorStageForThreshold (calculations.ts): a
+  // zero or negative slope sends the shifted p50/p90/p99 to +/-Infinity, which
+  // ultimately renders as a literal "NaN%".
+  if (!isNum(g.regression?.slope) || g.regression.slope <= 0 || !isNum(g.regression?.intercept)) {
     return null;
   }
   const fp = g.floodProbability;
   if (
     !isNum(fp?.redStage) ||
     !isNum(fp?.residualSigma) ||
+    fp.residualSigma <= 0 ||
     !isNum(fp?.p50) ||
     !isNum(fp?.p90) ||
     !isNum(fp?.p99)
   ) {
+    return null;
+  }
+  // derivePredictorStageProbability divides by (p90 - p50) and (p99 - p90); a
+  // non-monotonic or degenerate spread (e.g. p50 === p90) collapses that span to
+  // zero and yields a flat, false-dangerous 90% for any stage below p90.
+  if (!(fp.p50 < fp.p90 && fp.p90 < fp.p99)) {
     return null;
   }
   if (!isStr(g.predictor?.usgsSiteId) || !isStr(g.predictor?.noaaSiteId)) {
@@ -144,9 +156,13 @@ export async function loadFloodPredictionConstants(regionId: number): Promise<vo
     // A missing or unreadable cache is normal; fall through to the network.
   }
 
-  // 2. Network refresh.
+  // 2. Network refresh. `no-cache` forces revalidation against the origin's
+  // ETag/Last-Modified (a cheap 304 when unchanged) instead of letting the
+  // browser's heuristic freshness (no Cache-Control header on this origin, so
+  // ~10% of age — currently 4+ days) serve a stale copy for days after a
+  // mid-season republish.
   try {
-    const res = await fetch(getConstantsUrl(regionId));
+    const res = await fetch(getConstantsUrl(regionId), { cache: "no-cache" });
     if (!res.ok) {
       return;
     }
