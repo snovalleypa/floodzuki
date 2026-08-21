@@ -7,6 +7,7 @@ import { RegionModelStore } from "./Region";
 import { AuthSessionStoreModel } from "./AuthSession";
 import { computeBucketCounts } from "./helpers/regionSummary";
 import { api } from "@services/api";
+import { loadFloodPredictionConstants } from "@services/floodPrediction/constantsSource";
 import Config from "@config/config";
 import * as mockReplayEngine from "@services/mockReplay/engine";
 import { getActiveScenario } from "@services/mockReplay/mockReplayState";
@@ -40,6 +41,12 @@ export const RootStoreModel = types
 
     const fetchMainData = flow(function* () {
       setIsFetched(false);
+
+      // Flood-prediction constants are hosted remotely (floodzilla.com/files/
+      // prediction). Deliberately not yielded: the loader serves a cached copy
+      // first and never rejects, so a slow or down host must not delay boot.
+      // Consumers read a mobx box and re-render when the fresh copy lands.
+      void loadFloodPredictionConstants(Config.SVPA_REGION_ID);
 
       yield store.regionStore.fetchData();
       yield store.locationInfoStore.fetchData();

@@ -51,6 +51,10 @@ export function useFloodProbability(
   // render (e.g. the always-present map pin warms the cache first).
   const [, bumpTick] = useState(0);
 
+  // `constants` is in the dependency list because it starts null: the constants
+  // are fetched at runtime, and when they land this effect must re-run to
+  // request the forecast for a gauge that looked uncovered on the first render.
+  // The value is a stable object reference between loads, so this cannot loop.
   useEffect(() => {
     let active = true;
     const done = () => {
@@ -68,7 +72,7 @@ export function useFloodProbability(
     return () => {
       active = false;
     };
-  }, [locationId, directThreshold, thresholdOverride]);
+  }, [locationId, directThreshold, thresholdOverride, constants]);
 
   if (!gage || (!constants && !direct)) {
     return null;
