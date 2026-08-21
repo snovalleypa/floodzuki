@@ -1,3 +1,7 @@
+/// <reference types="node" />
+import { existsSync } from "fs";
+import { join } from "path";
+
 import * as storage from "@utils/storage";
 
 import {
@@ -209,5 +213,16 @@ describe("__setConstantsForTest", () => {
     __setConstantsForTest(PAYLOAD);
     __setConstantsForTest({ schemaVersion: 9 });
     expect(getGauges()).toEqual([]);
+  });
+});
+
+describe("no bundled constants", () => {
+  it("does not ship a constants JSON under src/config", () => {
+    // The app must reach the constants over the network, never through the
+    // bundle. The only copy left in the repo is the test fixture.
+    expect(existsSync(join(__dirname, "../../../config/floodPredictionConstants.json"))).toBe(
+      false
+    );
+    expect(existsSync(join(__dirname, "fixtures/floodPredictionConstants.json"))).toBe(true);
   });
 });

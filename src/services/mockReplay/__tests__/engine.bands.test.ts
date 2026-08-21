@@ -20,7 +20,8 @@ describe("engine.buildMapQuantiles", () => {
       waterDischarge: 5000 + (i === 50 ? 20000 : i * 10),
       waterHeight: 10,
     }));
-    // CRNW1 -> USGS-22 (Carnation) per floodPredictionConstants predictors.
+    // CRNW1 -> USGS-22 (Carnation) via DIRECT_GAUGES, which locationForNoaaSite
+    // checks before the (remotely loaded) predictors block.
     await engine.init({
       scenario: {
         id: "x",
