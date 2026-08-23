@@ -1,4 +1,7 @@
-import type { FillLayerSpecification } from "@maplibre/maplibre-gl-style-spec";
+import type {
+  FillLayerSpecification,
+  LineLayerSpecification,
+} from "@maplibre/maplibre-gl-style-spec";
 import Config from "@config/config";
 
 export type InundationLevel = {
@@ -17,8 +20,18 @@ export type InundationLevel = {
   roadClosuresUrl: string | null;
 };
 
+// The region's Flood Visualizer config: the selectable levels plus the outline
+// of the 2D hydraulic model's boundary (null when the config doesn't list one).
+// The boundary is level-independent — it shows the extent of the modeled area,
+// which the app draws whenever a flood level is displayed.
+export type InundationConfig = {
+  levels: InundationLevel[];
+  modelBoundaryUrl: string | null;
+};
+
 // The region config file's shape (untrusted input — fields are validated before
-// use). Accepts either a bare array of levels or a { levels: [...] } wrapper.
+// use). Accepts either a bare array of levels or a { levels: [...] } wrapper;
+// modelBoundaryFile is only available in the wrapper form.
 type RawLevel = {
   key?: string;
   label?: Record<string, string>;
@@ -27,7 +40,7 @@ type RawLevel = {
   file?: string;
   roadClosuresFile?: string;
 };
-type RawConfig = { levels?: RawLevel[] } | RawLevel[] | null;
+type RawConfig = { levels?: RawLevel[]; modelBoundaryFile?: string } | RawLevel[] | null;
 
 function baseUrl(): string {
   const base = Config.INUNDATION_GEOJSON_BASE_URL;
@@ -40,10 +53,11 @@ export function getLevelsConfigUrl(regionId: number): string {
   return `${baseUrl()}flood-viz-levels-region-${regionId}.json`;
 }
 
-// Fetch and normalize the inundation levels for a region. Returns null when the
-// config is absent (404) or unusable (network/parse error, wrong shape) — the
-// caller hides the Flood Visualizer control in that case. Never rejects.
-export async function fetchInundationLevels(regionId: number): Promise<InundationLevel[] | null> {
+// Fetch and normalize the Flood Visualizer config for a region. Returns null
+// when the config is absent (404) or unusable (network/parse error, wrong
+// shape, no levels) — the caller hides the Flood Visualizer control in that
+// case. Never rejects.
+export async function fetchInundationConfig(regionId: number): Promise<InundationConfig | null> {
   const base = baseUrl();
   let res: Response;
   try {
@@ -77,7 +91,14 @@ export async function fetchInundationLevels(regionId: number): Promise<Inundatio
       url: base + l.file,
       roadClosuresUrl: l.roadClosuresFile ? base + l.roadClosuresFile : null,
     }));
-  return levels.length > 0 ? levels : null;
+  if (levels.length === 0) {
+    return null;
+  }
+  const boundaryFile = !Array.isArray(data) ? data?.modelBoundaryFile : undefined;
+  return {
+    levels,
+    modelBoundaryUrl: typeof boundaryFile === "string" && boundaryFile ? base + boundaryFile : null,
+  };
 }
 
 // Resolve a level's localized label, falling back from the active locale's base
@@ -98,5 +119,27 @@ export const INUNDATION_FILL_LAYER_PROPS: Omit<FillLayerSpecification, "source">
   paint: {
     "fill-color": "rgba(30, 120, 200, 0.35)",
     "fill-outline-color": "rgba(20, 90, 160, 0.9)",
+  },
+};
+
+// Outline of the 2D hydraulic model's boundary, drawn (unfilled) whenever a
+// flood level is shown so people can see where the modeled area ends — flooding
+// outside this line simply isn't covered by the model. Dashed, in a muted gray
+// that stays visible on both the vector style and satellite imagery.
+// MODEL_BOUNDARY_COLOR is shared with the info popup's legend swatch so the
+// explanation always matches what's drawn on the map.
+export const MODEL_BOUNDARY_COLOR = "rgba(147, 147, 147, 0.85)";
+
+export const MODEL_BOUNDARY_LINE_LAYER_PROPS: Omit<LineLayerSpecification, "source"> = {
+  id: "model-boundary-line",
+  type: "line",
+  layout: {
+    "line-cap": "round",
+    "line-join": "round",
+  },
+  paint: {
+    "line-color": MODEL_BOUNDARY_COLOR,
+    "line-width": 1.5,
+    "line-dasharray": [3, 2],
   },
 };

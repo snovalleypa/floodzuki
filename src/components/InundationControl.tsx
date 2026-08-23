@@ -23,7 +23,11 @@ import { Spacing } from "@common-ui/constants/spacing";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import { useUtils } from "@utils/utils";
 import { openLinkInBrowser } from "@utils/navigation";
-import { localizeLevelLabel, type InundationLevel } from "./inundationOverlay";
+import {
+  localizeLevelLabel,
+  MODEL_BOUNDARY_COLOR,
+  type InundationLevel,
+} from "./inundationOverlay";
 
 // King County's Snoqualmie River 2D Hydraulic Model report — the source of the
 // inundation maps, linked from the info popup.
@@ -58,6 +62,19 @@ function Segment({ active, label, caption, subCaption, onPress }: SegmentProps) 
         ) : null}
       </Cell>
     </Pressable>
+  );
+}
+
+// A short dashed-line swatch matching the map's model-boundary line, built from
+// three dash segments (React Native's dashed borderStyle is unreliable on a
+// single edge across platforms).
+function BoundaryDashSwatch() {
+  return (
+    <View style={$boundarySwatch}>
+      <View style={$boundaryDash} />
+      <View style={$boundaryDash} />
+      <View style={$boundaryDash} />
+    </View>
   );
 }
 
@@ -189,6 +206,12 @@ export default function InundationControl({
               <Cell top={Spacing.small}>
                 <RegularText color={Colors.lightDark}>{t("map.info.extent")}</RegularText>
               </Cell>
+              <Row top={Spacing.small}>
+                <BoundaryDashSwatch />
+                <Cell flex left={Spacing.small}>
+                  <RegularText color={Colors.lightDark}>{t("map.info.boundaryNote")}</RegularText>
+                </Cell>
+              </Row>
               <Cell top={Spacing.small}>
                 <RegularText color={Colors.lightDark}>{t("map.info.cfs")}</RegularText>
               </Cell>
@@ -300,4 +323,21 @@ const $roadSwatch: ViewStyle = {
   height: Spacing.tiny,
   borderRadius: Spacing.micro,
   marginTop: Spacing.micro,
+};
+
+// Sized to match the road swatches so the legend rows line up. The dash gap is
+// provided by the segments' margins.
+const $boundarySwatch: ViewStyle = {
+  width: Spacing.large,
+  flexDirection: "row",
+  justifyContent: "space-between",
+  alignItems: "center",
+  marginTop: Spacing.small,
+};
+
+const $boundaryDash: ViewStyle = {
+  width: Spacing.micro + Spacing.tiny,
+  height: 2,
+  borderRadius: 1,
+  backgroundColor: MODEL_BOUNDARY_COLOR,
 };

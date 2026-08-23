@@ -312,6 +312,8 @@ const es = {
         ", desarrollado por King County Watershed Science and Engineering para la alianza Fish, Farm & Flood. El modelo se creó para ayudar a las personas a comprender mejor las posibles inundaciones, evaluar la inundación de carreteras, apoyar la planificación de mitigación de inundaciones y mejorar la resiliencia a largo plazo frente a las inundaciones.",
       extent:
         "El área azul muestra la extensión máxima del agua durante todo un evento de inundación. No es una instantánea de un solo momento en el tiempo. Representa las inundaciones solo a lo largo del cauce principal del río y podría no reflejar con precisión la extensión de las inundaciones en los arroyos y riachuelos afluentes.",
+      boundaryNote:
+        "La línea gris discontinua marca el límite del área modelada. Las inundaciones fuera de esta línea no se muestran en el mapa.",
       cfs: "Los valores de caudal (ft³/s) se basan en el medidor del río Snoqualmie cerca de Carnation.",
       modeled:
         "Estos son datos modelados, y cada inundación se comporta de manera diferente. Usa el mapa como guía, no como garantía.",

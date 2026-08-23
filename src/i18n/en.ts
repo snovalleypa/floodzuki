@@ -307,6 +307,8 @@ const en = {
         " developed by King County Watershed Science and Engineering for the Fish, Farm & Flood partnership. The model was created to help people better understand potential flooding, evaluate road inundation, support flood mitigation planning, and improve long-term flood resilience.",
       extent:
         "The blue area shows the maximum extent of the water over the course of an entire flooding event. It is not a snapshot of a single moment in time. It depicts flooding along the main stem of the river only and may not accurately represent flood extents on tributary creeks and streams.",
+      boundaryNote:
+        "The dashed gray line marks the boundary of the modeled area. Flooding outside this line is not shown on the map.",
       cfs: "The flow values (cfs) are based on the Snoqualmie River gauge near Carnation.",
       modeled:
         "This is modeled data, and every flood behaves differently. Treat the map as a guide, not a guarantee.",

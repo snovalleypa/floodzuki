@@ -13,7 +13,7 @@ import { Spacing } from "../common-ui/constants/spacing";
 import MapPinIcon from "./MapPinIcon";
 import { getTownLabelsGeoJson, TOWN_LABELS_LAYER_PROPS } from "./townLabels";
 import { getRiverOverlaysGeoJson, RIVER_OVERLAY_LAYER_PROPS } from "./riverOverlays";
-import { INUNDATION_FILL_LAYER_PROPS } from "./inundationOverlay";
+import { INUNDATION_FILL_LAYER_PROPS, MODEL_BOUNDARY_LINE_LAYER_PROPS } from "./inundationOverlay";
 import { ROAD_CLOSURE_LINE_LAYER_PROPS, ROAD_CLOSURE_LABEL_LAYER_PROPS } from "./roadClosures";
 import { getMapTilerHybridStyleUrl } from "./mapTilerStyle";
 import Config from "../config/config";
@@ -62,6 +62,7 @@ const MapLibreMobileGageMap = ({
   onInundationLoad,
   onInundationError,
   roadClosuresUrl,
+  modelBoundaryUrl,
   baseLayer,
 }: InternalGageMapProps) => {
   const mapRef = useRef(null);
@@ -226,6 +227,11 @@ const MapLibreMobileGageMap = ({
         {inundationUrl ? (
           <GeoJSONSource id="inundation" data={inundationUrl}>
             <Layer {...INUNDATION_FILL_LAYER_PROPS} />
+          </GeoJSONSource>
+        ) : null}
+        {modelBoundaryUrl ? (
+          <GeoJSONSource id="model-boundary" data={modelBoundaryUrl}>
+            <Layer {...MODEL_BOUNDARY_LINE_LAYER_PROPS} />
           </GeoJSONSource>
         ) : null}
         {roadClosuresUrl ? (

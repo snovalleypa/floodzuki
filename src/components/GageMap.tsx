@@ -23,6 +23,7 @@ const GageMap = observer(function GageMap(props: GageMapProps) {
     onInundationLoad,
     onInundationError,
     roadClosuresUrl,
+    modelBoundaryUrl,
     baseLayer,
   } = props;
 
@@ -48,6 +49,7 @@ const GageMap = observer(function GageMap(props: GageMapProps) {
       onInundationLoad={onInundationLoad}
       onInundationError={onInundationError}
       roadClosuresUrl={roadClosuresUrl}
+      modelBoundaryUrl={modelBoundaryUrl}
       baseLayer={baseLayer}
     />
   );

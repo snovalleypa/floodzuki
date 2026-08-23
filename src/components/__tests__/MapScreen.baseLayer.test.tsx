@@ -38,7 +38,7 @@ jest.mock("@components/InundationControl", () => ({
 }));
 
 jest.mock("@components/useInundationLevels", () => ({
-  useInundationLevels: () => ({ levels: [], ready: true }),
+  useInundationLevels: () => ({ levels: [], modelBoundaryUrl: null, ready: true }),
 }));
 
 jest.mock("@common-ui/components/PageTitle", () => ({

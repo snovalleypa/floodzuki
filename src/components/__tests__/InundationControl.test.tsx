@@ -93,6 +93,7 @@ describe("InundationControl", () => {
     expect(queryByText("map.info.intro")).toBeNull();
     fireEvent.press(getByLabelText("map.info.buttonLabel"));
     expect(getByText("map.info.intro")).toBeTruthy();
+    expect(getByText("map.info.boundaryNote")).toBeTruthy();
     expect(getByText("map.info.roadsNote")).toBeTruthy();
     expect(getByText("map.info.disclaimerHeading")).toBeTruthy();
     expect(getByText("map.info.disclaimer")).toBeTruthy();
