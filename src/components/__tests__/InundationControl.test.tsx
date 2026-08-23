@@ -16,6 +16,11 @@ jest.mock("@utils/utils", () => ({
   useUtils: () => ({ formatFlow: (n: number) => `${n} cfs` }),
 }));
 
+const mockOpenLinkInBrowser = jest.fn();
+jest.mock("@utils/navigation", () => ({
+  openLinkInBrowser: (url: string) => mockOpenLinkInBrowser(url),
+}));
+
 const levels: InundationLevel[] = [
   {
     key: "minor",
@@ -89,5 +94,18 @@ describe("InundationControl", () => {
     fireEvent.press(getByLabelText("map.info.buttonLabel"));
     expect(getByText("map.info.intro")).toBeTruthy();
     expect(getByText("map.info.roadsNote")).toBeTruthy();
+    expect(getByText("map.info.disclaimerHeading")).toBeTruthy();
+    expect(getByText("map.info.disclaimer")).toBeTruthy();
+  });
+
+  it("opens the King County model report when the source link is pressed", () => {
+    const { getByLabelText, getByText } = render(
+      <InundationControl levels={levels} selectedKey={null} onSelect={jest.fn()} />
+    );
+    fireEvent.press(getByLabelText("map.info.buttonLabel"));
+    fireEvent.press(getByText("map.info.sourceLink"));
+    expect(mockOpenLinkInBrowser).toHaveBeenCalledWith(
+      "https://your.kingcounty.gov/dnrp/library/2025/kcr4112.pdf"
+    );
   });
 });

@@ -306,8 +306,12 @@ const es = {
       buttonLabel: "Acerca del Visualizador de inundaciones",
       title: "Acerca del Visualizador de inundaciones",
       intro: "Estos son mapas de inundación del bajo Valle de Snoqualmie.",
+      sourceIntro: "Estos mapas se basan en el ",
+      sourceLink: "Modelo Hidráulico 2D del río Snoqualmie",
+      sourceOutro:
+        ", desarrollado por King County Watershed Science and Engineering para la alianza Fish, Farm & Flood. El modelo se creó para ayudar a las personas a comprender mejor las posibles inundaciones, evaluar la inundación de carreteras, apoyar la planificación de mitigación de inundaciones y mejorar la resiliencia a largo plazo frente a las inundaciones.",
       extent:
-        "El área azul muestra la extensión máxima proyectada del agua durante todo un evento de inundación. No es una instantánea de un solo momento en el tiempo.",
+        "El área azul muestra la extensión máxima del agua durante todo un evento de inundación. No es una instantánea de un solo momento en el tiempo. Representa las inundaciones solo a lo largo del cauce principal del río y podría no reflejar con precisión la extensión de las inundaciones en los arroyos y riachuelos afluentes.",
       cfs: "Los valores de caudal (ft³/s) se basan en el medidor del río Snoqualmie cerca de Carnation.",
       modeled:
         "Estos son datos modelados, y cada inundación se comporta de manera diferente. Usa el mapa como guía, no como garantía.",
@@ -317,6 +321,9 @@ const es = {
       roadClosed: "Cerrada: se espera que la carretera sea intransitable.",
       roadsNote:
         "Los colores de las carreteras son estimaciones. Una carretera puede cerrarse antes o después de lo indicado, y algunas carreteras afectadas podrían no aparecer en el mapa.",
+      disclaimerHeading: "Aviso legal",
+      disclaimer:
+        "Estos datos no deben usarse como única base para decisiones de respuesta a emergencias, navegación, ingeniería, seguros o regulación. King County no ofrece declaraciones ni garantías, expresas o implícitas, sobre la exactitud, integridad o actualidad de esta información. King County no será responsable de errores, omisiones o inexactitudes en esta información, cualquiera que sea su causa, ni de ninguna decisión tomada, acción realizada o no realizada por el usuario basándose en esta información.",
       close: "Cerrar",
     },
   },
