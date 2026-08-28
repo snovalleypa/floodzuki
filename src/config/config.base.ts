@@ -62,6 +62,7 @@ const BaseConfig: {
   DEFAULT_MAP_TILE_BASE_URL: string;
   MAPTILER_HYBRID_STYLE_URL: string;
   INUNDATION_GEOJSON_BASE_URL: string;
+  FLOOD_PREDICTION_CONSTANTS_BASE_URL: string;
 
   SVPA_URL: string;
   SVPA_PHONE: string;
@@ -106,6 +107,9 @@ const BaseConfig: {
   DEFAULT_MAP_TILE_BASE_URL: "https://floodzilla.com/maps",
   MAPTILER_HYBRID_STYLE_URL: "https://api.maptiler.com/maps/hybrid/style.json",
   INUNDATION_GEOJSON_BASE_URL: "https://floodzilla.com/files/map/",
+  // Regression-derived flood-prediction constants, published by the analytics
+  // pipeline. Fetched at launch and cached; the app bundles no copy.
+  FLOOD_PREDICTION_CONSTANTS_BASE_URL: "https://floodzilla.com/files/prediction/",
 
   SVPA_URL: "https://svpa.us",
   SVPA_PHONE: "425-549-0316",

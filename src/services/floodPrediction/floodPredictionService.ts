@@ -1,7 +1,6 @@
 import { observable, runInAction } from "mobx";
 
 import Config from "@config/config";
-import constants from "@config/floodPredictionConstants.json";
 
 import * as mockReplayEngine from "@services/mockReplay/engine";
 
@@ -11,10 +10,9 @@ import {
   parseRatingTable,
   predictorStageForThreshold,
 } from "./calculations";
+import { getGauges } from "./constantsSource";
 import { getDirectGaugeConstants } from "./directGauges";
 import { FloodPredictionGauge, FloodProbabilityResult, MapQuantiles, RatingPoint } from "./types";
-
-const gauges = (constants as { gauges: FloodPredictionGauge[] }).gauges;
 
 // Rating tables rarely change → cached for the whole session.
 const ratingCache = new Map<string, Promise<RatingPoint[]>>();
@@ -56,7 +54,10 @@ export function getGaugeConstants(locationId?: string): FloodPredictionGauge | n
   if (!locationId) {
     return null;
   }
-  return gauges.find((g) => g.gaugeId === locationId) ?? null;
+  // Read inside the function, not at module scope: the constants arrive
+  // asynchronously, and this observable read is what re-renders the mobx
+  // `observer` consumers when they land.
+  return getGauges().find((g) => g.gaugeId === locationId) ?? null;
 }
 
 function fetchRatingTable(usgsSiteId: string): Promise<RatingPoint[]> {
@@ -110,7 +111,7 @@ function fetchMapQuantiles(noaaSiteId: string): Promise<MapQuantiles> {
  * that returns a FloodProbabilityResult — the hook and UI are unaffected.
  *
  * Two paths:
- *  - SVPA gauge (in the generated constants): translate the threshold height into
+ *  - SVPA gauge (in the remotely-published constants): translate the threshold height into
  *    a predictor stage via the regression-anchored shift and read the predictor's
  *    exceedance curve there. With no `thresholdOverride` this is the gauge's red
  *    stage (predictor stage = p99); a road saddle shifts it up by
@@ -127,7 +128,7 @@ export async function getFloodProbability(
   locationId: string,
   thresholdOverride?: number
 ): Promise<FloodProbabilityResult | null> {
-  const gauge = gauges.find((g) => g.gaugeId === locationId);
+  const gauge = getGauges().find((g) => g.gaugeId === locationId);
   if (gauge) {
     const [ratingTable, quantiles] = await Promise.all([
       fetchRatingTable(gauge.predictor.usgsSiteId),

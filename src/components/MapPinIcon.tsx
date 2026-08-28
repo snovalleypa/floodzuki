@@ -1,5 +1,6 @@
 import React from "react";
 import { Image } from "expo-image";
+import { observer } from "mobx-react-lite";
 import { StyleSheet } from "react-native";
 
 import { Gage } from "@models/Gage";
@@ -48,8 +49,15 @@ function alertBaseColor(floodLevel?: string): "green" | "yellow" | null {
  * High/Medium (and the gauge isn't flooding/offline), otherwise the usual trend
  * pin. Its own component so `useFloodRiskLevel` runs per marker (markers are
  * built in a `.map`, where hooks can't be called directly).
+ *
+ * Must be an `observer`: it reads the flood-prediction constants box (via
+ * `useFloodRiskLevel`) during render, and that box can still be empty on first
+ * render (the constants load is async and non-blocking). Without `observer`,
+ * the later box write never re-renders this component, and — since its element
+ * is built inside a `useMemo` in the map components — the marker would never
+ * upgrade from a trend pin to an alert pin for the rest of the session.
  */
-const MapPinIcon = ({ gage }: { gage: Gage }) => {
+const MapPinIcon = observer(function MapPinIcon({ gage }: { gage: Gage }) {
   const riskLevel = useFloodRiskLevel(gage);
   const base = riskLevel ? alertBaseColor(gage?.gageStatus?.floodLevel) : null;
 
@@ -61,6 +69,6 @@ const MapPinIcon = ({ gage }: { gage: Gage }) => {
     return <Image source={icon} style={styles.icon} />;
   }
   return <TrendIcon gage={gage} iconType={TREND_ICON_TYPES.Map} />;
-};
+});
 
 export default MapPinIcon;

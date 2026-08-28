@@ -1,3 +1,6 @@
+import CONSTANTS_FIXTURE from "@services/floodPrediction/__tests__/fixtures/floodPredictionConstants.json";
+
+import { __resetConstantsForTest, __setConstantsForTest } from "./constantsSource";
 import {
   __resetFloodPredictionCaches,
   getCachedFloodProbability,
@@ -33,8 +36,15 @@ function mockFetch() {
 
 describe("getFloodProbability", () => {
   beforeEach(() => {
+    // The constants are fetched at runtime in the app; tests publish the shipped
+    // fixture so the real SVPA-25 coefficients below stay meaningful.
+    __setConstantsForTest(CONSTANTS_FIXTURE);
     __resetFloodPredictionCaches();
     (globalThis as any).fetch = mockFetch();
+  });
+
+  afterEach(() => {
+    __resetConstantsForTest();
   });
 
   it("returns null for a gauge not in the constants", async () => {

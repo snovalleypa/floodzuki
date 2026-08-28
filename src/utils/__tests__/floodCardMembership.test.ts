@@ -1,4 +1,20 @@
+import CONSTANTS_FIXTURE from "@services/floodPrediction/__tests__/fixtures/floodPredictionConstants.json";
+import {
+  __resetConstantsForTest,
+  __setConstantsForTest,
+} from "@services/floodPrediction/constantsSource";
+
 import { selectCardMembership } from "../floodCardMembership";
+
+beforeEach(() => {
+  // "SVPA-36" (this file's default gauge id) is covered only through the
+  // remotely-loaded constants, so the fixture has to be published first.
+  __setConstantsForTest(CONSTANTS_FIXTURE);
+});
+
+afterEach(() => {
+  __resetConstantsForTest();
+});
 
 // Minimal duck-typed gauge: only the fields the helper reads. "SVPA-36" and
 // "USGS-38"/"USGS-22" are real covered ids; "USGS-99" is not covered.

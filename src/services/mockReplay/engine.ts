@@ -1,6 +1,6 @@
 // src/services/mockReplay/engine.ts
 import localDayJs from "@services/localDayJs";
-import constants from "@config/floodPredictionConstants.json";
+import { getPredictors } from "@services/floodPrediction/constantsSource";
 import { DIRECT_GAUGES } from "@services/floodPrediction/directGauges";
 import { MapQuantiles } from "@services/floodPrediction/types";
 
@@ -464,7 +464,7 @@ function locationForNoaaSite(noaaSiteId: string): string | null {
   if (direct) {
     return direct.gaugeId;
   }
-  const predictors = (constants as any).predictors ?? {};
+  const predictors = getPredictors();
   for (const key of Object.keys(predictors)) {
     if (predictors[key].noaaSiteId === noaaSiteId) {
       return predictors[key].floodzillaId as string;
