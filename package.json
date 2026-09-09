@@ -104,7 +104,7 @@
   },
   "main": "expo-router/entry",
   "name": "floodzuki",
-  "version": "1.0.30",
+  "version": "1.0.35",
   "private": true,
   "lint-staged": {
     "*.{ts,tsx,js,jsx}": [
