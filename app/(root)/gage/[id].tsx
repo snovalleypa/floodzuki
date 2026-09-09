@@ -211,7 +211,6 @@ const GageDetailsBody = observer(function GageDetailsBody({ gageId }: { gageId: 
               left={-Spacing.medium}
               title={t("navigation.back")}
               leftIcon="chevron-left"
-              textColor={Colors.blue}
               onPress={goBack}
             />
           </Ternary>

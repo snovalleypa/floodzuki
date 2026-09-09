@@ -29,10 +29,9 @@ jest.mock("../../config/config", () => ({
   default: { DEFAULT_MAP_TILE_BASE_URL: "https://tiles.example.com" },
 }));
 
-jest.mock("../TrendIcon", () => ({
+jest.mock("../MapPinIcon", () => ({
   __esModule: true,
   default: () => null,
-  TREND_ICON_TYPES: { Map: "Map" },
 }));
 
 // Avoid pulling in the store/api graph (LocaleContext -> useStores -> api) which
@@ -291,6 +290,36 @@ describe("MapLibreWebGageMap — new props", () => {
     );
     const inundation = MockSource.mock.calls.find((c) => c[0].id === "inundation");
     expect(inundation).toBeFalsy();
+  });
+
+  it("renders a model-boundary Source pointed at the given url", () => {
+    render(
+      <MapLibreWebGageWebMap
+        gages={[]}
+        region={makeRegion()}
+        onGagePress={jest.fn()}
+        singleGage={null}
+        inundationUrl="https://example.com/extent.geojson"
+        modelBoundaryUrl="https://example.com/ModelBoundary.geojson"
+      />
+    );
+    const boundary = MockSource.mock.calls.find((c) => c[0].id === "model-boundary");
+    expect(boundary).toBeTruthy();
+    expect(boundary[0].data).toBe("https://example.com/ModelBoundary.geojson");
+  });
+
+  it("renders no model-boundary Source when modelBoundaryUrl is not set", () => {
+    render(
+      <MapLibreWebGageWebMap
+        gages={[]}
+        region={makeRegion()}
+        onGagePress={jest.fn()}
+        singleGage={null}
+        inundationUrl="https://example.com/extent.geojson"
+      />
+    );
+    const boundary = MockSource.mock.calls.find((c) => c[0].id === "model-boundary");
+    expect(boundary).toBeFalsy();
   });
 
   it("calls onInundationLoad via onSourceData only for the inundation source when fully loaded", () => {

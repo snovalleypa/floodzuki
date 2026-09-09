@@ -4,7 +4,6 @@ import { IconButton, LinkButton } from "@common-ui/components/Button";
 import { Row } from "@common-ui/components/Common";
 import { If, Ternary } from "@common-ui/components/Conditional";
 import { LargeTitle } from "@common-ui/components/Text";
-import { Colors } from "@common-ui/constants/colors";
 import { Spacing } from "@common-ui/constants/spacing";
 import { useResponsive } from "@common-ui/utils/responsive";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
@@ -36,7 +35,6 @@ const TitleWithBackButton = ({
             left={-Spacing.medium}
             title={t("navigation.back")}
             leftIcon="chevron-left"
-            textColor={Colors.blue}
             onPress={onPress}
           />
         </If>

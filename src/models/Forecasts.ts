@@ -7,7 +7,7 @@ import { computeForecastSeverity } from "./helpers/regionSummary";
 import Config from "@config/config";
 import { LocationInfoModel } from "./LocationInfo";
 import { GageSummary } from "./RootStore";
-import { ChartColorsHex } from "@common-ui/constants/colors";
+import { getForecastFetchIds, buildForecastColorMap } from "@utils/forecastGroups";
 
 // "Forecast" Example data
 // dischargeStageOne: 16500
@@ -327,8 +327,10 @@ export const ForecastStoreModel = types
   })
   .actions(withDataFetchingActions)
   .actions((store) => {
+    const colorMap = buildForecastColorMap();
+
     const buildData = (response: Record<string, Predictions | Readings>) => {
-      Object.keys(response).forEach((gageId, index) => {
+      Object.keys(response).forEach((gageId) => {
         const value = response[gageId];
 
         if (!value) {
@@ -341,7 +343,7 @@ export const ForecastStoreModel = types
           store.forecasts.set(gageId, {
             id: gageId,
             locationInfo: gageId,
-            color: ChartColorsHex[index],
+            color: colorMap[gageId],
             predictions: "forecastId" in value ? value : null,
             recentReadings: "forecastId" in value ? null : value,
           });
@@ -362,7 +364,7 @@ export const ForecastStoreModel = types
       store.setIsFetching(true);
 
       const params = {
-        gageIds: Config.FORECAST_GAGE_IDS.join(","),
+        gageIds: getForecastFetchIds().join(","),
       };
 
       const response = yield api.getReadings(params);
@@ -384,7 +386,7 @@ export const ForecastStoreModel = types
       store.setIsFetching(true);
 
       const response = yield api.getForecasts(
-        Config.FORECAST_GAGE_IDS.join(","),
+        getForecastFetchIds().join(","),
         dayjs()
           .subtract(Config.FRONT_PAGE_CHART_DURATION_NUMBER, Config.FRONT_PAGE_CHART_DURATION_UNIT)
           .toDate()
@@ -419,11 +421,13 @@ export const ForecastStoreModel = types
     },
 
     get severity() {
-      const inputs = Array.from(store.forecasts.values()).map((f) => ({
-        peaks: f.peaks,
-        dischargeStageOne: f.dischargeStageOne,
-        dischargeStageTwo: f.dischargeStageTwo,
-      }));
+      const inputs = Array.from(store.forecasts.values())
+        .filter((f) => Config.FORECAST_GAGE_IDS.includes(f.id))
+        .map((f) => ({
+          peaks: f.peaks,
+          dischargeStageOne: f.dischargeStageOne,
+          dischargeStageTwo: f.dischargeStageTwo,
+        }));
       return computeForecastSeverity(inputs);
     },
   }));

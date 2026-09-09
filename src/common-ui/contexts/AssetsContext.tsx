@@ -1,6 +1,8 @@
 import { createContext, useContext } from "react";
 import { Asset, useAssets } from "expo-asset";
 import { MAP_IMAGE_ICONS, TREND_IMAGE_ICONS } from "@components/TrendIcon";
+import { ALERT_BADGE_ICONS } from "@components/FloodRiskBadge";
+import { ALERT_MAP_ICONS } from "@components/MapPinIcon";
 
 // All assets used by the app
 const ASSETS = {
@@ -19,11 +21,15 @@ const ASSET_KEYS = [
   ...Object.keys(ASSETS),
   ...Object.keys(MAP_IMAGE_ICONS),
   ...Object.keys(TREND_IMAGE_ICONS),
+  ...Object.keys(ALERT_BADGE_ICONS),
+  ...Object.keys(ALERT_MAP_ICONS),
 ];
 const ASSET_VALUES = [
   ...Object.values(ASSETS),
   ...Object.values(MAP_IMAGE_ICONS),
   ...Object.values(TREND_IMAGE_ICONS),
+  ...Object.values(ALERT_BADGE_ICONS),
+  ...Object.values(ALERT_MAP_ICONS),
 ];
 
 type AppAsset = keyof typeof ASSETS;

@@ -38,6 +38,10 @@ const en = {
     Flooding: "Flooding",
     Dry: "Dry",
   },
+  floodRisk: {
+    highBadge: "High chance of flooding",
+    mediumBadge: "Medium chance of flooding",
+  },
   errorScreen: {
     header: "Ooops...",
     title: "Something went wrong!",
@@ -103,6 +107,14 @@ const en = {
     timeHeader: "Local Time",
     heightHeader: "Height",
     flowHeader: "Flow",
+    roadFloodingTitle: "Road Flooding",
+    roadFloodingSubtitle: "Chance water reaches the road · next 10 days",
+    floodingTitle: "Flooding",
+    floodingSubtitle: "Chance water reaches flood stage · next 10 days",
+    floodingNow: "Flooding now",
+    forksSectionTitle: "River Forks",
+    showMore: "Show more",
+    showLess: "Show less",
   },
   profileScreen: {
     title: "Profile",
@@ -259,6 +271,7 @@ const en = {
     live: "Live",
   },
   gageChart: {
+    flooding: "Flood Level",
     discharge: "Flow",
     waterLevel: "Water Level",
     flow: "Flow",
@@ -288,9 +301,15 @@ const en = {
       buttonLabel: "About the Flood Visualizer",
       title: "About the Flood Visualizer",
       intro: "These are inundation maps of the Lower Snoqualmie Valley.",
+      sourceIntro: "These maps are based on the ",
+      sourceLink: "Snoqualmie River 2D Hydraulic Model",
+      sourceOutro:
+        " developed by King County Watershed Science and Engineering for the Fish, Farm & Flood partnership. The model was created to help people better understand potential flooding, evaluate road inundation, support flood mitigation planning, and improve long-term flood resilience.",
       extent:
-        "The blue area shows the maximum projected extent of the water over the course of an entire flooding event. It is not a snapshot of a single moment in time.",
-      cfs: "The flow values (CFS) are based on the Snoqualmie River gauge near Carnation.",
+        "The blue area shows the maximum extent of the water over the course of an entire flooding event. It is not a snapshot of a single moment in time. It depicts flooding along the main stem of the river only and may not accurately represent flood extents on tributary creeks and streams.",
+      boundaryNote:
+        "The dashed gray line marks the boundary of the modeled area. Flooding outside this line is not shown on the map.",
+      cfs: "The flow values (cfs) are based on the Snoqualmie River gauge near Carnation.",
       modeled:
         "This is modeled data, and every flood behaves differently. Treat the map as a guide, not a guarantee.",
       roadsHeading: "Road colors",
@@ -299,6 +318,9 @@ const en = {
       roadClosed: "Closed — the road is expected to be impassable.",
       roadsNote:
         "Road colors are estimates. A road may close earlier or later than shown, and some impacted roads may not appear on the map.",
+      disclaimerHeading: "Disclaimer",
+      disclaimer:
+        "This data should not be used as the sole basis for emergency response, navigation, engineering, insurance, or regulatory decisions. King County makes no representations or warranties, express or implied, as to the accuracy, completeness, or timeliness, of such information. King County shall not be liable for any errors, omissions, or inaccuracies in such information, regardless of their cause, and King County shall not be liable for any decision made, action taken, or action not taken by the user in reliance upon such information.",
       close: "Close",
     },
   },
@@ -311,6 +333,15 @@ const en = {
     trend: "Trend",
     road: "Road",
     roadSmall: " road",
+    floodLevel: "Flood Level",
+    floodLevelSmall: " flood level",
+    trendIntersectsRoad: "Trend intersects road saddle at",
+    trendIntersectsFlood: "Trend intersects flood level at",
+    floodChance: "Chance of flooding (next %{days} days)",
+    floodChanceLow: "Low (<10%)",
+    floodChanceVeryHigh: ">90%",
+    floodChanceVeryHighExact: "%{percent}%",
+    floodChanceNearCertain: ">=99%",
   },
   gageDetailsChart: {
     discharge: "Flow",
@@ -346,6 +377,7 @@ const en = {
     Below: "Below",
     atAndAbove: "At and above",
     predicted: "Predicted",
+    trending: "Trending",
     water: "Water",
   },
   footer: {

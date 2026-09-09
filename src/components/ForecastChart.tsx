@@ -11,7 +11,7 @@ import { isMobile, isWeb } from "@common-ui/utils/responsive";
 import { Card } from "@common-ui/components/Card";
 import { Spacing } from "@common-ui/constants/spacing";
 
-import useForecastOptions from "@utils/useForecastOptions";
+import useForecastOptions, { type FloodLineOverride } from "@utils/useForecastOptions";
 import { Cell } from "@common-ui/components/Common";
 import { SegmentControl } from "@common-ui/components/SegmentControl";
 import { useStores } from "@models/helpers/useStores";
@@ -21,6 +21,7 @@ import { CHART_HEIGHT } from "./forecastChartConstants";
 interface ForecastChartProps {
   gages: GageSummary[];
   hideChart?: boolean;
+  floodLineOverride?: FloodLineOverride;
 }
 
 interface ChartsProps {
@@ -79,7 +80,12 @@ export const ForecastChart = observer(function ForecastChart(props: ForecastChar
 
   const selectedRange = RANGES(t).find((r) => r.key === range);
 
-  const chartOptions = useForecastOptions(gages, selectedRange.before, selectedRange.after);
+  const chartOptions = useForecastOptions(
+    gages,
+    selectedRange.before,
+    selectedRange.after,
+    props.floodLineOverride
+  );
   const isLoading = !chartOptions?.series?.length;
 
   return (

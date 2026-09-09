@@ -10,10 +10,10 @@ import { useResponsive } from "@common-ui/utils/responsive";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import { StyleSheet } from "react-native";
 import "maplibre-gl/dist/maplibre-gl.css";
-import TrendIcon, { TREND_ICON_TYPES } from "./TrendIcon";
+import MapPinIcon from "./MapPinIcon";
 import { getTownLabelsGeoJson, TOWN_LABELS_LAYER_PROPS } from "./townLabels";
 import { getRiverOverlaysGeoJson, RIVER_OVERLAY_LAYER_PROPS } from "./riverOverlays";
-import { INUNDATION_FILL_LAYER_PROPS } from "./inundationOverlay";
+import { INUNDATION_FILL_LAYER_PROPS, MODEL_BOUNDARY_LINE_LAYER_PROPS } from "./inundationOverlay";
 import { ROAD_CLOSURE_LINE_LAYER_PROPS, ROAD_CLOSURE_LABEL_LAYER_PROPS } from "./roadClosures";
 import { getMapTilerHybridStyleUrl } from "./mapTilerStyle";
 import Config from "../config/config";
@@ -60,6 +60,7 @@ const MapLibreWebGageWebMap = ({
   onInundationLoad,
   onInundationError,
   roadClosuresUrl,
+  modelBoundaryUrl,
   baseLayer,
 }: InternalGageMapProps) => {
   // The typed map error event doesn't carry a sourceId, so we scope errors to the
@@ -146,7 +147,7 @@ const MapLibreWebGageWebMap = ({
               onGagePress(g);
             }}
             key={"marker" + index}>
-            <TrendIcon gage={g} iconType={TREND_ICON_TYPES.Map} />
+            <MapPinIcon gage={g} />
           </Marker>
         )
     );
@@ -237,6 +238,11 @@ const MapLibreWebGageWebMap = ({
       {inundationUrl ? (
         <Source id="inundation" type="geojson" data={inundationUrl}>
           <Layer {...INUNDATION_FILL_LAYER_PROPS} />
+        </Source>
+      ) : null}
+      {modelBoundaryUrl ? (
+        <Source id="model-boundary" type="geojson" data={modelBoundaryUrl}>
+          <Layer {...MODEL_BOUNDARY_LINE_LAYER_PROPS} />
         </Source>
       ) : null}
       {roadClosuresUrl ? (

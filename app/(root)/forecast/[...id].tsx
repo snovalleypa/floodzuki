@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { ErrorBoundaryProps, Stack, useGlobalSearchParams } from "expo-router";
+import { ErrorBoundaryProps, Stack, useGlobalSearchParams, useRouter } from "expo-router";
 import PageTitle from "@common-ui/components/PageTitle";
 
 import { observer } from "mobx-react-lite";
@@ -9,16 +9,16 @@ import { LargeTitle } from "@common-ui/components/Text";
 import { ErrorDetails } from "@components/ErrorDetails";
 import { ForecastChart } from "@components/ForecastChart";
 import { ExtendedGageSummaryCard, GageSummaryCard } from "@components/GageSummaryCard";
-import { Cell, Row } from "@common-ui/components/Common";
+import { Cell, Row, RowOrCell } from "@common-ui/components/Common";
 import { Spacing } from "@common-ui/constants/spacing";
 
 import { useStores } from "@models/helpers/useStores";
 import { isAndroid, useResponsive } from "@common-ui/utils/responsive";
 import { IconButton, LinkButton } from "@common-ui/components/Button";
 import { If, Ternary } from "@common-ui/components/Conditional";
-import { Colors } from "@common-ui/constants/colors";
 import { useTimeout } from "@utils/useTimeout";
 import { useGoBack } from "@utils/useGoBack";
+import { findForecastGroup } from "@utils/forecastGroups";
 import { ROUTES } from "app/_layout";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import ForecastFooter from "@components/ForecastFooter";
@@ -31,9 +31,18 @@ export function ErrorBoundary(props: ErrorBoundaryProps) {
   return <ErrorDetails {...props} />;
 }
 
-const ForecastDetailsBody = observer(function ForecastDetailsBody({ gageId }: { gageId: string }) {
+const ForecastDetailsBody = observer(function ForecastDetailsBody({
+  gageId,
+  backRoute,
+}: {
+  gageId: string;
+  // Fallback destination for the back button; the forecast screen passes the
+  // fork group's metagage route so fork pages return to "Sum of Forks".
+  backRoute?: { pathname: string; params: Record<string, any> | undefined };
+}) {
   const { t } = useLocale();
   const store = useStores();
+  const router = useRouter();
 
   const { isMobile } = useResponsive();
 
@@ -49,9 +58,18 @@ const ForecastDetailsBody = observer(function ForecastDetailsBody({ gageId }: { 
     }
   }, [store.isFetched]);
 
-  const goBack = useGoBack(ROUTES.Forecast);
+  const goBack = useGoBack(backRoute?.pathname ?? ROUTES.Forecast, backRoute?.params);
 
   const forecastGage = store.getForecastGage(gageId);
+
+  const forkIds = forecastGage?.isMetagage ? Config.FORECAST_METAGAGE_COMPONENTS[gageId] ?? [] : [];
+  const forkGages = store.getForecastGages(forkIds);
+
+  // Metagage chart: sum line + each fork; draw the metagage's own flood-stage line.
+  const singleGage = forecastGage && !forecastGage.isMetagage ? [forecastGage] : [];
+  const chartGages = forecastGage?.isMetagage ? [forecastGage, ...forkGages] : singleGage;
+  // "Forks" matches the existing hardcoded label in getFloodStageLabel.
+  const floodLineOverride = forecastGage?.isMetagage ? { gageId, label: "Forks" } : undefined;
 
   return (
     <Screen>
@@ -74,7 +92,6 @@ const ForecastDetailsBody = observer(function ForecastDetailsBody({ gageId }: { 
             left={-Spacing.medium}
             title={t("navigation.back")}
             leftIcon="chevron-left"
-            textColor={Colors.blue}
             onPress={goBack}
           />
         </Ternary>
@@ -82,13 +99,33 @@ const ForecastDetailsBody = observer(function ForecastDetailsBody({ gageId }: { 
       </Row>
       <Content scrollable onRefresh={fetchData}>
         <If condition={!!forecastGage}>
-          <ForecastChart gages={[forecastGage]} />
+          <ForecastChart gages={chartGages} floodLineOverride={floodLineOverride} />
           <Cell top={isMobile ? Spacing.small : Spacing.tiny}>
             <GageSummaryCard firstItem noDetails gage={forecastGage} />
           </Cell>
           <Cell top={isMobile ? Spacing.small : Spacing.mediumXL}>
             <ExtendedGageSummaryCard gage={forecastGage} />
           </Cell>
+          <If condition={forkGages.length > 0}>
+            <Cell top={isMobile ? Spacing.small : Spacing.mediumXL}>
+              <LargeTitle>{t("forecastScreen.forksSectionTitle")}</LargeTitle>
+            </Cell>
+            <RowOrCell flex align="flex-start" justify="stretch" top={Spacing.medium}>
+              {forkGages.map((fork, i) => (
+                <GageSummaryCard
+                  firstItem={i === 0}
+                  key={fork.id}
+                  gage={fork}
+                  onPress={() =>
+                    router.push({
+                      pathname: ROUTES.ForecastDetails,
+                      params: { id: [fork.id] },
+                    })
+                  }
+                />
+              ))}
+            </RowOrCell>
+          </If>
           <ForecastFooter />
         </If>
       </Content>
@@ -101,8 +138,8 @@ const ForecastDetailsScreen = observer(function ForecastDetailsScreen() {
   const { isMobile } = useResponsive();
 
   // Pathname id can either be a simple gauge like "USGS-38"
-  // or a metagauge like "USGS-SF17/USGS-NF10/USGS-MF11", which will be
-  // represented as an array of strings ["USGS-SF17", "USGS-NF10", "USGS-MF11"]
+  // or a metagauge like "USGS-SF17/USGS-NF10/USGS-MF11", which arrives as an
+  // array of segments ["USGS-SF17", "USGS-NF10", "USGS-MF11"].
   const gageId = Array.isArray(id) ? id.join("/") : id;
 
   const [hidden, setHidden] = React.useState(isMobile ? true : false);
@@ -115,16 +152,28 @@ const ForecastDetailsScreen = observer(function ForecastDetailsScreen() {
     return null;
   }
 
-  const pages = Config.FORECAST_GAGE_IDS.map((forecastId) => ({
+  // findForecastGroup takes routes by injection (forecastGroups.ts has no
+  // app/_layout dependency); pass the ROUTES enum already imported in this file.
+  const group = findForecastGroup(gageId, ROUTES);
+
+  // Unknown id (not a top-level forecast or a known fork) -> standalone page.
+  if (!group) {
+    return <ForecastDetailsBody gageId={gageId} />;
+  }
+
+  const pages = group.ids.map((forecastId) => ({
     key: forecastId,
     route: { pathname: ROUTES.ForecastDetails, params: { id: forecastId.split("/") } },
-    render: () => <ForecastDetailsBody gageId={forecastId} />,
+    render: () => <ForecastDetailsBody gageId={forecastId} backRoute={group.backRoute} />,
   }));
 
   const initialIndex = pages.findIndex((p) => p.key === gageId);
 
+  // findForecastGroup guarantees gageId is in group.ids, so this is defensive:
+  // if that invariant ever breaks, render the page standalone rather than let
+  // ChainPager silently clamp -1 to index 0 and open the wrong fork.
   if (initialIndex === -1) {
-    return <ForecastDetailsBody gageId={gageId} />;
+    return <ForecastDetailsBody gageId={gageId} backRoute={group.backRoute} />;
   }
 
   return (

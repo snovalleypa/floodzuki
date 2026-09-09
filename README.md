@@ -93,6 +93,22 @@ At the moment Maps are only available when running the app in Expo Go or in the 
 
 To test Google Auth in the browser you'll need to start the secure tunnel with `$ EXPO_TUNNEL_SUBDOMAIN="floodzuki" npx expo start --tunnel --web` and open the app in the browser via `https://floodzuki.ngrok.io` (don't forget to pass the rest of the environment variables as well).
 
+### Debug & replay URL params
+
+Two URL params toggle developer features in any build (web/mobile). Both persist for 24h and are cleared with `...=reset`.
+
+#### `?debug=` — debug flags
+
+Enable lightweight power-user flags (for data managers / devs). Comma-separate multiple, e.g. `?debug=showDeletedReadings`. `?debug=reset` clears them. Flags are defined in `src/utils/debugFlags.ts`:
+
+- `showDeletedReadings` — include deleted readings in chart data.
+
+To verify the flood-chance UX out of season, use flood replay mode (`?mock=`, below) — it injects mock NOAA flood-probability quantiles along with the matching readings and forecasts.
+
+#### `?mock=` — flood replay mode
+
+Replay historical river data as if it were happening live now, for building/debugging flood + forecast features out of season, e.g. `?mock=march-2022-major`. `?mock=reset` clears it. The engine preloads real history once, then time-shifts it forward so the scenario's `mockNow` reads as "now" (auto/manual refresh advances the clock; a full reload restarts at `mockNow`). Historical date-range and flood-event filters intentionally fall through to real data. Scenarios (named `mockNow` + forecast age + deviation) are defined in `src/services/mockReplay/scenarios.ts`.
+
 ### Distribution
 
 #### Web

@@ -42,6 +42,22 @@ describe("buildGageTooltipHtml", () => {
     expect(html).not.toContain("statusLevelsCard.water");
   });
 
+  it("uses levelTitle to override the level-line title (trend line)", () => {
+    const html = buildGageTooltipHtml({
+      gage: makeGage(),
+      t,
+      tz: TZ,
+      x: new Date("2026-05-17T15:15:00Z").valueOf(),
+      waterLevel: 4.5,
+      isPrediction: true,
+      levelTitle: t("statusLevelsCard.trending"),
+    });
+
+    expect(html).toContain("statusLevelsCard.trending");
+    expect(html).not.toContain("statusLevelsCard.predicted");
+    expect(html).not.toContain("statusLevelsCard.water");
+  });
+
   it("includes the road status when getCalculatedRoadStatus returns one", () => {
     const html = buildGageTooltipHtml({
       gage: makeGage({ delta: 1.5, preposition: "statusLevelsCard.above" }),

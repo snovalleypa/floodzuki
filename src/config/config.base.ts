@@ -62,6 +62,7 @@ const BaseConfig: {
   DEFAULT_MAP_TILE_BASE_URL: string;
   MAPTILER_HYBRID_STYLE_URL: string;
   INUNDATION_GEOJSON_BASE_URL: string;
+  FLOOD_PREDICTION_CONSTANTS_BASE_URL: string;
 
   SVPA_URL: string;
   SVPA_PHONE: string;
@@ -77,11 +78,20 @@ const BaseConfig: {
   FRONT_PAGE_CHART_DURATION_NUMBER: number;
   FRONT_PAGE_CHART_DURATION_UNIT: dayjs.ManipulateType;
 
+  // Flood-probability prediction inputs (third-party). These may move
+  // server-side later; the data service is the single swap point.
+  NOAA_MAP_QUANTILES_URL: string;
+  USGS_RATING_TABLE_URL: string;
+  MAP_QUANTILES_CACHE_TTL: number;
+
   PASSWORD_MIN_LENGTH: number;
 
   API: typeof API;
 
   FORECAST_GAGE_IDS: string[];
+  // metagage id -> component fork ids in DISPLAY order (S -> M -> N), which differs
+  // from the metagage-id split order (S, N, M). Single source for fork ordering.
+  FORECAST_METAGAGE_COMPONENTS: Record<string, string[]>;
   GAGES_WITHOUT_DISHCARGE: string[];
   DATE_PICKER_VARIANT: {
     default: "legacy" | "split-v1" | "range-v1" | "range-v2";
@@ -97,6 +107,9 @@ const BaseConfig: {
   DEFAULT_MAP_TILE_BASE_URL: "https://floodzilla.com/maps",
   MAPTILER_HYBRID_STYLE_URL: "https://api.maptiler.com/maps/hybrid/style.json",
   INUNDATION_GEOJSON_BASE_URL: "https://floodzilla.com/files/map/",
+  // Regression-derived flood-prediction constants, published by the analytics
+  // pipeline. Fetched at launch and cached; the app bundles no copy.
+  FLOOD_PREDICTION_CONSTANTS_BASE_URL: "https://floodzilla.com/files/prediction/",
 
   SVPA_URL: "https://svpa.us",
   SVPA_PHONE: "425-549-0316",
@@ -112,6 +125,10 @@ const BaseConfig: {
   FRONT_PAGE_CHART_DURATION_NUMBER: 2,
   FRONT_PAGE_CHART_DURATION_UNIT: "day",
 
+  NOAA_MAP_QUANTILES_URL: "https://api.water.noaa.gov/hefs/v1/map-quantiles/",
+  USGS_RATING_TABLE_URL: "https://waterdata.usgs.gov/nwisweb/get_ratings",
+  MAP_QUANTILES_CACHE_TTL: 15 * 60 * 1000, // ms
+
   PASSWORD_MIN_LENGTH: 8,
 
   API: API,
@@ -119,6 +136,9 @@ const BaseConfig: {
   // Order: upstream → downstream. The first entry is the headwaters metagage
   // (the three forks combined) and is NOT present in the gauge list.
   FORECAST_GAGE_IDS: ["USGS-SF17/USGS-NF10/USGS-MF11", "USGS-38", "USGS-22"],
+  FORECAST_METAGAGE_COMPONENTS: {
+    "USGS-SF17/USGS-NF10/USGS-MF11": ["USGS-SF17", "USGS-MF11", "USGS-NF10"],
+  },
   GAGES_WITHOUT_DISHCARGE: ["USGS-9"],
   DATE_PICKER_VARIANT: {
     default: "range-v1",

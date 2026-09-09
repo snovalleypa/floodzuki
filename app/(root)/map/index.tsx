@@ -27,7 +27,7 @@ const MapScreen = observer(function MapScreen() {
   const insets = useSafeAreaInsets();
   const { baseLayer, setBaseLayer } = useMapBaseLayer();
 
-  const { levels, ready } = useInundationLevels(regionStore.region?.id);
+  const { levels, modelBoundaryUrl, ready } = useInundationLevels(regionStore.region?.id);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
@@ -130,6 +130,9 @@ const MapScreen = observer(function MapScreen() {
         onInundationLoad={handleInundationLoad}
         onInundationError={handleInundationError}
         roadClosuresUrl={roadClosuresUrl}
+        // The model-boundary outline only accompanies a shown flood level — with
+        // no level selected the map stays clean.
+        modelBoundaryUrl={inundationUrl ? modelBoundaryUrl : null}
         baseLayer={baseLayer}
       />
       {/* The Map/Satellite toggle only appears when a MapTiler key is configured. */}

@@ -106,7 +106,8 @@ const WebFooter = () => {
           </Row>
           <Cell top={Spacing.large}>
             <Text textStyle={[{ lineHeight: Spacing.midLarge }]} color={Colors.darkerGrey}>
-              {t("footer.addressLine1")}: 4621 Tolt Avenue, Carnation, WA 98014{"\n"}
+              {t("footer.addressLine1")}: 29005 NE Carnation Farm Rd Building H, Carnation, WA 98014
+              {"\n"}
               {t("footer.addressLine2")}: P.O. Box 1148, Carnation, WA 98014{"\n"}
               {t("footer.copyright")}
             </Text>

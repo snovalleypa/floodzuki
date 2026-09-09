@@ -18,22 +18,19 @@ declare module "highcharts" {
 
 const STAGE_TWO_YAXIS_MARGIN = 500;
 
+export interface FloodLineOverride {
+  gageId: string;
+  label: string;
+}
+
 interface BuildOptionsProps {
   daysBefore: number;
   daysAfter: number;
   forecasts: Forecast[];
   gages: GageSummary[];
   timezone: string;
+  floodLineOverride?: FloodLineOverride;
 }
-
-const shouldShowFloodLine = (forecast: Forecast, isCombinedForecast: boolean) => {
-  if (!isCombinedForecast) {
-    return true;
-  }
-
-  // For the combined forecast, only show Falls.
-  return forecast?.noaaSiteId === "SQUW1";
-};
 
 const getFloodStageLabel = (forecast: Forecast, isCombinedForecast: boolean) => {
   switch (forecast?.noaaSiteId) {
@@ -43,10 +40,54 @@ const getFloodStageLabel = (forecast: Forecast, isCombinedForecast: boolean) => 
       return isCombinedForecast ? "Falls/Carnation" : "Falls";
     case "CRNW1":
       return "Carnation";
-
     case "":
       return "Forks";
   }
+};
+
+/**
+ * Build the y-axis flood-stage plot lines for a forecast chart.
+ * - override present  -> draw exactly that gage's stage-two line with its label.
+ * - >1 forecast       -> draw only Falls (SQUW1), labeled "Falls/Carnation".
+ * - single forecast   -> draw that gage's stage-two line.
+ */
+export const computeFloodLines = (
+  forecasts: Forecast[],
+  override: FloodLineOverride | undefined,
+  t
+) => {
+  const lines: any[] = [];
+  const isCombinedForecast = forecasts.length > 1;
+
+  const push = (value: number, text: string) => {
+    lines.push({
+      color: "#999",
+      width: 1,
+      value,
+      dashStyle: "dash",
+      label: { text: `${t("forecastChart.floodStage")}: ${text}`, style: { color: "#606060" } },
+    });
+  };
+
+  if (override) {
+    const f = forecasts.find((x) => x.id === override.gageId);
+    if (f?.dischargeStageTwo) {
+      push(f.dischargeStageTwo, override.label);
+    }
+    return lines;
+  }
+
+  forecasts.forEach((f) => {
+    if (!f.dischargeStageTwo) {
+      return;
+    }
+    const show = !isCombinedForecast || f.noaaSiteId === "SQUW1";
+    if (show) {
+      push(f.dischargeStageTwo, getFloodStageLabel(f, isCombinedForecast));
+    }
+  });
+
+  return lines;
 };
 
 const buildSeries = (
@@ -85,9 +126,15 @@ const buildSeries = (
       };
     });
 
+    // One legend entry per gage: the observed series is the legend item
+    // (labeled with just the gage title), and the forecast series links to
+    // it via `linkedTo` so it shares the same legend entry and toggle.
+    const seriesId = `gage-${forecast.id}`;
+
     series.push({
       animation: false,
-      name: seriesName,
+      id: seriesId,
+      name: gage?.title,
       data: normalizedDataPoints,
       color: gage?.color,
       fillOpacity: 0.5,
@@ -125,14 +172,15 @@ const buildSeries = (
 
     series.push({
       animation: false,
-      name: `${t("forecastChart.forecast")}: ${gage?.title}`,
+      name: forecastName,
+      linkedTo: seriesId,
       data: noramlizedForecastDataPoints,
       fillOpacity: 0,
       color: isMobile ? lightenHexColor(gage?.color) : gage?.color,
       threshold: 0,
       lineWidth: 2,
       states: { hover: { lineWidth: 3 } },
-      marker: { symbol: "circle" },
+      marker: { symbol: "circle", enabled: true, radius: 3 },
     });
   });
 
@@ -142,42 +190,20 @@ const buildSeries = (
 const buildOptions = (props: BuildOptionsProps, t) => {
   const { daysBefore, daysAfter, forecasts, gages, timezone } = props;
 
-  let stageTwo = 0;
-  const isCombinedForecast = forecasts.length > 1;
-  const floodLines = [];
-
   const now = dayjs();
 
   const min = now.clone().subtract(daysBefore, "days");
   const max = now.clone().add(daysAfter, "days");
 
-  // Find appropriate flood/warning levels for this chart.  For the combined chart we want to
-  // find the highest available levels for the warning bands; we will go ahead and show a flood-stage line
-  // for every available forecast.
+  // Find the highest available stage-two level for the warning bands.
+  let stageTwo = 0;
   forecasts.forEach((f) => {
-    if (f.dischargeStageTwo) {
-      if (f.dischargeStageTwo > stageTwo) {
-        stageTwo = f.dischargeStageTwo;
-      }
-
-      const showFloodLine = shouldShowFloodLine(f, isCombinedForecast);
-
-      if (showFloodLine) {
-        floodLines.push({
-          color: "#999",
-          width: 1,
-          value: f.dischargeStageTwo,
-          dashStyle: "dash",
-          label: {
-            text: `${t("forecastChart.floodStage")}: ${getFloodStageLabel(f, isCombinedForecast)}`,
-            style: {
-              color: "#606060",
-            },
-          },
-        });
-      }
+    if (f.dischargeStageTwo && f.dischargeStageTwo > stageTwo) {
+      stageTwo = f.dischargeStageTwo;
     }
   });
+
+  const floodLines = computeFloodLines(forecasts, props.floodLineOverride, t);
 
   // Display flooding level
   const floodBands = [
@@ -260,7 +286,12 @@ const buildOptions = (props: BuildOptionsProps, t) => {
   return options;
 };
 
-const useForecastOptions = (gages: GageSummary[], daysBefore: number, daysAfter: number) => {
+const useForecastOptions = (
+  gages: GageSummary[],
+  daysBefore: number,
+  daysAfter: number,
+  floodLineOverride?: FloodLineOverride
+) => {
   const { t } = useLocale();
   const rootStore = useStores();
 
@@ -278,11 +309,12 @@ const useForecastOptions = (gages: GageSummary[], daysBefore: number, daysAfter:
           forecasts,
           gages,
           timezone: rootStore.getTimezone(),
+          floodLineOverride,
         },
         t
       )
     );
-  }, [gages, daysBefore, daysAfter]);
+  }, [gages, daysBefore, daysAfter, floodLineOverride?.gageId, floodLineOverride?.label]);
 
   return options;
 };

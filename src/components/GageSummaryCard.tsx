@@ -21,7 +21,7 @@ import { ROUTES } from "app/_layout";
 import { useTimeout } from "@utils/useTimeout";
 import { Timing } from "@common-ui/constants/timing";
 import { useResponsive } from "@common-ui/utils/responsive";
-import { IconButton, LinkButton } from "@common-ui/components/Button";
+import { LinkButton } from "@common-ui/components/Button";
 import { openLinkInBrowser } from "@utils/navigation";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 
@@ -163,19 +163,11 @@ export const GageSummaryCard = observer(function GageSummaryCard(props: GageSumm
         <SmallTitle color={Colors.primary}>{gageTitle}</SmallTitle>
         <Ternary condition={!noDetails}>
           <Link href={{ pathname: ROUTES.ForecastDetails, params: { id: [gage?.id] } }} asChild>
-            <IconButton
-              title={t("forecastScreen.details")}
-              rightIcon="chevron-right"
-              textColor={Colors.blue}
-            />
+            <LinkButton title={t("forecastScreen.details")} rightIcon="chevron-right" />
           </Link>
           <If condition={!gage?.isMetagage}>
             <Link href={{ pathname: ROUTES.GageDetails, params: { id: gage?.id } }} asChild>
-              <IconButton
-                title={t("forecastScreen.viewGage")}
-                rightIcon="chevron-right"
-                textColor={Colors.blue}
-              />
+              <LinkButton title={t("forecastScreen.viewGage")} rightIcon="chevron-right" />
             </Link>
           </If>
         </Ternary>
@@ -239,6 +231,53 @@ export const GageSummaryCard = observer(function GageSummaryCard(props: GageSumm
   );
 });
 
+const COLLAPSED_READING_COUNT = 3;
+
+// Renders a reading list collapsed to the first few rows, with a centered
+// show-more/less toggle when there are more rows than the collapsed limit.
+function CollapsibleReadingList(props: {
+  readings?: DataPoint[];
+  showCrestSlot?: boolean;
+  crestTimestamps?: Set<number>;
+}) {
+  const { readings, showCrestSlot, crestTimestamps } = props;
+  const { t } = useLocale();
+  const [expanded, setExpanded] = React.useState(false);
+
+  if (!readings?.length) {
+    return null;
+  }
+
+  const visibleReadings = expanded ? readings : readings.slice(0, COLLAPSED_READING_COUNT);
+  const canExpand = readings.length > COLLAPSED_READING_COUNT;
+
+  return (
+    <>
+      {visibleReadings.map((reading) => (
+        <ReadingRow
+          key={reading.timestamp}
+          reading={reading}
+          isCrest={
+            !!showCrestSlot &&
+            reading.timestampMs != null &&
+            !!crestTimestamps?.has(reading.timestampMs)
+          }
+          showCrestSlot={showCrestSlot}
+        />
+      ))}
+      <If condition={canExpand}>
+        <Cell top={Spacing.small} align="center">
+          <LinkButton
+            selfAlign="center"
+            title={expanded ? t("forecastScreen.showLess") : t("forecastScreen.showMore")}
+            onPress={() => setExpanded(!expanded)}
+          />
+        </Cell>
+      </If>
+    </>
+  );
+}
+
 export const ExtendedGageSummaryCard = observer(function ExtendedGageSummaryCard(
   props: GageSummaryProps
 ) {
@@ -265,23 +304,18 @@ export const ExtendedGageSummaryCard = observer(function ExtendedGageSummaryCard
             </SmallText>
           </SmallTitle>
           <ColumnHeaderRow showCrestSlot showHeight={hasHeight} />
-          {forecast?.last100ForecastReadings?.map((reading) => (
-            <ReadingRow
-              key={reading.timestamp}
-              reading={reading}
-              isCrest={reading.timestampMs != null && crestTimestamps.has(reading.timestampMs)}
-              showCrestSlot
-            />
-          ))}
+          <CollapsibleReadingList
+            readings={forecast?.last100ForecastReadings}
+            showCrestSlot
+            crestTimestamps={crestTimestamps}
+          />
         </Card>
       </Cell>
       <Cell flex={isWideScreen} maxWidth={480}>
         <Card>
           <SmallTitle color={Colors.primary}>{t("forecastScreen.lastReadings")}</SmallTitle>
           <ColumnHeaderRow showHeight={hasHeight} />
-          {forecast?.last100Readings?.map((reading) => (
-            <ReadingRow key={reading.timestamp} reading={reading} />
-          ))}
+          <CollapsibleReadingList readings={forecast?.last100Readings} />
         </Card>
       </Cell>
     </RowOrCell>

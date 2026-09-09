@@ -16,7 +16,6 @@ web-build/
 google-services.json
 build-beta.bat
 copybuild.bat
-package-lock.json
 .env
 build-web.sh
 scripts/

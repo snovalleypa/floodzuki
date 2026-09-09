@@ -1,5 +1,13 @@
 import React, { useState } from "react";
-import { Modal, Pressable, ScrollView, View, ViewStyle, ActivityIndicator } from "react-native";
+import {
+  Modal,
+  Pressable,
+  ScrollView,
+  View,
+  ViewStyle,
+  TextStyle,
+  ActivityIndicator,
+} from "react-native";
 import { Row, Cell } from "@common-ui/components/Common";
 import Icon from "@common-ui/components/Icon";
 import {
@@ -14,7 +22,16 @@ import { Colors } from "@common-ui/constants/colors";
 import { Spacing } from "@common-ui/constants/spacing";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import { useUtils } from "@utils/utils";
-import { localizeLevelLabel, type InundationLevel } from "./inundationOverlay";
+import { openLinkInBrowser } from "@utils/navigation";
+import {
+  localizeLevelLabel,
+  MODEL_BOUNDARY_COLOR,
+  type InundationLevel,
+} from "./inundationOverlay";
+
+// King County's Snoqualmie River 2D Hydraulic Model report — the source of the
+// inundation maps, linked from the info popup.
+const KC_MODEL_REPORT_URL = "https://your.kingcounty.gov/dnrp/library/2025/kcr4112.pdf";
 
 type InundationControlProps = {
   levels: InundationLevel[];
@@ -45,6 +62,19 @@ function Segment({ active, label, caption, subCaption, onPress }: SegmentProps) 
         ) : null}
       </Cell>
     </Pressable>
+  );
+}
+
+// A short dashed-line swatch matching the map's model-boundary line, built from
+// three dash segments (React Native's dashed borderStyle is unreliable on a
+// single edge across platforms).
+function BoundaryDashSwatch() {
+  return (
+    <View style={$boundarySwatch}>
+      <View style={$boundaryDash} />
+      <View style={$boundaryDash} />
+      <View style={$boundaryDash} />
+    </View>
   );
 }
 
@@ -157,12 +187,31 @@ export default function InundationControl({
             </Row>
             <ScrollView
               style={$infoScroll}
-              showsVerticalScrollIndicator={false}
+              showsVerticalScrollIndicator
               contentContainerStyle={$infoScrollContent}>
               <RegularText color={Colors.lightDark}>{t("map.info.intro")}</RegularText>
               <Cell top={Spacing.small}>
+                <RegularText color={Colors.lightDark}>
+                  {t("map.info.sourceIntro")}
+                  <RegularText
+                    accessibilityRole="link"
+                    color={Colors.primary}
+                    textStyle={[$sourceLink]}
+                    onPress={() => openLinkInBrowser(KC_MODEL_REPORT_URL)}>
+                    {t("map.info.sourceLink")}
+                  </RegularText>
+                  {t("map.info.sourceOutro")}
+                </RegularText>
+              </Cell>
+              <Cell top={Spacing.small}>
                 <RegularText color={Colors.lightDark}>{t("map.info.extent")}</RegularText>
               </Cell>
+              <Row top={Spacing.small}>
+                <BoundaryDashSwatch />
+                <Cell flex left={Spacing.small}>
+                  <RegularText color={Colors.lightDark}>{t("map.info.boundaryNote")}</RegularText>
+                </Cell>
+              </Row>
               <Cell top={Spacing.small}>
                 <RegularText color={Colors.lightDark}>{t("map.info.cfs")}</RegularText>
               </Cell>
@@ -178,6 +227,13 @@ export default function InundationControl({
               <RoadLegendRow color={Colors.danger} text={t("map.info.roadClosed")} />
               <Cell top={Spacing.medium}>
                 <RegularText color={Colors.darkGrey}>{t("map.info.roadsNote")}</RegularText>
+              </Cell>
+
+              <Cell top={Spacing.medium}>
+                <MediumText color={Colors.lightDark}>{t("map.info.disclaimerHeading")}</MediumText>
+              </Cell>
+              <Cell top={Spacing.extraSmall}>
+                <SmallText color={Colors.darkGrey}>{t("map.info.disclaimer")}</SmallText>
               </Cell>
             </ScrollView>
           </Pressable>
@@ -245,7 +301,7 @@ const $infoCard: ViewStyle = {
   backgroundColor: Colors.white,
   borderRadius: Spacing.medium,
   padding: Spacing.large,
-  maxWidth: 420,
+  maxWidth: 546,
   width: "100%",
   maxHeight: "80%",
 };
@@ -258,9 +314,30 @@ const $infoScrollContent: ViewStyle = {
   paddingBottom: Spacing.tiny,
 };
 
+const $sourceLink: TextStyle = {
+  textDecorationLine: "underline",
+};
+
 const $roadSwatch: ViewStyle = {
   width: Spacing.large,
   height: Spacing.tiny,
   borderRadius: Spacing.micro,
   marginTop: Spacing.micro,
+};
+
+// Sized to match the road swatches so the legend rows line up. The dash gap is
+// provided by the segments' margins.
+const $boundarySwatch: ViewStyle = {
+  width: Spacing.large,
+  flexDirection: "row",
+  justifyContent: "space-between",
+  alignItems: "center",
+  marginTop: Spacing.small,
+};
+
+const $boundaryDash: ViewStyle = {
+  width: Spacing.micro + Spacing.tiny,
+  height: 2,
+  borderRadius: 1,
+  backgroundColor: MODEL_BOUNDARY_COLOR,
 };

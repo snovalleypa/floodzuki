@@ -90,10 +90,27 @@ const mapAndAdjustTimestampsForDisplay = (dataPoints, tz: string) => {
   });
 };
 
-const WaterTrendModel = types.model("WaterTrend").props({
-  trendValues: types.array(types.maybeNull(types.number)),
-  trendValue: types.maybe(types.number),
-});
+const WaterTrendModel = types
+  .model("WaterTrend")
+  .props({
+    trendValues: types.array(types.maybeNull(types.number)),
+    trendValue: types.maybe(types.number),
+  })
+  .actions((self) => ({
+    afterCreate() {
+      // `trendValues` is a types.array that no component reads (only the scalar
+      // `trendValue` is consumed), so it never materializes during a normal
+      // reactive render and stays lazy. React 19's dev-mode render logger
+      // deep-walks a re-rendered component's props during the commit phase and
+      // reads it there — the first access — which makes MST instantiate the
+      // observable array outside its init phase and throw ("creation of the
+      // observable instance must be done on the initializing phase"), corrupting
+      // the React tree. Touch it here (a legal init-phase action) so it
+      // materializes eagerly and the later commit-phase walk is safe. Same class
+      // of fix as makeStubSnapshot's eager array materialization (MST #2279).
+      void self.trendValues.length;
+    },
+  }));
 
 const GageStatusModel = types.model("GageStatus").props({
   lastReading: types.maybe(GageReadingModel),
@@ -325,6 +342,26 @@ export const GageModel = types
 
       return {
         name: store.roadDisplayName,
+        level,
+        preposition,
+        delta,
+      };
+    },
+
+    // Height above/below the flood (red) stage. Used in place of the road status
+    // for gauges that have no road but do have a flood level.
+    getCalculatedFloodStatus(waterLevel: number) {
+      if (store.redStage == null) {
+        return null;
+      }
+
+      const baseLevel = waterLevel || store.waterLevel;
+      const level = baseLevel - store.redStage;
+      const preposition: "statusLevelsCard.below" | "statusLevelsCard.above" =
+        store.redStage - baseLevel > 0 ? "statusLevelsCard.below" : "statusLevelsCard.above";
+      const delta = Math.abs(level);
+
+      return {
         level,
         preposition,
         delta,

@@ -41,6 +41,11 @@ export type GageMapProps = {
   // level, drawn as colored, labeled lines above the inundation fill. Served
   // from the same bucket as the inundation files. Null/undefined renders none.
   roadClosuresUrl?: string | null;
+  // GeoJSON URL of the 2D hydraulic model's boundary, drawn as an unfilled
+  // dashed outline so users can see the extent of the modeled area. The screen
+  // only passes it while an inundation level is shown. Null/undefined renders
+  // none.
+  modelBoundaryUrl?: string | null;
   // Which basemap to render. Defaults to the Floodzilla vector style. Only the
   // Map tab passes "satellite"; the gauge-list/detail maps leave it unset.
   baseLayer?: MapBaseLayer;

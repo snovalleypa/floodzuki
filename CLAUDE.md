@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Git directives
+
+- **Never commit `docs/`.** It is intentionally gitignored (local-only specs, design notes, etc.). Do not stage or commit files under `docs/`, and never use `git add -f` to bypass the ignore for them.
+
 ## Project Overview
 
 Floodzuki is the mobile/web client for the **Floodzilla Gauge Monitoring System**, operated by the Snoqualmie Valley Preservation Alliance (SVPA). It monitors river gauges on the Snoqualmie River and provides flood predictions and alerts. The app runs on iOS, Android, and Web via Expo/React Native.
@@ -140,6 +144,18 @@ The `authSessionStore` stores the JWT and manages login/logout; the API singleto
 ### API layer
 
 `src/services/api.ts` exports a singleton `api` instance. The `Api` class has two base URLs — `Config.BASE_URL` (floodzilla.com) and `Config.READING_BASE_URL` (Azure reading service) — and switches between them per call. All responses go through `getGeneralApiProblem()` for normalized error handling.
+
+### Flood-prediction constants (remote)
+
+The regression-derived constants that drive the flood-probability cards (per-gauge slope/intercept and p50/p90/p99 distributions) are **not bundled with the app**. `src/services/floodPrediction/constantsSource.ts` loads the last known-good copy from AsyncStorage (key `flood-prediction-constants-v1`), then refreshes from `https://floodzilla.com/files/prediction/flood-prediction-constants-region-{regionId}.json`. Loading is kicked off non-blocking (`void loadFloodPredictionConstants(...)`) from `RootStore.fetchMainData`, so a slow or down host never delays boot; it degrades to the flood-probability cards simply being absent for gauges without validated constants — there is no bundled fallback. The data is validated defensively on the way in (dropping a gauge rather than risking a `NaN%` or false-high reading) and held in a module-level mobx `observable.box` outside MST, so it never enters the persisted snapshot. The file is generated upstream by `notebooks/svpa-forecast-regression.ipynb` and must not be hand-edited; the only in-repo copy is the test fixture at `src/services/floodPrediction/__tests__/fixtures/floodPredictionConstants.json`.
+
+### Dev mode: flood replay (`src/services/mockReplay/`)
+
+A developer tool to replay historical river data as if it were happening live, for building/debugging flood + forecast features out of season. Activate by URL param: `?mock=<scenarioId>` for a named scenario, or `?mock=<YYYY-MM-DDTHH:mm:ss>` (full ISO, gauge tz) to spin up an ad-hoc scenario anchored at that datetime with the default forecast knobs in `DEFAULT_AD_HOC_SCENARIO` (`?mock=reset` clears; persists 24h, all builds). Named scenarios (`mockNow` + forecast age + deviation) and the `resolveScenario` token resolver live in `src/services/mockReplay/scenarios.ts`.
+
+- **How it works:** the engine preloads real history once at boot (`RootStore.fetchMainData`), captures a fixed `delta = realNow − mockNow`, and **time-shifts** readings forward so `mockNow` appears live now (it does NOT mock the global clock — existing `dayjs()`/charts/"today" logic work unchanged). Refresh advances the clock; a full reload restarts at `mockNow`.
+- **Interception seam:** `mockReplayEngine.isActive()` branches inside `api.ts` for the live data calls (`getStatusAndRecentReadings`, `getGageReadings` when `includePredictions`, `getReadings`/`getForecasts` v2) and `floodPrediction/floodPredictionService.ts` (`fetchMapQuantiles`) for bands. Historical date-range / flood-event fetches (`includePredictions===false`) pass through to real data.
+- **When adding a data-driven feature:** verify it under a replay scenario, and if it reads a new field/shape from the data API, add it to the matching `engine.ts` `build*` function (the engine reconstructs each store's response shape). Gotchas the engine already handles: recent readings are **newest-first**; V2 `ReadingModel.waterHeights` is a strict `number[]` (the flow-only "sum of forks" metagage has no stage → coerce to 0); the metagage's slash id (`A/B/C`) must stay intact (split gageIds on `,` only) and its series is the **sum** of component forks' discharge; `getGageReadings` `predictions` is a 6h/15-min trend nowcast (not the 10-day forecast). Pure logic is unit-tested under `src/services/mockReplay/__tests__/` with `TZ=UTC`.
 
 ### Platform-split components
 
