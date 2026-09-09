@@ -4,7 +4,7 @@ import { useGoBack } from "@utils/useGoBack";
 import { KeyboardAvoidingView, Platform } from "react-native";
 
 import { Screen, Content } from "@common-ui/components/Screen";
-import { MediumText, RegularText } from "@common-ui/components/Text";
+import { MediumText, RegularText, SmallText } from "@common-ui/components/Text";
 import { ErrorDetails } from "@components/ErrorDetails";
 import TitleWithBackButton from "@components/TitleWithBackButton";
 import { ROUTES } from "app/_layout";
@@ -138,6 +138,11 @@ const VerifyPhoneNumberScreen = observer(function VerifyPhoneNumberScreen() {
                     />
                   </Cell>
                 </RowOrCell>
+                <Row align="space-evenly" top={Spacing.small} bottom={Spacing.large}>
+                  <SmallText lineHeight={Spacing.small}>
+                    {t("verifyPhoneNumberScreen.verificationConsent")}
+                  </SmallText>
+                </Row>
                 <Row align="space-evenly" top={Spacing.small} bottom={Spacing.large}>
                   <SolidButton
                     disabled={!isCodeValid}

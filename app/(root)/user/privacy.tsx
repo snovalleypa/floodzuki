@@ -108,6 +108,14 @@ const PrivacyPolicyScreen = () => {
         </RegularText>
         <Spacer size={Spacing.large} />
         {/* SECTION */}
+        <MediumTitle>Mobile/SMS Privacy</MediumTitle>
+        <Spacer size={Spacing.small} />
+        <RegularText>
+          Mobile phone numbers, SMS opt-in data, and consent information will not be shared, sold,
+          rented, or provided to third parties or affiliates for marketing or promotional purposes.
+        </RegularText>
+        <Spacer size={Spacing.large} />
+        {/* SECTION */}
         <MediumTitle>External Links</MediumTitle>
         <Spacer size={Spacing.small} />
         <RegularText>

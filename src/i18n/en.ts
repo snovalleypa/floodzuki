@@ -219,6 +219,8 @@ const en = {
       "We sent a verification code to {{phoneNumber}}. Please enter the code below.",
     verificationCode: "Verification Code:",
     verificationCodePlaceholder: "Enter the verification code",
+    verificationConsent:
+      'Pressing "Verify Phone Number" indicates agreement to receive Floodzilla SMS alerts at the mobile number provided. Message frequency varies. Message and data rates may apply. Reply STOP to opt out or HELP for help. See our Terms & Conditions and Privacy Policy.',
     submit: "Verify Phone Number",
   },
   googlesigninButton: {

@@ -222,6 +222,8 @@ const es = {
       "Enviamos un código de verificación a {{phoneNumber}}. Por favor, ingresa el código a continuación.",
     verificationCode: "Código de verificación:",
     verificationCodePlaceholder: "Ingresa el código de verificación",
+    verificationConsent:
+      'Al pulsar "Verificar número de teléfono", usted acepta recibir alertas por SMS de Floodzilla en el número de móvil proporcionado. La frecuencia de los mensajes varía. Pueden aplicarse tarifas de mensajería y datos. Responda STOP para cancelar la suscripción o HELP para obtener ayuda. Consulte nuestros Términos y condiciones y nuestra Política de privacidad.',
     submit: "Verificar número de teléfono",
   },
   googlesigninButton: {
