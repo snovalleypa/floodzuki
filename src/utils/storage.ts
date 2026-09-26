@@ -70,6 +70,18 @@ export async function remove(key: string): Promise<void> {
 }
 
 /**
+ * Lists every key in storage. On web this is the origin's whole localStorage,
+ * so callers must only act on keys they recognize.
+ */
+export async function getAllKeys(): Promise<readonly string[]> {
+  try {
+    return await AsyncStorage.getAllKeys();
+  } catch {
+    return [];
+  }
+}
+
+/**
  * Burn it all to the ground.
  */
 export async function clear(): Promise<void> {

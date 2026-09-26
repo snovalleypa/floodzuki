@@ -17,18 +17,73 @@ import { loadMockReplay, isMockReplayActive } from "@services/mockReplay/mockRep
 import { api } from "@services/api";
 import { changeLocale } from "@i18n/i18n";
 import localDayJs from "@services/localDayJs";
-
-/**
- * The key we'll be saving our state as within async storage.
- */
-const ROOT_STATE_STORAGE_KEY = "root-v3";
-
-//$ TODO: Add code to delete old async storage at startup?  Is that something we should be doing?
-const OLD_ROOT_STATE_STORAGE_KEYS = ["root-v2"];
+import {
+  getCacheStorageKey,
+  isStaleStorageKey,
+  LEGACY_ROOT_STATE_STORAGE_KEYS,
+  USER_STATE_STORAGE_KEY,
+} from "./storageKeys";
 
 export const ROOT_STORE_DEFAULT = {
   isFetched: false,
 };
+
+type Snapshot = Record<string, any>;
+
+/**
+ * Splits a RootStore snapshot into the part that survives upgrades (login session +
+ * preferences) and the refetchable cache. See storageKeys.ts for why.
+ */
+function splitSnapshot(snapshot: Snapshot) {
+  const { authSessionStore, showHiddenOffline, ...cache } = snapshot;
+  return { user: { authSessionStore, showHiddenOffline }, cache };
+}
+
+// MST snapshots share structure, so an unchanged subtree keeps its identity; a
+// shallow identity check is enough to tell whether a half needs re-saving.
+function shallowEqual(a: Snapshot | undefined, b: Snapshot) {
+  if (!a) {
+    return false;
+  }
+  const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
+  for (const key of keys) {
+    if (a[key] !== b[key]) {
+      return false;
+    }
+  }
+  return true;
+}
+
+/**
+ * Loads the user's login/prefs. On the first launch after the storage split, pulls
+ * them out of the newest legacy single-key snapshot so the user stays logged in.
+ */
+async function loadUserState(): Promise<Snapshot> {
+  const stored = await storage.load(USER_STATE_STORAGE_KEY);
+  if (stored) {
+    return stored;
+  }
+  for (const key of LEGACY_ROOT_STATE_STORAGE_KEYS) {
+    const legacy = await storage.load(key);
+    if (legacy) {
+      const { user } = splitSnapshot(legacy);
+      await storage.save(USER_STATE_STORAGE_KEY, user);
+      return user;
+    }
+  }
+  return {};
+}
+
+/**
+ * Deletes caches from other app versions and the migrated legacy snapshots. Runs
+ * after loadUserState so a legacy snapshot is never deleted before it's migrated.
+ */
+async function removeStaleKeys(currentCacheKey: string) {
+  const keys = await storage.getAllKeys();
+  await Promise.all(
+    keys.filter((key) => isStaleStorageKey(key, currentCacheKey)).map((key) => storage.remove(key))
+  );
+}
 
 /**
  * Setup the root state.
@@ -40,10 +95,21 @@ export async function setupRootStore(rootStore: RootStore) {
   await loadDebugFlags();
   await loadMockReplay();
 
+  const cacheStorageKey = getCacheStorageKey();
+
   try {
-    // load the last known state from AsyncStorage
-    const loadedState: RootStore =
-      (await storage.load(ROOT_STATE_STORAGE_KEY)) || ROOT_STORE_DEFAULT;
+    // load the last known state from AsyncStorage: user state (kept across
+    // upgrades) + this version's cache (absent right after an upgrade)
+    const userState = await loadUserState();
+    const cacheState: Snapshot = (await storage.load(cacheStorageKey)) || {};
+    await removeStaleKeys(cacheStorageKey);
+
+    const loadedState: Snapshot = {
+      ...ROOT_STORE_DEFAULT,
+      ...cacheState,
+      // JSON drops undefined, but a legacy migration can carry explicit undefineds
+      ...Object.fromEntries(Object.entries(userState).filter(([, v]) => v !== undefined)),
+    };
 
     // Strip any stub gauges from the cached state. Stubs are session-scoped and
     // get re-added by syncHiddenStubs after fetch. Persisting stubs causes a destroy/
@@ -117,11 +183,24 @@ export async function setupRootStore(rootStore: RootStore) {
   // scenario is active: the time-shifted data would pollute the real app's cache
   // and get rehydrated on the next (real or mock) boot, recreating the stale-
   // reconciliation crash described above.
+  //
+  // Each half is written only when it changed: a gauge refresh doesn't rewrite the
+  // login session, and a settings change doesn't rewrite the whole gauge cache.
+  let lastUser: Snapshot | undefined;
+  let lastCache: Snapshot | undefined;
   _disposer = onSnapshot(rootStore, (snapshot) => {
     if (isMockReplayActive()) {
       return;
     }
-    storage.save(ROOT_STATE_STORAGE_KEY, snapshot);
+    const { user, cache } = splitSnapshot(snapshot);
+    if (!shallowEqual(lastUser, user)) {
+      lastUser = user;
+      storage.save(USER_STATE_STORAGE_KEY, user);
+    }
+    if (!shallowEqual(lastCache, cache)) {
+      lastCache = cache;
+      storage.save(cacheStorageKey, cache);
+    }
   });
 
   const unsubscribe = () => {
