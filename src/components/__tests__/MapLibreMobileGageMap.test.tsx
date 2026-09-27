@@ -58,6 +58,11 @@ const located = { locationId: "USGS-38", latitude: 47.545, longitude: -121.842 }
 // An admin-only/test gauge whose location record carries no coordinates.
 const unlocated = { locationId: "SVPA-TEST", latitude: undefined, longitude: undefined } as never;
 
+// Numbers Fabric would accept but that aren't real locations — a backend default
+// of 0 would otherwise put a pin in the Gulf of Guinea.
+const zeroed = { locationId: "SVPA-ZERO", latitude: 0, longitude: 0 } as never;
+const notANumber = { locationId: "SVPA-NAN", latitude: NaN, longitude: -121.9 } as never;
+
 const region = { id: 1 } as never;
 
 const baseProps = {
@@ -85,6 +90,36 @@ describe("MapLibreMobileGageMap — gauges without coordinates", () => {
     // The located gauge still gets its pin; only the coordinate-less one is skipped.
     expect(markerProps).toHaveLength(1);
     expect(markerProps[0].lngLat).toEqual([-121.842, 47.545]);
+  });
+
+  it("skips gauges whose coordinates are 0 or NaN", () => {
+    render(
+      <MapLibreMobileGageMap
+        {...baseProps}
+        gages={[located, zeroed, notANumber]}
+        singleGage={null}
+      />
+    );
+
+    expect(markerProps.map((p) => p.lngLat)).toEqual([[-121.842, 47.545]]);
+  });
+
+  it("falls back to region bounds when the single gauge's coordinates are 0", () => {
+    const regionWithBounds = {
+      id: 1,
+      defaultMobileMapBounds: [-122.3, 46.9, -121.2, 48.3],
+    } as never;
+
+    render(
+      <MapLibreMobileGageMap
+        {...baseProps}
+        region={regionWithBounds}
+        gages={[zeroed]}
+        singleGage={zeroed}
+      />
+    );
+
+    expect(cameraProps[0].bounds).toEqual([-122.3, 46.9, -121.2, 48.3]);
   });
 
   it("falls back to region bounds when the single gauge has no coordinates", () => {

@@ -20,7 +20,7 @@ jest.mock("@utils/storage", () => ({
 // Pin the cache key so tests don't depend on the app version / OTA update id.
 jest.mock("../storageKeys", () => ({
   ...jest.requireActual("../storageKeys"),
-  getCacheStorageKey: () => "store-cache-1.0.37-embedded",
+  getCacheStorageKey: () => "store-cache-1.0.99999-embedded",
 }));
 
 // Debug-flag and mock-replay plumbing read their own storage keys; stub them so
@@ -56,7 +56,7 @@ const { isMockReplayActive } = jest.requireMock("@services/mockReplay/mockReplay
 };
 
 const USER_KEY = "store-user-v1";
-const CACHE_KEY = "store-cache-1.0.37-embedded";
+const CACHE_KEY = "store-cache-1.0.99999-embedded";
 
 const loggedInAuth = {
   sessionState: "loggedIn",
@@ -172,7 +172,7 @@ describe("setupRootStore user state vs. versioned cache", () => {
 
   it("keeps the user logged in when the app version changes (no cache for this version)", async () => {
     mockStorage.set(USER_KEY, { authSessionStore: loggedInAuth, showHiddenOffline: false });
-    mockStorage.set("store-cache-1.0.36-embedded", cachedGages);
+    mockStorage.set("store-cache-1.0.99998-embedded", cachedGages);
 
     const rootStore = RootStoreModel.create({});
     await setupRootStore(rootStore);
@@ -241,8 +241,8 @@ describe("setupRootStore user state vs. versioned cache", () => {
   it("deletes stale cache and legacy root keys but leaves unrelated keys alone", async () => {
     mockStorage.set(USER_KEY, { authSessionStore: loggedInAuth });
     mockStorage.set(CACHE_KEY, cachedGages);
-    mockStorage.set("store-cache-1.0.36-embedded", cachedGages);
-    mockStorage.set("store-cache-1.0.37-abc123", cachedGages);
+    mockStorage.set("store-cache-1.0.99998-embedded", cachedGages);
+    mockStorage.set("store-cache-1.0.99999-abc123", cachedGages);
     mockStorage.set("root-v2", {});
     mockStorage.set("root-v3", {});
     mockStorage.set("debug-flags-v1", { verbose: true });
