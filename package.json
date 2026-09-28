@@ -1,4 +1,7 @@
 {
+  "name": "floodzuki",
+  "version": "1.0.37",
+  "private": true,
   "scripts": {
     "start": "expo start --dev-client",
     "android": "expo run:android",
@@ -103,9 +106,6 @@
     "typescript": "~5.9.2"
   },
   "main": "expo-router/entry",
-  "name": "floodzuki",
-  "version": "1.0.36",
-  "private": true,
   "lint-staged": {
     "*.{ts,tsx,js,jsx}": [
       "eslint --fix",
