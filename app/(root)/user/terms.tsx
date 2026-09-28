@@ -432,6 +432,72 @@ const TermsOfUseScreen = () => {
           </MediumText>
         </RegularText>
         <Spacer size={Spacing.large} />
+        {/* SECTION 18 */}
+        <LargeTitle>18. Floodzilla Text Messaging Terms Of Use</LargeTitle>
+        <Spacer size={Spacing.small} />
+        <RegularText>
+          By "Opting In" to or using a “Text Message Service” (as defined below) from Floodzilla,
+          you accept these Terms & Conditions.
+          {"\n\n"}
+          Definitions
+          {"\n\n"}
+          "Opting In," "Opt In," and "Opt-In" refer to requesting, joining, agreeing to, enrolling
+          in, signing up for, acknowledging, responding to, or otherwise consenting to receive one
+          or more text messages.
+          {"\n\n"}
+          "Text Message Service" includes any arrangement or situation in which we send one or more
+          messages addressed to your mobile phone number, including text messages (such as SMS, MMS,
+          or successor protocols or technologies).
+          {"\n\n"}
+          Consenting To Text Messaging
+          {"\n\n"}
+          By consenting to receive text messages from us, you agreed to these Text Messaging Terms
+          Of Use.
+          {"\n\n"}
+          E-Sign Disclosure
+          {"\n\n"}
+          By agreeing to receive text messages, you also consent to the use of an electronic record
+          to document your agreement. You may withdraw your consent to the use of the electronic
+          record by replying STOP.
+          {"\n\n"}
+          Floodzilla Text Message Service Privacy Policy
+          {"\n\n"}
+          We respect your privacy. We only use information you provide through this service to
+          transmit your mobile messages and respond to you. This includes, but isn't limited to,
+          sharing information with platform providers, phone companies, and other vendors who assist
+          us in the delivery of mobile messages. Mobile information will not be shared with third
+          parties/affiliates for marketing/promotional purposes. All the above categories exclude
+          text messaging originator opt-in data and consent; this information will not be shared
+          with any third parties. Nonetheless, we reserve the right always to disclose any
+          information as necessary to satisfy any law, regulation or governmental request, to avoid
+          liability, or to protect our rights or property. This Text Message Service Privacy Policy
+          applies to your use of the Text Message Service and isn't intended to modify our general
+          Privacy Policy, incorporated by reference above, which may govern the relationship between
+          you and us in other contexts.
+          {"\n\n"}
+          Costs Of Text Messages
+          {"\n\n"}
+          We do not charge you for the messages you send and receive via this text message service.
+          But message and data rates may apply, so depending on your plan with your wireless or
+          other applicable provider, you may be charged by your carrier or other applicable
+          provider.
+          {"\n\n"}
+          Frequency Of Text Messages
+          {"\n\n"}
+          Frequency of messages varies depending on how you use our services. For example,
+          requesting SMS updates on more gauges will result in more SMS messages.
+          {"\n\n"}
+          Opting Out Of Text Messages
+          {"\n\n"}
+          If you no longer want to receive text messages, you may reply to any text message with
+          STOP. After unsubscribing, we may send you confirmation of your opt-out via text message.
+          {"\n\n"}
+          <MediumText>
+            Human-readable summary of Sec 18: Message frequency varies. Message and data rates may
+            apply. Reply STOP to opt out or HELP for help.
+          </MediumText>
+        </RegularText>
+        <Spacer size={Spacing.large} />
       </Content>
     </Screen>
   );

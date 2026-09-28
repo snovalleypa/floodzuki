@@ -1,10 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { ErrorBoundaryProps, Redirect } from "expo-router";
+import { ErrorBoundaryProps, Link, Redirect, useRouter } from "expo-router";
 import { useGoBack } from "@utils/useGoBack";
 import { KeyboardAvoidingView, Platform } from "react-native";
 
 import { Screen, Content } from "@common-ui/components/Screen";
-import { MediumText, RegularText, SmallText } from "@common-ui/components/Text";
+import { MediumText, RegularText, SmallerText } from "@common-ui/components/Text";
 import { ErrorDetails } from "@components/ErrorDetails";
 import TitleWithBackButton from "@components/TitleWithBackButton";
 import { ROUTES } from "app/_layout";
@@ -12,7 +12,7 @@ import { Spacing } from "@common-ui/constants/spacing";
 import { Card, CardContent, CardFooter } from "@common-ui/components/Card";
 import { Cell, Row, RowOrCell, Spacer } from "@common-ui/components/Common";
 import { Input } from "@common-ui/components/Input";
-import { SolidButton } from "@common-ui/components/Button";
+import { SimpleLinkButton, SolidButton } from "@common-ui/components/Button";
 import { observer } from "mobx-react-lite";
 import { useStores } from "@models/helpers/useStores";
 import { If } from "@common-ui/components/Conditional";
@@ -28,6 +28,7 @@ export function ErrorBoundary(props: ErrorBoundaryProps) {
 
 const VerifyPhoneNumberScreen = observer(function VerifyPhoneNumberScreen() {
   const { t } = useLocale();
+  const router = useRouter();
 
   const { authSessionStore } = useStores();
 
@@ -72,6 +73,14 @@ const VerifyPhoneNumberScreen = observer(function VerifyPhoneNumberScreen() {
     setCodeVerified(true);
   };
 
+  const openPrivacyPolicy = () => {
+    router.push({ pathname: ROUTES.Privacy });
+  };
+
+  const openTermsOfService = () => {
+    router.push({ pathname: ROUTES.Terms });
+  };
+
   const title = authSessionStore.userPhone
     ? t("navigation.changePhoneNumberScreen")
     : t("navigation.verifyPhoneNumberScreen");
@@ -108,7 +117,7 @@ const VerifyPhoneNumberScreen = observer(function VerifyPhoneNumberScreen() {
             <If condition={authSessionStore.isError}>
               <ErrorMessage errorText={authSessionStore.errorMessage} />
             </If>
-            <Row align="space-evenly" top={Spacing.small} bottom={Spacing.large}>
+            <Row align="space-evenly" top={Spacing.small} bottom={Spacing.small}>
               <SolidButton
                 disabled={!isValid}
                 isLoading={authSessionStore.isFetching}
@@ -117,6 +126,23 @@ const VerifyPhoneNumberScreen = observer(function VerifyPhoneNumberScreen() {
                 title={sendButtonTitle}
                 onPress={sendPhoneVerificationCode}
               />
+            </Row>
+            <Row align="space-evenly" top={Spacing.small} bottom={Spacing.large}>
+              <SmallerText lineHeight={Spacing.medium}>
+                {t("verifyPhoneNumberScreen.verificationConsentBeforeButton")}
+                {sendButtonTitle}
+                {t("verifyPhoneNumberScreen.verificationConsentAfterButton")}
+                <SimpleLinkButton
+                  text={t("navigation.termsOfServiceScreen")}
+                  onPress={openTermsOfService}
+                />
+                {t("verifyPhoneNumberScreen.verificationConsentBetweenLinks")}
+                <SimpleLinkButton
+                  text={t("navigation.privacyPolicyScreen")}
+                  onPress={openPrivacyPolicy}
+                />
+                {t("verifyPhoneNumberScreen.verificationConsentAfterLinks")}
+              </SmallerText>
             </Row>
             {/* Code Verification */}
             <If condition={codeSent}>
@@ -138,11 +164,6 @@ const VerifyPhoneNumberScreen = observer(function VerifyPhoneNumberScreen() {
                     />
                   </Cell>
                 </RowOrCell>
-                <Row align="space-evenly" top={Spacing.small} bottom={Spacing.large}>
-                  <SmallText lineHeight={Spacing.small}>
-                    {t("verifyPhoneNumberScreen.verificationConsent")}
-                  </SmallText>
-                </Row>
                 <Row align="space-evenly" top={Spacing.small} bottom={Spacing.large}>
                   <SolidButton
                     disabled={!isCodeValid}
