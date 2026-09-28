@@ -161,17 +161,23 @@ const MapLibreMobileGageMap = ({
     if (!gages) {
       return null;
     }
-    return gages.map((g, index) => (
-      <Marker
-        lngLat={[g.longitude!, g.latitude!]}
-        anchor="bottom"
-        key={"marker" + index}
-        onPress={() => {
-          onGagePress(g);
-        }}>
-        <MapPinIcon gage={g} />
-      </Marker>
-    ));
+    // Skip gauges without usable coordinates (admin-only/test gauges can lack a
+    // located LocationInfo). Fabric's prop parser rejects a null inside `lngLat` with an
+    // uncaught folly::TypeError, which kills the app — an ErrorBoundary can't catch it.
+    // Truthiness also drops 0 and NaN: no real gauge sits at exactly 0 lat or lng.
+    return gages
+      .filter((g) => g.latitude && g.longitude)
+      .map((g, index) => (
+        <Marker
+          lngLat={[g.longitude!, g.latitude!]}
+          anchor="bottom"
+          key={"marker" + index}
+          onPress={() => {
+            onGagePress(g);
+          }}>
+          <MapPinIcon gage={g} />
+        </Marker>
+      ));
   }, [mapRef, gages]);
 
   const townLabelsGeoJson = useMemo(() => getTownLabelsGeoJson(region?.id), [region]);
@@ -190,7 +196,7 @@ const MapLibreMobileGageMap = ({
   }, [region]);
 
   const startBounds: [number, number, number, number] = useMemo(() => {
-    if (singleGage) {
+    if (singleGage && singleGage.latitude && singleGage.longitude) {
       return [
         singleGage.longitude! - singleGageLngDelta,
         singleGage.latitude! - singleGageLatDelta,

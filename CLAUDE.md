@@ -141,6 +141,13 @@ The single `RootStore` (MST) is initialized once and provided via a `useStores()
 
 The `authSessionStore` stores the JWT and manages login/logout; the API singleton (`@services/api`) handles auth headers by calling `api.setHeader()` / `api.removeHeader()`.
 
+**Persistence is split into two AsyncStorage keys** ([storageKeys.ts](src/models/helpers/storageKeys.ts), [setupRootStore.ts](src/models/helpers/setupRootStore.ts)):
+
+- `store-user-v1` — `authSessionStore` + `showHiddenOffline`. Survives upgrades, so a shape change here needs a migration (bump the key and read the old one, like the `root-v3`/`root-v2` migration in `loadUserState`).
+- `store-cache-<app version>-<OTA update id>` — everything else (gauges, readings, forecasts, region). Discarded automatically on every release, so it never needs backward compatibility. Don't bump anything by hand.
+
+New root-level state that users would miss after an upgrade (a preference, not fetched data) belongs in the user bucket: add it to `splitSnapshot`. Keys are `store-`-prefixed because on web AsyncStorage is the origin's shared localStorage and stale-key cleanup must only touch keys it owns.
+
 ### API layer
 
 `src/services/api.ts` exports a singleton `api` instance. The `Api` class has two base URLs — `Config.BASE_URL` (floodzilla.com) and `Config.READING_BASE_URL` (Azure reading service) — and switches between them per call. All responses go through `getGeneralApiProblem()` for normalized error handling.

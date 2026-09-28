@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { Pressable, useColorScheme } from "react-native";
 import { usePathname, Slot, Link, Tabs } from "expo-router";
 import { Image } from "expo-image";
+import { observer } from "mobx-react-lite";
 
 import "@expo/match-media";
 
@@ -38,11 +39,14 @@ const GAGE_ICONS = {
   inactive: require("@assets/images/floodzuki-gray.png"),
 };
 
-// Main App Layout
-export default function AppLayout() {
+// Main App Layout. Must be an observer: the effect deps and the push-listener
+// argument below read store values, and without observer a login/logout or push
+// toggle never re-renders this component, so neither would see the change.
+const AppLayout = observer(function AppLayout() {
   const store = useStores();
 
-  // Fetch data on app start
+  // Fetch data on app start, and again on login/logout so the gauge list matches
+  // the account (admins get additional gauges)
   useEffect(() => {
     const getAllData = async () => {
       await store.fetchMainData();
@@ -75,7 +79,9 @@ export default function AppLayout() {
       </Ternary>
     </MapBaseLayerProvider>
   );
-}
+});
+
+export default AppLayout;
 
 const useIsLinkActive = (path: string) => {
   const pathname = usePathname();
