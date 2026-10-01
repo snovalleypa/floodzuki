@@ -1,5 +1,11 @@
 import React, { useEffect } from "react";
-import { ViewStyle, FlatList, TouchableOpacity, useWindowDimensions } from "react-native";
+import {
+  ViewStyle,
+  FlatList,
+  ScrollView,
+  TouchableOpacity,
+  useWindowDimensions,
+} from "react-native";
 import { ErrorBoundaryProps, Link, useRouter } from "expo-router";
 import PageTitle from "@common-ui/components/PageTitle";
 
@@ -41,7 +47,7 @@ import WebFooter from "@components/WebFooter";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import { TxKeyPath } from "@i18n/i18n";
 import { Timing } from "@common-ui/constants/timing";
-import { RefreshControl, ScrollView } from "react-native-gesture-handler";
+import { RefreshControl } from "react-native-gesture-handler";
 
 const ITEM_HEIGHT = 200;
 const MAP_WIDTH = 400;
@@ -225,7 +231,13 @@ const HomeScreen = observer(function HomeScreen() {
         </If>
         <Cell flex height={isMobile ? "100%" : mapCardHeight + Spacing.small}>
           <FlatList
-            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleOnRefresh} />}
+            // Native only: RNGH's web RefreshControl/ScrollView set `user-select: none`,
+            // blocking text selection (see Content in Screen.tsx).
+            refreshControl={
+              isWeb ? undefined : (
+                <RefreshControl refreshing={refreshing} onRefresh={handleOnRefresh} />
+              )
+            }
             contentContainerStyle={$listStyles}
             data={locations}
             showsVerticalScrollIndicator={false}

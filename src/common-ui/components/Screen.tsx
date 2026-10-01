@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Colors } from "@common-ui/constants/colors";
 import { Spacing } from "@common-ui/constants/spacing";
 import { OffsetProps, useOffsetStyles } from "@common-ui/utils/useOffset";
+import { isWeb } from "@common-ui/utils/responsive";
 import WebFooter from "@components/WebFooter";
 import { RefreshControl } from "react-native-gesture-handler";
 
@@ -106,7 +107,12 @@ export const Content = (props: ContentProps) => {
       showsVerticalScrollIndicator={false}
       scrollEventThrottle={16}
       onScroll={onScroll}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleOnRefresh} />}
+      // No refreshControl on web: pull-to-refresh is a no-op there, and RNGH's web
+      // RefreshControl wraps the whole ScrollView in a `user-select: none` element,
+      // which makes every page's text impossible to select/copy.
+      refreshControl={
+        isWeb ? undefined : <RefreshControl refreshing={refreshing} onRefresh={handleOnRefresh} />
+      }
       overScrollMode="never"
       style={scrollStyles}>
       <View style={holderStyles} {...rest}>

@@ -1,6 +1,6 @@
 {
   "name": "floodzuki",
-  "version": "1.0.37",
+  "version": "1.0.38",
   "private": true,
   "scripts": {
     "start": "expo start --dev-client",
@@ -133,5 +133,9 @@
       "^@config/(.*)$": "<rootDir>/src/config/$1",
       "^@i18n/(.*)$": "<rootDir>/src/i18n/$1"
     }
+  },
+  "allowScripts": {
+    "@sentry/cli@2.58.4": true,
+    "unrs-resolver@1.11.1": true
   }
 }

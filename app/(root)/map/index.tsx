@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { View, ViewStyle } from "react-native";
-import { ErrorBoundaryProps } from "expo-router";
+import { ErrorBoundaryProps, useRouter } from "expo-router";
 import { observer } from "mobx-react-lite";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -16,6 +16,7 @@ import { MapBaseLayer } from "@models/MapModels";
 import { Spacing } from "@common-ui/constants/spacing";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import { useMapBaseLayer } from "@common-ui/contexts/MapBaseLayerContext";
+import { ROUTES } from "app/_layout";
 
 export function ErrorBoundary(props: ErrorBoundaryProps) {
   return <ErrorDetails {...props} />;
@@ -26,6 +27,7 @@ const MapScreen = observer(function MapScreen() {
   const { t } = useLocale();
   const insets = useSafeAreaInsets();
   const { baseLayer, setBaseLayer } = useMapBaseLayer();
+  const router = useRouter();
 
   const { levels, modelBoundaryUrl, ready } = useInundationLevels(regionStore.region?.id);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
@@ -124,7 +126,9 @@ const MapScreen = observer(function MapScreen() {
       <GageMap
         gages={locations}
         region={regionStore.region}
-        onGagePress={() => {}}
+        onGagePress={(gage) => {
+          router.push({ pathname: ROUTES.GageDetails, params: { id: gage.locationId } });
+        }}
         useCooperativeGestures={false}
         inundationUrl={inundationUrl}
         onInundationLoad={handleInundationLoad}
