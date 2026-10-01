@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { TouchableOpacity } from "react-native";
 import { ErrorBoundaryProps, Link, Stack, useLocalSearchParams } from "expo-router";
 import PageTitle from "@common-ui/components/PageTitle";
@@ -312,11 +312,22 @@ const GageScreen = observer(function GageScreen() {
   // screen on EmptyComponent forever — the id never appears in
   // getLocationWithGagesIds(). Flip the toggle on (which syncs stubs) so the next
   // render resolves an initialIndex.
+  //
+  // Decide only once per gauge, as soon as locations have loaded. This screen can
+  // stay mounted under the gauge list (e.g. after tapping "Gauges" in the footer),
+  // and re-checking on every toggle change would turn the toggle straight back on
+  // whenever the user switches it off there.
+  const autoToggleCheckedFor = useRef<string | null>(null);
+  const locationsLoaded = store.getLocationWithGagesIds().length > 0;
   useEffect(() => {
-    if (!showHiddenOffline && gageId && isHiddenLocation(gageId)) {
+    if (!gageId || !locationsLoaded || autoToggleCheckedFor.current === gageId) {
+      return;
+    }
+    autoToggleCheckedFor.current = gageId;
+    if (!showHiddenOffline && isHiddenLocation(gageId)) {
       setShowHiddenOffline(true);
     }
-  }, [gageId, showHiddenOffline, isHiddenLocation, setShowHiddenOffline]);
+  }, [gageId, locationsLoaded, showHiddenOffline, isHiddenLocation, setShowHiddenOffline]);
 
   const [hidden, setHidden] = useState(isMobile ? true : false);
 

@@ -153,6 +153,86 @@ describe("GageScreen auto-toggle on hidden gauge deep link", () => {
     expect(setShowHiddenOffline).not.toHaveBeenCalled();
   });
 
+  it("does NOT re-enable the toggle when the user turns it off while this screen stays mounted", () => {
+    // Repro: toggle on → open a hidden gauge → tap "Gauges" in the footer (pushes the
+    // list on top, leaving this screen mounted underneath) → turn the toggle off.
+    mockStores = buildMockStores({
+      showHiddenOffline: true,
+      isHiddenLocation: jest.fn().mockReturnValue(false), // visible while toggle is on
+      getLocationWithGagesIds: jest.fn().mockReturnValue(["USGS-38", "SVPA-29", "USGS-22"]),
+    });
+    const { rerender } = render(<GageScreen />);
+
+    // User turns the toggle off on the list; SVPA-29 is now a hidden location.
+    mockStores = buildMockStores({
+      showHiddenOffline: false,
+      isHiddenLocation: jest.fn((id: string) => id === "SVPA-29"),
+      getLocationWithGagesIds: jest.fn().mockReturnValue(["USGS-38", "USGS-22"]),
+    });
+    rerender(<GageScreen />);
+
+    expect(setShowHiddenOffline).not.toHaveBeenCalled();
+  });
+
+  it("does NOT re-enable the toggle after it already auto-enabled it once for this gauge", () => {
+    mockStores = buildMockStores({
+      isHiddenLocation: jest.fn((id: string) => id === "SVPA-29"),
+      getLocationWithGagesIds: jest.fn().mockReturnValue(["USGS-38", "USGS-22"]),
+    });
+    const { rerender } = render(<GageScreen />);
+    expect(setShowHiddenOffline).toHaveBeenCalledTimes(1);
+
+    // Toggle went on, then the user turned it back off.
+    mockStores = buildMockStores({
+      showHiddenOffline: true,
+      getLocationWithGagesIds: jest.fn().mockReturnValue(["USGS-38", "SVPA-29", "USGS-22"]),
+    });
+    rerender(<GageScreen />);
+    mockStores = buildMockStores({
+      isHiddenLocation: jest.fn((id: string) => id === "SVPA-29"),
+      getLocationWithGagesIds: jest.fn().mockReturnValue(["USGS-38", "USGS-22"]),
+    });
+    rerender(<GageScreen />);
+
+    expect(setShowHiddenOffline).toHaveBeenCalledTimes(1);
+  });
+
+  it("waits for locations to load before deciding (cold deep link)", () => {
+    // Before data loads nothing is known: no locations, nothing reports as hidden.
+    mockStores = buildMockStores({
+      isHiddenLocation: jest.fn().mockReturnValue(false),
+      getLocationWithGagesIds: jest.fn().mockReturnValue([]),
+    });
+    const { rerender } = render(<GageScreen />);
+    expect(setShowHiddenOffline).not.toHaveBeenCalled();
+
+    mockStores = buildMockStores({
+      isHiddenLocation: jest.fn((id: string) => id === "SVPA-29"),
+      getLocationWithGagesIds: jest.fn().mockReturnValue(["USGS-38", "USGS-22"]),
+    });
+    rerender(<GageScreen />);
+
+    expect(setShowHiddenOffline).toHaveBeenCalledWith(true);
+  });
+
+  it("evaluates again when the pager moves this screen to a different gauge", () => {
+    mockStores = buildMockStores({
+      isHiddenLocation: jest.fn().mockReturnValue(false),
+      getLocationWithGagesIds: jest.fn().mockReturnValue(["USGS-38", "USGS-22"]),
+    });
+    mockUseLocalSearchParams.mockReturnValue({ id: "USGS-22" });
+    const { rerender } = render(<GageScreen />);
+
+    mockStores = buildMockStores({
+      isHiddenLocation: jest.fn((id: string) => id === "SVPA-29"),
+      getLocationWithGagesIds: jest.fn().mockReturnValue(["USGS-38", "USGS-22"]),
+    });
+    mockUseLocalSearchParams.mockReturnValue({ id: "SVPA-29" });
+    rerender(<GageScreen />);
+
+    expect(setShowHiddenOffline).toHaveBeenCalledWith(true);
+  });
+
   it("does NOT toggle when URL targets an unknown gauge", () => {
     mockStores = buildMockStores({
       isHiddenLocation: jest.fn().mockReturnValue(false), // unknown → not hidden
