@@ -67,6 +67,15 @@ jest.mock("@models/helpers/useStores", () => ({
   }),
 }));
 
+const mockPush = jest.fn();
+jest.mock("expo-router", () => ({
+  useRouter: () => ({ push: mockPush }),
+}));
+
+jest.mock("app/_layout", () => ({
+  ROUTES: { GageDetails: "/gage/[id]" },
+}));
+
 const MockGageMap = GageMap as unknown as jest.Mock;
 const mockIsSatelliteAvailable = isSatelliteAvailable as jest.Mock;
 
@@ -100,5 +109,21 @@ describe("MapScreen base layer toggle", () => {
     mockIsSatelliteAvailable.mockReturnValue(false);
     const { queryByTestId } = renderScreen();
     expect(queryByTestId("toggle")).toBeNull();
+  });
+});
+
+describe("MapScreen gauge press", () => {
+  beforeEach(() => {
+    MockGageMap.mockClear();
+    mockPush.mockClear();
+  });
+
+  it("navigates to the pressed gauge's details page", () => {
+    renderScreen();
+    MockGageMap.mock.calls[0][0].onGagePress({ locationId: "USGS-38" });
+    expect(mockPush).toHaveBeenCalledWith({
+      pathname: "/gage/[id]",
+      params: { id: "USGS-38" },
+    });
   });
 });
