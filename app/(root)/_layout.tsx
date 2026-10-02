@@ -3,6 +3,7 @@ import { Pressable, useColorScheme } from "react-native";
 import { usePathname, Slot, Link, Tabs } from "expo-router";
 import { Image } from "expo-image";
 import { observer } from "mobx-react-lite";
+import { CommonActions } from "@react-navigation/native";
 
 import "@expo/match-media";
 
@@ -111,9 +112,17 @@ function HeaderLink({ href, children }) {
   );
 }
 
-function FooterLink({ route, children }: { route: MainRoute; children: string }) {
-  const isActive = useIsLinkActive(route.path);
-
+function FooterLink({
+  route,
+  isActive,
+  onPress,
+  children,
+}: {
+  route: MainRoute;
+  isActive: boolean;
+  onPress: () => void;
+  children: string;
+}) {
   const imageSize = 32;
 
   const $color = isActive ? Colors.primary : Colors.darkGrey;
@@ -122,19 +131,20 @@ function FooterLink({ route, children }: { route: MainRoute; children: string })
   const gageImageIconSource = isActive ? GAGE_ICONS.active : GAGE_ICONS.inactive;
 
   return (
-    <Link href={route.path} asChild>
-      <Pressable>
-        {({ pressed }) => (
-          <Cell align="center">
-            <Ternary condition={route.path === ROUTES.Gages}>
-              <Image source={gageImageIconSource} style={$imageStyle} />
-              <Icon name={route?.icon} color={$color} />
-            </Ternary>
-            <LabelText color={pressed ? Colors.primary : $color}>{children}</LabelText>
-          </Cell>
-        )}
-      </Pressable>
-    </Link>
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="tab"
+      accessibilityState={{ selected: isActive }}>
+      {({ pressed }) => (
+        <Cell align="center">
+          <Ternary condition={route.path === ROUTES.Gages}>
+            <Image source={gageImageIconSource} style={$imageStyle} />
+            <Icon name={route?.icon} color={$color} />
+          </Ternary>
+          <LabelText color={pressed ? Colors.primary : $color}>{children}</LabelText>
+        </Cell>
+      )}
+    </Pressable>
   );
 }
 
@@ -190,21 +200,51 @@ function Header() {
   );
 }
 
-function TabBar() {
+type TabBarProps = Parameters<NonNullable<React.ComponentProps<typeof Tabs>["tabBar"]>>[0];
+
+// Mirrors React Navigation's default bottom tab bar rather than navigating by URL.
+// Navigating to a tab's path (e.g. <Link href="/gage">) from a screen deeper in
+// that tab pushes a second copy of the list on top, leaving the old screens mounted
+// and the stack growing. Instead:
+// - tapping the focused tab emits `tabPress`, which the native stack handles by
+//   popping back to its first screen
+// - tapping another tab switches to it with its own stack intact, so you return to
+//   where you left off
+export function TabBar({ state, navigation }: TabBarProps) {
   const { bottom } = useSafeAreaInsets();
   const { t } = useLocale();
 
   const $bottomOffset = bottom || Spacing.medium;
+  const focusedName = state.routes[state.index]?.name;
 
   return (
     <Cell>
       <Separator size={Spacing.micro} />
       <Row top={Spacing.small} bottom={$bottomOffset} align="space-evenly" justify="center">
-        {Object.values(routes).map((route) => (
-          <FooterLink key={route.path} route={route}>
-            {t(route.title)}
-          </FooterLink>
-        ))}
+        {Object.values(routes).map((route) => {
+          const tabRoute = state.routes.find((r) => r.name === route.tabName);
+          const isFocused = focusedName === route.tabName;
+
+          const onPress = () => {
+            if (!tabRoute) {
+              return;
+            }
+            const event = navigation.emit({
+              type: "tabPress",
+              target: tabRoute.key,
+              canPreventDefault: true,
+            });
+            if (!isFocused && !event.defaultPrevented) {
+              navigation.dispatch({ ...CommonActions.navigate(tabRoute), target: state.key });
+            }
+          };
+
+          return (
+            <FooterLink key={route.path} route={route} isActive={isFocused} onPress={onPress}>
+              {t(route.title)}
+            </FooterLink>
+          );
+        })}
       </Row>
     </Cell>
   );
@@ -213,7 +253,7 @@ function TabBar() {
 function TabView() {
   return (
     <Tabs
-      tabBar={() => <TabBar />}
+      tabBar={(props) => <TabBar {...props} />}
       screenOptions={{
         headerShown: false,
       }}>
