@@ -81,6 +81,7 @@ const BaseConfig: {
   // Flood-probability prediction inputs (third-party). These may move
   // server-side later; the data service is the single swap point.
   NOAA_MAP_QUANTILES_URL: string;
+  RATING_TABLE_MIRROR_BASE_URL: string;
   USGS_RATING_TABLE_URL: string;
   MAP_QUANTILES_CACHE_TTL: number;
 
@@ -126,6 +127,9 @@ const BaseConfig: {
   FRONT_PAGE_CHART_DURATION_UNIT: "day",
 
   NOAA_MAP_QUANTILES_URL: "https://api.water.noaa.gov/hefs/v1/map-quantiles/",
+  // floodzilla.com mirror of the USGS rating tables (`<site_no>.txt`, same exsa
+  // text), tried before USGS, whose endpoint is behind an AWS WAF bot challenge.
+  RATING_TABLE_MIRROR_BASE_URL: "https://floodzilla.com/files/prediction/ratings/",
   USGS_RATING_TABLE_URL: "https://waterdata.usgs.gov/nwisweb/get_ratings",
   MAP_QUANTILES_CACHE_TTL: 15 * 60 * 1000, // ms
 

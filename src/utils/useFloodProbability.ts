@@ -12,10 +12,38 @@ import {
   getCachedFloodProbability,
   getFloodProbability,
   getGaugeConstants,
+  hasFloodProbabilityFailed,
 } from "@services/floodPrediction/floodPredictionService";
 import { FloodChanceResult } from "@services/floodPrediction/types";
 
 import { selectObservedPredictorStage } from "./observedFloodProbability";
+
+/**
+ * The threshold the forecast is requested and cached under: an SVPA gauge uses
+ * the override as-is (undefined → its red stage via the constants); a direct
+ * USGS gauge needs an explicit stage, so it falls back to its own red stage.
+ */
+function forecastThreshold(
+  locationId: string | undefined,
+  redStage: number | undefined,
+  thresholdOverride?: number
+): number | undefined {
+  return getGaugeConstants(locationId) ? thresholdOverride : thresholdOverride ?? redStage;
+}
+
+/**
+ * True when the gauge's forecast could not be computed (no rating table or
+ * quantiles from any source) and nothing has succeeded since — so a caller can
+ * show "unavailable" instead of loading forever. Reads observable state; call it
+ * during render inside an `observer`.
+ */
+export function isFloodForecastUnavailable(gage?: Gage, thresholdOverride?: number): boolean {
+  const locationId = gage?.locationId;
+  return hasFloodProbabilityFailed(
+    locationId,
+    forecastThreshold(locationId, gage?.redStage, thresholdOverride)
+  );
+}
 
 /**
  * Combined flood chance for a gauge. Two kinds of coverage:
@@ -115,9 +143,11 @@ export function useFloodProbability(
 
   // Read the forecast synchronously from the shared cache, keyed to match how the
   // effect requested it (SVPA: locationId; direct USGS: locationId + red stage).
-  const forecast = constants
-    ? getCachedFloodProbability(locationId, thresholdOverride) ?? null
-    : getCachedFloodProbability(locationId, directThreshold) ?? null;
+  const forecast =
+    getCachedFloodProbability(
+      locationId,
+      forecastThreshold(locationId, redStage, thresholdOverride)
+    ) ?? null;
 
   return combineFloodChance({ forecast, observedProbability });
 }

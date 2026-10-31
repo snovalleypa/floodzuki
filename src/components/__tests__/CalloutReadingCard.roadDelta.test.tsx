@@ -18,7 +18,12 @@ jest.mock("@models/helpers/useStores", () => ({
 jest.mock("@common-ui/contexts/LocaleContext", () => ({
   useLocale: () => ({ t: (k: string) => k }),
 }));
-jest.mock("@utils/useFloodProbability", () => ({ useFloodProbability: () => null }));
+const mockUseFloodProbability: jest.Mock = jest.fn(() => null);
+const mockIsUnavailable: jest.Mock = jest.fn(() => false);
+jest.mock("@utils/useFloodProbability", () => ({
+  useFloodProbability: (...args: any[]) => mockUseFloodProbability(...args),
+  isFloodForecastUnavailable: (...args: any[]) => mockIsUnavailable(...args),
+}));
 jest.mock("@components/TrendIcon", () => ({
   __esModule: true,
   default: () => null,
@@ -212,5 +217,53 @@ describe("CalloutReadingCard — trend/road crossing line", () => {
     const { queryByText } = render(<CalloutReadingCard gage={gage} />);
 
     expect(queryByText(/trendIntersects/)).toBeNull();
+  });
+});
+
+describe("CalloutReadingCard — flood chance unavailable", () => {
+  const NOTE = "calloutReading.floodChanceUnavailableNote";
+
+  beforeEach(() => {
+    mockUseFloodProbability.mockReset().mockReturnValue(null);
+    mockIsUnavailable.mockReset().mockReturnValue(false);
+  });
+
+  it("hides the row while nothing has resolved and nothing has failed", () => {
+    const { gage } = buildGage();
+    mockUseLocalSearchParams.mockReturnValue({});
+    const { queryByText } = render(<CalloutReadingCard gage={gage} />);
+    expect(queryByText(/calloutReading.floodChance$/)).toBeNull();
+    expect(queryByText(NOTE)).toBeNull();
+  });
+
+  it("shows the row with the unavailable value and note when the forecast failed", () => {
+    const { gage } = buildGage();
+    mockUseLocalSearchParams.mockReturnValue({});
+    mockIsUnavailable.mockReturnValue(true);
+    const { queryByText } = render(<CalloutReadingCard gage={gage} />);
+    expect(queryByText("calloutReading.floodChance")).not.toBeNull();
+    expect(queryByText("calloutReading.floodChanceUnavailable")).not.toBeNull();
+    expect(queryByText(NOTE)).not.toBeNull();
+  });
+
+  it("prefers a resolved chance over the unavailable row", () => {
+    const { gage } = buildGage();
+    mockUseLocalSearchParams.mockReturnValue({});
+    mockIsUnavailable.mockReturnValue(true);
+    mockUseFloodProbability.mockReturnValue({
+      windowDays: 5,
+      chance: { level: "percent", percent: 40 },
+    } as any);
+    const { queryByText } = render(<CalloutReadingCard gage={gage} />);
+    expect(queryByText("40%")).not.toBeNull();
+    expect(queryByText(NOTE)).toBeNull();
+  });
+
+  it("does not show the unavailable row for a historic range", () => {
+    const { gage } = buildGage();
+    mockUseLocalSearchParams.mockReturnValue({ from: "2022-02-28", to: "2022-03-01" });
+    mockIsUnavailable.mockReturnValue(true);
+    const { queryByText } = render(<CalloutReadingCard gage={gage} />);
+    expect(queryByText(NOTE)).toBeNull();
   });
 });
