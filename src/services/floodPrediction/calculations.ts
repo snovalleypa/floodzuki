@@ -36,7 +36,9 @@ export function parseRatingTable(text: string): RatingPoint[] {
  * and last y at the ends (no extrapolation beyond observed data).
  */
 function interpolateClamped(xs: number[], ys: number[], x: number): number {
-  if (xs.length === 0) {
+  // A non-finite x compares false against everything and would otherwise fall
+  // out of the loop below onto the last y — a real-looking number for bad input.
+  if (xs.length === 0 || !Number.isFinite(x)) {
     return NaN;
   }
   if (x <= xs[0]) {
@@ -63,12 +65,34 @@ export function flowToHeight(table: RatingPoint[], cfs: number): number {
   );
 }
 
-/** Normalize a raw NOAA HEFS map-quantiles payload. */
-export function parseMapQuantiles(raw: any): MapQuantiles {
-  const exceedanceQuantiles: number[] = raw?.metadata?.exceedance_quantiles ?? [];
+const FLOOD_WINDOWS: FloodWindow[] = [5, 10];
+
+const isFiniteArray = (v: unknown, length?: number): v is number[] =>
+  Array.isArray(v) &&
+  (length == null ? v.length > 0 : v.length === length) &&
+  v.every((x) => typeof x === "number" && Number.isFinite(x));
+
+/**
+ * Normalize a raw NOAA HEFS map-quantiles payload, or null when it isn't a
+ * usable forecast: an error body served as 2xx, a missing 5- or 10-day window,
+ * null/NaN flows, or a flow array that doesn't line up with the exceedance
+ * quantiles. Each of those would otherwise fall through the interpolation
+ * clamps downstream into a confident false "Low" or ">90%". Extra windows are
+ * kept as-is when well-formed.
+ */
+export function parseMapQuantiles(raw: any): MapQuantiles | null {
+  const exceedanceQuantiles = raw?.metadata?.exceedance_quantiles;
+  if (!isFiniteArray(exceedanceQuantiles)) {
+    return null;
+  }
   const flowsByWindow: Record<number, number[]> = {};
-  for (const vs of raw?.value_set ?? []) {
-    flowsByWindow[vs.forecast_length] = vs.quantile_values;
+  for (const vs of Array.isArray(raw?.value_set) ? raw.value_set : []) {
+    if (isFiniteArray(vs?.quantile_values, exceedanceQuantiles.length)) {
+      flowsByWindow[vs.forecast_length] = vs.quantile_values;
+    }
+  }
+  if (!FLOOD_WINDOWS.every((w) => flowsByWindow[w])) {
+    return null;
   }
   return { exceedanceQuantiles, flowsByWindow };
 }
@@ -139,7 +163,12 @@ export function computeFloodProbability(args: {
   ratingTable: RatingPoint[];
 }): FloodProbabilityResult {
   const { p99, quantiles, ratingTable } = args;
-  const windows: FloodWindow[] = [5, 10];
+  // Defense in depth: a non-finite stage, an empty rating table (every height
+  // NaN), or a bad window would fall through the interpolation clamps to a
+  // confident wrong answer. Fail loudly instead so it surfaces as "unavailable".
+  if (!Number.isFinite(p99)) {
+    throw new Error(`flood probability: non-finite predictor stage ${p99}`);
+  }
 
   // Fallback window is 10-day: it survives only when both windows are null
   // (the low case). Windows are iterated 5 then 10 with a strict comparison, so
@@ -149,8 +178,11 @@ export function computeFloodProbability(args: {
     probability: null,
   };
 
-  for (const windowDays of windows) {
+  for (const windowDays of FLOOD_WINDOWS) {
     const curve = buildExceedanceHeightCurve(quantiles, ratingTable, windowDays);
+    if (curve.length === 0 || curve.some((pt) => !Number.isFinite(pt.height))) {
+      throw new Error(`flood probability: unusable ${windowDays}-day exceedance curve`);
+    }
     const probability = heightToProbability(curve, p99);
     // Prefer a strictly greater probability; null counts as "below 10%" (-1).
     if ((probability ?? -1) > (best.probability ?? -1)) {
@@ -246,8 +278,9 @@ function roundToFivePercent(probability: number): number {
  * the greater of the two (observed must be strictly greater to win — the
  * forecast holds ties). The forecast is clamped at 90% so it can only reach the
  * "veryHighClamp" (>90%) bucket; the precise observed path reaches the exact
- * "veryHigh" and "nearCertain" (>=99%) buckets. Returns null only when neither a
- * forecast nor an observed value is available.
+ * "veryHigh" and "nearCertain" (>=99%) buckets. Returns null when neither a
+ * forecast nor an observed value is available, or when there is no forecast and
+ * the observed value is only Low (see below).
  */
 export function combineFloodChance(args: {
   forecast: FloodProbabilityResult | null;
@@ -279,6 +312,14 @@ export function combineFloodChance(args: {
       source === "observed" ? { level: "veryHigh", percent: pct } : { level: "veryHighClamp" };
   } else {
     chance = { level: "percent", percent: pct };
+  }
+
+  // With no forecast (still loading, or its inputs failed), the observed value
+  // is only a lower bound on the days-out chance. A Medium+ reading is still a
+  // real "the river is high now" signal, but a Low one can't vouch that the river
+  // won't flood within the window, so report nothing rather than a false "Low".
+  if (!forecast && floodChanceRiskLevel(chance) === FloodRiskLevel.Low) {
+    return null;
   }
 
   return { windowDays, chance };

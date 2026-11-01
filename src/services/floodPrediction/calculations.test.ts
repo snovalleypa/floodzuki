@@ -102,10 +102,51 @@ describe("flowToHeight", () => {
 
 describe("parseMapQuantiles", () => {
   it("indexes flows by forecast window", () => {
-    const q = parseMapQuantiles(RAW as any);
+    const q = parseMapQuantiles(RAW as any)!;
     expect(q.exceedanceQuantiles).toEqual([0.1, 0.5, 0.9]);
     expect(q.flowsByWindow[5]).toEqual([400, 200, 100]);
     expect(q.flowsByWindow[10]).toEqual([400, 200, 100]);
+  });
+
+  it("keeps extra windows", () => {
+    const raw = {
+      ...RAW,
+      value_set: [...RAW.value_set, { forecast_length: 15, quantile_values: [800, 400, 200] }],
+    };
+    expect(parseMapQuantiles(raw as any)!.flowsByWindow[15]).toEqual([800, 400, 200]);
+  });
+
+  // A 2xx body that isn't a usable forecast must be rejected, not normalized to
+  // something that computes: missing windows or null flows read as a false
+  // "Low", and a short flow array falls through to a false ">90%".
+  const withWindow = (forecast_length: number, quantile_values: unknown[]) => ({
+    metadata: { exceedance_quantiles: [0.1, 0.5, 0.9] },
+    value_set: [
+      { forecast_length: 5, quantile_values: [400, 200, 100] },
+      { forecast_length: 10, quantile_values: [400, 200, 100] },
+    ].map((vs) => (vs.forecast_length === forecast_length ? { ...vs, quantile_values } : vs)),
+  });
+
+  it.each([
+    ["an error body", { detail: "Not found" }],
+    ["a null body", null],
+    ["missing metadata", { value_set: RAW.value_set }],
+    ["empty exceedance quantiles", { ...RAW, metadata: { exceedance_quantiles: [] } }],
+    [
+      "a non-numeric exceedance quantile",
+      { ...RAW, metadata: { exceedance_quantiles: [0.1, "x", 0.9] } },
+    ],
+    [
+      "only the 15/20-day windows",
+      { ...RAW, value_set: [{ forecast_length: 15, quantile_values: [400, 200, 100] }] },
+    ],
+    ["a missing 10-day window", { ...RAW, value_set: [RAW.value_set[0]] }],
+    ["null flow values", withWindow(5, [null, null, null])],
+    ["a NaN flow value", withWindow(10, [400, NaN, 100])],
+    ["fewer flows than quantiles", withWindow(5, [400])],
+    ["more flows than quantiles", withWindow(5, [400, 300, 200, 100])],
+  ])("returns null for %s", (_label, raw) => {
+    expect(parseMapQuantiles(raw as any)).toBeNull();
   });
 });
 
@@ -148,6 +189,35 @@ describe("computeFloodProbability", () => {
     expect(r.probability).toBeNull();
     expect(r.isLow).toBe(true);
     expect(r.windowDays).toBe(10);
+  });
+
+  // Defense in depth: an uncomputable input must surface as a failure, never
+  // fall through the interpolation clamps to a false "Low" or false ">90%".
+  describe("throws instead of computing on bad inputs", () => {
+    it.each([NaN, Infinity, undefined as unknown as number])("for a non-finite p99 (%p)", (p99) => {
+      expect(() => computeFloodProbability({ p99, quantiles, ratingTable: table })).toThrow();
+    });
+
+    it("for an empty rating table (every height NaN)", () => {
+      expect(() => computeFloodProbability({ p99: 44.65, quantiles, ratingTable: [] })).toThrow();
+    });
+
+    it("for a window missing from the quantiles", () => {
+      const only5 = { ...quantiles, flowsByWindow: { 5: quantiles.flowsByWindow[5] } };
+      expect(() =>
+        computeFloodProbability({ p99: 44.65, quantiles: only5, ratingTable: table })
+      ).toThrow();
+    });
+
+    it("for a non-finite flow in a window", () => {
+      const bad = {
+        ...quantiles,
+        flowsByWindow: { ...quantiles.flowsByWindow, 10: [400, NaN, 100] },
+      };
+      expect(() =>
+        computeFloodProbability({ p99: 44.65, quantiles: bad, ratingTable: table })
+      ).toThrow();
+    });
   });
 });
 
@@ -210,6 +280,30 @@ describe("combineFloodChance", () => {
   it("shows near-certain when the observed value rounds to 100", () => {
     const r = combineFloodChance({ forecast: forecast(0.5), observedProbability: 0.995 });
     expect(r!.chance).toEqual({ level: "nearCertain" });
+  });
+
+  // With no forecast (loading or failed), the observed value is only a lower
+  // bound on the days-out chance: a Low/<=30% reading can't vouch that the river
+  // won't flood in the window, so it reports nothing rather than "Low".
+  describe("without a forecast", () => {
+    it.each([0.02, 0.2, 0.3])("reports nothing for a Low observed value (%p)", (observed) => {
+      expect(combineFloodChance({ forecast: null, observedProbability: observed })).toBeNull();
+    });
+
+    it("shows a Medium observed value", () => {
+      const r = combineFloodChance({ forecast: null, observedProbability: 0.4 });
+      expect(r!.chance).toEqual({ level: "percent", percent: 40 });
+    });
+
+    it("shows a High observed value with the exact percent", () => {
+      const r = combineFloodChance({ forecast: null, observedProbability: 0.95 });
+      expect(r!.chance).toEqual({ level: "veryHigh", percent: 95 });
+    });
+  });
+
+  it("still shows a Low observed value when a forecast is present", () => {
+    const r = combineFloodChance({ forecast: forecast(0.15), observedProbability: 0.2 });
+    expect(r!.chance).toEqual({ level: "percent", percent: 20 });
   });
 });
 

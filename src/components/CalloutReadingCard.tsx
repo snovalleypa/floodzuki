@@ -23,7 +23,7 @@ import { LargeLabel } from "@common-ui/components/Label";
 import TrendIcon, { TREND_ICON_TYPES } from "@components/TrendIcon";
 import { Spacing } from "@common-ui/constants/spacing";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
-import { useFloodProbability } from "@utils/useFloodProbability";
+import { isFloodForecastUnavailable, useFloodProbability } from "@utils/useFloodProbability";
 import { formatFloodChanceLabel } from "@utils/floodChanceLabel";
 import { isAtOrAboveRedStage } from "@utils/useFloodRiskLevel";
 import { floodChanceRiskLevel } from "@services/floodPrediction/calculations";
@@ -86,6 +86,11 @@ const CalloutReading = observer(function CalloutReadingCard({ gage }: { gage: Ga
   const shouldPredictFlood = isNow && !isAtOrAboveRedStage(reading?.waterHeight, gage?.redStage);
   const floodChance = useFloodProbability(shouldPredictFlood ? gage : undefined);
   const showFloodChance = !!floodChance;
+  // No chance to show because the forecast inputs couldn't be fetched (as
+  // opposed to still loading): show the row with "—" and a one-line reason
+  // rather than silently dropping it.
+  const showFloodChanceUnavailable =
+    !floodChance && shouldPredictFlood && isFloodForecastUnavailable(gage);
 
   // Coarse risk for the badge. High/Medium drives an overlay on the status pill
   // and an inline badge by the percentage; Low / no-chance shows nothing.
@@ -101,7 +106,7 @@ const CalloutReading = observer(function CalloutReadingCard({ gage }: { gage: Ga
   // on whichever is last when no trend or road/flood row follows.
   const hasRowsBelowReadings = hasTrendInfo || hasRoadOrFlood;
   let lastReadingRow: string | null = null;
-  if (showFloodChance) {
+  if (showFloodChance || showFloodChanceUnavailable) {
     lastReadingRow = "floodChance";
   } else if (!isNullish(reading?.waterDischarge)) {
     lastReadingRow = "waterFlow";
@@ -160,6 +165,15 @@ const CalloutReading = observer(function CalloutReadingCard({ gage }: { gage: Ga
                 </Cell>
               </If>
             </Row>
+          </CardItem>
+        </If>
+        <If condition={showFloodChanceUnavailable}>
+          <CardItem noBorder={noBorderFor("floodChance")}>
+            <Cell>
+              <RegularText>{t("calloutReading.floodChance", { days: 10 })}</RegularText>
+              <SmallerText muted>{t("calloutReading.floodChanceUnavailableNote")}</SmallerText>
+            </Cell>
+            <MediumText muted>{t("calloutReading.floodChanceUnavailable")}</MediumText>
           </CardItem>
         </If>
         <If condition={hasTrendInfo}>

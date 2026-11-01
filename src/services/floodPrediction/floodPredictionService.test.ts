@@ -1,3 +1,5 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 import CONSTANTS_FIXTURE from "@services/floodPrediction/__tests__/fixtures/floodPredictionConstants.json";
 
 import { __resetConstantsForTest, __setConstantsForTest } from "./constantsSource";
@@ -6,6 +8,7 @@ import {
   getCachedFloodProbability,
   getFloodProbability,
   getGaugeConstants,
+  hasFloodProbabilityFailed,
 } from "./floodPredictionService";
 
 const RATING = [
@@ -25,9 +28,14 @@ const QUANTILES = {
   ],
 };
 
+const MIRROR = "floodzilla.com/files/prediction/ratings/";
+const USGS = "waterdata.usgs.gov/nwisweb/get_ratings";
+// Either rating-table source: the floodzilla.com mirror or USGS direct.
+const isRatingUrl = (url: string) => url.includes(MIRROR) || url.includes(USGS);
+
 function mockFetch() {
   return jest.fn((url: string) => {
-    if (url.includes("get_ratings")) {
+    if (isRatingUrl(url)) {
       return Promise.resolve({ ok: true, text: () => Promise.resolve(RATING) });
     }
     return Promise.resolve({ ok: true, json: () => Promise.resolve(QUANTILES) });
@@ -35,12 +43,13 @@ function mockFetch() {
 }
 
 describe("getFloodProbability", () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     // The constants are fetched at runtime in the app; tests publish the shipped
     // fixture so the real SVPA-25 coefficients below stay meaningful.
     __setConstantsForTest(CONSTANTS_FIXTURE);
     __resetFloodPredictionCaches();
     (globalThis as any).fetch = mockFetch();
+    await AsyncStorage.clear();
   });
 
   afterEach(() => {
@@ -62,9 +71,113 @@ describe("getFloodProbability", () => {
     await getFloodProbability("SVPA-25");
     await getFloodProbability("SVPA-25");
     const ratingCalls = (globalThis.fetch as jest.Mock).mock.calls.filter((c) =>
-      String(c[0]).includes("get_ratings")
+      isRatingUrl(String(c[0]))
     );
     expect(ratingCalls.length).toBe(1);
+  });
+
+  // Rating-table sources, in order: floodzilla.com mirror → USGS direct (behind
+  // an AWS WAF bot challenge) → last known-good copy in storage. A failed or
+  // unparseable table must never produce a probability: an empty table makes
+  // every curve height NaN, which used to fall through to a false ">90%".
+  describe("rating-table sources and bad responses", () => {
+    const ERROR_PAGE = "<HTML><HEAD><TITLE>ERROR</TITLE></HEAD><BODY>403 ERROR</BODY></HTML>";
+    type Source = { ok: boolean; body: string; status?: number };
+    const GOOD: Source = { ok: true, body: RATING };
+    const NOT_FOUND: Source = { ok: false, body: "Not Found", status: 404 };
+    // USGS's WAF challenge: an empty 202.
+    const CHALLENGE: Source = { ok: true, body: "", status: 202 };
+
+    function fetchWith(sources: { mirror: Source; usgs: Source }, quantilesOk = true) {
+      return jest.fn((url: string) => {
+        const src = url.includes(MIRROR) ? sources.mirror : sources.usgs;
+        if (isRatingUrl(url)) {
+          return Promise.resolve({
+            ok: src.ok,
+            status: src.status ?? (src.ok ? 200 : 500),
+            text: () => Promise.resolve(src.body),
+          });
+        }
+        return Promise.resolve({ ok: quantilesOk, json: () => Promise.resolve(QUANTILES) });
+      });
+    }
+
+    const calledUrls = () => (globalThis.fetch as jest.Mock).mock.calls.map((c) => String(c[0]));
+
+    it("uses the mirror first and skips USGS when it succeeds", async () => {
+      (globalThis as any).fetch = fetchWith({ mirror: GOOD, usgs: CHALLENGE });
+      expect(await getFloodProbability("USGS-38", 44.6)).not.toBeNull();
+      expect(calledUrls()).toContain(`https://${MIRROR}12144500.txt`);
+      expect(calledUrls().some((u) => u.includes(USGS))).toBe(false);
+    });
+
+    it("falls back to USGS when the mirror is missing", async () => {
+      (globalThis as any).fetch = fetchWith({ mirror: NOT_FOUND, usgs: GOOD });
+      expect(await getFloodProbability("USGS-38", 44.6)).not.toBeNull();
+    });
+
+    it("falls back to the stored copy when every source fails", async () => {
+      // A first, successful load stores the table...
+      await getFloodProbability("USGS-38", 44.6);
+      const fresh = getCachedFloodProbability("USGS-38", 44.6);
+      // ...so a later session with both sources down still computes the same result.
+      __resetFloodPredictionCaches();
+      (globalThis as any).fetch = fetchWith({ mirror: NOT_FOUND, usgs: CHALLENGE });
+      expect(await getFloodProbability("USGS-38", 44.6)).toEqual(fresh);
+    });
+
+    it.each([
+      [
+        "a non-OK response",
+        { mirror: NOT_FOUND, usgs: { ok: false, body: ERROR_PAGE, status: 403 } },
+      ],
+      [
+        "an OK error page with no rating rows",
+        { mirror: NOT_FOUND, usgs: { ok: true, body: ERROR_PAGE } },
+      ],
+      ["the WAF challenge (empty 202)", { mirror: NOT_FOUND, usgs: CHALLENGE }],
+    ])("rejects with no stored copy on %s, and marks it failed", async (_label, sources) => {
+      (globalThis as any).fetch = fetchWith(sources);
+      await expect(getFloodProbability("SVPA-25")).rejects.toThrow();
+      await expect(getFloodProbability("USGS-38", 44.6)).rejects.toThrow();
+      expect(getCachedFloodProbability("SVPA-25")).toBeUndefined();
+      expect(getCachedFloodProbability("USGS-38", 44.6)).toBeUndefined();
+      expect(hasFloodProbabilityFailed("SVPA-25")).toBe(true);
+      expect(hasFloodProbabilityFailed("USGS-38", 44.6)).toBe(true);
+      // Keyed per threshold: an unrequested key isn't marked.
+      expect(hasFloodProbabilityFailed("USGS-38")).toBe(false);
+    });
+
+    it("rejects a 2xx map-quantiles body that isn't a forecast, and retries it", async () => {
+      const errorBody = jest.fn((url: string) =>
+        isRatingUrl(url)
+          ? Promise.resolve({ ok: true, status: 200, text: () => Promise.resolve(RATING) })
+          : Promise.resolve({ ok: true, json: () => Promise.resolve({ detail: "Not found" }) })
+      );
+      (globalThis as any).fetch = errorBody;
+      await expect(getFloodProbability("USGS-38", 44.6)).rejects.toThrow();
+      expect(getCachedFloodProbability("USGS-38", 44.6)).toBeUndefined();
+      expect(hasFloodProbabilityFailed("USGS-38", 44.6)).toBe(true);
+      // The bad payload is not held in the 15-minute quantile cache.
+      (globalThis as any).fetch = mockFetch();
+      expect(await getFloodProbability("USGS-38", 44.6)).not.toBeNull();
+      expect(hasFloodProbabilityFailed("USGS-38", 44.6)).toBe(false);
+    });
+
+    it("rejects on a non-OK map-quantiles response", async () => {
+      (globalThis as any).fetch = fetchWith({ mirror: GOOD, usgs: GOOD }, false);
+      await expect(getFloodProbability("USGS-38", 44.6)).rejects.toThrow();
+      expect(getCachedFloodProbability("USGS-38", 44.6)).toBeUndefined();
+      expect(hasFloodProbabilityFailed("USGS-38", 44.6)).toBe(true);
+    });
+
+    it("retries after a failure and clears the failed mark on success", async () => {
+      (globalThis as any).fetch = fetchWith({ mirror: NOT_FOUND, usgs: CHALLENGE });
+      await expect(getFloodProbability("USGS-38", 44.6)).rejects.toThrow();
+      (globalThis as any).fetch = mockFetch();
+      expect(await getFloodProbability("USGS-38", 44.6)).not.toBeNull();
+      expect(hasFloodProbabilityFailed("USGS-38", 44.6)).toBe(false);
+    });
   });
 
   // Direct USGS gauges: the gauge is its own predictor, threshold = its red
@@ -90,7 +203,7 @@ describe("getFloodProbability", () => {
   it("fetches the direct gauge's own USGS rating site", async () => {
     await getFloodProbability("USGS-SH5", 44.6);
     const ratingCall = (globalThis.fetch as jest.Mock).mock.calls.find((c) =>
-      String(c[0]).includes("get_ratings")
+      isRatingUrl(String(c[0]))
     );
     expect(String(ratingCall![0])).toContain("12150800");
   });
