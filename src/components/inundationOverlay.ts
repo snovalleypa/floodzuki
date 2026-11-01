@@ -113,14 +113,14 @@ export function localizeLevelLabel(label: Record<string, string>, locale: string
 
 // Single translucent fill shared by all levels (only one is shown at a time).
 // Declared beneath the river/town overlays so those annotations remain visible.
-export const INUNDATION_FILL_LAYER_PROPS: Omit<FillLayerSpecification, "source"> = {
+export const INUNDATION_FILL_LAYER_PROPS = {
   id: "inundation-fill",
   type: "fill",
   paint: {
     "fill-color": "rgba(30, 120, 200, 0.35)",
     "fill-outline-color": "rgba(20, 90, 160, 0.9)",
   },
-};
+} satisfies Omit<FillLayerSpecification, "source">;
 
 // Outline of the 2D hydraulic model's boundary, drawn (unfilled) whenever a
 // flood level is shown so people can see where the modeled area ends — flooding
@@ -130,7 +130,7 @@ export const INUNDATION_FILL_LAYER_PROPS: Omit<FillLayerSpecification, "source">
 // explanation always matches what's drawn on the map.
 export const MODEL_BOUNDARY_COLOR = "rgba(147, 147, 147, 0.85)";
 
-export const MODEL_BOUNDARY_LINE_LAYER_PROPS: Omit<LineLayerSpecification, "source"> = {
+export const MODEL_BOUNDARY_LINE_LAYER_PROPS = {
   id: "model-boundary-line",
   type: "line",
   layout: {
@@ -142,4 +142,4 @@ export const MODEL_BOUNDARY_LINE_LAYER_PROPS: Omit<LineLayerSpecification, "sour
     "line-width": 1.5,
     "line-dasharray": [3, 2],
   },
-};
+} satisfies Omit<LineLayerSpecification, "source">;
