@@ -392,7 +392,7 @@ const es = {
   },
   footer: {
     svpaTitle: "La Alianza para la Preservación del Valle de Snoqualmie",
-    description1: "La red de medidores Floodzilla está mantenida por ",
+    description1: "Floodzilla es un programa de seguridad pública operado por ",
     description2:
       ". La Alianza para la Preservación del Valle de Snoqualmie es una organización sin fines de lucro 501(c)(3) comprometida en proteger la viabilidad de las granjas, residentes y negocios del hermoso valle del río Snoqualmie. Este sitio es posible gracias a las innumerables horas de trabajo voluntario del equipo local de tecnología, los donantes de SVPA y una generosa subvención del Distrito de Control de Inundaciones del Condado de King.",
     addressLine1: "Dirección física",
