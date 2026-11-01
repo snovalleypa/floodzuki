@@ -391,7 +391,7 @@ const en = {
   },
   footer: {
     svpaTitle: "The Snoqualmie Valley Preservation Alliance",
-    description1: "The Floodzilla Gauge Network is maintained by ",
+    description1: "Floodzilla is a public safety program operated by ",
     description2:
       ". The Snoqualmie Valley Preservation Alliance is a 501(c)(3) nonprofit organization committed to protecting the viability of farms, residents, and businesses of the beautiful Snoqualmie River Valley. This site is made possible by the countless volunteer hours of the local technology team, SVPA donors, and a generous grant from King County Flood Control District.",
     addressLine1: "Physical Address",
