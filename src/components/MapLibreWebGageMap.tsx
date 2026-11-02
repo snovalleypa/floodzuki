@@ -10,6 +10,10 @@ import { useResponsive } from "@common-ui/utils/responsive";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import { StyleSheet } from "react-native";
 import "maplibre-gl/dist/maplibre-gl.css";
+import {
+  getVersion as getMapLibreVersion,
+  setWorkerUrl as setMapLibreWorkerUrl,
+} from "maplibre-gl";
 import MapPinIcon from "./MapPinIcon";
 import { getTownLabelsGeoJson, TOWN_LABELS_LAYER_PROPS } from "./townLabels";
 import { getRiverOverlaysGeoJson, RIVER_OVERLAY_LAYER_PROPS } from "./riverOverlays";
@@ -49,6 +53,14 @@ const defaultMapBounds = [-122.3328, 46.9564, -121.2959, 48.3127];
 
 const singleGageLatDelta = SINGLE_GAGE_LAT_DELTA;
 const singleGageLngDelta = SINGLE_GAGE_LNG_DELTA;
+
+// maplibre-gl 6 runs its worker from a URL it would normally derive from
+// `import.meta.url`. Under Metro that is Expo's polyfill object (see
+// babel.config.js), not a real location, so point maplibre at the copy that
+// tools/copy-maplibre-worker.js places in public/ on install. The version query
+// keeps a cached worker from an older release from being paired with a newer
+// main bundle after a deploy. Must run before the first <Map> is created.
+setMapLibreWorkerUrl(`/maplibre-gl-worker.mjs?v=${getMapLibreVersion()}`);
 
 const MapLibreWebGageWebMap = ({
   gages,

@@ -44,7 +44,7 @@ export function getTownLabelsGeoJson(
   };
 }
 
-export const TOWN_LABELS_LAYER_PROPS: Omit<SymbolLayerSpecification, "source"> = {
+export const TOWN_LABELS_LAYER_PROPS = {
   id: "region-towns-labels",
   type: "symbol",
   maxzoom: 9,
@@ -60,4 +60,4 @@ export const TOWN_LABELS_LAYER_PROPS: Omit<SymbolLayerSpecification, "source"> =
     "text-halo-color": "white",
     "text-halo-width": 2,
   },
-};
+} satisfies Omit<SymbolLayerSpecification, "source">;
