@@ -188,6 +188,15 @@ All user-visible strings go through the `useLocale()` hook (`t("key")`). Transla
 
 Maps use MapLibre with tile URLs from `Config.DEFAULT_MAP_TILE_BASE_URL`. The `MAP_TILE_URL_BASE` env var overrides the tile source at build time (exposed via `app.config.ts` extra). Maps are not supported in standalone dev builds — only Expo Go and browser.
 
+#### maplibre-gl 6 on web: worker file and `import.meta`
+
+`maplibre-gl` 6 ships ESM-only and spawns its web worker from a URL derived from `import.meta.url`. Two things make that work under Metro, and both must stay in place:
+
+- `babel.config.js` enables `unstable_transformImportMeta` for **web only**. Metro serves lazily loaded modules as classic scripts, where a bare `import.meta` is a `SyntaxError`, so without it the map silently never mounts (no console error, no `.maplibregl-map` element).
+- `tools/copy-maplibre-worker.js` (run from `postinstall`) copies `maplibre-gl-worker.mjs` into `public/` so it is served from our origin, and [MapLibreWebGageMap.tsx](src/components/MapLibreWebGageMap.tsx) calls `setWorkerUrl()` with that path. The copy is gitignored; never commit or hand-edit it. (`scripts/` is gitignored in this repo, which is why the helper lives in `tools/`.)
+
+Jest cannot load the ESM-only package, so `maplibre-gl` is mapped to `__mocks__/maplibre-gl.js`. The shared layer-prop objects (`roadClosures.ts`, `townLabels.ts`, …) use `satisfies` rather than a type annotation so they stay assignable to both the web and native `<Layer>` even when the two map libraries pin different `/maplibre-gl-style-spec` versions.
+
 The map _style_ (layer colors, label sizes, zoom rules) is normally fetched from `https://floodzilla.com/maps/{regionId}/webstyles`. To iterate locally on the style JSON, set `MAP_STYLE_LOCAL=1` — the app will use the checked-in copy at `src/components/mapStyles/floodzilla-webstyles.json` instead. Save the file and reload to see changes. Hand the file off to the backend developer to deploy (same content goes into both the `WebStyles` and `MobileStyles` DB records).
 
 #### Satellite base layer (MapTiler) — why there are two keys

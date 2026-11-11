@@ -29,6 +29,16 @@ module.exports = defineConfig([
     },
   },
   {
-    ignores: ["node_modules/", "dist/", ".expo/", "ios/", "android/", "patches/", "local-dev/"],
+    ignores: [
+      "node_modules/",
+      "dist/",
+      ".expo/",
+      "ios/",
+      "android/",
+      "patches/",
+      "local-dev/",
+      // Vendored copy made by tools/copy-maplibre-worker.js on install
+      "public/maplibre-gl-worker.mjs",
+    ],
   },
 ]);

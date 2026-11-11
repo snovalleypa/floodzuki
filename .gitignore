@@ -34,3 +34,5 @@ docs
 
 expo-env.d.ts
 # @end expo-cli
+# Copied from node_modules by tools/copy-maplibre-worker.js on install
+public/maplibre-gl-worker.mjs
