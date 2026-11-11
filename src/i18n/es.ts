@@ -115,6 +115,8 @@ const es = {
     floodingSubtitle:
       "Probabilidad de que el agua llegue al nivel de inundación · próximos 10 días",
     floodingNow: "Inundándose ahora",
+    floodChanceUnavailable: "—",
+    floodChanceUnavailableNote: "Pronóstico temporalmente no disponible para algunos medidores",
     forksSectionTitle: "Brazos del río",
     showMore: "Mostrar más",
     showLess: "Mostrar menos",
@@ -352,6 +354,8 @@ const es = {
     floodChanceVeryHigh: ">90%",
     floodChanceVeryHighExact: "%{percent}%",
     floodChanceNearCertain: ">=99%",
+    floodChanceUnavailable: "—",
+    floodChanceUnavailableNote: "Pronóstico temporalmente no disponible",
   },
   gageDetailsChart: {
     discharge: "Caudal",

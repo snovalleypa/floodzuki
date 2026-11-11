@@ -10,7 +10,7 @@ import { MediumText, RegularText, SmallerText } from "@common-ui/components/Text
 import { Colors } from "@common-ui/constants/colors";
 import { Spacing } from "@common-ui/constants/spacing";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
-import { useFloodProbability } from "@utils/useFloodProbability";
+import { isFloodForecastUnavailable, useFloodProbability } from "@utils/useFloodProbability";
 import { isAtOrAboveThreshold } from "@utils/useFloodRiskLevel";
 import { formatFloodChanceLabel } from "@utils/floodChanceLabel";
 import { floodChanceRiskLevel } from "@services/floodPrediction/calculations";
@@ -56,7 +56,8 @@ const FloodProbabilityRow = observer(function FloodProbabilityRow({
   const badge = riskLevel && riskLevel !== FloodRiskLevel.Low ? riskLevel : null;
 
   // The value cell: "Flooding now" when already over the threshold, otherwise the
-  // resolved chance label, otherwise a spinner while the async forecast lands.
+  // resolved chance label, otherwise "—" if the forecast inputs couldn't be
+  // fetched, otherwise a spinner while the async forecast lands.
   let valueNode: React.ReactNode;
   if (flooding) {
     valueNode = <RegularText color={Colors.red}>{t("forecastScreen.floodingNow")}</RegularText>;
@@ -65,6 +66,10 @@ const FloodProbabilityRow = observer(function FloodProbabilityRow({
       <MediumText color={chance.level === "low" ? Colors.midGrey : Colors.lightDark}>
         {formatFloodChanceLabel(chance, t)}
       </MediumText>
+    );
+  } else if (isFloodForecastUnavailable(gage, thresholdOverride)) {
+    valueNode = (
+      <MediumText color={Colors.midGrey}>{t("forecastScreen.floodChanceUnavailable")}</MediumText>
     );
   } else {
     valueNode = <ActivityIndicator size="small" />;

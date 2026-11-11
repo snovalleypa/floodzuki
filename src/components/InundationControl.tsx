@@ -3,6 +3,7 @@ import {
   Modal,
   Pressable,
   ScrollView,
+  StyleSheet,
   View,
   ViewStyle,
   TextStyle,
@@ -170,9 +171,16 @@ export default function InundationControl({
         transparent
         animationType="fade"
         onRequestClose={() => setInfoVisible(false)}>
-        <Pressable style={$infoOverlay} onPress={() => setInfoVisible(false)}>
-          {/* Stop propagation so taps inside the card don't dismiss the modal. */}
-          <Pressable style={$infoCard} onPress={() => {}}>
+        <View style={$infoOverlay}>
+          {/* Backdrop is a sibling behind the card, not a parent: wrapping the
+              ScrollView in a Pressable lets it claim the touch responder, which
+              blocks scrolling on iOS. */}
+          <Pressable
+            style={StyleSheet.absoluteFill}
+            accessibilityLabel={t("map.info.close")}
+            onPress={() => setInfoVisible(false)}
+          />
+          <View style={$infoCard}>
             <Row align="space-between" bottom={Spacing.small}>
               <Cell flex right={Spacing.small}>
                 <SmallTitle color={Colors.lightDark}>{t("map.info.title")}</SmallTitle>
@@ -236,8 +244,8 @@ export default function InundationControl({
                 <SmallText color={Colors.darkGrey}>{t("map.info.disclaimer")}</SmallText>
               </Cell>
             </ScrollView>
-          </Pressable>
-        </Pressable>
+          </View>
+        </View>
       </Modal>
     </View>
   );

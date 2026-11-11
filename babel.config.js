@@ -1,7 +1,19 @@
 module.exports = function (api) {
   api.cache(true);
   return {
-    presets: ["babel-preset-expo"],
+    presets: [
+      [
+        "babel-preset-expo",
+        {
+          // maplibre-gl 6 is ESM-only and references `import.meta.url` (worker
+          // discovery). Metro serves lazily-loaded modules as classic scripts, where
+          // `import.meta` is a SyntaxError, so the map silently never mounted on web.
+          // This rewrites it to Expo's registry object. Web only — native keeps the
+          // default (Hermes has no `import.meta`, and the mobile map is a different lib).
+          web: { unstable_transformImportMeta: true },
+        },
+      ],
+    ],
     plugins: [
       "@babel/plugin-proposal-export-namespace-from",
       [

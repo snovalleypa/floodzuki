@@ -112,6 +112,8 @@ const en = {
     floodingTitle: "Flooding",
     floodingSubtitle: "Chance water reaches flood stage · next 10 days",
     floodingNow: "Flooding now",
+    floodChanceUnavailable: "—",
+    floodChanceUnavailableNote: "Forecast temporarily unavailable for some gauges",
     forksSectionTitle: "River Forks",
     showMore: "Show more",
     showLess: "Show less",
@@ -347,6 +349,8 @@ const en = {
     floodChanceVeryHigh: ">90%",
     floodChanceVeryHighExact: "%{percent}%",
     floodChanceNearCertain: ">=99%",
+    floodChanceUnavailable: "—",
+    floodChanceUnavailableNote: "Forecast temporarily unavailable",
   },
   gageDetailsChart: {
     discharge: "Flow",

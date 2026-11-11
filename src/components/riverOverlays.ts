@@ -14,7 +14,7 @@ export function getRiverOverlaysGeoJson(regionId: number | undefined): FeatureCo
   return EMPTY_GEOJSON;
 }
 
-export const RIVER_OVERLAY_LAYER_PROPS: Omit<LineLayerSpecification, "source"> = {
+export const RIVER_OVERLAY_LAYER_PROPS = {
   id: "region-rivers-line",
   type: "line",
   layout: {
@@ -26,4 +26,4 @@ export const RIVER_OVERLAY_LAYER_PROPS: Omit<LineLayerSpecification, "source"> =
     "line-opacity": 1,
     "line-width": ["interpolate", ["exponential", 1.4], ["zoom"], 5, 2, 10, 6, 14, 10, 20, 18],
   },
-};
+} satisfies Omit<LineLayerSpecification, "source">;

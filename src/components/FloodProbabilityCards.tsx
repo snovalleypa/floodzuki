@@ -3,13 +3,14 @@ import { observer } from "mobx-react-lite";
 
 import { Gage } from "@models/Gage";
 import { useStores } from "@models/helpers/useStores";
-import { Card, CardHeader } from "@common-ui/components/Card";
+import { Card, CardFooter, CardHeader } from "@common-ui/components/Card";
 import { Cell, RowOrCell, Separator } from "@common-ui/components/Common";
-import { LabelText, SmallTitle } from "@common-ui/components/Text";
+import { LabelText, SmallerText, SmallTitle } from "@common-ui/components/Text";
 import { Spacing } from "@common-ui/constants/spacing";
 import { useResponsive } from "@common-ui/utils/responsive";
 import { useLocale } from "@common-ui/contexts/LocaleContext";
 import { selectCardMembership } from "@utils/floodCardMembership";
+import { isFloodForecastUnavailable } from "@utils/useFloodProbability";
 import FloodProbabilityRow from "@components/FloodProbabilityRow";
 
 interface FloodCardProps {
@@ -20,11 +21,23 @@ interface FloodCardProps {
   wide: boolean;
   /** First card in the layout — no inter-card gap before it. */
   first: boolean;
+  /** True when at least one row's forecast could not be computed: the rows show
+   * "—", and the card explains why once in its footer. */
+  unavailable: boolean;
   renderRow: (gage: Gage) => React.ReactNode;
 }
 
 /** Shared card chrome (header + separated rows) for both flood-probability cards. */
-const FloodCard = ({ title, subtitle, rows, wide, first, renderRow }: FloodCardProps) => {
+const FloodCard = ({
+  title,
+  subtitle,
+  rows,
+  wide,
+  first,
+  unavailable,
+  renderRow,
+}: FloodCardProps) => {
+  const { t } = useLocale();
   if (rows.length === 0) {
     return null;
   }
@@ -47,6 +60,11 @@ const FloodCard = ({ title, subtitle, rows, wide, first, renderRow }: FloodCardP
           </React.Fragment>
         ))}
       </Cell>
+      {unavailable && (
+        <CardFooter>
+          <SmallerText muted>{t("forecastScreen.floodChanceUnavailableNote")}</SmallerText>
+        </CardFooter>
+      )}
     </Card>
   );
 };
@@ -65,6 +83,11 @@ const FloodProbabilityCards = observer(function FloodProbabilityCards() {
 
   const gages = getAllLocationsWithGages();
   const { roadRows, floodRows } = selectCardMembership(gages);
+  // Checked under the same threshold each row requests its forecast with.
+  const roadUnavailable = roadRows.some((gage) =>
+    isFloodForecastUnavailable(gage, gage.roadSaddleHeight as number)
+  );
+  const floodUnavailable = floodRows.some((gage) => isFloodForecastUnavailable(gage));
 
   return (
     <RowOrCell align="flex-start" justify="flex-start" top={Spacing.mediumXL}>
@@ -74,6 +97,7 @@ const FloodProbabilityCards = observer(function FloodProbabilityCards() {
         rows={roadRows}
         wide={isWideScreen}
         first
+        unavailable={roadUnavailable}
         renderRow={(gage) => (
           <FloodProbabilityRow
             gage={gage}
@@ -90,6 +114,7 @@ const FloodProbabilityCards = observer(function FloodProbabilityCards() {
         rows={floodRows}
         wide={isWideScreen}
         first={roadRows.length === 0}
+        unavailable={floodUnavailable}
         renderRow={(gage) => (
           <FloodProbabilityRow
             gage={gage}
