@@ -16,7 +16,7 @@ import { Colors } from "@common-ui/constants/colors";
 // `status`, mapped here to the app's gauge-status palette (the single source of
 // truth in colors.ts) so hex values never live in the GeoJSON. Declared above
 // the inundation fill so the highlighted road reads on top of the flood area.
-export const ROAD_CLOSURE_LINE_LAYER_PROPS: Omit<LineLayerSpecification, "source"> = {
+export const ROAD_CLOSURE_LINE_LAYER_PROPS = {
   id: "road-closures-line",
   type: "line",
   layout: {
@@ -38,13 +38,13 @@ export const ROAD_CLOSURE_LINE_LAYER_PROPS: Omit<LineLayerSpecification, "source
     "line-width": 4,
     "line-opacity": 1,
   },
-};
+} satisfies Omit<LineLayerSpecification, "source">;
 
 // A single centered label per road, riding along the line (e.g. "NE 124th -
 // Possible Closure" at the minor level, "NE 124th - Closed" above). Text is dark
 // with a white halo for legibility over the flood fill and basemap — the line
 // color already signals severity, so the label stays readable rather than tinted.
-export const ROAD_CLOSURE_LABEL_LAYER_PROPS: Omit<SymbolLayerSpecification, "source"> = {
+export const ROAD_CLOSURE_LABEL_LAYER_PROPS = {
   id: "road-closures-label",
   type: "symbol",
   layout: {
@@ -59,4 +59,4 @@ export const ROAD_CLOSURE_LABEL_LAYER_PROPS: Omit<SymbolLayerSpecification, "sou
     "text-halo-color": "white",
     "text-halo-width": 2,
   },
-};
+} satisfies Omit<SymbolLayerSpecification, "source">;
