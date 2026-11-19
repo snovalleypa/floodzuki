@@ -213,6 +213,13 @@ export class Api {
     });
   }
 
+  async getRegionBanners<T>() {
+    this.apisauce.setBaseURL(Config.BASE_URL);
+    return await genericGetRequest<T>(this.apisauce, Config.API.client.GET_REGION_BANNERS_URL, {
+      regionId: this.regionId,
+    });
+  }
+
   async getMetagages<T>() {
     this.apisauce.setBaseURL(Config.BASE_URL);
     return await genericGetRequest<T>(this.apisauce, Config.API.client.GET_METAGAGES_URL, {

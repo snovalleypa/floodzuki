@@ -35,6 +35,7 @@ type CellProps = {
   bgColor?: ColorValue;
   ref?: React.RefObject<View>;
   borderRadius?: number;
+  testID?: string;
 } & OffsetProps;
 
 type BottomContainerProps = {
@@ -149,6 +150,7 @@ export const Cell = ({
   bgColor,
   borderRadius,
   ref,
+  testID,
   ...offsetProps
 }: CellProps) => {
   let styles: ViewStyle[] = [{ flexDirection: "column", justifyContent: "center" }];
@@ -183,8 +185,10 @@ export const Cell = ({
     styles.push({ borderRadius });
   }
 
+  const testIDProp = testID ? { testID } : {};
+
   return (
-    <View ref={ref} style={styles}>
+    <View ref={ref} style={styles} {...testIDProp}>
       {children}
     </View>
   );

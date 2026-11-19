@@ -19,6 +19,8 @@ jest.mock("app/_layout", () => ({
   ROUTES: { Forecast: "/forecast" },
 }));
 
+jest.mock("@components/RegionBannerControl", () => () => null);
+
 jest.mock("@common-ui/contexts/LocaleContext", () => ({
   useLocale: () => ({
     t: (key: string, opts?: Record<string, unknown>) => {
@@ -60,6 +62,7 @@ const setup = (overrides: Partial<typeof mockStores> = {}) => {
       flooding: 0,
       nearFlooding: 0,
     }),
+    regionBannersStore: { regionBannerType: null, regionBanner: null },
     forecastsStore: { severity: "none" },
     ...overrides,
   };

@@ -12,6 +12,7 @@ import { useLocale } from "@common-ui/contexts/LocaleContext";
 import { useStores } from "@models/helpers/useStores";
 import { ForecastSeverity } from "@models/helpers/regionSummary";
 import { ROUTES } from "app/_layout";
+import RegionBannerControl from "./RegionBannerControl";
 
 const RegionSummaryCard = observer(function RegionSummaryCard() {
   const { t } = useLocale();
@@ -75,6 +76,7 @@ const RegionSummaryCard = observer(function RegionSummaryCard() {
       bottom={Spacing.extraSmall}
       innerHorizontal={Spacing.medium}
       innerVertical={Spacing.extraSmall}>
+      <RegionBannerControl />
       <Row justify="center" align="space-between">
         <Cell flex>
           <SmallTitle color={statusColor}>{statusText}</SmallTitle>

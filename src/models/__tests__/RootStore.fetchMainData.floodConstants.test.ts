@@ -16,6 +16,7 @@ jest.mock("@services/mockReplay/mockReplayState", () => ({
 function buildStoreWithMockedSubFetches() {
   const store = RootStoreModel.create({});
   jest.spyOn(store.regionStore, "fetchData").mockResolvedValue(undefined as never);
+  jest.spyOn(store.regionBannersStore, "fetchData").mockResolvedValue(undefined as never);
   jest.spyOn(store.locationInfoStore, "fetchData").mockResolvedValue(undefined as never);
   jest.spyOn(store.gagesStore, "fetchData").mockResolvedValue(undefined as never);
   jest.spyOn(store.forecastsStore, "fetchData").mockResolvedValue(undefined as never);
