@@ -41,6 +41,7 @@ import { useLocale } from "@common-ui/contexts/LocaleContext";
 import { useTimeout } from "@utils/useTimeout";
 import { useGoBack } from "@utils/useGoBack";
 import { Timing } from "@common-ui/constants/timing";
+import GaugeBannerControl from "../../../src/components/GaugeBannerControl";
 
 // We use this to wrap each screen with an error boundary
 export function ErrorBoundary(props: ErrorBoundaryProps) {
@@ -169,7 +170,7 @@ const DownstreamGageLink = observer(function DownstreamGageLink({ gage, simple }
 });
 
 const GageDetailsBody = observer(function GageDetailsBody({ gageId }: { gageId: string }) {
-  const { gagesStore, regionStore } = useStores();
+  const { gagesStore, regionBannersStore, regionStore } = useStores();
   const { t } = useLocale();
 
   const gage = gagesStore.getGageByLocationId(gageId);
@@ -240,7 +241,13 @@ const GageDetailsBody = observer(function GageDetailsBody({ gageId }: { gageId: 
         </Row>
       </MobileScreen>
       {/* Content */}
-      <Content scrollable onRefresh={() => gagesStore.fetchData}>
+      <Content
+        scrollable
+        onRefresh={() => {
+          gagesStore.fetchData();
+          regionBannersStore.fetchData();
+        }}>
+        <GaugeBannerControl gauge={gage} regionBanners={regionBannersStore.regionBanners} />
         <GageDetailsChart gage={gage} />
         <Row>
           <If condition={!isMobile}>

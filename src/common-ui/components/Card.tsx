@@ -14,9 +14,11 @@ type CardProps = {
   noBackground?: boolean;
   type?: keyof typeof ColorTypes | "default";
   outline?: boolean;
+  borderColor?: ColorValue;
   backgroundColor?: ColorValue;
   noPadding?: boolean;
   flex?: FlexProp;
+  testID?: string;
 } & OffsetProps;
 
 type CardItemProps = {
@@ -42,8 +44,10 @@ const Base = (props: BaseProps): React.ReactElement => {
     type,
     outline,
     backgroundColor,
+    borderColor,
     noPadding,
     flex,
+    testID,
     ...offsetProps
   } = props;
   let style: ViewStyle[] = [baseStyle];
@@ -72,7 +76,17 @@ const Base = (props: BaseProps): React.ReactElement => {
     }
   }
 
-  return <View style={style}>{children}</View>;
+  if (borderColor) {
+    style.push({ borderColor });
+  }
+
+  const testIDProp = testID ? { testID } : {};
+
+  return (
+    <View {...testIDProp} style={style}>
+      {children}
+    </View>
+  );
 };
 
 /**
@@ -82,6 +96,7 @@ const Base = (props: BaseProps): React.ReactElement => {
  * @param {keyof typeof ColorTypes} type - Type of card to display from the ColorTypes
  * @param {boolean} outline - Whether the card should be outlined or filled
  * @param {ColorValue} backgroundColor - Color of the background (default white)
+ * @param {ColorValue} borderColor - Color of the border (default light grey)
  * @param {boolean} noPadding - Whether the card should have padding (default true)
  * @param {OffsetProps} offsetProps - Props to apply offsets to the card
  * @param {boolean | number} flex - Whether the card should be flex (default false)

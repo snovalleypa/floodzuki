@@ -13,6 +13,7 @@ import * as mockReplayEngine from "@services/mockReplay/engine";
 import { getActiveScenario } from "@services/mockReplay/mockReplayState";
 import { RawReading } from "@services/mockReplay/types";
 import localDayJs from "@services/localDayJs";
+import { RegionBannersModelStore } from "./Banners";
 
 /**
  * A RootStore model.
@@ -25,6 +26,9 @@ export const RootStoreModel = types
     gagesStore: types.optional(GageStoreModel, {}),
     gageReadingsStore: types.optional(GageReadingStoreModel, {}),
     regionStore: types.optional(RegionModelStore, {}),
+    regionBannersStore: types.optional(RegionBannersModelStore, {
+      regionBanners: { regionBanner: undefined, regionBannerType: undefined },
+    }),
     locationInfoStore: types.optional(LocationInfoModelStore, {}),
     forecastsStore: types.optional(ForecastStoreModel, {}),
     authSessionStore: types.optional(AuthSessionStoreModel, {}),
@@ -49,6 +53,7 @@ export const RootStoreModel = types
       void loadFloodPredictionConstants(Config.SVPA_REGION_ID);
 
       yield store.regionStore.fetchData();
+      yield store.regionBannersStore.fetchData();
       yield store.locationInfoStore.fetchData();
       yield store.gagesStore.fetchData();
 
