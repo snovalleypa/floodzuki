@@ -94,7 +94,7 @@ const GaugeBannerIcon = ({
     return (
       <Cell left={Spacing.tiny}>
         <Tooltip
-          contentStyle={{ padding: 0, backgroundColor: "transparent" }}
+          contentStyle={{ backgroundColor: "transparent", paddingBottom: 20 }}
           isVisible={tooltipVisible}
           disableShadow={true}
           content={
