@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Image } from "expo-image";
+import { Image, ImageStyle } from "expo-image";
 import { Gage } from "../models/Gage";
 import { isWeb } from "@common-ui/utils/responsive";
 import { StyleSheet, Pressable } from "react-native";
@@ -64,20 +64,24 @@ const GaugeBannerIcon = ({
     return null;
   }
 
-  const leftSpacingWidth = leftSpacing ? Spacing.medium : 0;
-  const rightSpacingWidth = rightSpacing ? Spacing.medium : 0;
+  const leftSpacingWidth = leftSpacing ? Spacing.small : 0;
+  const rightSpacingWidth = rightSpacing ? Spacing.small : 0;
 
   const iconKey = getGaugeBannerIconKey(gauge, bannerType);
   if (!iconKey) {
     return null;
   }
   const icon = GAUGE_BANNER_ICONS[iconKey];
+  const mobileImageStyle: ImageStyle[] = [styles.mobileBannerIcon];
+  mobileImageStyle.push({ marginLeft: leftSpacingWidth });
+  mobileImageStyle.push({ marginRight: rightSpacingWidth });
+
   const iconCtrl = isWeb ? (
     <Cell testID="gauge-banner-icon" left={leftSpacingWidth} right={rightSpacingWidth}>
       <img src={icon} style={styles.webBannerIcon} />
     </Cell>
   ) : (
-    <Image testID="gauge-banner-icon" source={icon} style={styles.mobileBannerIcon} />
+    <Image testID="gauge-banner-icon" source={icon} style={mobileImageStyle} />
   );
 
   if (showPopup) {
