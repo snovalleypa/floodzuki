@@ -51,6 +51,7 @@ const GaugeBannerControl = ({
           regionBanners={regionBanners}
           showPopup={false}
           leftSpacing={false}
+          rightSpacing={false}
         />
         <Cell left={Spacing.medium}>
           <MediumText>{banner}</MediumText>

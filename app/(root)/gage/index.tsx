@@ -110,6 +110,13 @@ const GageItem = observer(function GageItem({ item }: GageItemProps) {
             innerHorizontal={horizontalPadding + Spacing.small}
             bgColor={"rgba(255,255,255,0.5)"}>
             <Row align="space-between" justify="flex-start">
+              <GaugeBannerIcon
+                gauge={gage}
+                regionBanners={regionBannersStore.regionBanners}
+                showPopup={true}
+                leftSpacing={false}
+                rightSpacing={true}
+              />
               <Cell flex>
                 <Title color={Colors.lightDark}>{gage?.locationInfo?.locationName}</Title>
               </Cell>
@@ -120,12 +127,6 @@ const GageItem = observer(function GageItem({ item }: GageItemProps) {
             <Row wrap align="space-between" top={Spacing.medium}>
               <Row>
                 <GageStatus gage={gage} />
-                <GaugeBannerIcon
-                  gauge={gage}
-                  regionBanners={regionBannersStore.regionBanners}
-                  showPopup={true}
-                  leftSpacing={true}
-                />
                 <Cell left={Spacing.medium}>
                   <TrendIcon gage={gage} iconType={TREND_ICON_TYPES.Trend} />
                 </Cell>

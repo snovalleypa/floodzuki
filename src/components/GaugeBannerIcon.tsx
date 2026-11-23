@@ -46,11 +46,13 @@ const GaugeBannerIcon = ({
   regionBanners,
   showPopup,
   leftSpacing,
+  rightSpacing,
 }: {
   gauge: Gage;
   regionBanners?: RegionBanners;
   showPopup: boolean;
   leftSpacing: boolean;
+  rightSpacing: boolean;
 }) => {
   const [tooltipVisible, setTooltipVisible] = useState<boolean>(false);
   const gaugeBanners = regionBanners?.gaugeBanners.get(gauge.locationId);
@@ -63,6 +65,7 @@ const GaugeBannerIcon = ({
   }
 
   const leftSpacingWidth = leftSpacing ? Spacing.medium : 0;
+  const rightSpacingWidth = rightSpacing ? Spacing.medium : 0;
 
   const iconKey = getGaugeBannerIconKey(gauge, bannerType);
   if (!iconKey) {
@@ -70,7 +73,7 @@ const GaugeBannerIcon = ({
   }
   const icon = GAUGE_BANNER_ICONS[iconKey];
   const iconCtrl = isWeb ? (
-    <Cell testID="gauge-banner-icon" left={leftSpacingWidth}>
+    <Cell testID="gauge-banner-icon" left={leftSpacingWidth} right={rightSpacingWidth}>
       <img src={icon} style={styles.webBannerIcon} />
     </Cell>
   ) : (
