@@ -27,7 +27,7 @@ import {
 import { Card } from "@common-ui/components/Card";
 import { Label, LargeLabel } from "@common-ui/components/Label";
 import { If, Ternary } from "@common-ui/components/Conditional";
-import { isAndroid, isWeb, useResponsive } from "@common-ui/utils/responsive";
+import { isWeb, useResponsive } from "@common-ui/utils/responsive";
 import { Gage, STATUSES } from "@models/Gage";
 
 import { useUtils } from "@utils/utils";
@@ -48,6 +48,7 @@ import { useLocale } from "@common-ui/contexts/LocaleContext";
 import { TxKeyPath } from "@i18n/i18n";
 import { Timing } from "@common-ui/constants/timing";
 import { RefreshControl } from "react-native-gesture-handler";
+import GaugeBannerIcon from "../../../src/components/GaugeBannerIcon";
 
 const ITEM_HEIGHT = 200;
 const MAP_WIDTH = 400;
@@ -77,10 +78,9 @@ const GageStatus = observer(({ gage }: { gage: Gage }) => {
 });
 
 const GageItem = observer(function GageItem({ item }: GageItemProps) {
-  const router = useRouter();
   const { isMobile } = useResponsive();
   const { formatFlow, formatHeight } = useUtils();
-  const { getTimezone } = useStores();
+  const { getTimezone, regionBannersStore } = useStores();
   const tz = getTimezone();
 
   const gage = item;
@@ -110,6 +110,13 @@ const GageItem = observer(function GageItem({ item }: GageItemProps) {
             innerHorizontal={horizontalPadding + Spacing.small}
             bgColor={"rgba(255,255,255,0.5)"}>
             <Row align="space-between" justify="flex-start">
+              <GaugeBannerIcon
+                gauge={gage}
+                regionBanners={regionBannersStore.regionBanners}
+                showPopup={true}
+                leftSpacing={false}
+                rightSpacing={true}
+              />
               <Cell flex>
                 <Title color={Colors.lightDark}>{gage?.locationInfo?.locationName}</Title>
               </Cell>
@@ -171,7 +178,8 @@ const getItemLayout = (data: Gage[], index: number) => ({
 });
 
 const HomeScreen = observer(function HomeScreen() {
-  const { gagesStore, regionStore, getLocationsWithGages, isFetched } = useStores();
+  const { gagesStore, regionStore, regionBannersStore, getLocationsWithGages, isFetched } =
+    useStores();
   const { t } = useLocale();
   const { isMobile } = useResponsive();
 
@@ -191,15 +199,21 @@ const HomeScreen = observer(function HomeScreen() {
     gagesStore.fetchData();
   }, Timing.fiveMinutes);
 
+  // Update region banners every 5 minutes
+  useInterval(() => {
+    regionBannersStore.fetchData();
+  }, Timing.fiveMinutes);
+
   const handleOnRefresh = React.useCallback(() => {
     setRefreshing(true);
 
     gagesStore.fetchData();
+    regionBannersStore.fetchData();
 
     setTimeout(() => {
       setRefreshing(false);
     }, 2000);
-  }, [gagesStore.fetchData]);
+  }, [gagesStore, regionBannersStore]);
 
   const router = useRouter();
   const locations = getLocationsWithGages();

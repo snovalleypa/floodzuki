@@ -16,6 +16,7 @@ const en = {
     tel: "tel:",
     email: "email:",
     install: "Install",
+    gaugeAlert: "Gauge alert",
   },
   measure: {
     cfs: "cfs",

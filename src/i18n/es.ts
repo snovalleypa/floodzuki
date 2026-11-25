@@ -17,6 +17,7 @@ const es = {
     tel: "tel:",
     email: "correo electrónico:",
     install: "Instalar",
+    gaugeAlert: "Alerta de indicador",
   },
   measure: {
     cfs: "ft³/s",

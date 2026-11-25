@@ -17,6 +17,7 @@ const API = {
     GET_GAGE_LIST_URL: "/api/client/APIGetLocationInfo",
     GET_METAGAGES_URL: "/api/v2/GetMetagages",
     GET_REGION_URL: "/api/v2/GetRegion",
+    GET_REGION_BANNERS_URL: "/api/v2/GetRegionBanners",
   },
 
   subscriptions: {
