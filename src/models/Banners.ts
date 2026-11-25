@@ -26,11 +26,12 @@ const GaugeBannerModel = types.model("GaugeBanner").props({
   banner: types.maybe(types.string),
   bannerType: types.maybe(types.string),
 });
+const GaugeBannersType = types.map(GaugeBannerModel);
 
 const RegionBannersModel = types.model("Banners").props({
   regionBanner: types.maybe(types.string),
   regionBannerType: types.maybe(types.string),
-  gaugeBanners: types.map(GaugeBannerModel),
+  gaugeBanners: GaugeBannersType,
 });
 
 type RegionGaugeBannerResponse = {
@@ -68,8 +69,21 @@ export const RegionBannersModelStore = types
     });
 
     const buildData = (response: RegionBannerResponse) => {
+      if (!response) {
+        store.regionBanners.regionBanner = undefined;
+        store.regionBanners.regionBannerType = undefined;
+        if (store.regionBanners.gaugeBanners) {
+          store.regionBanners.gaugeBanners.clear();
+        }
+        return;
+      }
       store.regionBanners.regionBanner = response.regionBanner;
       store.regionBanners.regionBannerType = response.regionBannerType;
+      if (!store.regionBanners.gaugeBanners) {
+        store.regionBanners.gaugeBanners = GaugeBannersType.create({});
+      } else {
+        store.regionBanners.gaugeBanners.clear();
+      }
       Object.keys(response.gaugeBanners).forEach((gaugeId) => {
         const value = response.gaugeBanners[gaugeId];
 

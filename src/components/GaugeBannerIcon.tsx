@@ -10,6 +10,8 @@ import Tooltip from "react-native-walkthrough-tooltip";
 import { MediumText } from "../common-ui/components/Text";
 import { Card } from "../common-ui/components/Card";
 import { ColorTypes } from "../common-ui/constants/colors";
+import { observer } from "mobx-react-lite";
+import { useLocale } from "../common-ui/contexts/LocaleContext";
 
 const styles = StyleSheet.create({
   webBannerIcon: {
@@ -41,7 +43,7 @@ const getGaugeBannerIconKey = (gauge: Gage, bannerType: string): string | null =
   }
 };
 
-const GaugeBannerIcon = ({
+const GaugeBannerIcon = observer(function GaugeBannerIcon({
   gauge,
   regionBanners,
   showPopup,
@@ -53,7 +55,8 @@ const GaugeBannerIcon = ({
   showPopup: boolean;
   leftSpacing: boolean;
   rightSpacing: boolean;
-}) => {
+}) {
+  const { t } = useLocale();
   const [tooltipVisible, setTooltipVisible] = useState<boolean>(false);
   const gaugeBanners = regionBanners?.gaugeBanners.get(gauge.locationId);
   if (!gaugeBanners) {
@@ -114,6 +117,8 @@ const GaugeBannerIcon = ({
             setTooltipVisible(false);
           }}>
           <Pressable
+            accessibilityLabel={t("common.gaugeAlert")}
+            accessibilityRole="button"
             style={styles.touchable}
             onPress={(e) => {
               e?.preventDefault();
@@ -127,6 +132,6 @@ const GaugeBannerIcon = ({
   } else {
     return iconCtrl;
   }
-};
+});
 
 export default GaugeBannerIcon;

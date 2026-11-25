@@ -25,7 +25,7 @@ const buildMockRegionBanners = (
   return ret as unknown as RegionBanners;
 };
 
-describe("Region Banner Control", () => {
+describe("Gauge Banner Control", () => {
   it("doesn't show anything if there's no banner text", () => {
     const { toJSON } = render(
       <GaugeBannerControl

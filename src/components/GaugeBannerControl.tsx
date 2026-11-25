@@ -7,14 +7,15 @@ import { Card } from "../common-ui/components/Card";
 import { ColorTypes } from "../common-ui/constants/colors";
 import { Cell, Row } from "../common-ui/components/Common";
 import GaugeBannerIcon from "./GaugeBannerIcon";
+import { observer } from "mobx-react-lite";
 
-const GaugeBannerControl = ({
+const GaugeBannerControl = observer(function GaugeBannerControl({
   gauge,
   regionBanners,
 }: {
   gauge: Gage;
   regionBanners?: RegionBanners;
-}) => {
+}) {
   const gaugeBanners = regionBanners?.gaugeBanners.get(gauge.locationId);
   if (!gaugeBanners) {
     return null;
@@ -39,7 +40,7 @@ const GaugeBannerControl = ({
 
   return (
     <Card
-      testID="region-banner-card"
+      testID="gauge-banner-card"
       outline={false}
       type={cardType}
       bottom={Spacing.extraSmall}
@@ -53,12 +54,12 @@ const GaugeBannerControl = ({
           leftSpacing={false}
           rightSpacing={false}
         />
-        <Cell left={Spacing.medium}>
+        <Cell left={Spacing.medium} flex>
           <MediumText>{banner}</MediumText>
         </Cell>
       </Row>
     </Card>
   );
-};
+});
 
 export default GaugeBannerControl;

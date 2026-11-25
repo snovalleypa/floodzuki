@@ -30,6 +30,7 @@ describe("Region Banner Control", () => {
     const { toJSON } = render(
       <GaugeBannerIcon
         leftSpacing={true}
+        rightSpacing={true}
         showPopup={true}
         gauge={mockGauge}
         regionBanners={buildMockRegionBanners(mockGaugeId, BannerTypes.danger, undefined)}
@@ -42,6 +43,7 @@ describe("Region Banner Control", () => {
     const { toJSON } = render(
       <GaugeBannerIcon
         leftSpacing={true}
+        rightSpacing={true}
         showPopup={true}
         gauge={mockGauge}
         regionBanners={buildMockRegionBanners(mockGaugeId, undefined, "hi there")}
@@ -54,6 +56,7 @@ describe("Region Banner Control", () => {
     const { getByTestId } = render(
       <GaugeBannerIcon
         leftSpacing={true}
+        rightSpacing={true}
         showPopup={true}
         gauge={mockGauge}
         regionBanners={buildMockRegionBanners(mockGaugeId, BannerTypes.info, "hi there")}
@@ -69,6 +72,7 @@ describe("Region Banner Control", () => {
     const { getByTestId } = render(
       <GaugeBannerIcon
         leftSpacing={true}
+        rightSpacing={true}
         showPopup={true}
         gauge={mockGauge}
         regionBanners={buildMockRegionBanners(mockGaugeId, BannerTypes.warning, "hi there")}
@@ -84,6 +88,7 @@ describe("Region Banner Control", () => {
     const { getByTestId } = render(
       <GaugeBannerIcon
         leftSpacing={true}
+        rightSpacing={true}
         showPopup={true}
         gauge={mockGauge}
         regionBanners={buildMockRegionBanners(mockGaugeId, BannerTypes.danger, "hi there")}
@@ -99,6 +104,7 @@ describe("Region Banner Control", () => {
     const { queryByTestId, queryByText } = render(
       <GaugeBannerIcon
         leftSpacing={true}
+        rightSpacing={true}
         showPopup={true}
         gauge={mockGauge}
         regionBanners={buildMockRegionBanners(mockGaugeId, BannerTypes.danger, "this is my banner")}
@@ -121,6 +127,7 @@ describe("Region Banner Control", () => {
     const { queryByTestId, queryByText } = render(
       <GaugeBannerIcon
         leftSpacing={true}
+        rightSpacing={true}
         showPopup={false}
         gauge={mockGauge}
         regionBanners={buildMockRegionBanners(mockGaugeId, BannerTypes.danger, "this is my banner")}
