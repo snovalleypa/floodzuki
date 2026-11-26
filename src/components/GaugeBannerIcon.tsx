@@ -26,9 +26,9 @@ const styles = StyleSheet.create({
 });
 
 export const GAUGE_BANNER_ICONS = {
-  info: require("@assets/images/alert-info.svg"),
-  warning: require("@assets/images/alert-medium.svg"),
-  danger: require("@assets/images/alert-high.svg"),
+  info: require("@assets/images/gaugebanner-info.svg"),
+  warning: require("@assets/images/gaugebanner-medium.svg"),
+  danger: require("@assets/images/gaugebanner-high.svg"),
 };
 
 const getGaugeBannerIconKey = (gauge: Gage, bannerType: string): string | null => {

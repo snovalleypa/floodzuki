@@ -55,7 +55,7 @@ describe("Gauge Banner Control", () => {
     );
     const img = getByTestId("gauge-banner-icon");
     expect(img.props.source[0].testUri.toString()).toStrictEqual(
-      expect.stringContaining("alert-info")
+      expect.stringContaining("gaugebanner-info")
     );
   });
 
@@ -68,7 +68,7 @@ describe("Gauge Banner Control", () => {
     );
     const img = getByTestId("gauge-banner-icon");
     expect(img.props.source[0].testUri.toString()).toStrictEqual(
-      expect.stringContaining("alert-medium")
+      expect.stringContaining("gaugebanner-medium")
     );
   });
 
@@ -81,7 +81,7 @@ describe("Gauge Banner Control", () => {
     );
     const img = getByTestId("gauge-banner-icon");
     expect(img.props.source[0].testUri.toString()).toStrictEqual(
-      expect.stringContaining("alert-high")
+      expect.stringContaining("gaugebanner-high")
     );
   });
 
